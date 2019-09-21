@@ -3,6 +3,7 @@ package com.kloudtek.anypoint.api.provision;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.anypoint.Environment;
 import com.kloudtek.anypoint.NotFoundException;
+import com.kloudtek.anypoint.Organization;
 import com.kloudtek.anypoint.api.*;
 import com.kloudtek.anypoint.api.policy.Policy;
 import com.kloudtek.anypoint.exchange.AssetInstance;
@@ -120,9 +121,11 @@ public class APIProvisioningDescriptor {
                 for (APIAccessDescriptor accessDescriptor : access) {
                     AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
                             .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
-                    Environment apiEnv = environment.getClient().findOrganizationById(instance.getOrganizationId()).findEnvironmentById(instance.getEnvironmentId());
-                    API accessedAPI = apiEnv.findAPIByExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(),
-                            accessDescriptor.getAssetVersion(), accessDescriptor.getLabel());
+                    logger.debug("Found instance {}",instance);
+                    Environment apiEnv = new Environment(new Organization(environment.getClient(),instance.getOrganizationId()),instance.getEnvironmentId());
+                    API accessedAPI = new API(apiEnv);
+                    accessedAPI.setId(instance.getId());
+                    logger.debug("Found apiEnv {} with id {}",apiEnv,apiEnv.getId());
                     APIContract contract;
                     try {
                         contract = accessedAPI.findContract(clientApplication);
