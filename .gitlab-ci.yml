@@ -1,8 +1,8 @@
 image: "kloudtek/kt-build-docker-image:latest"
 
 variables:
-  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
+  MAVEN_OPTS: "-s ~/ci-settings.xml -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -DaltDeploymentRepository=gitlab-ci::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
 
 cache:
   paths:
@@ -38,6 +38,7 @@ release:
   script:
     - if [[ -z $(cat release.json | jq -r .version) ]]; then echo version not specified; exit 1; fi
     - /usr/bin/prepare-build
+    - echo >~/ci-settings.xml "<settings><servers><server><id>gitlab-ci</id><configuration><httpHeaders><property><name>Job-Token</name><value>\${env.CI_JOB_TOKEN}</value></property></httpHeaders></configuration></server></servers></settings>"
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
