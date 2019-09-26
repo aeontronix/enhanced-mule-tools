@@ -1,7 +1,7 @@
 image: "kloudtek/kt-build-docker-image:latest"
 
 variables:
-  MAVEN_OPTS: "-s ~/ci-settings.xml -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_OPTS: "--settings ~/ci-settings.xml -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -DaltDeploymentRepository=gitlab-ci::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
 
 cache:
