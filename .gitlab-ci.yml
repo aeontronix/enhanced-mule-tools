@@ -1,0 +1,60 @@
+image: "kloudtek/kt-build-docker-image:latest"
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+  - release
+
+build-master:
+  stage: build
+  except:
+    - tags
+  only:
+    - master
+  script:
+    - /usr/bin/prepare-build
+    - mvn $MAVEN_CLI_OPTS deploy
+
+build-other:
+  stage: build
+  script:
+    - 'mvn $MAVEN_CLI_OPTS verify'
+  except:
+    - tags
+    - master
+
+release:
+  only:
+    - master
+  stage: release
+  when: manual
+  script:
+    - if [[ -z $(cat release.json | jq -r .version) ]]; then echo version not specified; exit 1; fi
+    - /usr/bin/prepare-build
+    - git config --global user.email "info@aeontronix.com"
+    - git config --global user.name "Aeontronix CI"
+    - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
+    - git branch release-$(cat release.json | jq -r .version)
+    - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=$(cat release.json | jq -r .version)
+    - mvn $MAVEN_CLI_OPTS deploy
+    - git commit -a -m "release $(cat release.json | jq -r .version)"
+    - git tag v$(cat release.json | jq -r .version)
+    - git checkout ${CI_COMMIT_REF_NAME}
+    - git branch -D release-$(cat release.json | jq -r .version)
+    - git push --tags -o ci.skip
+    - git rm release.old.json || true
+    - git mv release.json release.old.json
+    - "echo >release.json -e '{ \"version\": \"\" }'"
+    - git add release.json
+    - git commit -m 'resetting releases.json'
+    - git push -o ci.skip
+  artifacts:
+    paths:
+      - target/*.jar

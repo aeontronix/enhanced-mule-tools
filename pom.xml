@@ -6,34 +6,15 @@
 
     <groupId>com.kloudtek.anypoint-tools</groupId>
     <artifactId>anypoint-tools</artifactId>
-    <name>Anypoint tools (Legacy)</name>
+    <name>Anypoint tools OSS</name>
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
     <url>https://github.com/kloudtek/anypoint-tools</url>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <organization>
-        <name>Kloudtek</name>
-        <url>http://www.kloudtek.com</url>
+        <name>Aeontronix</name>
     </organization>
-
-    <developers>
-        <developer>
-            <name>Dev Team</name>
-            <organization>Kloudtek</organization>
-        </developer>
-    </developers>
-
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/kloudtek/anypoint-tools/issues</url>
-    </issueManagement>
-
-    <scm>
-        <url>scm:git:git@github.com:Kloudtek/anypoint-tools.git</url>
-        <connection>scm:git:git@github.com:Kloudtek/anypoint-tools.git</connection>
-        <developerConnection>scm:git:git@github.com:Kloudtek/anypoint-tools.git</developerConnection>
-    </scm>
 
     <licenses>
         <license>
@@ -119,84 +100,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.6</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>ossrh-snapshot</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>ossrh-releases</id>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <site>
-            <name>S3 Site</name>
-            <id>kloudtek-s3-docs</id>
-            <url>s3://sdocs.kloudtek.com/anypoint-tools</url>
-        </site>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.kohsuke</groupId>
-                        <artifactId>pgp-maven-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <secretkey>keyfile:${gpgfile}</secretkey>
-                                    <passphrase>literal:${gpgpass}</passphrase>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
