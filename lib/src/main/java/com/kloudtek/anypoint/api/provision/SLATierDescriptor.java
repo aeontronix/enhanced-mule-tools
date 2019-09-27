@@ -17,6 +17,9 @@ public class SLATierDescriptor {
     @JsonProperty(required = true)
     private List<SLATierLimits> limits;
 
+    public SLATierDescriptor() {
+    }
+
     public SLATierDescriptor(String name, String description, boolean autoApprove, SLATierLimits... limits) {
         this.name = name;
         this.description = description;
