@@ -33,6 +33,10 @@ public class CHDeployMojo extends AbstractDeployMojo {
      */
     @Parameter(name = "workerCount", property = "anypoint.deploy.ch.worker.count", required = false)
     private Integer workerCount;
+
+    @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
+    private boolean customlog4j;
+
     /**
      * Application properties
      */
@@ -44,6 +48,9 @@ public class CHDeployMojo extends AbstractDeployMojo {
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
         if (workerCount == null) {
             workerCount = 1;
+        }
+        if (apiProvisioningConfig != null) {
+            apiProvisioningConfig.setCustomLog4j(customlog4j);
         }
         return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source, filename, properties, apiProvisioningConfig).deploy();
     }
