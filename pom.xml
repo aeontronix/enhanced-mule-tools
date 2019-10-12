@@ -4,17 +4,36 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kloudtek.anypoint-tools</groupId>
+    <groupId>com.aeontronix.anypoint-tools</groupId>
     <artifactId>anypoint-tools</artifactId>
-    <name>Anypoint tools OSS</name>
+    <name>Anypoint tools</name>
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
-    <url>https://github.com/kloudtek/anypoint-tools</url>
+    <url>https://gitlab.com/aeontronix-oss/anypoint-tools</url>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <organization>
-        <name>Aeontronix</name>
+        <name>Aeontronix Inc</name>
+        <url>http://www.aeontronix.com</url>
     </organization>
+
+    <developers>
+        <developer>
+            <name>Dev Team</name>
+            <organization>Aeontronix</organization>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://gitlab.com/aeontronix-oss/anypoint-tools/issues</url>
+    </issueManagement>
+
+    <scm>
+        <url>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</url>
+        <connection>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</developerConnection>
+    </scm>
 
     <licenses>
         <license>
