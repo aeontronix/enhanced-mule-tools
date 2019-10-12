@@ -243,6 +243,12 @@ public class API extends AnypointObject<Environment> {
         this.endpoint = endpoint;
     }
 
+    public void deletePolicies() throws HttpException {
+        for (Policy policy : findPolicies()) {
+            policy.delete();
+        }
+    }
+
     @Override
     public String toString() {
         return "API{" +

@@ -79,6 +79,7 @@ public class APIProvisioningDescriptor {
             if (policies != null) {
                 polList.addAll(policies);
             }
+            api.deletePolicies();
             for (PolicyDescriptor policyDescriptor : polList) {
                 try {
                     Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion());

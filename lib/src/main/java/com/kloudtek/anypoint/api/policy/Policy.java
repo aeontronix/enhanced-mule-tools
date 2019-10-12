@@ -5,6 +5,7 @@ import com.kloudtek.anypoint.AnypointObject;
 import com.kloudtek.anypoint.HttpException;
 import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.provision.PolicyDescriptor;
+import org.jetbrains.annotations.NotNull;
 
 public class Policy extends AnypointObject<API> {
     @JsonProperty
@@ -45,7 +46,17 @@ public class Policy extends AnypointObject<API> {
     public void update(PolicyDescriptor policyDescriptor) throws HttpException {
         configurationData = policyDescriptor.getData();
         pointcutData = policyDescriptor.getPointcutData();
-        httpHelper.httpPatch("https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/policies/" + id, this);
+        httpHelper.httpPatch(getUrl(), this);
+    }
+
+    @NotNull
+    private String getUrl() {
+        return "https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/policies/" + id;
+    }
+
+
+    public void delete() throws HttpException {
+        httpHelper.httpDelete(getUrl());
     }
 
     public Integer getId() {
