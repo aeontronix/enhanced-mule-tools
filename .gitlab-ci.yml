@@ -21,7 +21,7 @@ build-master:
     - master
   script:
     - /usr/bin/prepare-build
-    - mvn --debug  $MAVEN_CLI_OPTS deploy
+    - mvn --debug $MAVEN_CLI_OPTS deploy
 
 build-other:
   stage: build
