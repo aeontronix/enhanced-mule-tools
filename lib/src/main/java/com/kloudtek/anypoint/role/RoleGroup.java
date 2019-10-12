@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class RoleGroup extends AnypointObject<OrganizationEE> {
+public class RoleGroup extends AnypointObject<Organization> {
     @JsonProperty("role_group_id")
     private String id;
     @JsonProperty
