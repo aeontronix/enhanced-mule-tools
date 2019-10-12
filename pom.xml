@@ -46,8 +46,6 @@
         <module>lib</module>
         <module>cli</module>
         <module>maven-plugin</module>
-        <module>anypoint-mockserver</module>
-        <!--<module>demo</module>-->
     </modules>
 
     <properties>

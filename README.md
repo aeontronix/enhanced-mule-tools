@@ -133,7 +133,7 @@ Use the following plugin to deploy to cloudhub
 
 ```$xml
 <plugin>
-    <groupId>com.kloudtek.anypoint-tools</groupId>
+    <groupId>com.aeontronix.anypoint-tools</groupId>
     <version>[latest version of plugin]</version>
     <artifactId>anypoint-maven-plugin</artifactId>
     <executions>
