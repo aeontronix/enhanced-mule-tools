@@ -3,6 +3,8 @@ package com.kloudtek.anypoint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kloudtek.anypoint.alert.Alert;
+import com.kloudtek.anypoint.alert.AlertUpdate;
 import com.kloudtek.anypoint.api.API;
 import com.kloudtek.anypoint.api.APIAsset;
 import com.kloudtek.anypoint.api.APIList;
@@ -13,6 +15,7 @@ import com.kloudtek.anypoint.cloudhub.CHWorkerType;
 import com.kloudtek.anypoint.runtime.CHApplication;
 import com.kloudtek.anypoint.runtime.Server;
 import com.kloudtek.anypoint.runtime.ServerGroup;
+import com.kloudtek.util.URLBuilder;
 import com.kloudtek.util.UnexpectedException;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
@@ -350,6 +353,36 @@ public class Environment extends AnypointObject<Organization> {
         return smallest;
     }
 
+    public List<Alert> findAlerts() throws HttpException {
+        String json = httpHelper.httpGet("https://anypoint.mulesoft.com/armui/api/v1/alerts", this);
+        return jsonHelper.readJsonList(Alert.class,json,this,"/data");
+    }
+
+    public Alert findAlertByName(String name) throws HttpException, NotFoundException {
+        for (Alert alert : findAlerts()) {
+            if( alert.getName().equals(name) ) {
+                return alert;
+            }
+        }
+        throw new NotFoundException("Unable to find alert named: "+name);
+    }
+
+    public void applyAlert(AlertUpdate alert) throws HttpException {
+        URLBuilder url = new URLBuilder("/armui/api/v1/alerts");
+        if( alert.getCondition().getResourceType().startsWith("cloudhub-") ) {
+            url.path("cloudhub");
+        } else {
+            url.path("hybrid");
+        }
+        try {
+            Alert existingAlert = findAlertByName(alert.getName());
+            url.path(existingAlert.getId());
+            logger.info("Updating existing alert "+existingAlert.getId()+" in env "+getNameOrId());
+            httpHelper.httpPut(url.toString(),alert,this);
+        } catch (NotFoundException e) {
+            httpHelper.httpPost(url.toString(),alert,this);
+        }
+    }
     public static Map<String, Environment> toMapIdxByName(Collection<Environment> envs) {
         HashMap<String, Environment> map = new HashMap<>();
         for (Environment env : envs) {

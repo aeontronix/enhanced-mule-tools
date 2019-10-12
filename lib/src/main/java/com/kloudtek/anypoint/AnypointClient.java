@@ -2,11 +2,13 @@ package com.kloudtek.anypoint;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kloudtek.anypoint.config.AnypointCliConfig;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.kloudtek.anypoint.alert.AlertUpdate;
 import com.kloudtek.anypoint.deploy.DeploymentService;
 import com.kloudtek.anypoint.ocli.OCliClient;
 import com.kloudtek.anypoint.util.HttpHelper;
 import com.kloudtek.anypoint.util.JsonHelper;
+import com.kloudtek.util.FileUtils;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +22,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable, Serializable {
@@ -38,7 +41,7 @@ public class AnypointClient implements Closeable, Serializable {
      * Contructor used for serialization only
      **/
     public AnypointClient() {
-        if( !loadAnypointCliConfig() ) {
+        if (!loadAnypointCliConfig()) {
             throw new IllegalStateException("Unable to find/load configurations");
         }
         init();
@@ -60,7 +63,7 @@ public class AnypointClient implements Closeable, Serializable {
         try {
             cliClient = new OCliClient();
         } catch (IllegalStateException e) {
-            logger.debug("Anypoint cli not available",e);
+            logger.debug("Anypoint cli not available", e);
         }
         jsonHelper = new JsonHelper(this);
         deploymentService = loadService(DeploymentService.class);
@@ -69,22 +72,22 @@ public class AnypointClient implements Closeable, Serializable {
 
     private boolean loadAnypointCliConfig() {
         try {
-            File cfg = new File(System.getProperty("user.home")+File.separator+".anypoint"+File.separator+"credentials");
-            if( cfg.exists() ) {
-                logger.debug("Loading anypoint cli config file "+cfg.getPath());
+            File cfg = new File(System.getProperty("user.home") + File.separator + ".anypoint" + File.separator + "credentials");
+            if (cfg.exists()) {
+                logger.debug("Loading anypoint cli config file " + cfg.getPath());
                 JsonNode config = new ObjectMapper().readTree(cfg);
                 JsonNode def = config.get("default");
-                if( def != null && ! def.isNull() ) {
+                if (def != null && !def.isNull()) {
                     JsonNode usernameNode = def.get("username");
                     JsonNode passwordNode = def.get("password");
-                    if( usernameNode != null && passwordNode != null && !usernameNode.isNull() && ! passwordNode.isNull() ) {
+                    if (usernameNode != null && passwordNode != null && !usernameNode.isNull() && !passwordNode.isNull()) {
                         httpHelper = new HttpHelper(this, usernameNode.asText(), passwordNode.asText());
                         return true;
                     }
                 }
             }
         } catch (Exception e) {
-            logger.warn("Unable to load anypoint cli configuration",e);
+            logger.warn("Unable to load anypoint cli configuration", e);
         }
         return false;
     }
@@ -224,10 +227,10 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     public String authenticate(String username, String password) throws HttpException {
-        if(StringUtils.isBlank(username) ) {
+        if (StringUtils.isBlank(username)) {
             throw new IllegalArgumentException("Username missing");
         }
-        if(StringUtils.isBlank(password) ) {
+        if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException("Username missing");
         }
         Map<String, String> request = new HashMap<>();
@@ -259,6 +262,94 @@ public class AnypointClient implements Closeable, Serializable {
         }
     }
 
+    public Set<Environment> findEnvironmentsRegexSearch(JsonNode targetJsonNode) throws HttpException {
+        List<Organization> orgs = findOrganizations();
+        if (targetJsonNode instanceof ArrayNode) {
+            HashSet<Environment> combined = new HashSet<>();
+            for (JsonNode jsonNode : targetJsonNode) {
+                combined.addAll(findEnvironmentsRegexSearch(jsonNode, orgs));
+            }
+            return combined;
+        } else {
+            return findEnvironmentsRegexSearch(targetJsonNode, orgs);
+        }
+    }
+
+    private Set<Environment> findEnvironmentsRegexSearch(String orgRegex, String envRegex) throws HttpException {
+        return findEnvironmentsRegexSearch(orgRegex, envRegex, findOrganizations());
+    }
+
+    private Set<Environment> findEnvironmentsRegexSearch(JsonNode targetJsonNode, List<Organization> orgs) throws HttpException {
+        JsonNode orgNode = targetJsonNode.get("org");
+        if (orgNode == null) {
+            throw new InvalidJsonException("Invalid target json, missing 'org' field");
+        }
+        JsonNode envNode = targetJsonNode.get("env");
+        if (envNode == null) {
+            throw new InvalidJsonException("Invalid target json, missing 'env' field");
+        }
+        return findEnvironmentsRegexSearch(orgNode.asText(), envNode.asText(), orgs);
+    }
+
+    private Set<Environment> findEnvironmentsRegexSearch(String orgRegex, String envRegex, List<Organization> orgs) throws HttpException {
+        HashSet<Environment> envs = new HashSet<>();
+        Pattern orgPattern = Pattern.compile(orgRegex);
+        Pattern envPattern = Pattern.compile(envRegex);
+        for (Organization org : orgs) {
+            if (orgPattern.matcher(org.getName()).find()) {
+                for (Environment environment : org.findAllEnvironments()) {
+                    if (envPattern.matcher(environment.getName()).find()) {
+                        envs.add(environment);
+                    }
+                }
+            }
+        }
+        return envs;
+    }
+
+    public void applyAlerts(File alertsDescriptor) throws IOException, HttpException {
+        if (!alertsDescriptor.exists()) {
+            throw new IllegalArgumentException("Alerts data file not found: " + alertsDescriptor.getPath());
+        }
+        applyAlerts(FileUtils.toString(alertsDescriptor));
+    }
+
+    public void applyAlert(String name, JsonNode jsonNode) throws HttpException {
+        JsonNode target = jsonNode.get("target");
+        if (target == null) {
+            throw new InvalidJsonException("Invalid alert json missing target: " + name);
+        }
+        Set<Environment> envs = findEnvironmentsRegexSearch(target);
+        AlertUpdate alert = jsonHelper.readJson(AlertUpdate.class, jsonNode, this);
+        alert.setName(name);
+        applyAlert(envs, alert);
+    }
+
+    public void applyAlert(Set<Environment> environments, AlertUpdate alert) throws HttpException {
+        for (Environment environment : environments) {
+            environment.applyAlert(alert);
+        }
+    }
+
+    private void applyAlerts(String json) throws HttpException {
+        JsonNode jsonNode = jsonHelper.readJsonTree(json);
+        if (!jsonNode.isObject()) {
+            throw new InvalidJsonException("Invalid alert data file, root element should be an object");
+        }
+        JsonNode alertsNode = jsonNode.get("alerts");
+        if (alertsNode != null) {
+            for (Iterator<Map.Entry<String, JsonNode>> it = alertsNode.fields(); it.hasNext(); ) {
+                Map.Entry<String, JsonNode> field = it.next();
+                String alertName = field.getKey();
+                if (StringUtils.isBlank(alertName)) {
+                    throw new InvalidJsonException("Invalid alert, name must not be blank");
+                }
+                JsonNode alertNode = field.getValue();
+                applyAlert(alertName, alertNode);
+            }
+        }
+    }
+
     public String getUserId() throws HttpException {
         // TODO cache this
         return getUser().getId();
@@ -268,17 +359,13 @@ public class AnypointClient implements Closeable, Serializable {
         return deploymentService;
     }
 
-    public void applyAlerts(File alertsJsonFile) throws IOException, HttpException {
-        throw new RuntimeException("Not implemented");
-    }
-
     @NotNull
     protected Organization createOrganizationObject() {
         return new Organization(this);
     }
 
     public void setProxy(String scheme, String host, int port, String username, String password) {
-        httpHelper.setProxy(scheme,host,port,username,password);
+        httpHelper.setProxy(scheme, host, port, username, password);
     }
 
     public void unsetProxy() {
