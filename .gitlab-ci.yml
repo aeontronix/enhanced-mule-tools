@@ -21,7 +21,7 @@ build-master:
     - master
   script:
     - /usr/bin/prepare-build
-    - mvn $MAVEN_CLI_OPTS deploy
+    - mvn --debug  $MAVEN_CLI_OPTS deploy
 
 build-other:
   stage: build
@@ -44,7 +44,7 @@ release:
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
     - git branch release-$(cat release.json | jq -r .version)
     - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=$(cat release.json | jq -r .version)
-    - mvn --debug $MAVEN_CLI_OPTS deploy
+    - mvn $MAVEN_CLI_OPTS deploy
     - git commit -a -m "release $(cat release.json | jq -r .version)"
     - git tag v$(cat release.json | jq -r .version)
     - git checkout ${CI_COMMIT_REF_NAME}
