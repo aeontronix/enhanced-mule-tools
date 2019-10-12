@@ -10,7 +10,7 @@
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
     <url>https://gitlab.com/aeontronix-oss/anypoint-tools</url>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHO?T</version>
 
     <organization>
         <name>Aeontronix Inc</name>
