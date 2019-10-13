@@ -20,6 +20,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Deploy an application to Cloudhub or On-Prem/Hybrid
+ */
 @Mojo(name = "deploy", requiresProject = false)
 public class DeployMojo extends AbstractDeployMojo {
     /**

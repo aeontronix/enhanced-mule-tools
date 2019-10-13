@@ -38,6 +38,9 @@ public class CHDeployMojo extends AbstractDeployMojo {
     @Parameter(name = "workerCount", property = "anypoint.deploy.ch.worker.count", required = false)
     private Integer workerCount;
 
+    /**
+     * Specifies is standard cloudhub logging should be disabled and the log4j configuration in the project be used instead.
+     */
     @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
     private boolean customlog4j;
 

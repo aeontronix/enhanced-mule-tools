@@ -8,12 +8,24 @@ import com.aeontronix.anypoint.api.ClientApplication;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+/**
+ * Create a client application
+ */
 @Mojo(name = "create-client-app", requiresProject = false)
 public class CreateClientApp extends AbstractOrganizationalMojo {
+    /**
+     * Client application name
+     */
     @Parameter(name = "name", property = "anypoint.clientapp.name", required = true)
     private String name;
+    /**
+     * Client application URL
+     */
     @Parameter(name = "url", property = "anypoint.clientapp.url", required = true)
     private String url;
+    /**
+     * Client application description
+     */
     @Parameter(name = "desc", property = "anypoint.clientapp.desc", required = true)
     private String desc;
 

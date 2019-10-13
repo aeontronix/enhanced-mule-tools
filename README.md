@@ -32,8 +32,6 @@ a mule maven plugin for deployment.
 
 The most important capability of anypoint-tools is the ability to automate API management.
 
-This means 
-
 In order to do so, you will need to create a JSON file (anypoint.json, which needs to be located alongside your xml flow files) containing the API configuration details. For example:
 
 ```json
@@ -156,13 +154,6 @@ Use the following plugin to deploy to cloudhub
     </executions>
 </plugin>
 ```
-
-# Anypoint Legacy Support
-
-## Pre Design Center ([november 2017 release](https://blogs.mulesoft.com/dev/news-dev/anypoint-platform-nov-2017-release/))
-
-If you are still using the pre-november 2017 anypoint platform release (before Design Center), you should stick 
-to the version 0.9.27 of anypoint tools, as all versions after that are designed to support the new rest APIs
 
 # License
 

@@ -5,12 +5,11 @@
 package com.aeontronix.anypoint;
 
 import com.kloudtek.util.UserDisplayableException;
-import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 
-@Mojo(name = "provisionvpc", requiresProject = false)
+//@Mojo(name = "provisionvpc", requiresProject = false)
 public class ProvisionVPCMojo extends AbstractOrganizationalMojo {
     /**
      * Delete pre-existing VPC with same name (and all applications in associated environments) if it exists prior to creation
