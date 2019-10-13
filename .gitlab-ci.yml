@@ -42,13 +42,13 @@ release:
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
-    - git branch release-$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v "/p:project/p:version/text | sed s/-SNAPSHOT//)
+    - git branch release-$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)
     - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)
     - mvn $MAVEN_CLI_OPTS deploy -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven
-    - git commit -a -m "release $(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v "/p:project/p:version/text | sed s/-SNAPSHOT//)"
-    - git tag v$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v "/p:project/p:version/text | sed s/-SNAPSHOT//)
+    - git commit -a -m "release $(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)"
+    - git tag v$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)
     - git checkout ${CI_COMMIT_REF_NAME}
-    - git branch -D release-$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v "/p:project/p:version/text | sed s/-SNAPSHOT//)
+    - git branch -D release-$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)
     - git push --tags -o ci.skip
   artifacts:
     paths:
@@ -61,5 +61,5 @@ release-sonatype:
   when: manual
   script:
     - /usr/bin/prepare-build
-    - git checkout v$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v "/p:project/p:version/text | sed s/-SNAPSHOT//)
+    - git checkout v$(xmlstarlet sel -N p=http://maven.apache.org/POM/4.0.0 -t -v /p:project/p:version/text | sed s/-SNAPSHOT//)
     - mvn $MAVEN_CLI_OPTS deploy -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven
