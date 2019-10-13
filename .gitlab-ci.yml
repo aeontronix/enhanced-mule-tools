@@ -12,7 +12,7 @@ cache:
 stages:
   - build
   - release
-  - release-sonatype
+  - ossrelease
 
 build-master:
   stage: build
@@ -57,9 +57,9 @@ release:
 release-sonatype:
   only:
     - master
-  stage: release-sonatype
+  stage: ossrelease
   when: manual
   script:
     - /usr/bin/prepare-build
     - git checkout v$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - mvn $MAVEN_CLI_OPTS deploy -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven
+    - mvn $MAVEN_CLI_OPTS deploy -P osshr
