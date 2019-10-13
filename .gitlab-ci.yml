@@ -17,6 +17,8 @@ stages:
   - OSS Release
 
 build-master:
+  tags:
+    - kubernetes
   stage: Build
   except:
     - tags
