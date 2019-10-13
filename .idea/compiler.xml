@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="anypoint-maven-plugin" />
+        <module name="anypoint-lib" />
+        <module name="anypoint-cli" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="anypoint-cli" target="1.8" />
+      <module name="anypoint-lib" target="1.8" />
+      <module name="anypoint-maven-plugin" target="8" />
+      <module name="anypoint-tools" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
