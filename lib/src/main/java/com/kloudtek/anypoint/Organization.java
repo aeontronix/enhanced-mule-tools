@@ -9,6 +9,7 @@ import com.kloudtek.anypoint.exchange.ExchangeAsset;
 import com.kloudtek.anypoint.exchange.ExchangeAssetOverview;
 import com.kloudtek.anypoint.provisioning.VPCOrgProvisioningDescriptor;
 import com.kloudtek.anypoint.provisioning.VPCProvisioningDescriptor;
+import com.kloudtek.anypoint.role.*;
 import com.kloudtek.anypoint.runtime.manifest.ReleaseManifest;
 import com.kloudtek.anypoint.util.JsonHelper;
 import com.kloudtek.util.BackendAccessException;
@@ -446,6 +447,58 @@ public class Organization extends AnypointObject {
             version = "1.0.0";
         }
         return null;
+    }
+
+
+    public RoleGroupList findAllRoleGroups() throws HttpException {
+        return new RoleGroupList(this);
+    }
+
+    public RoleGroup findRoleGroupById(String roleId) throws HttpException, NotFoundException {
+        return RoleGroup.findById(this,httpHelper,jsonHelper,roleId);
+    }
+
+    public RoleAssignmentList findRoleAssignmentsByRoleId(String roleId) throws HttpException, NotFoundException {
+        try {
+            return new RoleAssignmentList(this,roleId);
+        } catch (HttpException e) {
+            if( e.getStatusCode() == 404 ) {
+                throw new NotFoundException(e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public List<ProductPermissions> findAllProductPermissions() throws HttpException {
+        String json = httpHelper.httpGet("/accounts/api/cs/organizations/" + id + "/permissions/products");
+        return jsonHelper.readJsonList(ProductPermissions.class,json,this);
+    }
+
+    public List<Role> findAllRoles() throws HttpException {
+        ArrayList<Role> results = new ArrayList<>();
+        for (ProductPermissions pp : findAllProductPermissions()) {
+            results.addAll(pp.getRoles());
+        }
+        return results;
+    }
+
+
+    public RoleGroup createRoleGroup(String name, String description) throws HttpException {
+        HashMap<String,String> req = new HashMap<>();
+        req.put("name",name);
+        req.put("description",description);
+        String json = httpHelper.httpPost("/accounts/api/organizations/" + id + "/rolegroups?include_internal=false", req);
+        return jsonHelper.readJson(new RoleGroup(),json,this);
+    }
+
+    public RoleGroup findRoleGroupByName(String name) throws HttpException, NotFoundException {
+        for (RoleGroup roleGroup : findAllRoleGroups()) {
+            if(roleGroup.getName().equals(name)) {
+                return roleGroup;
+            }
+        }
+        throw new NotFoundException("Rolegroup named "+name+" not found");
     }
 
     public enum RequestAPIAccessResult {

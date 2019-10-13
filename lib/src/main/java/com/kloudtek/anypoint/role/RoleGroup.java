@@ -25,7 +25,7 @@ public class RoleGroup extends AnypointObject<Organization> {
         super(client);
     }
 
-    public RoleGroup(OrganizationEE parent) {
+    public RoleGroup(Organization parent) {
         super(parent);
     }
 

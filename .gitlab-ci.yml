@@ -57,7 +57,7 @@ release:
 release-sonatype:
   only:
     - master
-  stage: release
+  stage: release-sonatype
   when: manual
   script:
     - /usr/bin/prepare-build
