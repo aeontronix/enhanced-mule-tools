@@ -3,6 +3,7 @@ image: "kloudtek/kt-build-docker-image:latest"
 variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dgpg.passphrase=${PGP_PW} -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  MAVEN_REPO_OPTS: "-DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
   GITLAB_MAVEN_JOBTOKEN: "gitlab-ci"
 
 cache:
@@ -10,22 +11,29 @@ cache:
     - .m2/repository
 
 stages:
-  - build
-  - release
-  - ossrelease
+  - Build
+  - Release
+  - Publish Docs
+  - OSS Release
 
 build-master:
-  stage: build
+  stage: Build
   except:
     - tags
   only:
     - master
   script:
     - /usr/bin/prepare-build
-    - mvn $MAVEN_CLI_OPTS deploy -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven
+    - if [[ -f pom.xml ]]; then export POM_VERSION=$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml ); export POM_REL_VERSION=$( echo ${POM_VERSION} | sed 's/-SNAPSHOT$//' ); fi
+    - mvn $MAVEN_CLI_OPTS site deploy ${MAVEN_REPO_OPTS}
+    - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${POM_REL_VERSION}
+    - cp pom.xml target/pom.xml
+  artifacts:
+    paths:
+      - target/pom.xml
 
 build-other:
-  stage: build
+  stage: Build
   script:
     - mvn $MAVEN_CLI_OPTS verify
   except:
@@ -35,31 +43,40 @@ build-other:
 release:
   only:
     - master
-  stage: release
+  stage: Release
   when: manual
   script:
-    - /usr/bin/prepare-build
+    - prepare-build
+    - if [[ -f pom.xmll ]]; then export POM_VERSION=$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// ); fi
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
-    - git branch release-$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - mvn $MAVEN_CLI_OPTS deploy -DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven
-    - git commit -a -m "release $( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )"
-    - git tag v$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - git checkout ${CI_COMMIT_REF_NAME}
-    - git branch -D release-$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - git push --tags -o ci.skip
+    - git branch release-${POM_REL_VERSION}
+#    - mvn $MAVEN_CLI_OPTS deploy ${MAVEN_REPO_OPTS}
+#    - git commit -a -m "release ${POM_REL_VERSION}"
+#    - git tag v${POM_REL_VERSION}
+#    - git checkout ${CI_COMMIT_REF_NAME}
+#    - git branch -D release-${POM_REL_VERSION}
+#    - git push --tags -o ci.skip
   artifacts:
     paths:
       - target/*.jar
 
+pages:
+  stage: Publish Docs
+  script:
+    - prepare-build
+    - mvn $MAVEN_CLI_OPTS site:deploy
+  artifacts:
+    paths:
+      - public
+
 release-sonatype:
   only:
     - master
-  stage: ossrelease
+  stage: OSS Release
   when: manual
   script:
     - /usr/bin/prepare-build
-    - git checkout v$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// )
-    - mvn $MAVEN_CLI_OPTS deploy -P osshr
+    - git checkout v${POM_REL_VERSION}
+#    - mvn $MAVEN_CLI_OPTS deploy -P osshrm

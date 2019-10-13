@@ -113,6 +113,13 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <site>
+            <id>local</id>
+            <url>file:public</url>
+        </site>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>osshr</id>
