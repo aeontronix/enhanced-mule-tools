@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) Aeontronix 2019
+  -->
+
 <mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"

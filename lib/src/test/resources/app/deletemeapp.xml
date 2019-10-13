@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+  ~ Copyright (c) Aeontronix 2019
+  -->
+
 <mule
         xmlns:elogging="http://www.mulesoft.org/schema/mule/elogging"
         xmlns:http="http://www.mulesoft.org/schema/mule/http"

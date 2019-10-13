@@ -84,7 +84,7 @@ In order to deploy your application to an on-prem server with auto-provisioning,
 
 ```$xml
 <plugin>
-    <groupId>com.kloudtek.anypoint-tools</groupId>
+    <groupId>com.aeontronix.anypoint-tools</groupId>
     <version>1.0-SNAPSHOT</version>
     <artifactId>anypoint-maven-plugin</artifactId>
     <executions>
