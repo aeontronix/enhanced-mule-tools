@@ -23,8 +23,8 @@ build-master:
     - master
   script:
     - source prepare-build
-    - echo "VERS ${POM_REL_VERSION} / $POM_VERSION"
     #    - mvn $MAVEN_CLI_OPTS site deploy ${MAVEN_REPO_OPTS}
+    - mvn $MAVEN_CLI_OPTS site package ${MAVEN_REPO_OPTS}
     - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${POM_REL_VERSION}
     - cp pom.xml target/pom.xml
   artifacts:
@@ -51,12 +51,12 @@ release:
     - git config --global user.name "Aeontronix CI"
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
     - git branch release-${POM_REL_VERSION}
-#    - mvn $MAVEN_CLI_OPTS deploy ${MAVEN_REPO_OPTS}
-#    - git commit -a -m "release ${POM_REL_VERSION}"
-#    - git tag v${POM_REL_VERSION}
-#    - git checkout ${CI_COMMIT_REF_NAME}
-#    - git branch -D release-${POM_REL_VERSION}
-#    - git push --tags -o ci.skip
+  #    - mvn $MAVEN_CLI_OPTS deploy ${MAVEN_REPO_OPTS}
+  #    - git commit -a -m "release ${POM_REL_VERSION}"
+  #    - git tag v${POM_REL_VERSION}
+  #    - git checkout ${CI_COMMIT_REF_NAME}
+  #    - git branch -D release-${POM_REL_VERSION}
+  #    - git push --tags -o ci.skip
   artifacts:
     paths:
       - target/*.jar
