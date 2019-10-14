@@ -15,7 +15,7 @@
     <artifactId>anypoint-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
-    <name>Anypoint Tools Maven Plugin</name>
+    <name>Aeontronix Anypoint Automation Tools: Maven Plugin</name>
 
     <prerequisites>
         <maven>${maven.version}</maven>
