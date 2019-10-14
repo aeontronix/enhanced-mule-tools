@@ -77,7 +77,7 @@ pages:
     - master
   script:
     - prepare-build
-    - mvn $MAVEN_CLI_OPTS site:deploy
+    - mvn $MAVEN_CLI_OPTS site site:deploy
   artifacts:
     paths:
       - public
