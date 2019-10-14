@@ -10,7 +10,7 @@
     <artifactId>anypoint-tools</artifactId>
     <name>Anypoint tools</name>
     <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
-    <url>https://gitlab.com/aeontronix-oss/anypoint-tools</url>
+    <url>https://aeontronix.gitlab.io/oss/anypoint-tools/</url>
     <packaging>pom</packaging>
     <version>0.9.1-SNAPSHOT</version>
 
@@ -28,13 +28,13 @@
 
     <issueManagement>
         <system>Github</system>
-        <url>https://gitlab.com/aeontronix-oss/anypoint-tools/issues</url>
+        <url>https://gitlab.com/aeontronix/oss/anypoint-tools/issues</url>
     </issueManagement>
 
     <scm>
-        <url>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</url>
-        <connection>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</connection>
-        <developerConnection>scm:git:git@gitlab.com:aeontronix-oss/anypoint-tools.git</developerConnection>
+        <url>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</url>
+        <connection>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</developerConnection>
     </scm>
 
     <licenses>
@@ -122,6 +122,9 @@
     <profiles>
         <profile>
             <id>osshr</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
