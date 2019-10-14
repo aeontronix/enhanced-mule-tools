@@ -25,6 +25,7 @@ Aeontronix provides commercial support for this product, contacts us at sales@ae
 
 # Issues
 
-For commercial support log your issue on the [support website](https://aeontronix.freshdesk.com/support/home)
+For commercial support log your issue on the [support website](https://aeontronix.freshdesk.com/support/home), or by 
+sending an email to support@aeontronix.com
 
 Otherwise submit your issues on the gitlab project page: https://gitlab.com/aeontronix-oss/anypoint-tools/issues

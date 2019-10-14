@@ -10,12 +10,10 @@ cache:
   paths:
     - .m2/repository
 
-
 stages:
   - Build
   - Release
   - Publish Docs
-  - OSS Release
 
 build-master:
   stage: Build
@@ -24,8 +22,7 @@ build-master:
   only:
     - master
   script:
-    - /usr/bin/prepare-build
-    - if [[ -f pom.xml ]]; then export POM_VERSION=$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml ); export POM_REL_VERSION=$( echo ${POM_VERSION} | sed 's/-SNAPSHOT$//' ); fi
+    - prepare-build
     - mvn $MAVEN_CLI_OPTS site deploy ${MAVEN_REPO_OPTS}
     - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${POM_REL_VERSION}
     - cp pom.xml target/pom.xml
@@ -47,8 +44,8 @@ release:
   stage: Release
   when: manual
   script:
+    - rsync -av target/pom.xml pom.xml
     - prepare-build
-    - if [[ -f pom.xmll ]]; then export POM_VERSION=$( xmlstarlet sel -N 'p=http://maven.apache.org/POM/4.0.0' -t -v '/p:project/p:version/text()' pom.xml | sed s/-SNAPSHOT// ); fi
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
     - git remote set-url origin git@gitlab.com:${CI_PROJECT_PATH}.git
@@ -62,22 +59,15 @@ release:
   artifacts:
     paths:
       - target/*.jar
+      - */target/*.jar
 
 pages:
   stage: Publish Docs
+  only:
+    - master
   script:
     - prepare-build
     - mvn $MAVEN_CLI_OPTS site:deploy
   artifacts:
     paths:
       - public
-
-release-sonatype:
-  only:
-    - master
-  stage: OSS Release
-  when: manual
-  script:
-    - /usr/bin/prepare-build
-    - git checkout v${POM_REL_VERSION}
-#    - mvn $MAVEN_CLI_OPTS deploy -P osshrm
