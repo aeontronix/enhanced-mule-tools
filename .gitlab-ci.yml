@@ -23,13 +23,22 @@ build-master:
     - master
   script:
     - source prepare-build
-    #    - mvn $MAVEN_CLI_OPTS site deploy ${MAVEN_REPO_OPTS}
-    - mvn $MAVEN_CLI_OPTS site package ${MAVEN_REPO_OPTS}
+    - mvn $MAVEN_CLI_OPTS package ${MAVEN_REPO_OPTS}
     - mvn $MAVEN_CLI_OPTS versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${POM_REL_VERSION}
     - cp pom.xml target/pom.xml
   artifacts:
     paths:
       - target/pom.xml
+
+verify-docs:
+  stage: Build
+  except:
+    - tags
+  only:
+    - master
+  script:
+    - source prepare-build
+    - mvn $MAVEN_CLI_OPTS site
 
 build-other:
   stage: Build
@@ -45,7 +54,7 @@ release:
   stage: Release
   when: manual
   script:
-    - rsync -av target/pom.xml pom.xml
+    - cp -f target/pom.xml pom.xml
     - prepare-build
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
