@@ -115,7 +115,7 @@
     <distributionManagement>
         <site>
             <id>local</id>
-            <url>file:target/public</url>
+            <url>file:public</url>
         </site>
     </distributionManagement>
 
