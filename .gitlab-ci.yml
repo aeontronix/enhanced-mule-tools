@@ -53,6 +53,7 @@ release:
     - master
   stage: Release
   when: manual
+  allow_failure: false
   script:
     - more pom.xml
     - prepare-build
