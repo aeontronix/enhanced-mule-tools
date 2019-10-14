@@ -9,7 +9,7 @@
     <parent>
         <artifactId>anypoint-tools</artifactId>
         <groupId>com.aeontronix.anypoint-tools</groupId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.9.40-SNAPSHOT</version>
     </parent>
 
     <artifactId>anypoint-maven-plugin</artifactId>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.aeontronix.anypoint-tools</groupId>
             <artifactId>anypoint-lib</artifactId>
-            <version>0.9.1-SNAPSHOT</version>
+            <version>0.9.40-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
