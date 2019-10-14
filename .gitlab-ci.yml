@@ -57,6 +57,7 @@ release:
   stage: Release
   when: manual
   script:
+    - more pom.xml
     - prepare-build
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
