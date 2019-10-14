@@ -59,7 +59,7 @@ release:
   artifacts:
     paths:
       - target/*.jar
-      - */target/*.jar
+      - "*/target/*.jar"
 
 pages:
   stage: Publish Docs
