@@ -30,7 +30,8 @@ build-master:
     - cp pom.xml target/pom.xml
   artifacts:
     paths:
-      - target/pom.xml
+      - pom.xml
+      - "*/pom.xml"
 
 verify-docs:
   stage: Build
@@ -56,7 +57,6 @@ release:
   stage: Release
   when: manual
   script:
-    - cp -f target/pom.xml pom.xml
     - prepare-build
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
