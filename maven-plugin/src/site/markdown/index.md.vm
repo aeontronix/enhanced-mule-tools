@@ -49,13 +49,13 @@ In order to do so you will need to add an anypoint.json or anypoint.yml to your 
     <build>
         <resources>
             <resource>
-				<directory>\${project.basedir}</directory>
-				<includes>
-					<include>anypoint.json</include>
-					<include>anypoint.yml</include>
-					<include>anypoint.yaml</include>
-				</includes>
-			</resource>
+                <directory>\${project.basedir}</directory>
+                <includes>
+                    <include>anypoint.json</include>
+                    <include>anypoint.yml</include>
+                    <include>anypoint.yaml</include>
+                </includes>
+            </resource>
             ...
         </resources>
         ...
@@ -80,10 +80,10 @@ If you wanted to deploy to an on-prem server, you just need to specify the targe
 
 ```xml
 <configuration>
-    <username>\${anypoint.username}</username>
-    <password>\${anypoint.password}</password>
-    <org>\${anypoint.org}</org>
-    <env>\${anypoint.env}</env>
+    <username>${anypoint.username}</username>
+    <password>${anypoint.password}</password>
+    <org>${anypoint.org}</org>
+    <env>${anypoint.env}</env>
     <target>[target server or server group]</target>
 </configuration>
 ```
@@ -92,10 +92,10 @@ In the configuration you also will be able to setup [variables](../api-managemen
 
 ```xml
 <configuration>
-    <username>\${anypoint.username}</username>
-    <password>\${anypoint.password}</password>
-    <org>\${anypoint.org}</org>
-    <env>\${anypoint.env}</env>
+    <username>${anypoint.username}</username>
+    <password>${anypoint.password}</password>
+    <org>${anypoint.org}</org>
+    <env>${anypoint.env}</env>
     <target>[target server or server group]</target>
 </configuration>
 ```
