@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The anypoint tools maven plugin is used to greatly facilitate interacting with mulesoft's anypoint platform through maven.
+The enhanced mule tools maven plugin is used to greatly facilitate interacting with mulesoft's anypoint platform through maven.
 
 ## Usage
 
