@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "http://anypoint-tools.aeontronix.com/anypoint-schema.json",
+  "$id": "http://enhanced-mule-tools.aeontronix.com/anypoint-schema.json",
   "title": "Anypoint automated configuration file",
   "description": "A file used to automatically configure anypoint when an application is deployed",
   "type": "object",

@@ -6,11 +6,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.aeontronix.anypoint-tools</groupId>
-    <artifactId>anypoint-tools</artifactId>
-    <name>Anypoint tools</name>
-    <description>Anypoint tools greatly facilitate interaction with mulesoft's anypoint services</description>
-    <url>https://aeontronix.gitlab.io/oss/anypoint-tools/</url>
+    <groupId>com.aeontronix.enhanced-mule</groupId>
+    <artifactId>enhanced-mule-tools</artifactId>
+    <name>Enhanced Mule Tools</name>
+    <description>Automation tools for mulesoft's anypoint platform</description>
+    <url>https://aeontronix.gitlab.io/oss/enhanced-mule-tools/</url>
     <packaging>pom</packaging>
     <version>0.9.44-SNAPSHOT</version>
 
@@ -28,13 +28,13 @@
 
     <issueManagement>
         <system>Github</system>
-        <url>https://gitlab.com/aeontronix/oss/anypoint-tools/issues</url>
+        <url>https://gitlab.com/aeontronix/oss/enhanced-mule-tools/issues</url>
     </issueManagement>
 
     <scm>
-        <url>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</url>
-        <connection>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</connection>
-        <developerConnection>scm:git:git@gitlab.com:aeontronix/oss/anypoint-tools.git</developerConnection>
+        <url>scm:git:git@gitlab.com:aeontronix/oss/enhanced-mule-tools.git</url>
+        <connection>scm:git:git@gitlab.com:aeontronix/oss/enhanced-mule-tools.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:aeontronix/oss/enhanced-mule-tools.git</developerConnection>
     </scm>
 
     <licenses>

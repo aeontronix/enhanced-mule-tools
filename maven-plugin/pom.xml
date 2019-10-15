@@ -7,8 +7,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>anypoint-tools</artifactId>
-        <groupId>com.aeontronix.anypoint-tools</groupId>
+        <artifactId>enhanced-mule-tools</artifactId>
+        <groupId>com.aeontronix.enhanced-mule-tools</groupId>
         <version>0.9.44-SNAPSHOT</version>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.aeontronix.anypoint-tools</groupId>
+            <groupId>com.aeontronix.enhanced-mule-tools</groupId>
             <artifactId>anypoint-lib</artifactId>
             <version>0.9.44-SNAPSHOT</version>
         </dependency>

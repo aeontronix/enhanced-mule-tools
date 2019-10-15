@@ -21,7 +21,7 @@ In order to do so you will need to add an anypoint.json or anypoint.yml to your 
     <build>
         <plugins>
             <plugin>
-                <groupId>com.aeontronix.anypoint-tools</groupId>
+                <groupId>com.aeontronix.enhanced-mule-tools</groupId>
                 <version>${project.version}</version>
                 <artifactId>anypoint-maven-plugin</artifactId>
                 <executions>

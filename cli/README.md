@@ -7,7 +7,7 @@
 If you have [homebrew](https://brew.sh/) installed on your mac, you can install anypoint cli using the command
 
 ```bash
-brew install kloudtek/kt/anypoint-tools
+brew install kloudtek/kt/enhanced-mule-tools
 ```
 
 ## Configuration
@@ -162,6 +162,6 @@ Anypoint cli is licensed under the CPAL License: https://opensource.org/licenses
 
 # Issues
 
-Report an issues here: https://github.com/Kloudtek/anypoint-tools/issues
+Report an issues here: https://github.com/Kloudtek/enhanced-mule-tools/issues
 
 

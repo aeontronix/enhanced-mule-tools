@@ -28,4 +28,4 @@ Aeontronix provides commercial support for this product, contacts us at sales@ae
 For commercial support log your issue on the [support website](https://aeontronix.freshdesk.com/support/home), or by 
 sending an email to support@aeontronix.com
 
-Otherwise submit your issues on the gitlab project page: https://gitlab.com/aeontronix-oss/anypoint-tools/issues
+Otherwise submit your issues on the gitlab project page: https://gitlab.com/aeontronix-oss/enhanced-mule-tools/issues

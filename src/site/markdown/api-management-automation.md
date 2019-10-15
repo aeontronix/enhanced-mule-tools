@@ -330,7 +330,7 @@ You can also nest variable expressions, for example let's say you defined the va
 Specifying multiple APIs in the descriptor is planned but not implemented yet. Add a comment to this issue
 if you need it:
 
-[https://gitlab.com/aeontronix/oss/anypoint-tools/issues/1](https://gitlab.com/aeontronix/oss/anypoint-tools/issues/1)
+[https://gitlab.com/aeontronix/oss/enhanced-mule-tools/issues/1](https://gitlab.com/aeontronix/oss/enhanced-mule-tools/issues/1)
 
 # Properties injection
 
