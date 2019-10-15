@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="enhanced-mule-application-demo" />
         <module name="anypoint-maven-plugin" />
         <module name="anypoint-lib" />
         <module name="anypoint-cli" />
@@ -17,6 +18,7 @@
       <module name="anypoint-maven-plugin" target="1.7" />
       <module name="anypoint-tools" target="1.8" />
       <module name="anypointtools-maven-plugin" target="1.7" />
+      <module name="enhanced-mule-application-demo" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

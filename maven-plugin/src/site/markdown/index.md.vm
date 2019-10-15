@@ -12,22 +12,13 @@ For the full usage and technical documentation, See [Plugin Documentation](plugi
 The most common usage for the anypoint tools is to deploy an application, [automatically configuring Anypoint API Manager](../api-management-automation.html)
 in the process.
 
-In order to do so, you will need to the following to your plugin, and include an anypoint.json or anypoint.yml file in
-the root folder of your project
+In order to do so you will need to add an anypoint.json or anypoint.yml to your project and do the followings changes to your pom.xml file:
+
+1) Add the anypoint plugin
 
 ```xml
 <project>
     <build>
-        <resources>
-			<resource>
-				<directory>${project.basedir}</directory>
-				<includes>
-					<include>anypoint.json</include>
-					<include>anypoint.yml</include>
-					<include>anypoint.yaml</include>
-				</includes>
-			</resource>
-		</resources>
         <plugins>
             <plugin>
                 <groupId>com.aeontronix.anypoint-tools</groupId>
@@ -40,31 +31,59 @@ the root folder of your project
                         <goals>
                             <goal>deploy</goal>
                         </goals>
-                        <configuration>
-                            <username>[anypointusername]</username>
-                            <password>[anypointpassword]</password>
-                            <org>[orgname]</org>
-                            <env>[envname]</env>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
             ...
-        </plugins>
-    <build>
+        <plugins>
+        ...
+    </build>
+    ...
 </project>
 ```
 
-With this you will be able to run `mvn deploy`, and it will deploy your application to Cloudhub.
+2) If you want your anypoint.json/yml file to be in the root folder of the project (rather than under src/main/mule), add the following
+
+```xml
+<project>
+    <build>
+        <resources>
+            <resource>
+				<directory>\${project.basedir}</directory>
+				<includes>
+					<include>anypoint.json</include>
+					<include>anypoint.yml</include>
+					<include>anypoint.yaml</include>
+				</includes>
+			</resource>
+            ...
+        </resources>
+        ...
+    </build>
+    ...
+</project>
+```
+
+3) Unless you wish to actually deploy the application jar file in a maven repository in addition to deploying the application
+to Cloudhub or an onprem runtime, you will need to set the 'maven.deploy.skip' variable to true.
+
+```xml
+<project>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        ...
+    </properties>
+</project>
+```
 
 If you wanted to deploy to an on-prem server, you just need to specify the target configuration. ie:
 
 ```xml
 <configuration>
-    <username>[anypointusername]</username>
-    <password>[anypointpassword]</password>
-    <org>[orgname]</org>
-    <env>[envname]</env>
+    <username>\${anypoint.username}</username>
+    <password>\${anypoint.password}</password>
+    <org>\${anypoint.org}</org>
+    <env>\${anypoint.env}</env>
     <target>[target server or server group]</target>
 </configuration>
 ```
@@ -73,10 +92,10 @@ In the configuration you also will be able to setup [variables](../api-managemen
 
 ```xml
 <configuration>
-    <username>[anypointusername]</username>
-    <password>[anypointpassword]</password>
-    <org>[orgname]</org>
-    <env>[envname]</env>
+    <username>\${anypoint.username}</username>
+    <password>\${anypoint.password}</password>
+    <org>\${anypoint.org}</org>
+    <env>\${anypoint.env}</env>
     <target>[target server or server group]</target>
 </configuration>
 ```

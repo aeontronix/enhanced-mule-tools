@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/lib/anypoint-lib.iml" filepath="$PROJECT_DIR$/lib/anypoint-lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-plugin/anypoint-maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/anypoint-maven-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/anypoint-tools.iml" filepath="$PROJECT_DIR$/anypoint-tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../oss/enhanced-mule-application-demo/enhanced-mule-application-demo.iml" filepath="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/enhanced-mule-application-demo.iml" />
     </modules>
   </component>
 </project>

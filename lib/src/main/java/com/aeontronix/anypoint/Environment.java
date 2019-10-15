@@ -212,6 +212,19 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API " + name + " " + version + " not found");
     }
 
+    public API findAPIByExchangeAssetNameAndProductAPIVersion(@NotNull String name, @NotNull String productAPIVersion, @Nullable String label) throws HttpException, NotFoundException {
+        for (APIAsset asset : findAPIs(name)) {
+            if (asset.getExchangeAssetName().equalsIgnoreCase(name)) {
+                for (API api : asset.getApis()) {
+                    if (api.getProductVersion().equalsIgnoreCase(productAPIVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
+                        return api;
+                    }
+                }
+            }
+        }
+        throw new NotFoundException("API " + name + " with product version " + productAPIVersion + " not found");
+    }
+
     public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String assetVersion) throws HttpException, NotFoundException {
         return findAPIByExchangeAsset(groupId, assetId, assetVersion, null);
     }
@@ -269,8 +282,11 @@ public class Environment extends AnypointObject<Organization> {
 
     @NotNull
     public static Environment findEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, NotFoundException {
+        logger.debug("Searching for environment named " + name);
         for (Environment environment : findEnvironmentsByOrg(client, organization)) {
+            logger.debug("Checking if " + environment.getName() + " is equals to " + name);
             if (name.equals(environment.getName())) {
+                logger.debug("Match found, returning env " + environment.getId());
                 return environment;
             }
         }

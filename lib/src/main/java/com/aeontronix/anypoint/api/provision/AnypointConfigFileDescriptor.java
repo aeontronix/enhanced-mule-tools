@@ -30,6 +30,7 @@ public class AnypointConfigFileDescriptor {
             config.setVariable("organization.name", environment.getOrganization().getName());
             config.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
             if (api != null) {
+                logger.debug("API descriptor found, provisioning");
                 api.provision(this, environment, config, result);
             }
             return result;

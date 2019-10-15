@@ -65,7 +65,7 @@ public abstract class DeploymentRequest {
             if (apiProvisioningConfig != null) {
                 AnypointConfigFileDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor();
                 if (apiProvisioningDescriptor != null) {
-                    logger.debug("Found anypoint.json, provisioning");
+                    logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
                         initProperties();
@@ -80,7 +80,7 @@ public abstract class DeploymentRequest {
                         properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
                 } else {
-                    logger.debug("no anypoint.json found, skipping provisioning");
+                    logger.info("no anypoint.json found, skipping provisioning");
                 }
             }
             preDeploy(provisioningResult, apiProvisioningConfig, transformers);

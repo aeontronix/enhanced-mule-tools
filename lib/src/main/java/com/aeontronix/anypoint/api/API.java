@@ -131,9 +131,14 @@ public class API extends AnypointObject<Environment> {
     }
 
     public List<Policy> findPolicies() throws HttpException {
-        String json = parent.getClient().getHttpHelper().httpGet("/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id + "/policies?fullInfo=false");
+        String json = parent.getClient().getHttpHelper().httpGet(getUrl() + "/policies?fullInfo=false");
         JsonHelper jsonHelper = parent.getClient().getJsonHelper();
         return jsonHelper.readJsonList(Policy.class, json, this);
+    }
+
+    @NotNull
+    private String getUrl() {
+        return "/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id;
     }
 
     public Policy findPolicyByAsset(String groupId, String assetId, String assetVersion) throws HttpException, NotFoundException {
@@ -253,6 +258,14 @@ public class API extends AnypointObject<Environment> {
         }
     }
 
+    public API updateVersion(String version) throws HttpException {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("assetVersion", version);
+        String json = parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
+        JsonHelper jsonHelper = parent.getClient().getJsonHelper();
+        return jsonHelper.readJson(new API(parent), json, parent);
+    }
+
     @Override
     public String toString() {
         return "API{" +
@@ -270,4 +283,5 @@ public class API extends AnypointObject<Environment> {
                 ", endpoint=" + endpoint +
                 "} " + super.toString();
     }
+
 }

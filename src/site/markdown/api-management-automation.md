@@ -35,9 +35,9 @@ You will then be able to add all the API Management configuration to that file. 
 
 ## Full JSON Schema
 
-JSON Schema: [schema/anypoint-schema.schema.html](schema/anypoint-schema.schema.html)
+JSON Schema: [schema/anypoint.schema.html](schema/anypoint.schema.html)
 
-Raw JSON Schema: [schema/anypoint-schema.schema.json](schema/anypoint-schema.schema.json)
+Raw JSON Schema: [schema/anypoint.schema.json](schema/anypoint.schema.json)
 
 ## API Definition
 

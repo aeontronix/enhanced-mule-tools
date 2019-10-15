@@ -59,16 +59,23 @@ public class APIDescriptor {
         String endpoint = cfg.applyVars(this.getEndpoint(), config);
         API api;
         try {
-            api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName);
+            api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName, label);
             logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
         } catch (NotFoundException e) {
             logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
             APISpec apiSpec = environment.getParent().findAPISpecsByNameAndVersion(this.getName(), this.getVersion());
-            Boolean m3 = cfg.getMule3();
-            if (m3 == null) {
-                m3 = false;
+            // now we need to check if there's an existing API with the same producyAPIVersion
+            String productAPIVersion = apiSpec.getProductAPIVersion();
+            try {
+                api = environment.findAPIByExchangeAssetNameAndProductAPIVersion(apiName, productAPIVersion, label);
+                api = api.updateVersion(version);
+            } catch (NotFoundException ex) {
+                Boolean m3 = cfg.getMule3();
+                if (m3 == null) {
+                    m3 = false;
+                }
+                api = environment.createAPI(apiSpec, !m3, endpoint, label != null ? label : config.getApiLabel());
             }
-            api = environment.createAPI(apiSpec, !m3, endpoint, label != null ? label : config.getApiLabel());
         }
         result.setApi(api);
         if (policies != null) {
@@ -104,11 +111,10 @@ public class APIDescriptor {
             for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                 try {
                     SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
-                    slaTier.delete();
+                    // todo update tier
                 } catch (NotFoundException e) {
-                    // ok
+                    api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
                 }
-                api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
             }
         }
         if (access != null) {

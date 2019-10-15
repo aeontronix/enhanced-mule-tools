@@ -16,7 +16,12 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
 
     public synchronized Organization getOrganization() throws NotFoundException, HttpException {
         if (organization == null) {
-            organization = getClient().findOrganization(org);
+            if (org != null) {
+                organization = getClient().findOrganization(org);
+            } else {
+                logger.info("Getting default org");
+                organization = getClient().getUser().getOrganization();
+            }
         }
         return organization;
     }

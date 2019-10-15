@@ -68,7 +68,6 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter
     protected HashMap<String, String> vars;
-
     protected ApplicationSource source;
 
     @Override

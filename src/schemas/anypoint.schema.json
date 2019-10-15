@@ -150,7 +150,55 @@
         "slaTiers": {
           "description": "SLA Tiers to setup for this API",
           "type": "array",
-          "default": true
+          "items": {
+            "description": "SLA Tier",
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "SLA Tier name",
+                "type": "string"
+              },
+              "description": {
+                "description": "SLA Tier description",
+                "type": "string"
+              },
+              "autoApprove": {
+                "description": "If access requests using this SLA tier should automatically be approved",
+                "type": "boolean"
+              },
+              "limits": {
+                "description": "limits to apply to this SLA tier",
+                "type": "array",
+                "items": {
+                  "description": "SLA Tier limit",
+                  "type": "object",
+                  "properties": {
+                    "visible": {
+                      "description": "If this limit is visible to end users",
+                      "type": "boolean"
+                    },
+                    "timePeriodInMilliseconds": {
+                      "description": "SLA time period in milliseconds",
+                      "type": "integer"
+                    },
+                    "maximumRequests": {
+                      "description": "Maximum allowed requests within the time period",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "visible",
+                    "timePeriodInMilliseconds",
+                    "maximumRequests"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "name",
+              "limits"
+            ]
+          }
         }
       },
       "required": [
