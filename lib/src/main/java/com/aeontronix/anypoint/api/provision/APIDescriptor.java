@@ -111,7 +111,10 @@ public class APIDescriptor {
             for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                 try {
                     SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
-                    // todo update tier
+                    slaTier.setAutoApprove(slaTierDescriptor.isAutoApprove());
+                    slaTier.setDescription(slaTierDescriptor.getDescription());
+                    slaTier.setLimits(slaTierDescriptor.getLimits());
+                    slaTier = slaTier.update();
                 } catch (NotFoundException e) {
                     api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
                 }
