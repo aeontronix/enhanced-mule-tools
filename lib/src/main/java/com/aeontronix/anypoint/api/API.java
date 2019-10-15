@@ -60,7 +60,7 @@ public class API extends AnypointObject<Environment> {
     public void createPolicy(PolicyDescriptor policyDescriptor) throws HttpException {
         Map<String, Object> reqMap = jsonHelper.buildJsonMap()
                 .set("apiVersionId", id)
-                .set("configurationData", policyDescriptor.getData())
+                .set("configurationData", policyDescriptor.getConfigurationData())
                 .set("pointcutData", policyDescriptor.getPointcutData())
                 .set("policyTemplateId", policyDescriptor.getPolicyTemplateId())
                 .set("groupId", policyDescriptor.getGroupId())

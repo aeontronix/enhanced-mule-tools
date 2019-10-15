@@ -48,7 +48,7 @@ public class Policy extends AnypointObject<API> {
 
 
     public void update(PolicyDescriptor policyDescriptor) throws HttpException {
-        configurationData = policyDescriptor.getData();
+        configurationData = policyDescriptor.getConfigurationData();
         pointcutData = policyDescriptor.getPointcutData();
         httpHelper.httpPatch(getUrl(), this);
     }

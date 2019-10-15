@@ -6,7 +6,7 @@ package com.aeontronix.anypoint.deploy;
 
 import com.aeontronix.anypoint.AnypointClient;
 import com.aeontronix.anypoint.HttpException;
-import com.aeontronix.anypoint.api.provision.APIProvisioningDescriptor;
+import com.aeontronix.anypoint.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.anypoint.util.JsonHelper;
 import com.kloudtek.util.TempFile;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class ExchangeApplicationSource extends ApplicationSource {
     private static final Logger logger = LoggerFactory.getLogger(ExchangeApplicationSource.class);
     public static final String PREFIX = "exchange://";
-    private APIProvisioningDescriptor apiProvisioningDescriptor;
+    private AnypointConfigFileDescriptor apiProvisioningDescriptor;
     private String orgId;
     private String groupId;
     private String artifactId;
@@ -83,7 +83,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public APIProvisioningDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException {
+    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
             try (TempFile tempFile = new TempFile("anyp-apparch")) {
                 try (FileOutputStream fos = new FileOutputStream(tempFile)) {

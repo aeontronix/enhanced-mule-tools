@@ -99,8 +99,11 @@ public class AbstractAnypointTest {
     }
 
     @Contract("_ -> param1")
-    protected APIProvisioningDescriptor addClientIdPolicy(APIProvisioningDescriptor apd) {
-        apd.addPolicy(new PolicyDescriptorJsonImpl("68ef9520-24e9-4cf2-b2f5-620025690913",
+    protected AnypointConfigFileDescriptor addClientIdPolicy(AnypointConfigFileDescriptor apd) {
+        if (apd.getApi() != null) {
+            apd.setApi(new APIDescriptor());
+        }
+        apd.getApi().addPolicy(new PolicyDescriptor("68ef9520-24e9-4cf2-b2f5-620025690913",
                 APIProvisioningITCase.CLIENT_ID_ENFORCEMENT, "1.1.1", new HashMap<String, Object>() {
             {
                 put("credentialsOriginHasHttpBasicAuthenticationHeader", "customExpression");
@@ -137,7 +140,7 @@ public class AbstractAnypointTest {
         return apiProject;
     }
 
-    protected APIProvisioningResult provision(APIProvisioningConfig config, APIProvisioningDescriptor apd2) throws ProvisioningException {
+    protected APIProvisioningResult provision(APIProvisioningConfig config, AnypointConfigFileDescriptor apd2) throws ProvisioningException {
         APIProvisioningResult provision = apd2.provision(env, config);
         // todo register client and delete them after tests
         return provision;

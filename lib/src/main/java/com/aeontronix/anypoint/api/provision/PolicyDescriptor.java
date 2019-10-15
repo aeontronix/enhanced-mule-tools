@@ -5,20 +5,28 @@
 package com.aeontronix.anypoint.api.provision;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = PolicyDescriptorJsonImpl.class, name = PolicyDescriptorJsonImpl.TYPE)
-})
-public abstract class PolicyDescriptor {
-    protected List<PolicyPointcut> pointcutData;
+public class PolicyDescriptor {
+    private List<PolicyPointcut> pointcutData;
+    private String policyTemplateId;
+    private String groupId;
+    private String assetId;
+    private String assetVersion;
+    private Map<String, Object> configurationData;
 
-    public abstract String getType();
+    public PolicyDescriptor() {
+    }
+
+    public PolicyDescriptor(String groupId, String assetId, String assetVersion, HashMap<String, Object> configurationData) {
+        this.groupId = groupId;
+        this.assetId = assetId;
+        this.assetVersion = assetVersion;
+        this.configurationData = configurationData;
+    }
 
     @JsonProperty
     public List<PolicyPointcut> getPointcutData() {
@@ -29,13 +37,48 @@ public abstract class PolicyDescriptor {
         this.pointcutData = pointcutData;
     }
 
-    public abstract String getPolicyTemplateId();
+    @JsonProperty
+    public String getPolicyTemplateId() {
+        return policyTemplateId;
+    }
 
-    public abstract String getGroupId();
+    public void setPolicyTemplateId(String policyTemplateId) {
+        this.policyTemplateId = policyTemplateId;
+    }
 
-    public abstract String getAssetId();
+    @JsonProperty
+    public String getGroupId() {
+        return groupId;
+    }
 
-    public abstract String getAssetVersion();
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    public abstract Map<String, Object> getData();
+    @JsonProperty
+    public String getAssetId() {
+        return assetId;
+    }
+
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
+    }
+
+    @JsonProperty
+    public String getAssetVersion() {
+        return assetVersion;
+    }
+
+    public void setAssetVersion(String assetVersion) {
+        this.assetVersion = assetVersion;
+    }
+
+    @JsonProperty
+    public Map<String, Object> getConfigurationData() {
+        return configurationData;
+    }
+
+    public void setConfigurationData(Map<String, Object> configurationData) {
+        this.configurationData = configurationData;
+    }
 }

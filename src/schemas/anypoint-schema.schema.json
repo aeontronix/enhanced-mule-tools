@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://anypoint-tools.aeontronix.com/anypoint-schema.json",
+  "title": "Anypoint automated configuration file",
+  "description": "A file used to automatically configure anypoint when an application is deployed",
+  "type": "object",
+  "properties": {
+    "mule3": {
+      "description": "Indicates this API is a mule 3 API",
+      "type": "boolean",
+      "default": false
+    },
+    "api": {
+      "description": "API configuration",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "API name",
+          "type": "string"
+        },
+        "version": {
+          "description": "API version",
+          "type": "string"
+        },
+        "endpoint": {
+          "description": "API endpoint",
+          "type": "string"
+        },
+        "access": {
+          "description": "List of APIs that the client application should be granted access to",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "properties": {
+              "groupId": {
+                "description": "Exchange group id of the API to be granted access to",
+                "type": "string"
+              },
+              "assetId": {
+                "description": "Exchange asset id of the API to be granted access to",
+                "type": "string"
+              },
+              "assetVersion": {
+                "description": "Exchange version of the API to be granted access to",
+                "type": "string"
+              },
+              "label": {
+                "description": "Instance label of the API to be granted access to",
+                "type": "string"
+              },
+              "slaTier": {
+                "description": "SLA tier to use for the access request",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupId",
+              "assetId",
+              "assetVersion"
+            ]
+          }
+        },
+        "policies": {
+          "description": "Policies that should be assigned to the API. Please note that unless this properties is null or not set, all existing API policies will be removed prior to those being added",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "description": "Policy details",
+            "type": "object",
+            "properties": {
+              "groupId": {
+                "description": "Policy group id",
+                "type": "string"
+              },
+              "assetId": {
+                "description": "Policy asset id",
+                "type": "string"
+              },
+              "assetVersion": {
+                "description": "Policy version",
+                "type": "string"
+              },
+              "pointcutData": {
+                "description": "Pointcuts to apply to apply the policy to",
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "description": "Pointcut",
+                  "type": "string"
+                }
+              },
+              "policyTemplateId": {
+                "description": "Policy template id",
+                "type": "string"
+              },
+              "configurationData": {
+                "description": "Policy configuration data (policy specific so no details can be enforced in schema",
+                "type": "object"
+              }
+            },
+            "required": [
+              "groupId",
+              "assetId",
+              "assetVersion",
+              "policyTemplateId",
+              "configurationData"
+            ]
+          }
+        },
+        "accessedBy": {
+          "description": "Client applications that should be granted access to this API",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "description": "Client application name",
+            "type": "string"
+          }
+        },
+        "label": {
+          "description": "API instance label",
+          "type": "string"
+        },
+        "createClientApplication": {
+          "description": "If the client application should be automatically created",
+          "type": "boolean",
+          "default": true
+        },
+        "clientApp": {
+          "description": "Client application details",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "Client application name",
+              "type": "string"
+            },
+            "description": {
+              "description": "Client application description",
+              "type": "string"
+            },
+            "url": {
+              "description": "Client application url",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "slaTiers": {
+          "description": "SLA Tiers to setup for this API",
+          "type": "array",
+          "default": true
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    }
+  }
+}

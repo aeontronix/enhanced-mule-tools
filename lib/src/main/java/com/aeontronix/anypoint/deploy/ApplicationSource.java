@@ -6,7 +6,7 @@ package com.aeontronix.anypoint.deploy;
 
 import com.aeontronix.anypoint.AnypointClient;
 import com.aeontronix.anypoint.HttpException;
-import com.aeontronix.anypoint.api.provision.APIProvisioningDescriptor;
+import com.aeontronix.anypoint.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.anypoint.util.JsonHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,15 +31,15 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract boolean exists();
 
-    public abstract APIProvisioningDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException;
+    public abstract AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException;
 
     @Nullable
-    protected APIProvisioningDescriptor readDescriptorFromZip(File file) throws IOException {
+    protected AnypointConfigFileDescriptor readDescriptorFromZip(File file) throws IOException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return client.getJsonHelper().getJsonMapper().readValue(is, APIProvisioningDescriptor.class);
+                return client.getJsonHelper().getJsonMapper().readValue(is, AnypointConfigFileDescriptor.class);
             }
         } else {
             return null;

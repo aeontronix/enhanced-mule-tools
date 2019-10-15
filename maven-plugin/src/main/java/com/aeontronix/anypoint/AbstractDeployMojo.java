@@ -13,6 +13,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
@@ -62,6 +63,11 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.retrydelay")
     protected long deployRetryDelay = 2500L;
+    /**
+     * Provisioning variables
+     */
+    @Parameter
+    protected HashMap<String, String> vars;
 
     protected ApplicationSource source;
 
@@ -95,7 +101,13 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                         appName = source.getArtifactId();
                     }
                 }
-                APIProvisioningConfig apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
+                APIProvisioningConfig apiProvisioningConfig = null;
+                if (!skipApiProvisioning) {
+                    apiProvisioningConfig = new APIProvisioningConfig();
+                    if (vars != null) {
+                        apiProvisioningConfig.setVariables(vars);
+                    }
+                }
                 DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig);
                 if (!skipWait) {
                     logger.info("Waiting for application start");

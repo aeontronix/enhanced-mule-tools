@@ -5,7 +5,7 @@
 package com.aeontronix.anypoint.deploy;
 
 import com.aeontronix.anypoint.AnypointClient;
-import com.aeontronix.anypoint.api.provision.APIProvisioningDescriptor;
+import com.aeontronix.anypoint.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.anypoint.util.JsonHelper;
 
 import java.io.File;
@@ -36,7 +36,7 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public APIProvisioningDescriptor getAPIProvisioningDescriptor() throws IOException {
+    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException {
         return readDescriptorFromZip(file);
     }
 

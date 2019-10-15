@@ -6,6 +6,7 @@ package com.aeontronix.anypoint.api;
 
 import com.aeontronix.anypoint.AnypointClient;
 import com.aeontronix.anypoint.AnypointObject;
+import com.aeontronix.anypoint.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -52,5 +53,10 @@ public class SLATier extends AnypointObject<API> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void delete() throws HttpException {
+        client.getHttpHelper().httpDelete("/apimanager/api/v1/organizations/" +
+                parent.getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/tiers/" + id);
     }
 }

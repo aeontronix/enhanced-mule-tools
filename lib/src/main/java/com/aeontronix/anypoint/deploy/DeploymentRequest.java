@@ -10,8 +10,8 @@ import com.aeontronix.anypoint.HttpException;
 import com.aeontronix.anypoint.NotFoundException;
 import com.aeontronix.anypoint.api.ClientApplication;
 import com.aeontronix.anypoint.api.provision.APIProvisioningConfig;
-import com.aeontronix.anypoint.api.provision.APIProvisioningDescriptor;
 import com.aeontronix.anypoint.api.provision.APIProvisioningResult;
+import com.aeontronix.anypoint.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.anypoint.api.provision.ProvisioningException;
 import com.aeontronix.anypoint.runtime.DeploymentResult;
 import com.aeontronix.anypoint.util.HttpHelper;
@@ -63,7 +63,7 @@ public abstract class DeploymentRequest {
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
-                APIProvisioningDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor();
+                AnypointConfigFileDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor();
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint.json, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);

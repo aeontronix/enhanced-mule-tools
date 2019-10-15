@@ -7,7 +7,6 @@ package com.aeontronix.anypoint.api.provision;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -114,19 +113,6 @@ public class ProvisionedAPI extends APIAccessDescriptor {
 
     public void setAccessedBy(List<String> accessedBy) {
         this.accessedBy = accessedBy;
-    }
-
-    public void validate() throws InvalidAnypointDescriptorException {
-        HashSet<String> types = new HashSet<>();
-        if (policies != null) {
-            for (PolicyDescriptor policy : policies) {
-                if (types.contains(policy.getType())) {
-                    throw new InvalidAnypointDescriptorException("There is more than one policy of type " + policy.getType());
-                } else {
-                    types.add(policy.getType());
-                }
-            }
-        }
     }
 
     @Override
