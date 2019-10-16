@@ -10,7 +10,7 @@ It provides a maven plugin that provides several extra capabilities to your proj
 For more details see the corresponding documentation pages:
 
 * [API Management Automation](api-management-automation.html)
-* [Maven Plugin documentation](anypoint-maven-plugin/index.html)
+* [Maven Plugin documentation](enhanced-mule-tools-maven-plugin/index.html)
 
 # License
 

@@ -19,7 +19,7 @@
         <menu ref="parent"/>
         <menu name="Documentation">
             <item name="API Management Automation" href="api-management-automation.html"/>
-            <item name="Maven Plugin" href="anypoint-maven-plugin/index.html"/>
+            <item name="Maven Plugin" href="enhanced-mule-tools-maven-plugin/index.html"/>
         </menu>
         <menu ref="reports"/>
     </body>
