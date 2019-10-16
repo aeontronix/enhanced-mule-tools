@@ -14,7 +14,7 @@ For more details see the corresponding documentation pages:
 
 # License
 
-Aeontronix Anypoint tools is licensed under the CPAL License: https://opensource.org/licenses/CPAL-1.0
+Enhanced mule tools is licensed under the CPAL License: https://opensource.org/licenses/CPAL-1.0
 
 # Commercial Support
 
