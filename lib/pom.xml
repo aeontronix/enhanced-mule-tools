@@ -13,8 +13,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>anypoint-lib</artifactId>
-    <name>Anypoint Tools Library</name>
+    <artifactId>enhanced-mule-tools-lib</artifactId>
+    <name>Enhanced Mule Tools: Library</name>
 
     <build>
         <plugins>

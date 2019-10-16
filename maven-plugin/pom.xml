@@ -12,10 +12,10 @@
         <version>0.9.44-SNAPSHOT</version>
     </parent>
 
-    <artifactId>anypoint-maven-plugin</artifactId>
+    <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
-    <name>Aeontronix Anypoint Automation Tools: Maven Plugin</name>
+    <name>Enhance Mule Tools: Maven Plugin</name>
 
     <prerequisites>
         <maven>${maven.version}</maven>
@@ -30,8 +30,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.aeontronix.enhanced-mule-tools</groupId>
-            <artifactId>anypoint-lib</artifactId>
+            <groupId>com.aeontronix.enhanced-mule</groupId>
+            <artifactId>enhanced-mule-tools-lib</artifactId>
             <version>0.9.44-SNAPSHOT</version>
         </dependency>
         <dependency>

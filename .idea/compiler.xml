@@ -7,24 +7,22 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="enhanced-mule-application-demo" />
-      </profile>
-      <profile name="Annotation profile for Enhanced Mule Tools" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="anypoint-maven-plugin" />
-        <module name="anypoint-cli" />
-        <module name="anypoint-lib" />
+        <module name="enhanced-mule-tools-cli" />
+        <module name="enhanced-mule-tools-lib" />
+        <module name="enhanced-mule-tools-maven-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="anypoint-cli" target="1.5" />
-      <module name="anypoint-lib" target="1.5" />
+      <module name="anypoint-cli" target="1.8" />
+      <module name="anypoint-lib" target="1.8" />
       <module name="anypoint-maven-plugin" target="1.7" />
       <module name="anypoint-tools" target="1.8" />
       <module name="anypointtools-maven-plugin" target="1.7" />
       <module name="enhanced-mule-application-demo" target="1.5" />
       <module name="enhanced-mule-tools" target="1.8" />
+      <module name="enhanced-mule-tools-cli" target="1.8" />
+      <module name="enhanced-mule-tools-lib" target="1.8" />
+      <module name="enhanced-mule-tools-maven-plugin" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

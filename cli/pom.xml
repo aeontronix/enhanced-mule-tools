@@ -13,13 +13,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>anypoint-cli</artifactId>
-    <name>Anypoint Tools Command Line</name>
+    <artifactId>enhanced-mule-tools-cli</artifactId>
+    <name>Enhanced Mule Tools: Command Line</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.aeontronix.enhanced-mule-tools</groupId>
-            <artifactId>anypoint-lib</artifactId>
+            <groupId>com.aeontronix.enhanced-mule</groupId>
+            <artifactId>enhanced-mule-tools-lib</artifactId>
             <version>0.9.44-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -51,7 +51,7 @@
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.aeontronix.anypoint.AnypointCli</mainClass>
+                            <mainClass>com.aeontronix.enhancedmule.tools.AnypointCli</mainClass>
                         </transformer>
                     </transformers>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
