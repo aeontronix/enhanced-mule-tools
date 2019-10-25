@@ -16,11 +16,22 @@
         </fluidoSkin>
     </custom>
     <body>
+        <head><![CDATA[
+            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150926783-1"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                gtag('config', 'UA-150926783-1');
+            </script>]]>
+        </head>
         <menu ref="parent"/>
         <menu name="Documentation">
             <item name="API Management Automation" href="api-management-automation.html"/>
             <item name="Maven Plugin" href="enhanced-mule-tools-maven-plugin/index.html"/>
         </menu>
         <menu ref="reports"/>
+        <footer><![CDATA[Copyright 2019 Aeontronix Inc]]></footer>
     </body>
 </project>
