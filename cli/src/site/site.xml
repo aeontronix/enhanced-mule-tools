@@ -2,13 +2,24 @@
   ~ Copyright (c) Aeontronix 2019
   -->
 
-<project name="Anypoint Tools">
+<project name="Enhanced Mule Tools : Command Line">
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>1.7</version>
+        <version>1.8</version>
     </skin>
+    <version position="right"/>
+    <custom>
+        <fluidoSkin>
+            <topBarEnabled>true</topBarEnabled>
+            <sideBarEnabled>false</sideBarEnabled>
+        </fluidoSkin>
+    </custom>
     <body>
+        <menu name="Documentation">
+            <item name="API Management Automation" href="api-management-automation.html"/>
+            <item name="Maven Plugin" href="enhanced-mule-tools-maven-plugin/index.html"/>
+        </menu>
         <menu ref="parent"/>
         <menu ref="reports"/>
     </body>
