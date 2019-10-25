@@ -4,7 +4,6 @@ variables:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dgpg.passphrase=${PGP_PW} -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
   MAVEN_REPO_OPTS: "-DaltDeploymentRepository=aeontronix-private::default::https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/maven"
-  GITLAB_MAVEN_JOBTOKEN: "gitlab-ci"
 
 cache:
   paths:
@@ -55,7 +54,6 @@ release:
   when: manual
   allow_failure: false
   script:
-    - more pom.xml
     - source prepare-build
     - git config --global user.email "info@aeontronix.com"
     - git config --global user.name "Aeontronix CI"
