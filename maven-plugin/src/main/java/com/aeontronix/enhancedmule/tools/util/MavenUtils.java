@@ -38,7 +38,7 @@ public class MavenUtils {
             for (Object artifactObj : project.getAttachedArtifacts()) {
                 Artifact artifact = (Artifact) artifactObj;
                 String classifier = artifact.getClassifier();
-                if (classifier.equals("mule-application-template") || classifier.equals("mule-application-example")) {
+                if (classifier != null && ( classifier.equals("mule-application-template") || classifier.equals("mule-application-example") ) ) {
                     return true;
                 }
             }
