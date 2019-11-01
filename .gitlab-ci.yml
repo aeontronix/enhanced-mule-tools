@@ -75,7 +75,8 @@ pages:
   only:
     - master
   script:
-    - prepare-build
+    - source prepare-build
+    - source generate-json-schema-docs.sh
     - mvn $MAVEN_CLI_OPTS site site:deploy
     - ls src/site/markdown/schema
     - ls target/site
