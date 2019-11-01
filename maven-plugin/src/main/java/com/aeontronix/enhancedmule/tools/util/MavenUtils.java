@@ -23,7 +23,7 @@ public class MavenUtils {
             if (log.isDebugEnabled()) {
                 log.debug("Found : " + artifact.getFile() + " of classifier " + artifact.getClassifier());
             }
-            if (artifact.getClassifier().equals("mule-application")) {
+            if (artifact.getClassifier() != null && artifact.getClassifier().equals("mule-application") ) {
                 log.debug("File is mule-application");
                 return artifact.getFile();
             } else if (log.isDebugEnabled()) {
