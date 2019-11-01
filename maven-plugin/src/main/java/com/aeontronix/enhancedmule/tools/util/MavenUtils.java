@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.kloudtek.util.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
@@ -28,6 +29,12 @@ public class MavenUtils {
                 return artifact.getFile();
             } else if (log.isDebugEnabled()) {
                 log.debug("File is not mule-application");
+            }
+        }
+        for (Object artifactObj : project.getAttachedArtifacts()) {
+            Artifact artifact = (Artifact) artifactObj;
+            if( artifact.getType().equals("zip") && StringUtils.isBlank(artifact.getClassifier() )) {
+                return artifact.getFile();
             }
         }
         throw new MojoExecutionException("No mule-application attached artifact found");
