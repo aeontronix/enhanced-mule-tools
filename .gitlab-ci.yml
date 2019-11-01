@@ -65,10 +65,6 @@ release:
     - git checkout ${CI_COMMIT_REF_NAME}
     - git branch -D release-${POM_REL_VERSION}
     - git push --tags -o ci.skip
-    - mvn ${MAVEN_FULL_OPTS} versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DoldVersion='*' -DnextSnapshot=true
-    - git add -u
-    - git commit -m 'updated version'
-    - git push -o ci.skip
   artifacts:
     paths:
       - target/*.jar
