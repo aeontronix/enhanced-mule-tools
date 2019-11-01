@@ -79,7 +79,7 @@ pages:
     - mvn $MAVEN_CLI_OPTS site site:deploy
     - ls src/site/markdown/schema
     - ls target/site
-    - ls taget/site/schema
+    - ls target/site/schema
   artifacts:
     paths:
       - public
