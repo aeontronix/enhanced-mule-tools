@@ -14,15 +14,18 @@ by adding the following to your pom.xml (or any directory or your choose by repl
 	<build>
         ...
 		<resources>
-			<resource>
-				<directory>${project.basedir}</directory>
-				<includes>
-					<include>anypoint.json</include>
-					<include>anypoint.yml</include>
-					<include>anypoint.yaml</include>
-				</includes>
-			</resource>
-		</resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>anypoint.json</include>
+                    <include>anypoint.yml</include>
+                    <include>anypoint.yaml</include>
+                </includes>
+            </resource>
+        </resources>
         ...
     </build>
 </project>
