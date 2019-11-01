@@ -71,7 +71,13 @@ public abstract class DeploymentRequest {
                         initProperties();
                         properties.put(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
                         properties.put("anypoint.platform.client_id", environment.getClientId());
-                        properties.put("anypoint.platform.client_secret", environment.getClientSecret());
+                        try {
+                            properties.put("anypoint.platform.client_secret", environment.getClientSecret());
+                        } catch (HttpException e) {
+                            if( e.getStatusCode() != 401 ) {
+                                throw e;
+                            }
+                        }
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
