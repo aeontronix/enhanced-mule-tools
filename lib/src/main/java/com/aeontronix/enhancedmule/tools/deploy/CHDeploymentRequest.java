@@ -131,7 +131,9 @@ public class CHDeploymentRequest extends DeploymentRequest {
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
-        if(existingApp != null && ! existingApp.getStatus().equalsIgnoreCase("STARTED")) {
+        if(existingApp != null &&
+                (! existingApp.getStatus().equalsIgnoreCase("STARTED")
+                        || existingApp.getDeploymentUpdateStatus() != null )) {
             existingApp.start();
         }
         return new CHDeploymentResult(client.getJsonHelper().readJson(new CHApplication(), deploymentJson, environment));
