@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.runtime;
 import com.aeontronix.enhancedmule.tools.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class CHApplication extends AnypointObject<Environment> {
@@ -97,5 +98,11 @@ public class CHApplication extends AnypointObject<Environment> {
                 throw e;
             }
         }
+    }
+
+    public void start() throws HttpException {
+        HashMap<Object, Object> reqJson = new HashMap<>();
+        reqJson.put("status","START");
+        httpHelper.httpPut("/cloudhub/api/v2/applications/" + domain, reqJson, getParent());
     }
 }
