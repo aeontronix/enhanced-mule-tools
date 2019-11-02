@@ -30,7 +30,7 @@ public class APIProvisioningITCase extends AbstractAnypointTest {
         // test changing client id expression
         assertEquals(2, env.findAPIs(null).size());
         checkPolicy(TESTAPI2, V1, ATTRIBUTES_HEADERS_CLIENT_SECRET);
-        apd2api.getPolicies().get(0).getConfigurationData().put(CLIENT_SECRET_EXPRESSION, ATTRIBUTES_HEADERS_CLIENT_SECRET2);
+//        apd2api.getPolicies().get(0).getConfigurationData().put(CLIENT_SECRET_EXPRESSION, ATTRIBUTES_HEADERS_CLIENT_SECRET2);
         provision(config, apd2);
         checkPolicy(TESTAPI2, V1, ATTRIBUTES_HEADERS_CLIENT_SECRET2);
         // request access to api2 from api1

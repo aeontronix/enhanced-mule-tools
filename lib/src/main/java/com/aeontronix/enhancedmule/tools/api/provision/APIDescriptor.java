@@ -9,7 +9,6 @@ import com.aeontronix.enhancedmule.tools.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.api.*;
-import com.aeontronix.enhancedmule.tools.api.policy.Policy;
 import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.InvalidStateException;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
@@ -81,18 +79,7 @@ public class APIDescriptor {
         if (policies != null) {
             api.deletePolicies();
             for (PolicyDescriptor policyDescriptor : policies) {
-                try {
-                    Policy policy = api.findPolicyByAsset(policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion());
-                    if (Objects.deepEquals(policy.getConfigurationData(), policyDescriptor.getConfigurationData()) && Objects.deepEquals(policy.getPointcutData(), policyDescriptor.getPointcutData())) {
-                        logger.debug("Policy data is same as descriptor");
-                    } else {
-                        logger.debug("Policy data changed, updating");
-                        policy.update(policyDescriptor);
-                    }
-                } catch (NotFoundException e) {
-                    logger.debug("Policy not found, creating: " + policyDescriptor);
-                    api.createPolicy(policyDescriptor);
-                }
+                api.createPolicy(policyDescriptor);
             }
         }
         ClientApplication clientApplication = null;

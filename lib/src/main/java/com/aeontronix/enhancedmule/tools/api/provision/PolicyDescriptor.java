@@ -16,12 +16,12 @@ public class PolicyDescriptor {
     private String groupId;
     private String assetId;
     private String assetVersion;
-    private Map<String, Object> configurationData;
+    private Object configurationData;
 
     public PolicyDescriptor() {
     }
 
-    public PolicyDescriptor(String groupId, String assetId, String assetVersion, HashMap<String, Object> configurationData) {
+    public PolicyDescriptor(String groupId, String assetId, String assetVersion, Object configurationData) {
         this.groupId = groupId;
         this.assetId = assetId;
         this.assetVersion = assetVersion;
@@ -74,11 +74,11 @@ public class PolicyDescriptor {
     }
 
     @JsonProperty
-    public Map<String, Object> getConfigurationData() {
+    public Object getConfigurationData() {
         return configurationData;
     }
 
-    public void setConfigurationData(Map<String, Object> configurationData) {
+    public void setConfigurationData(Object configurationData) {
         this.configurationData = configurationData;
     }
 }
