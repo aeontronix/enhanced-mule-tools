@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
@@ -76,7 +77,7 @@ public class DeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
+    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception {
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
         try {
             if (StringUtils.isBlank(target)) {
@@ -84,17 +85,17 @@ public class DeployMojo extends AbstractDeployMojo {
                     workerCount = 1;
                 }
                 try {
-                    if (customlog4j) {
-                        apiProvisioningConfig.setCustomLog4j(customlog4j);
-                    }
-                    return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
+                    deploymentConfig.setCustomlog4j(customlog4j);
+                    return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName,
+                            applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
             } else {
                 try {
                     Server server = environment.findServerByName(target);
-                    return new HDeploymentRequest(server, appName, applicationSource, filename, properties, apiProvisioningConfig).deploy();
+                    return new HDeploymentRequest(server, appName, applicationSource, filename, properties,
+                            apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (NotFoundException e) {
                     throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
                 } catch (ProvisioningException | IOException e) {

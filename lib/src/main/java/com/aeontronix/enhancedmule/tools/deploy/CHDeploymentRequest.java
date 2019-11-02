@@ -43,13 +43,14 @@ public class CHDeploymentRequest extends DeploymentRequest {
     }
 
     @Override
-    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, List<Transformer> transformers) {
+    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers) {
     }
 
     public CHDeploymentRequest(String muleVersionName, String regionName, String workerTypeName, int workerCount,
                                Environment environment, String appName, ApplicationSource file, String filename,
-                               Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) throws HttpException, NotFoundException {
-        super(environment, appName, file, filename, properties, apiProvisioningConfig);
+                               APIProvisioningConfig apiProvisioningConfig,
+                               DeploymentConfig deploymentConfig) throws HttpException, NotFoundException {
+        super(environment, appName, file, filename, apiProvisioningConfig, deploymentConfig);
         this.workerCount = workerCount;
         if (isBlank(muleVersionName)) {
             muleVersion = environment.findDefaultCHMuleVersion();
@@ -75,12 +76,13 @@ public class CHDeploymentRequest extends DeploymentRequest {
         HttpHelper httpHelper = client.getHttpHelper();
         JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
         CHApplication existingApp = getExistingApp(appName);
-        appInfoBuilder.set("properties", properties)
+        deploymentConfig.mergeExistingProperties(existingApp);
+        appInfoBuilder.set("properties", deploymentConfig.getProperties())
                 .set("domain", appName)
                 .set("monitoringEnabled", true)
                 .set("monitoringAutoRestart", true)
                 .set("loggingNgEnabled", true)
-                .set("loggingCustomLog4JEnabled", apiProvisioningConfig.isCustomLog4j());
+                .set("loggingCustomLog4JEnabled", deploymentConfig.isCustomlog4j());
         appInfoBuilder.addMap("muleVersion").set("version", muleVersion.getVersion()).set("updateId", muleVersion.getLatestUpdate().getId());
         appInfoBuilder.addMap("workers")
                 .set("amount", workerCount)

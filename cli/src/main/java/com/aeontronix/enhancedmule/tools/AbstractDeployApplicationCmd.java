@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.kloudtek.util.UserDisplayableException;
 import com.kloudtek.util.io.IOUtils;
@@ -66,7 +67,12 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
     protected List<String> accessedBy;
     @Option(names = "-fn", description = "File name (is not set, it will use the archive's file name")
     protected String filename;
+    @Option(names = "-mp", description = "Indicates if existing application properties should be merged")
+    private boolean mergeExistingProperties = true;
+    @Option(names = "-mpo", description = "Indicates the behavior to use when merging conflicting properties. If true it will override the existing property, or if false it will override it.")
+    private boolean mergeExistingPropertiesOverride;
     protected APIProvisioningConfig apiProvisioningConfig;
+    protected DeploymentConfig deploymentConfig = new DeploymentConfig();
 
     @Override
     protected void execute(Environment environment) throws Exception {
@@ -83,8 +89,12 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
                 apiProvisioningConfig.setVariables(provisioningVars);
                 apiProvisioningConfig.setAccessedBy(accessedBy);
             }
+            deploymentConfig.setProperties(appProperties);
+            deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
+            deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
             DeploymentResult app = deploy(environment);
             if (!skipWait) {
+                logger.info("Application uploaded, waiting for successful start");
                 app.waitDeployed(waitForStartTimeout, redeployDelay);
                 logger.info("Application started successfully");
             }

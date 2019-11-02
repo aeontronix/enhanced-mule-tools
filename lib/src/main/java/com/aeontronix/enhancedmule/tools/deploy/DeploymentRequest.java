@@ -39,20 +39,20 @@ public abstract class DeploymentRequest {
     protected ApplicationSource source;
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
-    protected Map<String, String> properties;
+    protected DeploymentConfig deploymentConfig;
 
     public DeploymentRequest() {
     }
 
     public DeploymentRequest(Environment environment, String appName, ApplicationSource source, String filename,
-                             Map<String, String> properties,
-                             APIProvisioningConfig apiProvisioningConfig) {
+                             APIProvisioningConfig apiProvisioningConfig,
+                             DeploymentConfig deploymentConfig) {
         this.environment = environment;
         this.appName = appName;
         this.source = source;
         this.filename = filename;
-        this.properties = properties;
         this.apiProvisioningConfig = apiProvisioningConfig;
+        this.deploymentConfig = deploymentConfig;
     }
 
     public DeploymentResult deploy() throws ProvisioningException, IOException, HttpException {
@@ -68,11 +68,10 @@ public abstract class DeploymentRequest {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (apiProvisioningConfig.isInjectApiId()) {
-                        initProperties();
-                        properties.put(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
-                        properties.put("anypoint.platform.client_id", environment.getClientId());
+                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
+                        deploymentConfig.setOverrideProperty("anypoint.platform.client_id", environment.getClientId());
                         try {
-                            properties.put("anypoint.platform.client_secret", environment.getClientSecret());
+                            deploymentConfig.setOverrideProperty("anypoint.platform.client_secret", environment.getClientSecret());
                         } catch (HttpException e) {
                             if( e.getStatusCode() != 401 ) {
                                 throw e;
@@ -81,15 +80,14 @@ public abstract class DeploymentRequest {
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
-                        initProperties();
-                        properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
-                        properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
+                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
+                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");
                 }
             }
-            preDeploy(provisioningResult, apiProvisioningConfig, transformers);
+            preDeploy(provisioningResult, apiProvisioningConfig, deploymentConfig, transformers);
             if (!transformers.isEmpty()) {
                 try {
                     if (source instanceof FileApplicationSource || source.getLocalFile() != null) {
@@ -117,13 +115,7 @@ public abstract class DeploymentRequest {
         }
     }
 
-    private void initProperties() {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-    }
-
-    protected abstract void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, List<Transformer> transformers);
+    protected abstract void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers);
 
     protected abstract DeploymentResult doDeploy() throws IOException, HttpException;
 

@@ -7,6 +7,8 @@ package com.aeontronix.enhancedmule.tools.runtime;
 import com.aeontronix.enhancedmule.tools.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Map;
+
 public class CHApplication extends AnypointObject<Environment> {
     private String domain;
     private String versionId;
@@ -14,6 +16,7 @@ public class CHApplication extends AnypointObject<Environment> {
     private String region;
     private String deploymentUpdateStatus;
     private long lastUpdateTime;
+    private Map<String,String> properties;
 
     @JsonProperty
     public String getDomain() {
@@ -67,6 +70,15 @@ public class CHApplication extends AnypointObject<Environment> {
 
     public void setLastUpdateTime(long lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
+    }
+
+    @JsonProperty
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 
     public CHApplication refresh() throws HttpException, NotFoundException {

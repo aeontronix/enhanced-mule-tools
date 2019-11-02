@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -52,13 +53,12 @@ public class CHDeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig) throws Exception {
+    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception {
         if (workerCount == null) {
             workerCount = 1;
         }
-        if (apiProvisioningConfig != null) {
-            apiProvisioningConfig.setCustomLog4j(customlog4j);
-        }
-        return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source, filename, properties, apiProvisioningConfig).deploy();
+        deploymentConfig.setCustomlog4j(customlog4j);
+        return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName, source,
+                filename, apiProvisioningConfig, deploymentConfig).deploy();
     }
 }

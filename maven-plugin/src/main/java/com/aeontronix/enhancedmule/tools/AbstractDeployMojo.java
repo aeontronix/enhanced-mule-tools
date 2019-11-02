@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.kloudtek.util.io.IOUtils;
@@ -64,6 +65,16 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.retrydelay")
     protected long deployRetryDelay = 2500L;
     /**
+     * Indicates if existing application properties should be merged
+     */
+    @Parameter(property = "anypoint.deploy.mergeproperties")
+    private boolean mergeExistingProperties;
+    /**
+     * Indicates the behavior to use when merging conflicting properties. If true it will override the existing property, or if false it will override it.
+     */
+    @Parameter(property = "anypoint.deploy.mergeproperties.override")
+    private boolean mergeExistingPropertiesOverride;
+    /**
      * Provisioning variables
      */
     @Parameter
@@ -107,7 +118,10 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                         apiProvisioningConfig.setVariables(vars);
                     }
                 }
-                DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig);
+                DeploymentConfig deploymentConfig = new DeploymentConfig();
+                deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
+                deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
+                DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);
                 if (!skipWait) {
                     logger.info("Waiting for application start");
                     app.waitDeployed(deployTimeout, deployRetryDelay);
@@ -120,5 +134,5 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
         }
     }
 
-    protected abstract DeploymentResult deploy(Environment env, APIProvisioningConfig apiProvisioningConfig) throws Exception;
+    protected abstract DeploymentResult deploy(Environment env, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception;
 }

@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,9 @@ public class CHDeployApplicationCmd extends AbstractDeployApplicationCmd {
 
     @Override
     protected DeploymentResult deploy(Environment environment) throws ProvisioningException, IOException, HttpException, NotFoundException {
+        DeploymentConfig deploymentConfig = new DeploymentConfig();
         CHDeploymentRequest req = new CHDeploymentRequest(muleVersion, region, workerType, workerCount, environment,
-                appName, source, filename, appProperties, apiProvisioningConfig);
+                appName, source, filename, apiProvisioningConfig, deploymentConfig);
         return req.deploy();
     }
 }

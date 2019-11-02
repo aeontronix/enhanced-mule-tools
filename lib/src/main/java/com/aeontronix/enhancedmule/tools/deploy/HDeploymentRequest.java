@@ -28,16 +28,18 @@ public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
     private Server target;
 
-    public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename, Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig) {
-        super(target.getParent(), appName, file, filename, properties, apiProvisioningConfig);
+    public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename,
+                              Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig,
+                              DeploymentConfig deploymentConfig) {
+        super(target.getParent(), appName, file, filename, apiProvisioningConfig, deploymentConfig);
         this.target = target;
     }
 
     @Override
-    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, List<Transformer> transformers) {
-        if (properties != null && !properties.isEmpty()) {
+    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers) {
+        if (!deploymentConfig.getProperties().isEmpty()) {
             transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getConfigFile(),
-                    new HashMap<>(properties)));
+                    new HashMap<>(deploymentConfig.getProperties())));
         }
     }
 
