@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +30,8 @@ public class HDeploymentRequest extends DeploymentRequest {
     private Server target;
 
     public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename,
-                              Map<String, String> properties, APIProvisioningConfig apiProvisioningConfig,
-                              DeploymentConfig deploymentConfig) {
+                              @NotNull APIProvisioningConfig apiProvisioningConfig,
+                              @NotNull DeploymentConfig deploymentConfig) {
         super(target.getParent(), appName, file, filename, apiProvisioningConfig, deploymentConfig);
         this.target = target;
     }

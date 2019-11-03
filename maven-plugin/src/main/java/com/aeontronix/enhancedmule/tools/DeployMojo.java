@@ -17,6 +17,7 @@ import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Map;
@@ -77,7 +78,9 @@ public class DeployMojo extends AbstractDeployMojo {
 
     @SuppressWarnings("Duplicates")
     @Override
-    protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception {
+    protected DeploymentResult deploy(Environment environment,
+                                      @NotNull APIProvisioningConfig apiProvisioningConfig,
+                                      @NotNull DeploymentConfig deploymentConfig) throws Exception {
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
         try {
             if (StringUtils.isBlank(target)) {
@@ -94,7 +97,7 @@ public class DeployMojo extends AbstractDeployMojo {
             } else {
                 try {
                     Server server = environment.findServerByName(target);
-                    return new HDeploymentRequest(server, appName, applicationSource, filename, properties,
+                    return new HDeploymentRequest(server, appName, applicationSource, filename,
                             apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (NotFoundException e) {
                     throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);

@@ -5,7 +5,6 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
@@ -34,7 +33,7 @@ public class HDeployApplicationCmd extends AbstractDeployApplicationCmd {
         } catch (NotFoundException e) {
             throw new UserDisplayableException("Target " + target + " not found in env " + environment.getName());
         }
-        HDeploymentRequest req = new HDeploymentRequest(server, appName, source, filename, appProperties,
+        HDeploymentRequest req = new HDeploymentRequest(server, appName, source, filename,
                 apiProvisioningConfig, deploymentConfig);
         return req.deploy();
     }

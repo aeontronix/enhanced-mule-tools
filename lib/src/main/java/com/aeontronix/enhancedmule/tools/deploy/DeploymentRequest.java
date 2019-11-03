@@ -21,6 +21,7 @@ import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public abstract class DeploymentRequest {
 
     public DeploymentRequest(Environment environment, String appName, ApplicationSource source, String filename,
                              APIProvisioningConfig apiProvisioningConfig,
-                             DeploymentConfig deploymentConfig) {
+                             @NotNull DeploymentConfig deploymentConfig) {
         this.environment = environment;
         this.appName = appName;
         this.source = source;
@@ -67,7 +68,7 @@ public abstract class DeploymentRequest {
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
-                    if (apiProvisioningConfig.isInjectApiId()) {
+                    if (provisioningResult.getApi() != null && apiProvisioningConfig.isInjectApiId()) {
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
                         deploymentConfig.setOverrideProperty("anypoint.platform.client_id", environment.getClientId());
                         try {
