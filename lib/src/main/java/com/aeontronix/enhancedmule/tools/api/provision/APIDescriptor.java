@@ -55,9 +55,10 @@ public class APIDescriptor {
         }
         String clientAppName = cfg.applyVars(clientApp.getName(), config);
         String endpoint = cfg.applyVars(this.getEndpoint(), config);
+        String filteredLabel = cfg.applyVars(label,config);
         API api;
         try {
-            api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName, label);
+            api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName, filteredLabel);
             logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
         } catch (NotFoundException e) {
             logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
@@ -65,14 +66,14 @@ public class APIDescriptor {
             // now we need to check if there's an existing API with the same producyAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
-                api = environment.findAPIByExchangeAssetNameAndProductAPIVersion(apiName, productAPIVersion, label);
+                api = environment.findAPIByExchangeAssetNameAndProductAPIVersion(apiName, productAPIVersion, filteredLabel);
                 api = api.updateVersion(version);
             } catch (NotFoundException ex) {
                 Boolean m3 = cfg.getMule3();
                 if (m3 == null) {
                     m3 = false;
                 }
-                api = environment.createAPI(apiSpec, !m3, endpoint, label != null ? label : config.getApiLabel());
+                api = environment.createAPI(apiSpec, !m3, endpoint, filteredLabel != null ? filteredLabel : cfg.applyVars(config.getApiLabel(),config));
             }
         }
         result.setApi(api);
