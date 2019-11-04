@@ -230,6 +230,10 @@ public class AnypointClient implements Closeable, Serializable {
         httpHelper.setClient(this);
     }
 
+    public void setAuthToken(String authToken) {
+        httpHelper.setAuthToken(authToken);
+    }
+
     public String authenticate(String username, String password) throws HttpException {
         if (StringUtils.isBlank(username)) {
             throw new IllegalArgumentException("Username missing");

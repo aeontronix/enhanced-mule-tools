@@ -41,7 +41,7 @@ public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
     private transient CloseableHttpClient httpClient;
-    private String auth;
+    private String authToken;
     private AnypointClient client;
     private String username;
     private String password;
@@ -65,6 +65,10 @@ public class HttpHelper implements Closeable {
     @Override
     public void close() throws IOException {
         httpClient.close();
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 
     private void readObject(java.io.ObjectInputStream in)
@@ -208,8 +212,8 @@ public class HttpHelper implements Closeable {
 
     private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest, int attempt) throws HttpException {
         boolean authenticating = method.getURI().getPath().equals(AnypointClient.LOGIN_PATH);
-        if (auth == null && !authenticating) {
-            auth = client.authenticate(username, password);
+        if (authToken == null && !authenticating) {
+            authToken = client.authenticate(username, password);
         }
         try {
             if (multiPartRequest != null) {
@@ -236,11 +240,11 @@ public class HttpHelper implements Closeable {
 
     @Nullable
     private String doExecute(HttpRequestBase method) throws HttpException {
-        if (auth != null && method.getFirstHeader(HEADER_AUTH) == null) {
-            if (auth.startsWith("bearer ")) {
-                auth = "Bearer " + auth.substring(7);
+        if (authToken != null && method.getFirstHeader(HEADER_AUTH) == null) {
+            if (authToken.startsWith("bearer ")) {
+                authToken = "Bearer " + authToken.substring(7);
             }
-            method.setHeader(HEADER_AUTH, auth);
+            method.setHeader(HEADER_AUTH, authToken);
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             verifyStatusCode(method, response);
