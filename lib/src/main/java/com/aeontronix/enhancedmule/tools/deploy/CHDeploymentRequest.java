@@ -134,7 +134,11 @@ public class CHDeploymentRequest extends DeploymentRequest {
         if(existingApp != null &&
                 (! existingApp.getStatus().equalsIgnoreCase("STARTED")
                         || existingApp.getDeploymentUpdateStatus() != null )) {
-            existingApp.start();
+            try {
+                existingApp.start();
+            } catch (Exception e) {
+                logger.debug(e.getMessage(),e);
+            }
         }
         return new CHDeploymentResult(client.getJsonHelper().readJson(new CHApplication(), deploymentJson, environment));
     }
