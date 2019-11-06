@@ -23,8 +23,8 @@ import java.util.List;
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
     private List<APIAccessDescriptor> access;
-    private String name;
-    private String version;
+    private String assetId;
+    private String assetVersion;
     private String endpoint;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
@@ -36,17 +36,17 @@ public class APIDescriptor {
     public APIDescriptor() {
     }
 
-    public APIDescriptor(String name, String version) {
-        this.name = name;
-        this.version = version;
+    public APIDescriptor(String assetId, String version) {
+        this.assetId = assetId;
+        this.assetVersion = version;
     }
 
     public void provision(AnypointConfigFileDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws HttpException, NotFoundException {
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: name", name);
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: version", version);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: name", assetId);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: version", assetVersion);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
-        logger.debug("Provisioning " + this.getName());
-        String apiName = cfg.applyVars(this.getName(), config);
+        logger.debug("Provisioning " + this.getAssetId());
+        String apiName = cfg.applyVars(this.getAssetId(), config);
         config.setVariable("api.name", apiName);
         config.setVariable("api.lname", apiName.toLowerCase());
         String apiVersionName = cfg.applyVars(this.getVersion(), config);
@@ -62,12 +62,12 @@ public class APIDescriptor {
             logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
         } catch (NotFoundException e) {
             logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
-            APISpec apiSpec = environment.getParent().findAPISpecsByNameAndVersion(this.getName(), this.getVersion());
-            // now we need to check if there's an existing API with the same producyAPIVersion
+            APISpec apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getVersion());
+            // now we need to check if there's an existing API with the same productAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
-                api = environment.findAPIByExchangeAssetNameAndProductAPIVersion(apiName, productAPIVersion, filteredLabel);
-                api = api.updateVersion(version);
+                api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(apiName, productAPIVersion, filteredLabel);
+                api = api.updateVersion(assetVersion);
             } catch (NotFoundException ex) {
                 Boolean m3 = cfg.getMule3();
                 if (m3 == null) {
@@ -139,21 +139,21 @@ public class APIDescriptor {
     }
 
     @JsonProperty
-    public String getName() {
-        return name;
+    public String getAssetId() {
+        return assetId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 
     @JsonProperty
     public String getVersion() {
-        return version;
+        return assetVersion;
     }
 
     public void setVersion(String version) {
-        this.version = version;
+        this.assetVersion = version;
     }
 
     @JsonProperty

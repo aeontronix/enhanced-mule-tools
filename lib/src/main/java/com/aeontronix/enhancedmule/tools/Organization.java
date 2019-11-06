@@ -187,6 +187,15 @@ public class Organization extends AnypointObject {
         return new APISpecList(this, filter);
     }
 
+    public APISpec findAPISpecsByIdOrNameAndVersion(String name, String version) throws NotFoundException, HttpException {
+        for (APISpec apiSpec : findAPISpecsByFilter(name)) {
+            if (apiSpec.getAssetId().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
+                return apiSpec;
+            }
+        }
+        return findAPISpecsByNameAndVersion(name,version);
+    }
+
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
         for (APISpec apiSpec : findAPISpecsByFilter(name)) {
             if (apiSpec.getName().equalsIgnoreCase(name) && apiSpec.getVersion().equalsIgnoreCase(version)) {
