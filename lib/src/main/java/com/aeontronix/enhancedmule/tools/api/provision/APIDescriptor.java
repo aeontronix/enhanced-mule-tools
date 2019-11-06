@@ -49,7 +49,7 @@ public class APIDescriptor {
         String apiName = cfg.applyVars(this.getAssetId(), config);
         config.setVariable("api.name", apiName);
         config.setVariable("api.lname", apiName.toLowerCase());
-        String apiVersionName = cfg.applyVars(this.getVersion(), config);
+        String apiVersionName = cfg.applyVars(this.getAssetVersion(), config);
         if (clientApp == null) {
             clientApp = new ClientApplicationDescriptor();
         }
@@ -62,7 +62,7 @@ public class APIDescriptor {
             logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
         } catch (NotFoundException e) {
             logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
-            APISpec apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getVersion());
+            APISpec apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
             // now we need to check if there's an existing API with the same productAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
@@ -148,12 +148,12 @@ public class APIDescriptor {
     }
 
     @JsonProperty
-    public String getVersion() {
+    public String getAssetVersion() {
         return assetVersion;
     }
 
-    public void setVersion(String version) {
-        this.assetVersion = version;
+    public void setAssetVersion(String assetVersion) {
+        this.assetVersion = assetVersion;
     }
 
     @JsonProperty
