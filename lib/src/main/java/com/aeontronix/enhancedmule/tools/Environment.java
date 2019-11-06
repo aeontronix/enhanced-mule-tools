@@ -199,6 +199,19 @@ public class Environment extends AnypointObject<Organization> {
         return findAPIByExchangeAssetNameAndVersion(name, version, null);
     }
 
+    public API findAPIByExchangeAssetIdOrNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
+        for (APIAsset asset : findAPIs(name)) {
+            if (asset.getAssetId().equalsIgnoreCase(name)) {
+                for (API api : asset.getApis()) {
+                    if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
+                        return api;
+                    }
+                }
+            }
+        }
+        return findAPIByExchangeAssetNameAndVersion(name, version, label);
+    }
+
     public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
         for (APIAsset asset : findAPIs(name)) {
             if (asset.getExchangeAssetName().equalsIgnoreCase(name)) {

@@ -58,7 +58,7 @@ public class APIDescriptor {
         String filteredLabel = cfg.applyVars(label,config);
         API api;
         try {
-            api = environment.findAPIByExchangeAssetNameAndVersion(apiName, apiVersionName, filteredLabel);
+            api = environment.findAPIByExchangeAssetIdOrNameAndVersion(apiName, apiVersionName, filteredLabel);
             logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
         } catch (NotFoundException e) {
             logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
