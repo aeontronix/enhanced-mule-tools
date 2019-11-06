@@ -42,8 +42,8 @@ public class APIDescriptor {
     }
 
     public void provision(AnypointConfigFileDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws HttpException, NotFoundException {
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: name", assetId);
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: version", assetVersion);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
+        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
         logger.debug("Provisioning " + this.getAssetId());
         String apiName = cfg.applyVars(this.getAssetId(), config);

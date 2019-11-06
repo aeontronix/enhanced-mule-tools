@@ -64,7 +64,7 @@ Additionally you can specify the following optional attributes:
 {
   "api": {
     "assetId": "my-api",
-    "assetVersion": "1.0.0"    
+    "assetVersion": "1.0.0",    
     "endpoint": "http://myapi/v1/", 
     "label": "prc"
   }
@@ -79,7 +79,7 @@ You can add policies to your configuration file as shown below:
 {
   "api": {
     "assetId": "my-api",
-    "assetVersion": "1.0.0"    
+    "assetVersion": "1.0.0",  
     "endpoint": "http://myapi/xxx",
     "policies": [
         {
@@ -147,7 +147,7 @@ but this JSON will delete all policies
 {
   "api": {
     "assetId": "my-api",
-    "assetVersion": "1.0.0"    
+    "assetVersion": "1.0.0",
     "policies": []
   }
 }
