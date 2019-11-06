@@ -49,8 +49,8 @@ First you will need to create an entry for your API and include the API name and
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0"    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
   }
 }
 ```
@@ -63,8 +63,8 @@ Additionally you can specify the following optional attributes:
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "endpoint": "http://myapi/v1/", 
     "label": "prc"
   }
@@ -78,8 +78,8 @@ You can add policies to your configuration file as shown below:
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "endpoint": "http://myapi/xxx",
     "policies": [
         {
@@ -135,8 +135,8 @@ So this JSON will leave your policies as-is:
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0"    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
   }
 }
 ```
@@ -146,8 +146,8 @@ but this JSON will delete all policies
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "policies": []
   }
 }
@@ -162,8 +162,8 @@ You can disable that behavior by setting `createClientApplication`
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "createClientApplication": false
   }
 }
@@ -176,8 +176,8 @@ You can however override this or set the client application description and url 
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "clientApp": {
       "name": "myclientapp-${organization.lname}-${environment.lname}",
       "description": "My Client Application",
@@ -194,8 +194,8 @@ You can specify what SLA Tiers should be configuration with the following JSON.
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "slaTiers": [
       {
         "name": "Premium",
@@ -223,8 +223,8 @@ automatic approval, the approval request will be automatically granted as well.
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "access": [
       {
         "groupId": "68ef9520-24e9-4cf2-b2f5-620025690944",
@@ -243,9 +243,9 @@ also be able to specify those through parameters when deploying).
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
-    "accessedBy": ["someclient1-${environment.lname}","someclient2-${environment.lname}"]
+     "assetId": "my-api",
+     "assetVersion": "1.0.0"    
+   "accessedBy": ["someclient1-${environment.lname}","someclient2-${environment.lname}"]
   }
 }
 ```
@@ -261,8 +261,8 @@ variable `apiUrl=http://myapp`, and in the anypoint descriptor just set:
 ```json
 {
   "api": {
-    "name": "My API",
-    "version": "1.0.0",    
+    "assetId": "my-api",
+    "assetVersion": "1.0.0"    
     "endpoint": "${apiUrl}/v1/"
   }
 }

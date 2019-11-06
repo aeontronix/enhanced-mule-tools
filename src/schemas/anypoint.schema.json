@@ -14,12 +14,12 @@
       "description": "API configuration",
       "type": "object",
       "properties": {
-        "name": {
-          "description": "API name",
+        "assetId": {
+          "description": "API Exchange Asset Id",
           "type": "string"
         },
         "version": {
-          "description": "API version",
+          "description": "API Exchange Asset Version",
           "type": "string"
         },
         "endpoint": {
