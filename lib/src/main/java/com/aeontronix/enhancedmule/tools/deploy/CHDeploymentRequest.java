@@ -94,6 +94,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
         appInfoBuilder.set("fileName", filename);
         Map<String, Object> appInfo = appInfoBuilder.toMap();
         String deploymentJson;
+        logger.debug("Deploying application");
         if (source.getLocalFile() != null) {
             HttpHelper.MultiPartRequest req;
             if (existingApp != null) {
@@ -105,6 +106,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
             }
             String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
             req = req.addText("appInfoJson", appInfoJson);
+            logger.debug("Deployment JSON: {}",appInfoJson);
             req = req.addBinary("file", new StreamSource() {
                 @Override
                 public String getFileName() {
