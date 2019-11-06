@@ -15,6 +15,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
@@ -64,6 +65,11 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.retrydelay")
     protected long deployRetryDelay = 2500L;
+    /**
+     * Application properties
+     */
+    @Parameter(property = "anypoint.deploy.properties", required = false)
+    protected Map<String, String> properties;
     /**
      * Indicates if existing application properties should be merged
      */
@@ -119,6 +125,7 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                     }
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
+                deploymentConfig.setProperties(properties);
                 deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
                 deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
                 DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);

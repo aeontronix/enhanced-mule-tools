@@ -45,12 +45,6 @@ public class CHDeployMojo extends AbstractDeployMojo {
     @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
     private boolean customlog4j;
 
-    /**
-     * Application properties
-     */
-    @Parameter(property = "anypoint.deploy.properties", required = false)
-    protected Map<String, String> properties;
-
     @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception {

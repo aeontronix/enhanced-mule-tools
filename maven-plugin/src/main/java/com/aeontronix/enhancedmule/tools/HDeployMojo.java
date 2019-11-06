@@ -28,12 +28,6 @@ public class HDeployMojo extends AbstractDeployMojo {
     @Parameter(name = "target", property = "anypoint.target", required = true)
     private String target;
     /**
-     * Properties to be injected into the archive (properties resulting from API provisioning will be included in those
-     * properties)
-     */
-    @Parameter(property = "anypoint.deploy.properties", required = false)
-    protected Map<String, String> properties;
-    /**
      * Name of file which will contain injected properties
      */
     @Parameter(property = "anypoint.deploy.retrydelay", required = false)
