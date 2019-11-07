@@ -275,8 +275,6 @@ A number of variables are also pre-defined and available for you to use:
 * `environment.lname`: Environment name in lower case and with any spaces converted to underscores
 * `organization.name`: Organization name
 * `organization.lname`: Organization name in lower case and with any spaces converted to underscores
-* `api.name`: API name
-* `api.lname`: API name in lower case and with any spaces converted to underscores
 
 Additionally you can also use some functions. So for example let's say the you've assigned the variable 'myvar' 
 to 'littleDog'

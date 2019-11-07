@@ -64,7 +64,7 @@ public abstract class DeploymentRequest {
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
-                AnypointConfigFileDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor();
+                AnypointConfigFileDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);

@@ -6,8 +6,11 @@ package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
@@ -31,15 +34,17 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract boolean exists();
 
-    public abstract AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException;
+    public abstract AnypointConfigFileDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
 
     @Nullable
-    protected AnypointConfigFileDescriptor readDescriptorFromZip(File file) throws IOException {
+    protected AnypointConfigFileDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return client.getJsonHelper().getJsonMapper().readValue(is, AnypointConfigFileDescriptor.class);
+                String json = IOUtils.toString(is);
+                json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
+                return client.getJsonHelper().getJsonMapper().readValue(json, AnypointConfigFileDescriptor.class);
             }
         } else {
             return null;

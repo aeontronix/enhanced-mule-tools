@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.kloudtek.util.TempFile;
@@ -83,13 +84,13 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException, HttpException {
+    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
             try (TempFile tempFile = new TempFile("anyp-apparch")) {
                 try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                     client.getHttpHelper().httpGetBasicAuth("https://maven.anypoint.mulesoft.com/api/v1/organizations/" + orgId + "/maven/" + groupId + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-mule-application.jar", fos);
                 }
-                apiProvisioningDescriptor = readDescriptorFromZip(tempFile);
+                apiProvisioningDescriptor = readDescriptorFromZip(tempFile, apiProvisioningConfig);
                 return apiProvisioningDescriptor;
             }
         }

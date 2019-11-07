@@ -46,34 +46,27 @@ public class APIDescriptor {
         ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
         logger.debug("Provisioning " + this.getAssetId());
-        String apiName = cfg.applyVars(this.getAssetId(), config);
-        config.setVariable("api.name", apiName);
-        config.setVariable("api.lname", apiName.toLowerCase());
-        String apiVersionName = cfg.applyVars(this.getAssetVersion(), config);
         if (clientApp == null) {
             clientApp = new ClientApplicationDescriptor();
         }
-        String clientAppName = cfg.applyVars(clientApp.getName(), config);
-        String endpoint = cfg.applyVars(this.getEndpoint(), config);
-        String filteredLabel = cfg.applyVars(label,config);
         API api;
         try {
-            api = environment.findAPIByExchangeAssetIdOrNameAndVersion(apiName, apiVersionName, filteredLabel);
-            logger.debug("API " + apiName + " " + apiVersionName + " exists: " + api);
+            api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
+            logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
         } catch (NotFoundException e) {
-            logger.debug("API " + apiName + " " + apiVersionName + " not found, creating");
+            logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
             APISpec apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
             // now we need to check if there's an existing API with the same productAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
-                api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(apiName, productAPIVersion, filteredLabel);
+                api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
                 api = api.updateVersion(assetVersion);
             } catch (NotFoundException ex) {
                 Boolean m3 = cfg.getMule3();
                 if (m3 == null) {
                     m3 = false;
                 }
-                api = environment.createAPI(apiSpec, !m3, endpoint, filteredLabel != null ? filteredLabel : cfg.applyVars(config.getApiLabel(),config));
+                api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label);
             }
         }
         result.setApi(api);
@@ -85,14 +78,14 @@ public class APIDescriptor {
         }
         ClientApplication clientApplication = null;
         try {
-            clientApplication = environment.getOrganization().findClientApplicationByName(clientAppName);
-            logger.debug("Client application found: " + clientAppName);
+            clientApplication = environment.getOrganization().findClientApplicationByName(clientApp.getName());
+            logger.debug("Client application found: " + clientApp.getName());
         } catch (NotFoundException e) {
             //
         }
         if (clientApplication == null && isCreateClientApplication()) {
-            logger.debug("Client application not found, creating: " + clientAppName);
-            clientApplication = environment.getOrganization().createClientApplication(clientAppName, clientApp.getUrl(), clientApp.getDescription());
+            logger.debug("Client application not found, creating: " + clientApp.getName());
+            clientApplication = environment.getOrganization().createClientApplication(clientApp.getName(), clientApp.getUrl(), clientApp.getDescription());
         }
         result.setClientApplication(clientApplication);
         if (slaTiers != null) {

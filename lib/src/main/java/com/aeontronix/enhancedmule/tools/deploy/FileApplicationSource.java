@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
+import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 
@@ -36,8 +37,8 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor() throws IOException {
-        return readDescriptorFromZip(file);
+    public AnypointConfigFileDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException {
+        return readDescriptorFromZip(file, apiProvisioningConfig);
     }
 
     @Override

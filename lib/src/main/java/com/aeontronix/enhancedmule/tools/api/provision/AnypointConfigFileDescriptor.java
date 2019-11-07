@@ -76,10 +76,6 @@ public class AnypointConfigFileDescriptor {
 //        }
     }
 
-    public String applyVars(String str, APIProvisioningConfig config) {
-        return StringUtils.substituteVariables(str, config.getVariables());
-    }
-
     public Boolean getMule3() {
         return mule3;
     }

@@ -129,10 +129,7 @@
 
     <profiles>
         <profile>
-            <id>osshr</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+            <id>continuous-integration</id>
             <build>
                 <plugins>
                     <plugin>
