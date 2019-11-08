@@ -10,25 +10,29 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.repository.AuthenticationSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 public class MavenUtils {
-    public static File getProjectJar(MavenProject project, Log log) throws MojoExecutionException {
-        if (log.isDebugEnabled()) {
-            log.debug("Listing attached artifacts : " + project.getAttachedArtifacts());
+    private static final Logger logger = LoggerFactory.getLogger(MavenUtils.class);
+
+    public static File getProjectJar(MavenProject project) throws MojoExecutionException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Listing attached artifacts : " + project.getAttachedArtifacts());
         }
         for (Object artifactObj : project.getAttachedArtifacts()) {
             Artifact artifact = (Artifact) artifactObj;
-            if (log.isDebugEnabled()) {
-                log.debug("Found : " + artifact.getFile() + " of classifier " + artifact.getClassifier());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Found : " + artifact.getFile() + " of classifier " + artifact.getClassifier());
             }
             if (artifact.getClassifier() != null && artifact.getClassifier().equals("mule-application") ) {
-                log.debug("File is mule-application");
+                logger.debug("File is mule-application");
                 return artifact.getFile();
-            } else if (log.isDebugEnabled()) {
-                log.debug("File is not mule-application");
+            } else if (logger.isDebugEnabled()) {
+                logger.debug("File is not mule-application");
             }
         }
         for (Object artifactObj : project.getAttachedArtifacts()) {

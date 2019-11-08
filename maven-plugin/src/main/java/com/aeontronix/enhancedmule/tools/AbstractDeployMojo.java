@@ -13,12 +13,15 @@ import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractDeployMojo.class);
     /**
      * If true API provisioning will be skipped
      */
@@ -99,11 +102,13 @@ public abstract class AbstractDeployMojo extends AbstractEnvironmentalMojo {
                 return;
             }
             if (file == null) {
-                logger.debug("No deploy file defined");
+                if( logger.isDebugEnabled() ) {
+                    logger.debug("No deploy file defined");
+                }
                 if (project == null) {
                     throw new MojoExecutionException("File not specified while running out of project");
                 }
-                file = MavenUtils.getProjectJar(project, logger).getPath();
+                file = MavenUtils.getProjectJar(project).getPath();
             }
             source = ApplicationSource.create(getEnvironment().getOrganization().getId(), getClient(), file);
             try {

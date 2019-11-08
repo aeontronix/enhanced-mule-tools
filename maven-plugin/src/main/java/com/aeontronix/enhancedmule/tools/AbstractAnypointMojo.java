@@ -7,12 +7,14 @@ package com.aeontronix.enhancedmule.tools;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractAnypointMojo.class);
     private AnypointClient client;
     /**
      * Anypoint username
@@ -26,10 +28,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String password;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
-    protected Log logger = getLog();
 
     public synchronized AnypointClient getClient() {
-        logger = getLog();
         if (client == null) {
             client = new AnypointClient(username, password);
         }

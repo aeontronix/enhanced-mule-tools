@@ -15,6 +15,7 @@ import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
  */
-@Mojo(name = "deploy", requiresProject = false)
+@Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends AbstractDeployMojo {
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub

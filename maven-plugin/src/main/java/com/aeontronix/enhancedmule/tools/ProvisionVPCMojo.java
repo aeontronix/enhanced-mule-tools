@@ -6,11 +6,14 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.kloudtek.util.UserDisplayableException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 //@Mojo(name = "provisionvpc", requiresProject = false)
 public class ProvisionVPCMojo extends AbstractOrganizationalMojo {
+    private static final Logger logger = LoggerFactory.getLogger(ProvisionVPCMojo.class);
     /**
      * Delete pre-existing VPC with same name (and all applications in associated environments) if it exists prior to creation
      */

@@ -7,12 +7,15 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Create a client application
  */
 @Mojo(name = "create-client-app", requiresProject = false)
 public class CreateClientApp extends AbstractOrganizationalMojo {
+    private static final Logger logger = LoggerFactory.getLogger(CreateClientApp.class);
     /**
      * Client application name
      */

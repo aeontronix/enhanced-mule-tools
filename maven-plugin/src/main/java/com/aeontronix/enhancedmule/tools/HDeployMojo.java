@@ -11,6 +11,7 @@ import com.aeontronix.enhancedmule.tools.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -20,7 +21,7 @@ import java.util.Map;
 /**
  * Deploy application to on-premise runtimes (hydrid model) via anypoint
  */
-@Mojo(name = "hdeploy", requiresProject = false)
+@Mojo(name = "hdeploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class HDeployMojo extends AbstractDeployMojo {
     /**
      * Anypoint target name (Server / Server Group / Cluster)

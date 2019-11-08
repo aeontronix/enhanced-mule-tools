@@ -21,10 +21,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Prepare a project for deployment on anypoint exchange.
+ * Prepare a project for deployment to anypoint exchange maven.
  */
-@Mojo(name = "prepare-project", requiresProject = false, defaultPhase = LifecyclePhase.VALIDATE)
-public class PrepareProjectMojo extends AbstractOrganizationalMojo {
+@Mojo(name = "prepare-exchange-publish", defaultPhase = LifecyclePhase.VALIDATE)
+public class PrepareExchangePublish extends AbstractOrganizationalMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)

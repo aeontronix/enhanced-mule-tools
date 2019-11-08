@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 /**
  * Deploy application to on-premise runtimes (hydrid model) via anypoint
  */
-@Mojo(name = "cdeploy", requiresProject = false)
+@Mojo(name = "cdeploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class CHDeployMojo extends AbstractDeployMojo {
     /**
      * Mule version name (will default to latest if not set)

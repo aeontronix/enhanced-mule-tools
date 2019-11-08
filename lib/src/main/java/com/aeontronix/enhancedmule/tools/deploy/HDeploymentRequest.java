@@ -14,6 +14,7 @@ import com.aeontronix.enhancedmule.tools.runtime.HApplication;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
     private Server target;
+    private JsonHelper jsonHelper;
 
     public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename,
                               @NotNull APIProvisioningConfig apiProvisioningConfig,
@@ -60,10 +62,19 @@ public class HDeploymentRequest extends DeploymentRequest {
             logger.debug("Couldn't find application named {}", appName);
             request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", environment);
         }
+        jsonHelper = target.getClient().getJsonHelper();
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
                 .addText("targetId", target.getId());
+        if( deploymentConfig.getProperties() != null && !deploymentConfig.getProperties().isEmpty() ) {
+            HashMap<String, Object> rootCfg = new HashMap<>();
+            HashMap<String, Object> appCfg = new HashMap<>();
+            appCfg.put("applicationName","appName");
+            appCfg.put("properties",deploymentConfig.getProperties());
+            rootCfg.put("mule.agent.application.properties.service",appCfg);
+            multiPartRequest.addText("configuration",jsonHelper.getJsonMapper().writeValueAsString(rootCfg));
+        }
         String json = executeRequest(start, multiPartRequest);
-        HApplication application = target.getClient().getJsonHelper().readJson(new HApplication(target), json, "/data");
+        HApplication application = jsonHelper.readJson(new HApplication(target), json, "/data");
         return new HDeploymentResult(application);
     }
 }
