@@ -78,6 +78,9 @@ public class APIDescriptor {
                 api.createPolicy(policyDescriptor);
             }
         }
+        if( clientApp.getName() == null ) {
+            clientApp.setName(api.getAssetId()+"-"+config.getVariables().get("organization.lname")+"-"+config.getVariables().get("environment.lname"));
+        }
         ClientApplication clientApplication = null;
         try {
             clientApplication = environment.getOrganization().findClientApplicationByName(clientApp.getName());

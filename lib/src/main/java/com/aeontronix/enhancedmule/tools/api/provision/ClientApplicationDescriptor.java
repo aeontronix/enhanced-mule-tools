@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ClientApplicationDescriptor {
     private String url;
     private String description;
-    private String name = "${api.lname}-${organization.lname}-${environment.lname}";
+    private String name;
 
     public ClientApplicationDescriptor() {
     }
