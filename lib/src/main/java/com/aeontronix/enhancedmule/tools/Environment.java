@@ -199,9 +199,9 @@ public class Environment extends AnypointObject<Organization> {
         return findAPIByExchangeAssetNameAndVersion(name, version, null);
     }
 
-    public API findAPIByExchangeAssetIdOrNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
-        for (APIAsset asset : findAPIs(name)) {
-            if (asset.getAssetId().equalsIgnoreCase(name)) {
+    public API findAPIByExchangeAssetIdOrNameAndVersion(@NotNull String idOrName, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
+        for (APIAsset asset : findAllAPIs() ) {
+            if (asset.getAssetId().equalsIgnoreCase(idOrName)) {
                 for (API api : asset.getApis()) {
                     if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
                         return api;
@@ -209,7 +209,7 @@ public class Environment extends AnypointObject<Organization> {
                 }
             }
         }
-        return findAPIByExchangeAssetNameAndVersion(name, version, label);
+        return findAPIByExchangeAssetNameAndVersion(idOrName, version, label);
     }
 
     public API findAPIByExchangeAssetNameAndVersion(@NotNull String name, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
@@ -226,7 +226,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API findAPIByExchangeAssetIdOrNameAndProductAPIVersion(@NotNull String name, @NotNull String productAPIVersion, @Nullable String label) throws HttpException, NotFoundException {
-        for (APIAsset asset : findAPIs(name)) {
+        for (APIAsset asset : findAllAPIs()) {
             if (asset.getAssetId().equalsIgnoreCase(name)) {
                 for (API api : asset.getApis()) {
                     if (api.getProductVersion().equalsIgnoreCase(productAPIVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
@@ -239,7 +239,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API findAPIByExchangeAssetNameAndProductAPIVersion(@NotNull String name, @NotNull String productAPIVersion, @Nullable String label) throws HttpException, NotFoundException {
-        for (APIAsset asset : findAPIs(name)) {
+        for (APIAsset asset : findAllAPIs()) {
             if (asset.getExchangeAssetName().equalsIgnoreCase(name)) {
                 for (API api : asset.getApis()) {
                     if (api.getProductVersion().equalsIgnoreCase(productAPIVersion) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
