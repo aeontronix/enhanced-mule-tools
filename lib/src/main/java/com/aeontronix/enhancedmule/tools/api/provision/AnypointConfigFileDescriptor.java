@@ -24,11 +24,6 @@ public class AnypointConfigFileDescriptor {
     public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config) throws ProvisioningException {
         try {
             APIProvisioningResult result = new APIProvisioningResult();
-            config.setVariable("environment.id", environment.getId());
-            config.setVariable("environment.name", environment.getName());
-            config.setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
-            config.setVariable("organization.name", environment.getOrganization().getName());
-            config.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
                 api.provision(this, environment, config, result);

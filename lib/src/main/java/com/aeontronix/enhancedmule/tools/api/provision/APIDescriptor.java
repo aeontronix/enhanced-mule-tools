@@ -59,9 +59,11 @@ public class APIDescriptor {
             // now we need to check if there's an existing API with the same productAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
+                logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}",this.getAssetId(), productAPIVersion, label);
                 api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
                 api = api.updateVersion(assetVersion);
             } catch (NotFoundException ex) {
+                logger.debug("Couldn't find, creating");
                 Boolean m3 = cfg.getMule3();
                 if (m3 == null) {
                     m3 = false;
