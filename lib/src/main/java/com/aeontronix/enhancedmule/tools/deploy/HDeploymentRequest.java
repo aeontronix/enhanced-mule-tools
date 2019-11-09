@@ -71,7 +71,7 @@ public class HDeploymentRequest extends DeploymentRequest {
         if( deploymentConfig.getProperties() != null && !deploymentConfig.getProperties().isEmpty() ) {
             HashMap<String, Object> rootCfg = new HashMap<>();
             HashMap<String, Object> appCfg = new HashMap<>();
-            appCfg.put("applicationName","appName");
+            appCfg.put("applicationName",appName);
             appCfg.put("properties",deploymentConfig.getProperties());
             rootCfg.put("mule.agent.application.properties.service",appCfg);
             String cfgJson = jsonHelper.getJsonMapper().writeValueAsString(rootCfg);
