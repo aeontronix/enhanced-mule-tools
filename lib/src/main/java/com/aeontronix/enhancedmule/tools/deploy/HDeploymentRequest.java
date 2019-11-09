@@ -15,13 +15,16 @@ import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.StreamSource;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,8 +74,22 @@ public class HDeploymentRequest extends DeploymentRequest {
             appCfg.put("applicationName","appName");
             appCfg.put("properties",deploymentConfig.getProperties());
             rootCfg.put("mule.agent.application.properties.service",appCfg);
-            multiPartRequest.addText("configuration",jsonHelper.getJsonMapper().writeValueAsString(rootCfg));
+            String cfgJson = jsonHelper.getJsonMapper().writeValueAsString(rootCfg);
+            logger.debug("Added config to hybrid deploy {}",cfgJson);
+            multiPartRequest.addText("configuration", cfgJson);
         }
+        logger.debug("Sending hybrid deploy request: {}",multiPartRequest);
+        multiPartRequest = multiPartRequest.addBinary("file", new StreamSource() {
+            @Override
+            public String getFileName() {
+                return filename;
+            }
+
+            @Override
+            public InputStream createInputStream() throws IOException {
+                return new FileInputStream(source.getLocalFile());
+            }
+        });
         String json = executeRequest(start, multiPartRequest);
         HApplication application = jsonHelper.readJson(new HApplication(target), json, "/data");
         return new HDeploymentResult(application);
