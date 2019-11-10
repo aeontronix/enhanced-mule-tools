@@ -16,6 +16,7 @@ public class DeploymentConfig {
     private boolean mergeExistingPropertiesOverride;
     private Map<String, String> properties = new HashMap<>();
     private HashSet<String> overrideProperties = new HashSet<>();
+    private String propertiesFilename;
 
     public DeploymentConfig() {
     }
@@ -72,5 +73,13 @@ public class DeploymentConfig {
         }
         properties.put(key, value);
         overrideProperties.add(key);
+    }
+
+    public String getPropertiesFilename() {
+        return propertiesFilename;
+    }
+
+    public void setPropertiesFilename(String propertiesFilename) {
+        this.propertiesFilename = propertiesFilename;
     }
 }

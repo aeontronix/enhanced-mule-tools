@@ -18,6 +18,7 @@ import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.StreamSource;
 import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
+import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,8 @@ public class HDeploymentRequest extends DeploymentRequest {
 
     @Override
     protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers) {
-        if (!deploymentConfig.getProperties().isEmpty()) {
-            transformers.add(new SetPropertyTransformer(apiProvisioningConfig.getConfigFile(),
+        if (StringUtils.isNotBlank(deploymentConfig.getPropertiesFilename())) {
+            transformers.add(new SetPropertyTransformer(deploymentConfig.getPropertiesFilename(),
                     new HashMap<>(deploymentConfig.getProperties())));
         }
     }
@@ -68,7 +69,7 @@ public class HDeploymentRequest extends DeploymentRequest {
         jsonHelper = target.getClient().getJsonHelper();
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
                 .addText("targetId", target.getId());
-        if( deploymentConfig.getProperties() != null && !deploymentConfig.getProperties().isEmpty() ) {
+        if( StringUtils.isBlank(deploymentConfig.getPropertiesFilename()) && deploymentConfig.getProperties() != null && !deploymentConfig.getProperties().isEmpty() ) {
             HashMap<String, Object> rootCfg = new HashMap<>();
             HashMap<String, Object> appCfg = new HashMap<>();
             appCfg.put("applicationName",appName);

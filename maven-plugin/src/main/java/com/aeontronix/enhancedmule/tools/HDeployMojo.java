@@ -31,14 +31,15 @@ public class HDeployMojo extends AbstractDeployMojo {
     /**
      * Name of file which will contain injected properties
      */
-    @Parameter(property = "anypoint.deploy.retrydelay", required = false)
-    protected String propertiesFilename = "deployconfig.properties";
+    @Parameter(property = "anypoint.deploy.propertiesfile", required = false)
+    protected String propertiesFilename;
 
     @SuppressWarnings("Duplicates")
     @Override
     protected DeploymentResult deploy(Environment environment, APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig) throws Exception {
         try {
             Server server = environment.findServerByName(target);
+            deploymentConfig.setPropertiesFilename(propertiesFilename);
             return new HDeploymentRequest(server, appName, source, filename, apiProvisioningConfig, deploymentConfig).deploy();
         } catch (NotFoundException e) {
             throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);

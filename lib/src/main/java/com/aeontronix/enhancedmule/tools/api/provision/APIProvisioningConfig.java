@@ -22,8 +22,6 @@ public class APIProvisioningConfig {
     private boolean autoApproveAPIAccessRequest = true;
     @JsonProperty(defaultValue = "true")
     private boolean injectApiId = true;
-    @JsonProperty(defaultValue = CONFIG_FILE)
-    private String configFile = CONFIG_FILE;
     @JsonProperty(defaultValue = "anypoint.api.id")
     private String injectApiIdKey = "anypoint.api.id";
     @JsonProperty(defaultValue = "true")
@@ -104,14 +102,6 @@ public class APIProvisioningConfig {
         this.injectApiId = injectApiId;
     }
 
-    public String getConfigFile() {
-        return configFile;
-    }
-
-    public void setConfigFile(String configFile) {
-        this.configFile = configFile;
-    }
-
     public String getInjectApiIdKey() {
         return injectApiIdKey;
     }
@@ -148,14 +138,13 @@ public class APIProvisioningConfig {
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(accessedBy, that.accessedBy) &&
                 Objects.equals(apiLabel, that.apiLabel) &&
-                Objects.equals(configFile, that.configFile) &&
                 Objects.equals(injectApiIdKey, that.injectApiIdKey) &&
                 Objects.equals(injectClientIdSecretKey, that.injectClientIdSecretKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, configFile, injectApiIdKey, injectClientIdSecret, injectClientIdSecretKey);
+        return Objects.hash(descriptorLocation, variables, accessedBy, apiLabel, autoApproveAPIAccessRequest, injectApiId, injectApiIdKey, injectClientIdSecret, injectClientIdSecretKey);
     }
 
     @Override
@@ -167,7 +156,6 @@ public class APIProvisioningConfig {
                 .add("apiLabel='" + apiLabel + "'")
                 .add("autoApproveAPIAccessRequest=" + autoApproveAPIAccessRequest)
                 .add("injectApiId=" + injectApiId)
-                .add("configFile='" + configFile + "'")
                 .add("injectApiIdKey='" + injectApiIdKey + "'")
                 .add("injectClientIdSecret=" + injectClientIdSecret)
                 .add("injectClientIdSecretKey='" + injectClientIdSecretKey + "'")
