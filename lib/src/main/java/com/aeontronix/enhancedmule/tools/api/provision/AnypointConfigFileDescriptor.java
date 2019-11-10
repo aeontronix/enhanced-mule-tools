@@ -9,10 +9,13 @@ import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+
 public class AnypointConfigFileDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(AnypointConfigFileDescriptor.class);
     private Boolean mule3;
     private APIDescriptor api;
+    private HashMap<String,String> armProperties = new HashMap<>();
 
     public AnypointConfigFileDescriptor() {
     }
@@ -85,5 +88,13 @@ public class AnypointConfigFileDescriptor {
 
     public void setApi(APIDescriptor api) {
         this.api = api;
+    }
+
+    public HashMap<String, String> getArmProperties() {
+        return armProperties;
+    }
+
+    public void setArmProperties(HashMap<String, String> armProperties) {
+        this.armProperties = armProperties;
     }
 }

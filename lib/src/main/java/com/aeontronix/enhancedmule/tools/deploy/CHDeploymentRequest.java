@@ -77,7 +77,11 @@ public class CHDeploymentRequest extends DeploymentRequest {
         JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
         CHApplication existingApp = getExistingApp(appName);
         deploymentConfig.mergeExistingProperties(existingApp);
-        appInfoBuilder.set("properties", deploymentConfig.getProperties())
+        Map<String, String> armProperties = deploymentConfig.getProperties();
+        if (apiProvisioningDescriptor.getArmProperties() != null) {
+            armProperties.putAll(apiProvisioningDescriptor.getArmProperties());
+        }
+        appInfoBuilder.set("properties", armProperties)
                 .set("domain", appName)
                 .set("monitoringEnabled", true)
                 .set("monitoringAutoRestart", true)
@@ -106,7 +110,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
             }
             String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
             req = req.addText("appInfoJson", appInfoJson);
-            logger.debug("Deployment JSON: {}",appInfoJson);
+            logger.debug("Deployment JSON: {}", appInfoJson);
             req = req.addBinary("file", new StreamSource() {
                 @Override
                 public String getFileName() {
@@ -133,13 +137,13 @@ public class CHDeploymentRequest extends DeploymentRequest {
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
         }
-        if(existingApp != null &&
-                (! existingApp.getStatus().equalsIgnoreCase("STARTED")
-                        || existingApp.getDeploymentUpdateStatus() != null )) {
+        if (existingApp != null &&
+                (!existingApp.getStatus().equalsIgnoreCase("STARTED")
+                        || existingApp.getDeploymentUpdateStatus() != null)) {
             try {
                 existingApp.start();
             } catch (Exception e) {
-                logger.debug(e.getMessage(),e);
+                logger.debug(e.getMessage(), e);
             }
         }
         return new CHDeploymentResult(client.getJsonHelper().readJson(new CHApplication(), deploymentJson, environment));

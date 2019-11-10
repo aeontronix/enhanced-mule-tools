@@ -41,6 +41,7 @@ public abstract class DeploymentRequest {
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
     protected DeploymentConfig deploymentConfig;
+    protected AnypointConfigFileDescriptor apiProvisioningDescriptor;
 
     public DeploymentRequest() {
     }
@@ -69,7 +70,7 @@ public abstract class DeploymentRequest {
                 apiProvisioningConfig.setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
                 apiProvisioningConfig.setVariable("organization.name", environment.getOrganization().getName());
                 apiProvisioningConfig.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
-                AnypointConfigFileDescriptor apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
+                apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);

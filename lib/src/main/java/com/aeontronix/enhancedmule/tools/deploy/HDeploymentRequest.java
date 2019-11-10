@@ -69,11 +69,15 @@ public class HDeploymentRequest extends DeploymentRequest {
         jsonHelper = target.getClient().getJsonHelper();
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
                 .addText("targetId", target.getId());
-        if( StringUtils.isBlank(deploymentConfig.getPropertiesFilename()) && deploymentConfig.getProperties() != null && !deploymentConfig.getProperties().isEmpty() ) {
+        HashMap<String,String> armProperties = new HashMap<>();
+        if (apiProvisioningDescriptor.getArmProperties() != null) {
+            armProperties.putAll(apiProvisioningDescriptor.getArmProperties());
+        }
+        if( !armProperties.isEmpty() ) {
             HashMap<String, Object> rootCfg = new HashMap<>();
             HashMap<String, Object> appCfg = new HashMap<>();
             appCfg.put("applicationName",appName);
-            appCfg.put("properties",deploymentConfig.getProperties());
+            appCfg.put("properties",armProperties);
             rootCfg.put("mule.agent.application.properties.service",appCfg);
             String cfgJson = jsonHelper.getJsonMapper().writeValueAsString(rootCfg);
             logger.debug("Added config to hybrid deploy {}",cfgJson);
