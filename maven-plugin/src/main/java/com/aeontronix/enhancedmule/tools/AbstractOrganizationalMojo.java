@@ -23,7 +23,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
                 organization = getClient().findOrganization(org);
             } else {
                 organization = getClient().getUser().getOrganization();
-                if( getOrganization() == null ) {
+                if( organization == null ) {
                     throw new IllegalArgumentException("Organization must be specified");
                 }
             }
