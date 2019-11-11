@@ -31,13 +31,10 @@ import java.util.regex.Pattern;
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable, Serializable {
     private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
-    public static final String LOGIN_PATH = "/accounts/login";
     protected JsonHelper jsonHelper;
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
-    private String username;
-    private String password;
     private DeploymentService deploymentService;
     private OCliClient cliClient;
 
@@ -51,15 +48,13 @@ public class AnypointClient implements Closeable, Serializable {
         init();
     }
 
-    public AnypointClient(String username, String password) {
-        this(username, password, 3);
+    public AnypointClient(AuthenticationProvider authenticationProvider) {
+        this(authenticationProvider, 3);
     }
 
-    public AnypointClient(String username, String password, int maxParallelDeployments) {
-        this.username = username;
-        this.password = password;
+    public AnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
         this.maxParallelDeployments = maxParallelDeployments;
-        httpHelper = new HttpHelper(this, username, password);
+        httpHelper = new HttpHelper(this,  authenticationProvider);
         init();
     }
 
@@ -85,7 +80,7 @@ public class AnypointClient implements Closeable, Serializable {
                     JsonNode usernameNode = def.get("username");
                     JsonNode passwordNode = def.get("password");
                     if (usernameNode != null && passwordNode != null && !usernameNode.isNull() && !passwordNode.isNull()) {
-                        httpHelper = new HttpHelper(this, usernameNode.asText(), passwordNode.asText());
+                        httpHelper = new HttpHelper(this, new AuthenticationProviderUsernamePasswordImpl(usernameNode.asText(), passwordNode.asText()));
                         return true;
                     }
                 }
@@ -159,7 +154,7 @@ public class AnypointClient implements Closeable, Serializable {
         String json = httpHelper.httpGet("/accounts/api/me");
         ArrayList<Organization> list = new ArrayList<>();
         for (JsonNode node : jsonHelper.readJsonTree(json).at("/user/memberOfOrganizations")) {
-            list.add(jsonHelper.readJson(createOrganizationObject(), node));
+            list.add(jsonHelper.readJson(new Organization(this), node));
         }
         return list;
     }
@@ -171,11 +166,11 @@ public class AnypointClient implements Closeable, Serializable {
                 return organization;
             }
         }
-        throw new NotFoundException("Organization not found: " + name);
+        throw new NotFoundException("Organization not found: " + name+" (if using client credentials you must use org id instead of name)");
     }
 
     public Organization findOrganizationById(String id) throws HttpException, NotFoundException {
-        Organization organization = createOrganizationObject();
+        Organization organization = new Organization(this);
         organization.setId(id);
         try {
             String json = httpHelper.httpGet(organization.getUriPath());
@@ -184,6 +179,9 @@ public class AnypointClient implements Closeable, Serializable {
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Enable to find organization " + id, e);
+            } else if (e.getStatusCode() == 403) {
+                logger.debug("Access to organization data denied: "+id);
+                return organization;
             } else {
                 throw e;
             }
@@ -232,20 +230,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     public void setAuthToken(String authToken) {
         httpHelper.setAuthToken(authToken);
-    }
-
-    public String authenticate(String username, String password) throws HttpException {
-        if (StringUtils.isBlank(username)) {
-            throw new IllegalArgumentException("Username missing");
-        }
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException("Username missing");
-        }
-        Map<String, String> request = new HashMap<>();
-        request.put("username", username);
-        request.put("password", password);
-        Map data = jsonHelper.toJsonMap(httpHelper.httpPost(LOGIN_PATH, request));
-        return data.get("token_type") + " " + data.get("access_token");
     }
 
     public Environment findEnvironment(String organizationName, String environmentName, boolean createOrganization, boolean createEnvironment, Environment.Type createEnvironmentType) throws NotFoundException, HttpException {
@@ -365,11 +349,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     public DeploymentService getDeploymentService() {
         return deploymentService;
-    }
-
-    @NotNull
-    protected Organization createOrganizationObject() {
-        return new Organization(this);
     }
 
     public void setProxy(String scheme, String host, int port, String username, String password) {

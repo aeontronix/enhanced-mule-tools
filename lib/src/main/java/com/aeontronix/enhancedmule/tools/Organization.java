@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.BackendAccessException;
 import com.kloudtek.util.ThreadUtils;
+import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -256,7 +257,7 @@ public class Organization extends AnypointObject {
 
     @JsonIgnore
     public String getUriPath() {
-        return "/apiplatform/repository/v2/organizations/" + id;
+        return new URLBuilder("/apiplatform/repository/v2/organizations/").path(id).toString();
     }
 
 //    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {

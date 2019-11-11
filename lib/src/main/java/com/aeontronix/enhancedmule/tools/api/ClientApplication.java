@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.AnypointObject;
 import com.aeontronix.enhancedmule.tools.HttpException;
 import com.aeontronix.enhancedmule.tools.Organization;
+import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -158,5 +159,36 @@ public class ClientApplication extends AnypointObject<Organization> {
         Map<String, Object> req = mapBuilder.toMap();
         String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
         return jsonHelper.readJson(new APIContract(apiVersion), json);
+    }
+
+
+    public APIContract requestAPIAccess(AssetInstance assetInstance) throws HttpException {
+        return requestAPIAccess(assetInstance, null, false);
+    }
+
+    public APIContract requestAPIAccess(AssetInstance assetInstance, SLATier tier) throws HttpException {
+        return requestAPIAccess(assetInstance, tier, true);
+    }
+
+    public APIContract requestAPIAccess(AssetInstance apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
+        JsonHelper.MapBuilder mapBuilder = jsonHelper.buildJsonMap()
+                .set("apiId", apiVersion.getId())
+                .set("environmentId", apiVersion.getEnvironmentId())
+                .set("acceptedTerms", acceptedTerms)
+                .set("organizationId", apiVersion.getOrganizationId())
+                .set("groupId", apiVersion.getGroupId())
+                .set("assetId", apiVersion.getAssetId())
+                .set("version", apiVersion.getVersion())
+                .set("productAPIVersion", apiVersion.getProductAPIVersion());
+        if (tier != null && tier.getId() == null) {
+            throw new IllegalArgumentException("Tier is missing tier id");
+        }
+        Long tierId = tier != null ? tier.getId() : null;
+        if (tierId != null) {
+            mapBuilder.set("requestedTierId", tierId);
+        }
+        Map<String, Object> req = mapBuilder.toMap();
+        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
+        return jsonHelper.readJson(new APIContract(), json);
     }
 }

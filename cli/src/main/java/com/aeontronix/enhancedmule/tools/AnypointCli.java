@@ -33,7 +33,7 @@ public class AnypointCli extends CliCommand<CliCommand> {
 
     public synchronized AnypointClient getClient() {
         if (client == null) {
-            client = new AnypointClient(username, password);
+            client = new AnypointClient(new AuthenticationProviderUsernamePasswordImpl(username,password));
         }
         return client;
     }

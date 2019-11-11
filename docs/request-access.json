@@ -1,0 +1,22 @@
+[
+  {
+    "apiId": "15871900",
+    "organizationId": "2a6cfa48-29d9-49d8-a9b5-0bbc4dbe61d9",
+    "environmentId": "5a751e47-a149-4092-bec8-48f60a9a8af7",
+    "acceptedTerms": true,
+    "groupId": "43165c1f-070f-485c-801c-193e2041f257.enterprise-tech",
+    "assetId": "lims-sys-api",
+    "version": "1.0.3",
+    "versionGroup": "v1"
+  },
+  {
+    "apiId": "15871900",
+    "organizationId": "2a6cfa48-29d9-49d8-a9b5-0bbc4dbe61d9",
+    "environmentId": "5a751e47-a149-4092-bec8-48f60a9a8af7",
+    "acceptedTerms": true,
+    "groupId": null,
+    "assetId": null,
+    "productAPIVersion": null,
+    "version": null
+  }
+]

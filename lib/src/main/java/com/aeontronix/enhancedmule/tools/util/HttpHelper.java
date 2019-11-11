@@ -4,9 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.AnypointClient;
-import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.*;
 import com.kloudtek.util.Base64;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
@@ -37,28 +35,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.aeontronix.enhancedmule.tools.AuthenticationProviderUsernamePasswordImpl.LOGIN_PATH;
+
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
-    private transient CloseableHttpClient httpClient;
+    private CloseableHttpClient httpClient;
+    private AuthenticationProvider authenticationProvider;
     private String authToken;
     private AnypointClient client;
-    private String username;
-    private String password;
     private int maxRetries = 4;
     private long retryDelay = 1000L;
 
     public HttpHelper() {
     }
 
-    public HttpHelper(AnypointClient client, String username, String password) {
-        this(HttpClients.createMinimal(), client, username, password);
+    public HttpHelper(AnypointClient client, AuthenticationProvider authenticationProvider) {
+        this(HttpClients.createMinimal(), client, authenticationProvider);
     }
 
-    public HttpHelper(CloseableHttpClient httpClient, AnypointClient client, String username, String password) {
+    public HttpHelper(CloseableHttpClient httpClient, AnypointClient client, AuthenticationProvider authenticationProvider) {
         this.client = client;
-        this.username = username;
-        this.password = password;
+        this.authenticationProvider = authenticationProvider;
         this.httpClient = httpClient;
     }
 
@@ -211,18 +209,18 @@ public class HttpHelper implements Closeable {
     }
 
     private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest, int attempt) throws HttpException {
-        boolean authenticating = method.getURI().getPath().equals(AnypointClient.LOGIN_PATH);
-        if (authToken == null && !authenticating) {
-            authToken = client.authenticate(username, password);
-        }
+//        boolean authenticating = method.getURI().getPath().equals(LOGIN_PATH);
+//        if (authToken == null && !authenticating) {
+//            updateBearerToken();
+//        }
         try {
             if (multiPartRequest != null) {
                 ((HttpEntityEnclosingRequestBase) method).setEntity(multiPartRequest.toEntity());
             }
             return doExecute(method);
         } catch (HttpException e) {
-            if (e.getStatusCode() == 403 || e.getStatusCode() == 401 && !authenticating) {
-                client.authenticate(username, password);
+            if (e.getStatusCode() == 403 || e.getStatusCode() == 401 ) {
+                updateBearerToken();
                 return doExecute(method);
             } else if (e.getStatusCode() >= 500) {
                 attempt++;
@@ -236,6 +234,10 @@ public class HttpHelper implements Closeable {
                 throw e;
             }
         }
+    }
+
+    private void updateBearerToken() throws HttpException {
+        authToken = "bearer "+authenticationProvider.getBearerToken(this);
     }
 
     @Nullable
@@ -392,11 +394,16 @@ public class HttpHelper implements Closeable {
     }
 
     private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
-        String authStr = username + ":" + password;
-        byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
-        String authHeader = "Basic " + new String(encodedAuth);
-        request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-        return request;
+        if( authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl ) {
+            String authStr = ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getUsername() +
+                    ":" + ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getPassword();
+            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
+            String authHeader = "Basic " + new String(encodedAuth);
+            request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+            return request;
+        } else {
+            throw new RuntimeException("Only supported with username/password authentication at this time");
+        }
     }
 
     public CloseableHttpClient getHttpClient() {

@@ -111,8 +111,13 @@ public class APIDescriptor {
                 throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
             }
             for (APIAccessDescriptor accessDescriptor : access) {
-                AssetInstance instance = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getGroupId())
-                        .findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
+                Organization accessOrg;
+                if( accessDescriptor.getOrgId() == null ) {
+                    accessOrg = environment.getOrganization();
+                } else {
+                    accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
+                }
+                AssetInstance instance = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel());
                 logger.debug("Found instance {}", instance);
                 Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
                 API accessedAPI = new API(apiEnv);
@@ -123,7 +128,7 @@ public class APIDescriptor {
                     contract = accessedAPI.findContract(clientApplication);
                 } catch (NotFoundException e) {
                     SLATier slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
-                    contract = clientApplication.requestAPIAccess(accessedAPI, slaTier);
+                    contract = clientApplication.requestAPIAccess(instance, slaTier);
                 }
                 if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
                     if (contract.isRevoked()) {

@@ -47,9 +47,8 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
 
     private boolean validate(String username, String password, String defaultOrg, String defaultEnv) {
         logger.info("Validating config against anypoint.sh platform");
-        AnypointClient anypointClient = new AnypointClient(username, password);
+        AnypointClient anypointClient = new AnypointClient(new AuthenticationProviderUsernamePasswordImpl(username,password));
         try {
-            anypointClient.authenticate(username, password);
             if (defaultOrg != null) {
                 try {
                     Organization organization = anypointClient.findOrganization(defaultOrg);

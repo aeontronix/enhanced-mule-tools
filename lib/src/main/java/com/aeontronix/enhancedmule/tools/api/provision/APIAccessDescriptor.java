@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.api.API;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class APIAccessDescriptor {
+    private String orgId;
     private String groupId;
     private String assetId;
     private String assetVersion;
@@ -35,6 +36,15 @@ public class APIAccessDescriptor {
 
     public APIAccessDescriptor(API api, String slaTier) {
         this(api.getGroupId(), api.getAssetId(), api.getAssetVersion(), api.getInstanceLabel(), slaTier);
+    }
+
+    @JsonProperty(required = false)
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
     }
 
     @JsonProperty(required = true)
