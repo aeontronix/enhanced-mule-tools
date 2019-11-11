@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.HttpException;
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
+import com.aeontronix.enhancedmule.tools.api.provision.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.io.IOUtils;
@@ -42,13 +43,24 @@ public abstract class ApplicationSource implements Closeable {
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                String json = IOUtils.toString(is);
-                json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
-                return client.getJsonHelper().getJsonMapper().readValue(json, AnypointConfigFileDescriptor.class);
+                return readDescriptor(apiProvisioningConfig, is);
             }
         } else {
             return null;
         }
+    }
+
+    @Nullable
+    private AnypointConfigFileDescriptor readDescriptor(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
+        String json = IOUtils.toString(is);
+        json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
+        AnypointConfigFileDescriptor descriptor = client.getJsonHelper().getJsonMapper().readValue(json, AnypointConfigFileDescriptor.class);
+        if(descriptor.getProperties()!= null){
+            for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
+                entry.getValue().setName(entry.getKey());
+            }
+        }
+        return descriptor;
     }
 
     public abstract String getArtifactId();

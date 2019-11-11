@@ -43,14 +43,6 @@ public class HDeploymentRequest extends DeploymentRequest {
     }
 
     @Override
-    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers) {
-        if (StringUtils.isNotBlank(deploymentConfig.getPropertiesFilename())) {
-            transformers.add(new SetPropertyTransformer(deploymentConfig.getPropertiesFilename(),
-                    new HashMap<>(deploymentConfig.getProperties())));
-        }
-    }
-
-    @Override
     protected DeploymentResult doDeploy() throws IOException, HttpException {
         HttpHelper.MultiPartRequest request;
         long start = System.currentTimeMillis();
@@ -69,20 +61,14 @@ public class HDeploymentRequest extends DeploymentRequest {
         jsonHelper = target.getClient().getJsonHelper();
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)
                 .addText("targetId", target.getId());
-        HashMap<String,String> armProperties = new HashMap<>();
-        if (apiProvisioningDescriptor.getArmProperties() != null) {
-            armProperties.putAll(apiProvisioningDescriptor.getArmProperties());
-        }
-        if( !armProperties.isEmpty() ) {
-            HashMap<String, Object> rootCfg = new HashMap<>();
-            HashMap<String, Object> appCfg = new HashMap<>();
-            appCfg.put("applicationName",appName);
-            appCfg.put("properties",armProperties);
-            rootCfg.put("mule.agent.application.properties.service",appCfg);
-            String cfgJson = jsonHelper.getJsonMapper().writeValueAsString(rootCfg);
-            logger.debug("Added config to hybrid deploy {}",cfgJson);
-            multiPartRequest.addText("configuration", cfgJson);
-        }
+        HashMap<String, Object> rootCfg = new HashMap<>();
+        HashMap<String, Object> appCfg = new HashMap<>();
+        appCfg.put("applicationName",appName);
+        appCfg.put("properties",deploymentConfig.getProperties());
+        rootCfg.put("mule.agent.application.properties.service",appCfg);
+        String cfgJson = jsonHelper.getJsonMapper().writeValueAsString(rootCfg);
+        logger.debug("Added config to hybrid deploy {}",cfgJson);
+        multiPartRequest.addText("configuration", cfgJson);
         logger.debug("Sending hybrid deploy request: {}",multiPartRequest);
         multiPartRequest = multiPartRequest.addBinary("file", new StreamSource() {
             @Override

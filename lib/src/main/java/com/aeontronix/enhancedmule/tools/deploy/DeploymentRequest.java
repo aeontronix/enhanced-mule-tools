@@ -9,32 +9,34 @@ import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
-import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.api.provision.*;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.kloudtek.unpack.FileType;
-import com.kloudtek.unpack.Unpacker;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kloudtek.unpack.*;
+import com.kloudtek.unpack.transformer.SetPropertyTransformer;
 import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.io.IOUtils;
+import com.kloudtek.util.io.InMemInputFilterStream;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
+    public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
+    public static final String ANYPOINT_PLATFORM_CLIENT_ID = "anypoint.platform.client_id";
+    public static final String ANYPOINT_PLATFORM_CLIENT_SECRET = "anypoint.platform.client_secret";
+    public static final String SECURE_PROPERTIES = "secureProperties";
     protected Environment environment;
     protected String appName;
     protected ApplicationSource source;
@@ -76,11 +78,14 @@ public abstract class DeploymentRequest {
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
                     if (provisioningResult.getApi() != null && apiProvisioningConfig.isInjectApiId()) {
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
-                        deploymentConfig.setOverrideProperty("anypoint.platform.client_id", environment.getClientId());
+                        apiProvisioningDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
+                        deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
+                        apiProvisioningDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
+                        apiProvisioningDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
                         try {
-                            deploymentConfig.setOverrideProperty("anypoint.platform.client_secret", environment.getClientSecret());
+                            deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
                         } catch (HttpException e) {
-                            if( e.getStatusCode() != 401 ) {
+                            if (e.getStatusCode() != 401) {
                                 throw e;
                             }
                         }
@@ -90,16 +95,64 @@ public abstract class DeploymentRequest {
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
                     }
+                    Transformer secureProperties = new Transformer() {
+                        @SuppressWarnings("unchecked")
+                        @Override
+                        public void apply(Source source, Destination destination) throws UnpackException {
+                            SourceFile file = (SourceFile) source.getFile(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON);
+                            if (file == null) {
+                                throw new UnpackException(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON + " not found");
+                            }
+                            file.setInputStream(new InMemInputFilterStream(file.getInputStream()) {
+                                @Override
+                                protected byte[] transform(byte[] data) throws IOException {
+                                    return IOUtils.toByteArray(os -> {
+                                        Map json;
+                                        ObjectMapper om = new ObjectMapper();
+                                        json = om.readValue(data, Map.class);
+                                        List<String> securePropertiesList = (List<String>) json.get(SECURE_PROPERTIES);
+                                        if (securePropertiesList == null) {
+                                            securePropertiesList = new ArrayList();
+                                        }
+                                        HashSet<String> secProps = new HashSet<>(securePropertiesList);
+                                        HashMap<String, PropertyDescriptor> propDesc = apiProvisioningDescriptor.getProperties();
+                                        if( propDesc != null ) {
+                                            for (PropertyDescriptor propertyDescriptor : propDesc.values()) {
+                                                if(propertyDescriptor.isSecure()) {
+                                                    secProps.add(propertyDescriptor.getName());
+                                                }
+                                            }
+                                            json.put(SECURE_PROPERTIES, new ArrayList<>(secProps));
+                                        }
+                                        om.writeValue(os,json);
+                                    });
+                                }
+                            });
+                        }
+                    };
+                    transformers.add(secureProperties);
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");
                 }
             }
-            preDeploy(provisioningResult, apiProvisioningConfig, deploymentConfig, transformers);
+            if (deploymentConfig.isFilePropertiesSecure() &&
+                    apiProvisioningDescriptor.getProperties() != null) {
+                for (PropertyDescriptor propertyDescriptor : apiProvisioningDescriptor.getProperties().values()) {
+                    if (propertyDescriptor.isSecure()) {
+                        String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getName());
+                        deploymentConfig.addFileProperty(propertyDescriptor.getName(),pVal);
+                    }
+                }
+            }
+            if (deploymentConfig.getFileProperties() != null && !deploymentConfig.getFileProperties().isEmpty()) {
+                transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(),
+                        new HashMap<>(deploymentConfig.getFileProperties())));
+            }
             if (!transformers.isEmpty()) {
                 try {
                     if (source instanceof FileApplicationSource || source.getLocalFile() != null) {
                         File oldFile = source.getLocalFile();
-                        File newFile = new TempFile("tranformed", filename);
+                        File newFile = new TempFile("transformed", filename);
                         source = new FileApplicationSource(client, newFile);
                         Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, newFile, FileType.ZIP);
                         unpacker.addTransformers(transformers);
@@ -121,8 +174,6 @@ public abstract class DeploymentRequest {
             }
         }
     }
-
-    protected abstract void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers);
 
     protected abstract DeploymentResult doDeploy() throws IOException, HttpException;
 
@@ -156,14 +207,6 @@ public abstract class DeploymentRequest {
 
     public void setFilename(String filename) {
         this.filename = filename;
-    }
-
-    public APIProvisioningConfig getApiProvisioningConfig() {
-        return apiProvisioningConfig;
-    }
-
-    public void setApiProvisioningConfig(APIProvisioningConfig apiProvisioningConfig) {
-        this.apiProvisioningConfig = apiProvisioningConfig;
     }
 
     protected String executeRequest(long start, HttpHelper.MultiPartRequest multiPartRequest) throws HttpException, IOException {

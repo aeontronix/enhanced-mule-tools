@@ -42,10 +42,6 @@ public class CHDeploymentRequest extends DeploymentRequest {
     public CHDeploymentRequest() {
     }
 
-    @Override
-    protected void preDeploy(APIProvisioningResult result, APIProvisioningConfig config, DeploymentConfig deploymentConfig, List<Transformer> transformers) {
-    }
-
     public CHDeploymentRequest(String muleVersionName, String regionName, String workerTypeName, int workerCount,
                                Environment environment, String appName, ApplicationSource file, String filename,
                                APIProvisioningConfig apiProvisioningConfig,
@@ -77,11 +73,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
         JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
         CHApplication existingApp = getExistingApp(appName);
         deploymentConfig.mergeExistingProperties(existingApp);
-        Map<String, String> armProperties = deploymentConfig.getProperties();
-        if (apiProvisioningDescriptor.getArmProperties() != null) {
-            armProperties.putAll(apiProvisioningDescriptor.getArmProperties());
-        }
-        appInfoBuilder.set("properties", armProperties)
+        appInfoBuilder.set("properties", deploymentConfig.getProperties())
                 .set("domain", appName)
                 .set("monitoringEnabled", true)
                 .set("monitoringAutoRestart", true)

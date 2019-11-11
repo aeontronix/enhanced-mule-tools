@@ -16,7 +16,9 @@ public class DeploymentConfig {
     private boolean mergeExistingPropertiesOverride;
     private Map<String, String> properties = new HashMap<>();
     private HashSet<String> overrideProperties = new HashSet<>();
-    private String propertiesFilename;
+    protected Map<String, String> fileProperties;
+    protected String filePropertiesPath = "config.properties";
+    protected boolean filePropertiesSecure;
 
     public DeploymentConfig() {
     }
@@ -59,7 +61,7 @@ public class DeploymentConfig {
             if (mergeExistingProperties && props != null) {
                 for (Map.Entry<String, String> entry : props.entrySet()) {
                     String key = entry.getKey();
-                    if ( ( !properties.containsKey(key) || mergeExistingPropertiesOverride ) && !overrideProperties.contains(key)) {
+                    if ((!properties.containsKey(key) || mergeExistingPropertiesOverride) && !overrideProperties.contains(key)) {
                         properties.put(key, entry.getValue());
                     }
                 }
@@ -75,11 +77,34 @@ public class DeploymentConfig {
         overrideProperties.add(key);
     }
 
-    public String getPropertiesFilename() {
-        return propertiesFilename;
+    public Map<String, String> getFileProperties() {
+        return fileProperties;
     }
 
-    public void setPropertiesFilename(String propertiesFilename) {
-        this.propertiesFilename = propertiesFilename;
+    public void setFileProperties(Map<String, String> fileProperties) {
+        this.fileProperties = fileProperties;
+    }
+
+    public String getFilePropertiesPath() {
+        return filePropertiesPath;
+    }
+
+    public void setFilePropertiesPath(String filePropertiesPath) {
+        this.filePropertiesPath = filePropertiesPath;
+    }
+
+    public boolean isFilePropertiesSecure() {
+        return filePropertiesSecure;
+    }
+
+    public void setFilePropertiesSecure(boolean filePropertiesSecure) {
+        this.filePropertiesSecure = filePropertiesSecure;
+    }
+
+    public void addFileProperty(String key, String value) {
+        if (fileProperties == null) {
+            fileProperties = new HashMap<>();
+        }
+        fileProperties.put(key,value);
     }
 }

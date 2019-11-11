@@ -10,9 +10,23 @@
       "type": "boolean",
       "default": false
     },
-    "armProperties": {
-      "description": "Properties set here will be added through anypoint runtime manager",
-      "type": "object"
+    "properties": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "secure": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "api": {
       "description": "API configuration",

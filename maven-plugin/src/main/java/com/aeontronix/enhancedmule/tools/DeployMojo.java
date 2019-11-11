@@ -12,40 +12,107 @@ import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
+import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
  */
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
-public class DeployMojo extends AbstractDeployMojo {
+public class DeployMojo extends AbstractEnvironmentalMojo {
+    private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
+    /**
+     * If true API provisioning will be skipped
+     */
+    @Parameter(property = "anypoint.api.provisioning.skip")
+    protected boolean skipApiProvisioning;
+    /**
+     * If true deployment will be skipped
+     */
+    @Parameter(property = "anypoint.deploy.skip")
+    protected boolean skipDeploy;
+    /**
+     * File to deploy (only needed when invoking standalone without a valid pom). To deploy from exchange use uri in the format
+     * of <pre>exchange://[orgId]:[groupId]:[artifactId]:[version]</pre> or <pre>exchange://[groupId]:[artifactId]:[version]</pre>
+     */
+    @Parameter(property = "anypoint.deploy.file")
+    protected String file;
+    /**
+     * Filename (if not specified the file's name will be used)
+     */
+    @Parameter(property = "anypoint.deploy.filename")
+    protected String filename;
+    /**
+     * Application name
+     */
+    @Parameter(property = "anypoint.deploy.name")
+    protected String appName;
+    /**
+     * Force deployment even if same already deployed application exists
+     */
+    @Parameter(property = "anypoint.deploy.force")
+    protected boolean force;
+    /**
+     * If true will skip wait for application to start (successfully or not)
+     */
+    @Parameter(property = "anypoint.deploy.skipwait")
+    protected boolean skipWait;
+    /**
+     * Deployment timeout
+     */
+    @Parameter(property = "anypoint.deploy.timeout")
+    protected long deployTimeout = TimeUnit.MINUTES.toMillis(10);
+    /**
+     * Delay (in milliseconds) in retrying a deployment
+     */
+    @Parameter(property = "anypoint.deploy.retrydelay")
+    protected long deployRetryDelay = 2500L;
+    /**
+     * Application properties
+     */
+    @Parameter(property = "anypoint.deploy.properties", required = false)
+    protected Map<String, String> properties;
+    /**
+     * Properties that should be inserted into a property file in the application archive
+     * @see #filePropertiesPath
+     */
+    @Parameter(property = "anypoint.deploy.fileproperties", required = false)
+    protected Map<String, String> fileProperties;
+    /**
+     * Location of property file to inserted with values specified in {@link #fileProperties}
+     */
+    @Parameter(property = "anypoint.deploy.fileproperties.path", required = false, defaultValue = "config.properties")
+    protected String filePropertiesPath = "config.properties";
+    /**
+     * If set to true, all secure properties will be inserted in {@link #fileProperties} rather than in Runtime Manager.
+     */
+    @Parameter(property = "anypoint.deploy.fileproperties.secure", required = false, defaultValue = "false")
+    protected boolean filePropertiesSecure;
+    /**
+     * Provisioning variables
+     */
+    @Parameter
+    protected HashMap<String, String> vars;
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
      */
     @Parameter(name = "target", property = "anypoint.target")
     private String target;
-
-    /**
-     * Properties to be injected into the archive (properties resulting from API provisioning will be included in those
-     * properties)
-     */
-    @Parameter(property = "anypoint.deploy.properties", required = false)
-    protected Map<String, String> properties;
-
-    /**
-     * Hybrid/Onprem only: Name of file which will contain injected properties
-     */
-    @Parameter(property = "anypoint.deploy.properties.file", required = false)
-    protected String propertiesFilename = "deployconfig.properties";
+    protected ApplicationSource source;
 
     /**
      * Cloudhub only: Mule version name (will default to latest if not set)
@@ -70,15 +137,23 @@ public class DeployMojo extends AbstractDeployMojo {
      */
     @Parameter(name = "workerCount", property = "anypoint.deploy.ch.worker.count")
     private Integer workerCount;
-
     /**
      * Cloudhub only: If true custom log4j will be used (and cloudhub logging disabled)
      */
     @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
     private boolean customlog4j;
+    /**
+     * Indicates if existing application properties should be merged
+     */
+    @Parameter(property = "anypoint.deploy.mergeproperties", defaultValue = "true")
+    private boolean mergeExistingProperties;
+    /**
+     * Indicates the behavior to use when merging conflicting properties. If true it will override the existing property, or if false it will override it.
+     */
+    @Parameter(property = "anypoint.deploy.mergeproperties.override")
+    private boolean mergeExistingPropertiesOverride;
 
     @SuppressWarnings("Duplicates")
-    @Override
     protected DeploymentResult deploy(Environment environment,
                                       @NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
@@ -108,6 +183,65 @@ public class DeployMojo extends AbstractDeployMojo {
             }
         } finally {
             IOUtils.close(applicationSource);
+        }
+    }
+
+    @Override
+    protected void doExecute() throws Exception {
+        if (!skipDeploy) {
+            MavenProject project = (MavenProject) getPluginContext().get("project");
+            if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
+                project = null;
+            }
+            if (MavenUtils.isTemplateOrExample(project) && !force) {
+                logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
+                return;
+            }
+            if (file == null) {
+                if( logger.isDebugEnabled() ) {
+                    logger.debug("No deploy file defined");
+                }
+                if (project == null) {
+                    throw new MojoExecutionException("File not specified while running out of project");
+                }
+                file = MavenUtils.getProjectJar(project).getPath();
+            }
+            source = ApplicationSource.create(getEnvironment().getOrganization().getId(), getClient(), file);
+            try {
+                if (filename == null) {
+                    filename = source.getFileName();
+                }
+                if (appName == null) {
+                    if (project != null) {
+                        appName = project.getArtifactId();
+                    } else {
+                        appName = source.getArtifactId();
+                    }
+                }
+                APIProvisioningConfig apiProvisioningConfig = null;
+                if (!skipApiProvisioning) {
+                    apiProvisioningConfig = new APIProvisioningConfig();
+                    if (vars != null) {
+                        apiProvisioningConfig.setVariables(vars);
+                    }
+                }
+                DeploymentConfig deploymentConfig = new DeploymentConfig();
+                deploymentConfig.setProperties(properties);
+                deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
+                deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
+                deploymentConfig.setFileProperties(fileProperties);
+                deploymentConfig.setFilePropertiesPath(filePropertiesPath);
+                deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
+                DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);
+                if (!skipWait) {
+                    logger.info("Waiting for application start");
+                    app.waitDeployed(deployTimeout, deployRetryDelay);
+                    logger.info("Application started successfully");
+                }
+                logger.info("Deployment completed successfully");
+            } finally {
+                IOUtils.close(source);
+            }
         }
     }
 }
