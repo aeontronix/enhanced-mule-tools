@@ -92,8 +92,12 @@ public abstract class DeploymentRequest {
                     }
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
-                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApp.getClientId());
-                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApp.getClientSecret());
+                        String keyId = apiProvisioningConfig.getInjectClientIdSecretKey() + ".id";
+                        apiProvisioningDescriptor.addProperty(keyId,false);
+                        deploymentConfig.setOverrideProperty(keyId, clientApp.getClientId());
+                        String keySecret = apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret";
+                        deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
+                        apiProvisioningDescriptor.addProperty(keySecret,true);
                     }
                     Transformer secureProperties = new Transformer() {
                         @SuppressWarnings("unchecked")
