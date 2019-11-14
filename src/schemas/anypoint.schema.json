@@ -63,7 +63,7 @@
                 "description": "Exchange asset id of the API to be granted access to",
                 "type": "string"
               },
-              "envId": {
+              "env": {
                 "description": "Environment of the API to be granted access to (if not set defaults to environment being deployed to)",
                 "type": "string"
               },

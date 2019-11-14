@@ -11,7 +11,7 @@ public class APIAccessDescriptor {
     private String orgId;
     private String groupId;
     private String assetId;
-    private String envId;
+    private String env;
     private String assetVersion;
     private String label;
     private String slaTier;
@@ -94,11 +94,11 @@ public class APIAccessDescriptor {
     }
 
     @JsonProperty(required = false)
-    public String getEnvId() {
-        return envId;
+    public String getEnv() {
+        return env;
     }
 
-    public void setEnvId(String envId) {
-        this.envId = envId;
+    public void setEnv(String env) {
+        this.env = env;
     }
 }
