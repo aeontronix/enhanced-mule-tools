@@ -41,29 +41,7 @@ In order to do so you will need to add an anypoint.json or anypoint.yml to your 
 </project>
 ```
 
-2) If you want your anypoint.json/yml file to be in the root folder of the project (rather than under src/main/mule), add the following
-
-```xml
-<project>
-    <build>
-        <resources>
-            <resource>
-                <directory>\${project.basedir}</directory>
-                <includes>
-                    <include>anypoint.json</include>
-                    <include>anypoint.yml</include>
-                    <include>anypoint.yaml</include>
-                </includes>
-            </resource>
-            ...
-        </resources>
-        ...
-    </build>
-    ...
-</project>
-```
-
-3) Unless you wish to actually deploy the application jar file in a maven repository in addition to deploying the application
+2) Unless you wish to actually deploy the application jar file in a maven repository in addition to deploying the application
 to Cloudhub or an onprem runtime, you will need to set the 'maven.deploy.skip' variable to true.
 
 ```xml
