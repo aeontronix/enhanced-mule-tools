@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("SameParameterValue")
 public class AnypointClient implements Closeable, Serializable {
+    private static Pattern idRegex = Pattern.compile("[a-zA-Z0-9\\-]+");
     private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
     protected JsonHelper jsonHelper;
     protected HttpHelper httpHelper;
