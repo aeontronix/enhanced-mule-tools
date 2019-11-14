@@ -6,6 +6,8 @@ package com.aeontronix.enhancedmule.tools.exchange;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.StringJoiner;
+
 public class AssetInstance {
     @JsonProperty
     private String versionGroup;
@@ -149,5 +151,25 @@ public class AssetInstance {
 
     public void setAssetName(String assetName) {
         this.assetName = assetName;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", AssetInstance.class.getSimpleName() + "[", "]")
+                .add("versionGroup='" + versionGroup + "'")
+                .add("organizationId='" + organizationId + "'")
+                .add("id='" + id + "'")
+                .add("groupId='" + groupId + "'")
+                .add("assetId='" + assetId + "'")
+                .add("productAPIVersion='" + productAPIVersion + "'")
+                .add("version='" + version + "'")
+                .add("environmentId='" + environmentId + "'")
+                .add("endpointUri='" + endpointUri + "'")
+                .add("name='" + name + "'")
+                .add("isPublic=" + isPublic)
+                .add("type='" + type + "'")
+                .add("fullname='" + fullname + "'")
+                .add("assetName='" + assetName + "'")
+                .toString();
     }
 }

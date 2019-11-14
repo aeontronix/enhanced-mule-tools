@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.InvalidStateException;
 import com.kloudtek.util.validation.ValidationUtils;
@@ -59,7 +60,7 @@ public class APIDescriptor {
             // now we need to check if there's an existing API with the same productAPIVersion
             String productAPIVersion = apiSpec.getProductAPIVersion();
             try {
-                logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}",this.getAssetId(), productAPIVersion, label);
+                logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", this.getAssetId(), productAPIVersion, label);
                 api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
                 api = api.updateVersion(assetVersion);
             } catch (NotFoundException ex) {
@@ -78,8 +79,8 @@ public class APIDescriptor {
                 api.createPolicy(policyDescriptor);
             }
         }
-        if( clientApp.getName() == null ) {
-            clientApp.setName(api.getAssetId()+"-"+config.getVariables().get("organization.lname")+"-"+config.getVariables().get("environment.lname"));
+        if (clientApp.getName() == null) {
+            clientApp.setName(api.getAssetId() + "-" + config.getVariables().get("organization.lname") + "-" + config.getVariables().get("environment.lname"));
         }
         ClientApplication clientApplication = null;
         try {
@@ -112,22 +113,23 @@ public class APIDescriptor {
             }
             for (APIAccessDescriptor accessDescriptor : access) {
                 Organization accessOrg;
-                if( accessDescriptor.getOrgId() == null ) {
+                if (accessDescriptor.getOrgId() == null) {
                     accessOrg = environment.getOrganization();
                 } else {
                     accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
                 }
                 accessDescriptor.setOrgId(accessOrg.getId());
-                if( accessDescriptor.getGroupId() == null ) {
+                if (accessDescriptor.getGroupId() == null) {
                     accessDescriptor.setGroupId(accessOrg.getId());
                 }
-                String accessEnvId;
-                if( accessDescriptor.getEnv() == null ) {
-                    accessEnvId = environment.getId();
-                } else {
-                    accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+                if (accessDescriptor.getEnv() == null) {
+                    accessDescriptor.setEnv(environment.getName());
                 }
-                AssetInstance instance = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel(), accessEnvId);
+                String accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+                ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
+                logger.debug("Found exchangeAsset {}", exchangeAsset);
+                logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
+                AssetInstance instance = exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
                 logger.debug("Found instance {}", instance);
                 Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
                 API accessedAPI = new API(apiEnv);
