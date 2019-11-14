@@ -4,32 +4,7 @@
 
 Anypoint tools is able to automatically setup all API Management configuration for an API when it deploys it.
 
-In order to use this feature, you will need to add an anypoint.json, anypoint.yml or anypoint.yaml file to your project.
-
-By default you can add that file to the src/main/mule folder, but you could add it instead to the root of the project
-by adding the following to your pom.xml (or any directory or your choose by replacing `${project.basedir}`).
-
-```xml
-<project>
-	<build>
-        ...
-		<resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>anypoint.json</include>
-                    <include>anypoint.yml</include>
-                    <include>anypoint.yaml</include>
-                </includes>
-            </resource>
-        </resources>
-        ...
-    </build>
-</project>
-```
+In order to use this feature, you will need to add an anypoint.json file to your project.
 
 You will then be able to add all the API Management configuration to that file. The following documentation will be based
  on a JSON file, but you also are able to use the equivalent in YAML.
