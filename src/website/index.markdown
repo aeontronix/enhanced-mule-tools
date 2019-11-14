@@ -1,20 +1,15 @@
 ---
 layout: home
 ---
-Enhanced mule tools is an open source project designed to greatly facilitate management and automation of 
+Enhanced mule tools is an open source project designed to greatly facilitate application deployment and automation of 
 [Mulesoft](https://www.mulesoft.com/)'s [Anypoint platform™](https://www.mulesoft.com/platform/enterprise-integration).
 
 It provides a maven plugin that provides several extra capabilities to your project, which includes:
 
 * Automated API Management
-* Ability to deploy a pre-built maven application archive. (maven plugin can only deploy from source code)
+* Support for [Connected Apps](https://docs.mulesoft.com/access-management/connected-apps-overview) client credentials
+* Ability to deploy a pre-built maven application archive.
 * Maven proxy settings support
-
-For more details see the corresponding documentation pages:
-
-* [API Management Automation](api-management-automation.html)
-* [Anypoint File Descriptor Schema](schema/anypoint.schema.html)
-* [Maven Plugin documentation](enhanced-mule-tools-maven-plugin/index.html)
 
 # License
 
