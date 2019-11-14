@@ -117,10 +117,14 @@ public class APIDescriptor {
                 } else {
                     accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
                 }
+                accessDescriptor.setOrgId(accessOrg.getId());
                 if( accessDescriptor.getGroupId() == null ) {
-                    accessDescriptor.setGroupId(accessDescriptor.getOrgId());
+                    accessDescriptor.setGroupId(accessOrg.getId());
                 }
-                AssetInstance instance = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel(), environment.getId());
+                if( accessDescriptor.getEnvId() == null ) {
+                    accessDescriptor.setEnvId(environment.getId());
+                }
+                AssetInstance instance = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId()).findInstances(accessDescriptor.getLabel(), accessDescriptor.getEnvId());
                 logger.debug("Found instance {}", instance);
                 Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
                 API accessedAPI = new API(apiEnv);

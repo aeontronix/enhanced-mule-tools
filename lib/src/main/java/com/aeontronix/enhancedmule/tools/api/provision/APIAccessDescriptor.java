@@ -92,4 +92,13 @@ public class APIAccessDescriptor {
     public void setSlaTier(String slaTier) {
         this.slaTier = slaTier;
     }
+
+    @JsonProperty(required = false)
+    public String getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(String envId) {
+        this.envId = envId;
+    }
 }

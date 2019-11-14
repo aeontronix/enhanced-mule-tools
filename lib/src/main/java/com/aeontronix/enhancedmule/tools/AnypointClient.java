@@ -162,7 +162,7 @@ public class AnypointClient implements Closeable, Serializable {
     @NotNull
     public Organization findOrganization(String name) throws NotFoundException, HttpException {
         for (Organization organization : findOrganizations()) {
-            if (organization.getName().equals(name)) {
+            if (organization.getId().equals(name) || organization.getName().equals(name)) {
                 return organization;
             }
         }

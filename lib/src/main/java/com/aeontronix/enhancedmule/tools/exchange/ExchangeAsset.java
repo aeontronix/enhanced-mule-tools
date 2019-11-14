@@ -14,6 +14,7 @@ import com.aeontronix.enhancedmule.tools.Organization;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -88,16 +89,16 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         super(organization);
     }
 
-    public AssetInstance findInstances(String name, String envId) throws NotFoundException {
+    public AssetInstance findInstances(@Nullable String name, String envId) throws NotFoundException {
         if (instances != null) {
-            Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null);
+            Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null && i.getEnvironmentId().equalsIgnoreCase(envId) );
             boolean namedInstance = !StringUtils.isEmpty(name);
             if (namedInstance) {
-                s = s.filter(i -> i.getName().equalsIgnoreCase(name) && i.getEnvironmentId().equalsIgnoreCase(envId));
+                s = s.filter(i -> i.getName().equalsIgnoreCase(name) );
             }
             List<AssetInstance> ilist = s.collect(Collectors.toList());
             if (ilist.size() == 0) {
-                return null;
+                throw new NotFoundException("Can't find asset "+name+" in env "+envId);
             } else if (ilist.size() > 1) {
                 if (namedInstance) {
                     throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + " while searching for instance " + name +
@@ -110,7 +111,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 return ilist.iterator().next();
             }
         }
-        return null;
+        throw new NotFoundException("Can't find asset "+name+" in env "+envId);
     }
 
     public String getProductAPIVersion() {
