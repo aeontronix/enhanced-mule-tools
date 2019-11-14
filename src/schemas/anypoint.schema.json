@@ -51,12 +51,20 @@
           "items": {
             "type": "object",
             "properties": {
+              "orgId": {
+                "description": "Organization Id of the API to be accessed (defaults to same org as API if not set)",
+                "type": "string"
+              },
               "groupId": {
-                "description": "Exchange group id of the API to be granted access to",
+                "description": "Exchange group id of the API to be granted access to (if not set defaults to orgId)",
                 "type": "string"
               },
               "assetId": {
                 "description": "Exchange asset id of the API to be granted access to",
+                "type": "string"
+              },
+              "envId": {
+                "description": "Environment of the API to be granted access to (if not set defaults to environment being deployed to)",
                 "type": "string"
               },
               "assetVersion": {
@@ -73,7 +81,6 @@
               }
             },
             "required": [
-              "groupId",
               "assetId",
               "assetVersion"
             ]

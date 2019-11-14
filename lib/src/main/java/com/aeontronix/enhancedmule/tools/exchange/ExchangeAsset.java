@@ -88,12 +88,12 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         super(organization);
     }
 
-    public AssetInstance findInstances(String name) throws NotFoundException {
+    public AssetInstance findInstances(String name, String envId) throws NotFoundException {
         if (instances != null) {
             Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null);
             boolean namedInstance = !StringUtils.isEmpty(name);
             if (namedInstance) {
-                s = s.filter(i -> i.getName().equalsIgnoreCase(name));
+                s = s.filter(i -> i.getName().equalsIgnoreCase(name) && i.getEnvironmentId().equalsIgnoreCase(envId));
             }
             List<AssetInstance> ilist = s.collect(Collectors.toList());
             if (ilist.size() == 0) {

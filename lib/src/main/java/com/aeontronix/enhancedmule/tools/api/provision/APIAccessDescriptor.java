@@ -11,6 +11,7 @@ public class APIAccessDescriptor {
     private String orgId;
     private String groupId;
     private String assetId;
+    private String envId;
     private String assetVersion;
     private String label;
     private String slaTier;
@@ -38,7 +39,7 @@ public class APIAccessDescriptor {
         this(api.getGroupId(), api.getAssetId(), api.getAssetVersion(), api.getInstanceLabel(), slaTier);
     }
 
-    @JsonProperty(required = false)
+    @JsonProperty()
     public String getOrgId() {
         return orgId;
     }
@@ -47,7 +48,7 @@ public class APIAccessDescriptor {
         this.orgId = orgId;
     }
 
-    @JsonProperty(required = true)
+    @JsonProperty()
     public String getGroupId() {
         return groupId;
     }
