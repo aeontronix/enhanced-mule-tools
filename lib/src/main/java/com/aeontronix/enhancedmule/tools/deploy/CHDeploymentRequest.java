@@ -9,7 +9,6 @@ import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
@@ -18,7 +17,6 @@ import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.StreamSource;
-import com.kloudtek.unpack.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -71,6 +68,9 @@ public class CHDeploymentRequest extends DeploymentRequest {
         AnypointClient client = environment.getClient();
         HttpHelper httpHelper = client.getHttpHelper();
         JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
+        if(deploymentConfig.isExtMonitoring()) {
+            deploymentConfig.setProperty("anypoint.platform.config.analytics.agent.enabled","true");
+        }
         CHApplication existingApp = getExistingApp(appName);
         deploymentConfig.mergeExistingProperties(existingApp);
         appInfoBuilder.set("properties", deploymentConfig.getProperties())
@@ -78,6 +78,10 @@ public class CHDeploymentRequest extends DeploymentRequest {
                 .set("monitoringEnabled", true)
                 .set("monitoringAutoRestart", true)
                 .set("loggingNgEnabled", true)
+                .set("objectStoreV1", deploymentConfig.isObjectStoreV1())
+                .set("persistentQueues", deploymentConfig.isPersistentQueues())
+                .set("persistentQueuesEncrypted", deploymentConfig.isPersistentQueuesEncrypted())
+                .set("staticIPsEnabled", deploymentConfig.isStaticIPs())
                 .set("loggingCustomLog4JEnabled", deploymentConfig.isCustomlog4j());
         appInfoBuilder.addMap("muleVersion").set("version", muleVersion.getVersion()).set("updateId", muleVersion.getLatestUpdate().getId());
         appInfoBuilder.addMap("workers")

@@ -152,6 +152,31 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.mergeproperties.override")
     private boolean mergeExistingPropertiesOverride;
+    /**
+     * Enable persistent queues
+     */
+    @Parameter(property = "anypoint.deploy.persistentqueue", defaultValue = "false")
+    private boolean persistentQueues;
+    /**
+     * Enable encryption for persistent queues
+     */
+    @Parameter(property = "anypoint.deploy.persistentqueue.encrypted", defaultValue = "false")
+    private boolean persistentQueuesEncrypted;
+    /**
+     * Set object store v1 instead of v2
+     */
+    @Parameter(property = "anypoint.deploy.objectstorev1", defaultValue = "false")
+    private boolean objectStoreV1;
+    /**
+     * Enable monitoring and visualizer
+     */
+    @Parameter(property = "anypoint.deploy.extMonitoring", defaultValue = "true")
+    private boolean extMonitoring = true;
+    /**
+     * Enable static ips
+     */
+    @Parameter(property = "anypoint.deploy.staticips", defaultValue = "false")
+    private boolean staticIPs;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,
@@ -165,6 +190,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
                 try {
                     deploymentConfig.setCustomlog4j(customlog4j);
+                    deploymentConfig.setPersistentQueues(persistentQueues);
+                    deploymentConfig.setPersistentQueuesEncrypted(persistentQueuesEncrypted);
+                    deploymentConfig.setObjectStoreV1(objectStoreV1);
+                    deploymentConfig.setExtMonitoring(extMonitoring);
+                    deploymentConfig.setStaticIPs(staticIPs);
                     return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName,
                             applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {

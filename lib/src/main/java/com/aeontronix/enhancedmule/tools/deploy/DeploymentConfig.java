@@ -19,6 +19,11 @@ public class DeploymentConfig {
     protected Map<String, String> fileProperties;
     protected String filePropertiesPath = "config.properties";
     protected boolean filePropertiesSecure;
+    private boolean persistentQueues;
+    private boolean persistentQueuesEncrypted;
+    private boolean objectStoreV1;
+    private boolean extMonitoring = true;
+    private boolean staticIPs;
 
     public DeploymentConfig() {
     }
@@ -106,5 +111,52 @@ public class DeploymentConfig {
             fileProperties = new HashMap<>();
         }
         fileProperties.put(key,value);
+    }
+
+    public boolean isPersistentQueues() {
+        return persistentQueues;
+    }
+
+    public void setPersistentQueues(boolean persistentQueues) {
+        this.persistentQueues = persistentQueues;
+    }
+
+    public boolean isPersistentQueuesEncrypted() {
+        return persistentQueuesEncrypted;
+    }
+
+    public void setPersistentQueuesEncrypted(boolean persistentQueuesEncrypted) {
+        this.persistentQueuesEncrypted = persistentQueuesEncrypted;
+    }
+
+    public boolean isObjectStoreV1() {
+        return objectStoreV1;
+    }
+
+    public void setObjectStoreV1(boolean objectStoreV1) {
+        this.objectStoreV1 = objectStoreV1;
+    }
+
+    public boolean isExtMonitoring() {
+        return extMonitoring;
+    }
+
+    public void setExtMonitoring(boolean extMonitoring) {
+        this.extMonitoring = extMonitoring;
+    }
+
+    public boolean isStaticIPs() {
+        return staticIPs;
+    }
+
+    public void setStaticIPs(boolean staticIPs) {
+        this.staticIPs = staticIPs;
+    }
+
+    public void setProperty(String key, String value) {
+        if (properties == null) {
+            properties = new HashMap<>();
+        }
+        properties.put(key,value);
     }
 }
