@@ -162,15 +162,15 @@ public class ClientApplication extends AnypointObject<Organization> {
     }
 
 
-    public APIContract requestAPIAccess(AssetInstance assetInstance) throws HttpException {
-        return requestAPIAccess(assetInstance, null, false);
+    public APIContract requestAPIAccess(API api, AssetInstance assetInstance) throws HttpException {
+        return requestAPIAccess(api,assetInstance, null, false);
     }
 
-    public APIContract requestAPIAccess(AssetInstance assetInstance, SLATier tier) throws HttpException {
-        return requestAPIAccess(assetInstance, tier, true);
+    public APIContract requestAPIAccess(API api, AssetInstance assetInstance, SLATier tier) throws HttpException {
+        return requestAPIAccess(api,assetInstance, tier, true);
     }
 
-    public APIContract requestAPIAccess(AssetInstance apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
+    public APIContract requestAPIAccess(API api, AssetInstance apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
         JsonHelper.MapBuilder mapBuilder = jsonHelper.buildJsonMap()
                 .set("apiId", apiVersion.getId())
                 .set("environmentId", apiVersion.getEnvironmentId())
@@ -184,11 +184,17 @@ public class ClientApplication extends AnypointObject<Organization> {
             throw new IllegalArgumentException("Tier is missing tier id");
         }
         Long tierId = tier != null ? tier.getId() : null;
+//        if (tierId == null) {
+//            SLATierList apiTiers = apiVersion.findSLATiers();
+//            if (apiTiers.size() == 1) {
+//                tierId = apiTiers.iterator().next().getId();
+//            }
+//        }
         if (tierId != null) {
             mapBuilder.set("requestedTierId", tierId);
         }
         Map<String, Object> req = mapBuilder.toMap();
         String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
-        return jsonHelper.readJson(new APIContract(), json);
+        return jsonHelper.readJson(new APIContract(api), json);
     }
 }

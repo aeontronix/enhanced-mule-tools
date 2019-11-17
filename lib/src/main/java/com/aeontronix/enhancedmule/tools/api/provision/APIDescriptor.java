@@ -140,13 +140,21 @@ public class APIDescriptor {
                     contract = accessedAPI.findContract(clientApplication);
                 } catch (NotFoundException e) {
                     SLATier slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
-                    contract = clientApplication.requestAPIAccess(instance, slaTier);
+                    contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                 }
                 if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
-                    if (contract.isRevoked()) {
-                        contract.restoreAccess();
-                    } else {
-                        contract.approveAccess();
+                    try {
+                        if (contract.isRevoked()) {
+                            contract.restoreAccess();
+                        } else {
+                            contract.approveAccess();
+                        }
+                    } catch (HttpException e) {
+                        if (e.getStatusCode() == 401 || e.getStatusCode() == 403) {
+                            logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions");
+                        } else {
+                            throw e;
+                        }
                     }
                 }
             }
