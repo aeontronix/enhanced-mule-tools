@@ -7,6 +7,8 @@ package com.aeontronix.enhancedmule.tools.api.provision;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.StringJoiner;
+
 public class APIAccessDescriptor {
     private String orgId;
     private String groupId;
@@ -100,5 +102,18 @@ public class APIAccessDescriptor {
 
     public void setEnv(String env) {
         this.env = env;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", APIAccessDescriptor.class.getSimpleName() + "[", "]")
+                .add("orgId='" + orgId + "'")
+                .add("groupId='" + groupId + "'")
+                .add("assetId='" + assetId + "'")
+                .add("env='" + env + "'")
+                .add("assetVersion='" + assetVersion + "'")
+                .add("label='" + label + "'")
+                .add("slaTier='" + slaTier + "'")
+                .toString();
     }
 }

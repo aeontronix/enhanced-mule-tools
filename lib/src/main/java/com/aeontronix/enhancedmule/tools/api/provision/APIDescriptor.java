@@ -112,20 +112,28 @@ public class APIDescriptor {
                 throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
             }
             for (APIAccessDescriptor accessDescriptor : access) {
+                logger.debug("Processing access descriptor : {}",accessDescriptor);
                 Organization accessOrg;
                 if (accessDescriptor.getOrgId() == null) {
+                    logger.debug("Access descriptor has no org id, getting the default org");
                     accessOrg = environment.getOrganization();
+                    accessDescriptor.setOrgId(accessOrg.getId());
                 } else {
                     accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
                 }
-                accessDescriptor.setOrgId(accessOrg.getId());
+                logger.debug("Access org = {}",accessOrg.getId());
                 if (accessDescriptor.getGroupId() == null) {
+                    logger.debug("No group id found, using the org id instead");
                     accessDescriptor.setGroupId(accessOrg.getId());
                 }
+                logger.debug("Access group id = {}",accessDescriptor.getGroupId());
                 if (accessDescriptor.getEnv() == null) {
                     accessDescriptor.setEnv(environment.getName());
+                    logger.debug("No access environment specified, using the API's environment: {}",environment.getName());
                 }
+                logger.debug("Access environment = {}",accessDescriptor.getEnv());
                 String accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+                logger.debug("Access environment id = {}",accessEnvId);
                 ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
                 logger.debug("Found exchangeAsset {}", exchangeAsset);
                 logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
