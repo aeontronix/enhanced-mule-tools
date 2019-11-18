@@ -5,12 +5,13 @@
 package com.aeontronix.enhancedmule.tools.api.provision;
 
 import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.InvalidStateException;
 import com.kloudtek.util.StringUtils;
@@ -154,15 +155,16 @@ public class APIDescriptor {
                     contract = accessedAPI.findContract(clientApplication);
                 } catch (NotFoundException e) {
                     //
-                } catch( HttpException e ) {
-                    if (e.getStatusCode() == 403) {
-                        logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
-                    } else {
-                        throw e;
-                    }
+                } catch( UnauthorizedHttpException e ) {
+                    logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
                 }
                 if( contract == null ) {
-                    SLATier slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
+                    SLATier slaTier;
+                    try {
+                        slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
+                    } catch (UnauthorizedHttpException e) {
+                        slaTier = null;
+                    }
                     contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                 }
                 if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {

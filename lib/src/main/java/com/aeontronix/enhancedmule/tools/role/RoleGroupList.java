@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.role;
 
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;

@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.integrationtests;
 
 import com.aeontronix.enhancedmule.tools.*;
 import com.aeontronix.enhancedmule.tools.api.*;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.kloudtek.util.DataUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.slf4j.Logger;

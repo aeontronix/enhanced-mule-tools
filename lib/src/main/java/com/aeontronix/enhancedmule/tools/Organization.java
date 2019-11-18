@@ -13,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.provisioning.VPCOrgProvisioningDescript
 import com.aeontronix.enhancedmule.tools.provisioning.VPCProvisioningDescriptor;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

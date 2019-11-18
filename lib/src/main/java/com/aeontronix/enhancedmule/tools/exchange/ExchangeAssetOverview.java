@@ -9,7 +9,7 @@ package com.aeontronix.enhancedmule.tools.exchange;
  */
 
 import com.aeontronix.enhancedmule.tools.AnypointObject;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

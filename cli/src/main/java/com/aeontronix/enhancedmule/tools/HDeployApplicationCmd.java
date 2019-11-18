@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.kloudtek.util.UserDisplayableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

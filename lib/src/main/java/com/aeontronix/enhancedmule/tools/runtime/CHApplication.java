@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.runtime;
 
 import com.aeontronix.enhancedmule.tools.*;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.HashMap;

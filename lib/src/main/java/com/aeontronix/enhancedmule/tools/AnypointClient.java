@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentService;
 import com.aeontronix.enhancedmule.tools.ocli.OCliClient;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;

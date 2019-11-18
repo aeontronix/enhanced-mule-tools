@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 
 public abstract class DeploymentResult {
     public void waitDeployed() throws HttpException, ApplicationDeploymentFailedException {

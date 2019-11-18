@@ -35,8 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.aeontronix.enhancedmule.tools.AuthenticationProviderUsernamePasswordImpl.LOGIN_PATH;
-
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
@@ -271,7 +269,12 @@ public class HttpHelper implements Closeable {
             } else {
                 errMsg = "";
             }
-            throw new HttpException("Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg, statusCode);
+            String message = "Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg;
+            if( statusCode == 403 ) {
+                throw new UnauthorizedHttpException(message, statusCode);
+            } else {
+                throw new HttpException(message, statusCode);
+            }
         }
     }
 

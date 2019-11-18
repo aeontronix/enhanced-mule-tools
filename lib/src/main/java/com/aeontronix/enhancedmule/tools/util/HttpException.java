@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2019
  */
 
-package com.aeontronix.enhancedmule.tools;
+package com.aeontronix.enhancedmule.tools.util;
 
 public class HttpException extends Exception {
     protected int statusCode;

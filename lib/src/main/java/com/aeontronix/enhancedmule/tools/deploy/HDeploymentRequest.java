@@ -5,10 +5,9 @@
 package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.HApplication;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
@@ -16,9 +15,6 @@ import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.StreamSource;
-import com.kloudtek.unpack.transformer.SetPropertyTransformer;
-import com.kloudtek.unpack.transformer.Transformer;
-import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);

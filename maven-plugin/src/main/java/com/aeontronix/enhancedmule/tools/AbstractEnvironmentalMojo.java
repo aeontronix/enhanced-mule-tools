@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMojo {

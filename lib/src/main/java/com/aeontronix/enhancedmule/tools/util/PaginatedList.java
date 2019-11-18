@@ -5,7 +5,6 @@
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.AnypointObject;
-import com.aeontronix.enhancedmule.tools.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;

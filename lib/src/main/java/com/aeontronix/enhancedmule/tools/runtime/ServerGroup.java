@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.runtime;
 
 import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 
 import java.util.Map;
 

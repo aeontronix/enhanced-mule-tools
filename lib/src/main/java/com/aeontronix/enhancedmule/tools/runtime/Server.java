@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.runtime;
 
 import com.aeontronix.enhancedmule.tools.AnypointObject;
 import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.kryptotek.DigestAlgorithm;

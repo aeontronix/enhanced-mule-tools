@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.api;
 
 import com.aeontronix.enhancedmule.tools.AnypointObject;
-import com.aeontronix.enhancedmule.tools.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.InvalidStateException;

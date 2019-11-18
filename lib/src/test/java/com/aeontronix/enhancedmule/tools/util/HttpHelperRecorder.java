@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.AuthenticationProvider;
-import com.aeontronix.enhancedmule.tools.HttpException;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.apache.http.HttpEntity;

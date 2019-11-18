@@ -62,7 +62,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.name")
     protected String appName;
     /**
-     * Force deployment even if same already deployed application exists
+     * If true, will force deployment even if same already application was already deployed.
      */
     @Parameter(property = "anypoint.deploy.force")
     protected boolean force;
