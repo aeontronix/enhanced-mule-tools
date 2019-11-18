@@ -149,10 +149,19 @@ public class APIDescriptor {
                 API accessedAPI = new API(apiEnv);
                 accessedAPI.setId(instance.getId());
                 logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
-                APIContract contract;
+                APIContract contract = null;
                 try {
                     contract = accessedAPI.findContract(clientApplication);
                 } catch (NotFoundException e) {
+                    //
+                } catch( HttpException e ) {
+                    if (e.getStatusCode() == 403) {
+                        logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
+                    } else {
+                        throw e;
+                    }
+                }
+                if( contract == null ) {
                     SLATier slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
                     contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                 }
@@ -164,8 +173,8 @@ public class APIDescriptor {
                             contract.approveAccess();
                         }
                     } catch (HttpException e) {
-                        if (e.getStatusCode() == 401 || e.getStatusCode() == 403) {
-                            logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions");
+                        if (e.getStatusCode() == 403) {
+                            logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions: "+e.getMessage());
                         } else {
                             throw e;
                         }

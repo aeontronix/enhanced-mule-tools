@@ -18,7 +18,7 @@
     <description>Automation tools for mulesoft's anypoint platform</description>
     <url>https://aeontronix.gitlab.io/oss/enhanced-mule-tools/</url>
     <packaging>pom</packaging>
-    <version>1.0.4-beta3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <organization>
         <name>Aeontronix Inc</name>
@@ -56,4 +56,10 @@
         <module>maven-plugin</module>
     </modules>
 
+    <distributionManagement>
+        <site>
+            <id>local</id>
+            <url>file:public</url>
+        </site>
+    </distributionManagement>
 </project>
