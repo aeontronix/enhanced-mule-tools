@@ -14,6 +14,7 @@ public class APIAccessDescriptor {
     private String groupId;
     private String assetId;
     private String env;
+    private String envId;
     private String assetVersion;
     private String label;
     private String slaTier;
@@ -104,6 +105,15 @@ public class APIAccessDescriptor {
         this.env = env;
     }
 
+    @JsonProperty(required = false)
+    public String getEnvId() {
+        return envId;
+    }
+
+    public void setEnvId(String envId) {
+        this.envId = envId;
+    }
+
     @Override
     public String toString() {
         return new StringJoiner(", ", APIAccessDescriptor.class.getSimpleName() + "[", "]")
@@ -111,6 +121,7 @@ public class APIAccessDescriptor {
                 .add("groupId='" + groupId + "'")
                 .add("assetId='" + assetId + "'")
                 .add("env='" + env + "'")
+                .add("envId='" + envId + "'")
                 .add("assetVersion='" + assetVersion + "'")
                 .add("label='" + label + "'")
                 .add("slaTier='" + slaTier + "'")

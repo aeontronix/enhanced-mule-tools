@@ -13,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.InvalidStateException;
+import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,12 +128,17 @@ public class APIDescriptor {
                     accessDescriptor.setGroupId(accessOrg.getId());
                 }
                 logger.debug("Access group id = {}",accessDescriptor.getGroupId());
-                if (accessDescriptor.getEnv() == null) {
-                    accessDescriptor.setEnv(environment.getName());
-                    logger.debug("No access environment specified, using the API's environment: {}",environment.getName());
+                String accessEnvId;
+                if( accessDescriptor.getEnvId() != null ) {
+                    logger.debug("Env id set: {}",accessDescriptor.getEnvId());
+                    accessEnvId = accessDescriptor.getEnvId();
+                } else if(StringUtils.isNotBlank(accessDescriptor.getEnv()) ) {
+                    accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+                    logger.debug("access environment specified");
+                } else {
+                    logger.debug("No access environment specified, using the API's environment");
+                    accessEnvId = environment.getId();
                 }
-                logger.debug("Access environment = {}",accessDescriptor.getEnv());
-                String accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
                 logger.debug("Access environment id = {}",accessEnvId);
                 ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
                 logger.debug("Found exchangeAsset {}", exchangeAsset);

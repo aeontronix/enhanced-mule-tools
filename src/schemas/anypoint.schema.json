@@ -64,7 +64,11 @@
                 "type": "string"
               },
               "env": {
-                "description": "Environment of the API to be granted access to (if not set defaults to environment being deployed to)",
+                "description": "Name of the environment of the API to be granted access to (if not set defaults to environment being deployed to)",
+                "type": "string"
+              },
+              "envId": {
+                "description": "Id of the environment of the API to be granted access to (if this is set, it will ignore the environment set in 'env')",
                 "type": "string"
               },
               "assetVersion": {
