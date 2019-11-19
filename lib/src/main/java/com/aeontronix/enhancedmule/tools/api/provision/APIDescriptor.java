@@ -159,11 +159,14 @@ public class APIDescriptor {
                     logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
                 }
                 if( contract == null ) {
-                    SLATier slaTier;
-                    try {
-                        slaTier = accessDescriptor.getSlaTier() != null ? accessedAPI.findSLATier(accessDescriptor.getSlaTier()) : null;
-                    } catch (UnauthorizedHttpException e) {
-                        slaTier = null;
+                    SLATier slaTier = null;
+                    if( accessDescriptor.getSlaTier() != null ) {
+                        slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
+                    } else {
+                        List<SLATier> slaTiers = instance.findSLATiers();
+                        if( slaTiers.size() == 1 ) {
+                            slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
+                        }
                     }
                     contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                 }

@@ -91,6 +91,9 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public AssetInstance findInstances(@Nullable String name, String envId) throws NotFoundException {
         if (instances != null) {
+            for (AssetInstance instance : instances) {
+                instance.setParent(this);
+            }
             Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null && i.getEnvironmentId().equalsIgnoreCase(envId) );
             boolean namedInstance = !StringUtils.isEmpty(name);
             if (namedInstance) {

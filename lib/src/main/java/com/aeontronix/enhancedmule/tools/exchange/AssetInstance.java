@@ -4,11 +4,19 @@
 
 package com.aeontronix.enhancedmule.tools.exchange;
 
+import com.aeontronix.enhancedmule.tools.AnypointObject;
+import com.aeontronix.enhancedmule.tools.api.SLATier;
+import com.aeontronix.enhancedmule.tools.api.SLATierNotFoundException;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.kloudtek.util.UnexpectedException;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.StringJoiner;
 
-public class AssetInstance {
+public class AssetInstance extends AnypointObject<ExchangeAsset> {
     @JsonProperty
     private String versionGroup;
     @JsonProperty
@@ -39,6 +47,24 @@ public class AssetInstance {
     private String assetName;
 
     public AssetInstance() {
+    }
+
+    public List<SLATier> findSLATiers() throws HttpException {
+        String json = httpHelper.httpGet("https://anypoint.mulesoft.com/exchange/api/v1/organizations/" + getParent().getParent().getId() + "/assets/" + getParent().getGroupId() + "/" + getParent().getAssetId() + "/productApiVersion/" + getParent().getProductAPIVersion() + "/instances/" + id + "/tiers");
+        try {
+            return jsonHelper.getJsonMapper().readValue(json,new TypeReference<List<SLATier>>(){});
+        } catch (IOException e) {
+            throw new UnexpectedException(e);
+        }
+    }
+
+    public SLATier findSLATier(String name ) throws HttpException, SLATierNotFoundException {
+        for (SLATier tier : findSLATiers()) {
+            if( tier.getName().equalsIgnoreCase(name) ) {
+                return tier;
+            }
+        }
+        throw new SLATierNotFoundException("SLA Tier not found: " +name);
     }
 
     public String getVersionGroup() {
