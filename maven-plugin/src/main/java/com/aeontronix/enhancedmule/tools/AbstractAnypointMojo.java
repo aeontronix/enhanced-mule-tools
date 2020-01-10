@@ -19,12 +19,12 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     /**
      * Anypoint username
      */
-    @Parameter(property = "anypoint.username")
+    @Parameter(property = "anypoint.username",required = true)
     protected String username;
     /**
      * Anypoint password
      */
-    @Parameter(property = "anypoint.password")
+    @Parameter(property = "anypoint.password",required = true)
     protected String password;
     /**
      * If set to true, will use oauth client credentials (use client id as credentials and client secret as password)
@@ -36,9 +36,14 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
 
     public synchronized AnypointClient getClient() {
         if (client == null) {
-            AuthenticationProvider authenticationProvider = clientCredentials ?
-                    new AuthenticationProviderClientCredentialsImpl(username, password)
-                    : new AuthenticationProviderUsernamePasswordImpl(username, password);
+            AuthenticationProvider authenticationProvider;
+            if( clientCredentials ) {
+                logger.debug("Using client credentials: {}",username);
+                authenticationProvider = new AuthenticationProviderClientCredentialsImpl(username, password);
+            } else {
+                logger.debug("Using username/password credentials: {}",username);
+                authenticationProvider = new AuthenticationProviderUsernamePasswordImpl(username, password);
+            }
             client = new AnypointClient(authenticationProvider);
         }
         Proxy proxy = settings.getActiveProxy();
