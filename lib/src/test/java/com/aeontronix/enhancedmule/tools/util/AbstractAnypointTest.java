@@ -99,7 +99,7 @@ public class AbstractAnypointTest {
     }
 
     @Contract("_ -> param1")
-    protected AnypointConfigFileDescriptor addClientIdPolicy(AnypointConfigFileDescriptor apd) {
+    protected AnypointDescriptor addClientIdPolicy(AnypointDescriptor apd) {
         if (apd.getApi() != null) {
             apd.setApi(new APIDescriptor());
         }
@@ -140,7 +140,7 @@ public class AbstractAnypointTest {
         return apiProject;
     }
 
-    protected APIProvisioningResult provision(APIProvisioningConfig config, AnypointConfigFileDescriptor apd2) throws ProvisioningException {
+    protected APIProvisioningResult provision(APIProvisioningConfig config, AnypointDescriptor apd2) throws ProvisioningException {
         APIProvisioningResult provision = apd2.provision(env, config);
         // todo register client and delete them after tests
         return provision;

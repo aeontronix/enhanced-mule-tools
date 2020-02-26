@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.deploy;
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.AnypointConfigFileDescriptor;
+import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.api.provision.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.kloudtek.util.StringUtils;
@@ -35,10 +35,10 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract boolean exists();
 
-    public abstract AnypointConfigFileDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
+    public abstract AnypointDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
 
     @Nullable
-    protected AnypointConfigFileDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
+    protected AnypointDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
@@ -51,10 +51,10 @@ public abstract class ApplicationSource implements Closeable {
     }
 
     @Nullable
-    private AnypointConfigFileDescriptor readDescriptor(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
+    private AnypointDescriptor readDescriptor(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
         String json = IOUtils.toString(is);
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
-        AnypointConfigFileDescriptor descriptor = client.getJsonHelper().getJsonMapper().readValue(json, AnypointConfigFileDescriptor.class);
+        AnypointDescriptor descriptor = client.getJsonHelper().getJsonMapper().readValue(json, AnypointDescriptor.class);
         if(descriptor.getProperties()!= null){
             for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
                 entry.getValue().setName(entry.getKey());

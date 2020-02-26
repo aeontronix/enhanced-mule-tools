@@ -19,10 +19,10 @@ public class APIProvisioningITCase extends AbstractAnypointTest {
         APIProvisioningConfig config = new APIProvisioningConfig();
         config.setVariable("url", "http://foo");
         // provision api 1
-        AnypointConfigFileDescriptor apd1 = addClientIdPolicy(new AnypointConfigFileDescriptor(TESTAPI1, V1));
+        AnypointDescriptor apd1 = addClientIdPolicy(new AnypointDescriptor(TESTAPI1, V1));
         APIProvisioningResult res1 = provision(config, apd1);
         // provision api 2
-        AnypointConfigFileDescriptor apd2 = addClientIdPolicy(new AnypointConfigFileDescriptor(TESTAPI2, V1));
+        AnypointDescriptor apd2 = addClientIdPolicy(new AnypointDescriptor(TESTAPI2, V1));
         APIDescriptor apd2api = apd2.getApi();
         apd2api.addAccess(res1.getApi());
         apd2api.addSlaTier(new SLATierDescriptor("testtier", false, new SLATierLimits(true, 1, 1)));

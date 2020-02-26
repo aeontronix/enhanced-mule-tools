@@ -44,7 +44,7 @@ public class APIDescriptor {
         this.assetVersion = version;
     }
 
-    public void provision(AnypointConfigFileDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws HttpException, NotFoundException {
+    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws HttpException, NotFoundException {
         ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
         ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());

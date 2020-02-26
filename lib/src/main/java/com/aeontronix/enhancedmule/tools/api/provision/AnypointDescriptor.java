@@ -10,16 +10,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
-public class AnypointConfigFileDescriptor {
-    private static final Logger logger = LoggerFactory.getLogger(AnypointConfigFileDescriptor.class);
+public class AnypointDescriptor {
+    private static final Logger logger = LoggerFactory.getLogger(AnypointDescriptor.class);
     private Boolean mule3;
     private APIDescriptor api;
     private HashMap<String, PropertyDescriptor> properties;
 
-    public AnypointConfigFileDescriptor() {
+    public AnypointDescriptor() {
     }
 
-    public AnypointConfigFileDescriptor(String name, String version) {
+    public AnypointDescriptor(String name, String version) {
         api = new APIDescriptor(name, version);
     }
 

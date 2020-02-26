@@ -45,7 +45,7 @@ To deploy a pre-compile jar file ( myapplication.jar in the following example ),
 maven command:
 
 ```bash
-mvn com.aeontronix.enhanced-mule:enhanced-mule-tools-maven-plugin:@version@:deploy -Dfile=myapplication.jar
+mvn com.aeontronix.enhanced-mule:enhanced-mule-tools-maven-plugin:@version@:deploy -Danypoint.deploy.file=myapplication.jar
 ```
 
 # Proxy

@@ -41,7 +41,7 @@ public abstract class DeploymentRequest {
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
     protected DeploymentConfig deploymentConfig;
-    protected AnypointConfigFileDescriptor apiProvisioningDescriptor;
+    protected AnypointDescriptor apiProvisioningDescriptor;
 
     public DeploymentRequest() {
     }
