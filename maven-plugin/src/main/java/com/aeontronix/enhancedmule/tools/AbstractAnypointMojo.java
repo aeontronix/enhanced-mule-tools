@@ -50,7 +50,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         logger.debug("Checking debug settings");
         if (proxy != null) {
             logger.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
-            getClient().setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
+            client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
         } else {
             logger.debug("No proxy specified");
         }

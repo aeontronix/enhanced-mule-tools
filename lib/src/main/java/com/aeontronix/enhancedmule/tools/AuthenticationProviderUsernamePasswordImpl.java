@@ -31,11 +31,12 @@ public class AuthenticationProviderUsernamePasswordImpl implements Authenticatio
                 throw new IllegalArgumentException("Username missing");
             }
             if (StringUtils.isBlank(password)) {
-                throw new IllegalArgumentException("Username missing");
+                throw new IllegalArgumentException("Password missing");
             }
             Map<String, String> request = new HashMap<>();
             request.put("username", username);
             request.put("password", password);
+            httpHelper.setLoginRequest(true);
             Map data = objectMapper.readValue(httpHelper.httpPost(LOGIN_PATH, request),Map.class);
             return (String) data.get("access_token");
         } catch (IOException e) {
