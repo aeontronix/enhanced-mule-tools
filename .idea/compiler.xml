@@ -8,8 +8,8 @@
         <outputRelativeToContentRoot value="true" />
         <module name="enhanced-mule-application-demo" />
         <module name="enhanced-mule-tools-cli" />
-        <module name="enhanced-mule-tools-maven-plugin" />
         <module name="enhanced-mule-tools-lib" />
+        <module name="enhanced-mule-tools-maven-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

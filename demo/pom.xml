@@ -19,6 +19,7 @@
 
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
 	<build>
@@ -32,14 +33,14 @@
 				</configuration>
 			</plugin>
             <plugin>
-                <groupId>com.aeontronix.enhanced-mule-tools</groupId>
-                <version>1.0-SNAPSHOT</version>
+                <groupId>com.aeontronix.enhanced-mule</groupId>
                 <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
+                <version>1.0.8-SNAPSHOT</version>
                 <executions>
                     <execution>
-                        <id>update-group-id</id>
                         <goals>
-                            <goal>prepare-project</goal>
+                            <goal>prepare-deploy</goal>
+                            <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>

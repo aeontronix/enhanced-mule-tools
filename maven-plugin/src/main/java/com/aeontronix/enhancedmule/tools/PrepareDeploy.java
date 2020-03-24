@@ -4,29 +4,22 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.util.MavenUtils;
-import org.apache.maven.artifact.Artifact;
+import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.kloudtek.util.StringUtils;
 import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.artifact.ProjectArtifact;
-import org.eclipse.aether.repository.AuthenticationSelector;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Prepare a project for deployment to anypoint exchange maven.
@@ -37,35 +30,64 @@ public class PrepareDeploy extends AbstractOrganizationalMojo {
     private MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession session;
+    @Parameter(property = "anypoint.descriptor", required = false)
+    private String descriptor;
 
     @Override
     protected void doExecute() throws Exception {
-        File anypointFile = findAnypointFile(project.getBasedir());
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        AnypointDescriptor anypointDescriptor = null;
+        if (StringUtils.isNotBlank(descriptor)) {
+            File descriptorFile = new File(descriptor);
+            anypointDescriptor = readFile(descriptorFile);
+        } else {
+            File descriptorFile = findAnypointFile(project.getBasedir());
+            if (descriptorFile != null) {
+                anypointDescriptor = readFile(descriptorFile);
+            }
+        }
+        if (anypointDescriptor == null) {
+            anypointDescriptor = new AnypointDescriptor();
+        }
+        File generateDescriptorFile = new File(project.getBuild().getDirectory(),"anypoint.json");
+        objectMapper.writeValue(generateDescriptorFile, anypointDescriptor);
+        Resource resource = new Resource();
+        resource.setDirectory(project.getBasedir().getPath());
+        resource.setIncludes(Collections.singletonList(generateDescriptorFile.getName()));
+        project.addResource(resource);
+        DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
+        artifact.setFile(generateDescriptorFile);
+        project.addAttachedArtifact(artifact);
+    }
 
-        if( anypointFile != null ) {
-            String ext = anypointFile.getPath().substring(anypointFile.getPath().lastIndexOf(".") + 1);
-            Resource resource = new Resource();
-            resource.setDirectory(project.getBasedir().getPath());
-            resource.setIncludes(Collections.singletonList(anypointFile.getName()));
-            project.addResource(resource);
-            DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(), "compile", ext, "anypoint-descriptor",
-                    new DefaultArtifactHandler(ext));
-            artifact.setFile(anypointFile);
-            project.addAttachedArtifact(artifact);
+    private AnypointDescriptor readFile(File descriptorFile) throws java.io.IOException {
+        if (descriptorFile.exists()) {
+            String fname = descriptorFile.getName().toLowerCase();
+            ObjectMapper om;
+            if (fname.endsWith(".yml") || fname.endsWith(".yaml")) {
+                om = new YAMLMapper();
+            } else {
+                om = new ObjectMapper();
+            }
+            return om.readValue(descriptorFile, AnypointDescriptor.class);
+        } else {
+            return null;
         }
     }
 
     private File findAnypointFile(File basedir) {
         File file = new File(basedir, "anypoint.yml");
-        if( file.exists() ) {
+        if (file.exists()) {
             return file;
         }
         file = new File(basedir, "anypoint.yaml");
-        if( file.exists() ) {
+        if (file.exists()) {
             return file;
         }
         file = new File(basedir, "anypoint.json");
-        if( file.exists() ) {
+        if (file.exists()) {
             return file;
         }
         return null;
