@@ -52,6 +52,10 @@ public class APIDescriptor {
         if (clientApp == null) {
             clientApp = new ClientApplicationDescriptor();
         }
+        Boolean m3 = cfg.getMule3();
+        if (m3 == null) {
+            m3 = false;
+        }
         API api;
         try {
             api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
@@ -67,12 +71,11 @@ public class APIDescriptor {
                 api = api.updateVersion(assetVersion);
             } catch (NotFoundException ex) {
                 logger.debug("Couldn't find, creating");
-                Boolean m3 = cfg.getMule3();
-                if (m3 == null) {
-                    m3 = false;
-                }
                 api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label);
             }
+        }
+        if (this.getEndpoint() != null) {
+            api = api.updateEndpoint(this.getEndpoint(), !m3);
         }
         result.setApi(api);
         if (policies != null) {

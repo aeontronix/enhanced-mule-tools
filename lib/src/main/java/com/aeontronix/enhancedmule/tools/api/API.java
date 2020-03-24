@@ -35,6 +35,7 @@ public class API extends AnypointObject<Environment> {
     private String assetId;
     private String autodiscoveryInstanceName;
     private APIEndpoint endpoint;
+    private String endpointUri;
 
     public API() {
     }
@@ -108,6 +109,24 @@ public class API extends AnypointObject<Environment> {
         return jsonHelper.readJson(new SLATier(this), json);
     }
 
+    public API updateEndpoint(String endpointUrl, boolean mule4) throws HttpException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("endpointUri", endpointUrl);
+        HashMap<String, Object> endpMap = new HashMap<>();
+        endpMap.put("type", "rest");
+        endpMap.put("uri", endpointUrl);
+        endpMap.put("proxyUri", null);
+        endpMap.put("isCloudHub", null);
+        endpMap.put("deploymentType", "CH");
+        endpMap.put("referencesUserDomain", null);
+        endpMap.put("responseTimeout", null);
+        endpMap.put("muleVersion4OrAbove", mule4);
+        data.put("endpoint", endpMap);
+        String json = parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
+        JsonHelper jsonHelper = parent.getClient().getJsonHelper();
+        return jsonHelper.readJson(new API(parent), json, parent);
+    }
+
     public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {
         HashMap<String, Object> req = new HashMap<>();
         req.put("instanceLabel", label);
@@ -117,7 +136,7 @@ public class API extends AnypointObject<Environment> {
         specMap.put("groupId", apiSpec.getGroupId());
         req.put("spec", specMap);
         HashMap<String, Object> endpMap = new HashMap<>();
-        endpMap.put("type", "rest-api");
+        endpMap.put("type", "rest");
         endpMap.put("uri", endpointUrl);
         endpMap.put("proxyUri", null);
         endpMap.put("isCloudHub", null);
@@ -126,7 +145,6 @@ public class API extends AnypointObject<Environment> {
         endpMap.put("responseTimeout", null);
         endpMap.put("muleVersion4OrAbove", mule4);
         req.put("endpoint", endpMap);
-        req.put("endpointUri",endpointUrl);
         String json = environment.getClient().getHttpHelper().httpPost("/apimanager/api/v1/organizations/" + environment.getParent().getId() + "/environments/" + environment.getId() + "/apis", req);
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
@@ -245,6 +263,14 @@ public class API extends AnypointObject<Environment> {
         this.autodiscoveryInstanceName = autodiscoveryInstanceName;
     }
 
+    public String getEndpointUri() {
+        return endpointUri;
+    }
+
+    public void setEndpointUri(String endpointUri) {
+        this.endpointUri = endpointUri;
+    }
+
     public APIEndpoint getEndpoint() {
         return endpoint;
     }
@@ -281,6 +307,7 @@ public class API extends AnypointObject<Environment> {
                 ", groupId='" + groupId + '\'' +
                 ", assetId='" + assetId + '\'' +
                 ", autodiscoveryInstanceName='" + autodiscoveryInstanceName + '\'' +
+                ", endpointUri=" + endpointUri +
                 ", endpoint=" + endpoint +
                 "} " + super.toString();
     }
