@@ -126,6 +126,7 @@ public class API extends AnypointObject<Environment> {
         endpMap.put("responseTimeout", null);
         endpMap.put("muleVersion4OrAbove", mule4);
         req.put("endpoint", endpMap);
+        req.put("endpointUri",endpointUrl);
         String json = environment.getClient().getHttpHelper().httpPost("/apimanager/api/v1/organizations/" + environment.getParent().getId() + "/environments/" + environment.getId() + "/apis", req);
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
