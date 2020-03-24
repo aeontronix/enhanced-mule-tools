@@ -27,15 +27,16 @@ public class AuthenticationProviderClientCredentialsImpl implements Authenticati
     public String getBearerToken(HttpHelper httpHelper) throws HttpException {
         try {
             if (StringUtils.isBlank(clientId)) {
-                throw new IllegalArgumentException("Username missing");
+                throw new IllegalArgumentException("Client ID is missing");
             }
             if (StringUtils.isBlank(clientSecret)) {
-                throw new IllegalArgumentException("Username missing");
+                throw new IllegalArgumentException("Client Secret is missing");
             }
             Map<String, String> request = new HashMap<>();
             request.put("client_id", clientId);
             request.put("client_secret", clientSecret);
             request.put("grant_type", "client_credentials");
+            httpHelper.setLoginRequest(true);
             Map data = objectMapper.readValue(httpHelper.httpPost("/accounts/api/v2/oauth2/token", request),Map.class);
             return (String) data.get("access_token");
         } catch (IOException e) {

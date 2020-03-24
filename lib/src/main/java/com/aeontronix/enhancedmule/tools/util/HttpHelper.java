@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.*;
 import com.kloudtek.util.Base64;
+import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -43,6 +44,8 @@ public class HttpHelper implements Closeable {
     private String authToken;
     private AnypointClient client;
     private int maxRetries = 4;
+    private boolean loginRequest = false;
+    private int loginAttempts = 0;
     private long retryDelay = 1000L;
 
     public HttpHelper() {
@@ -207,10 +210,9 @@ public class HttpHelper implements Closeable {
     }
 
     private String executeWrapper(@NotNull HttpRequestBase method, MultiPartRequest multiPartRequest, int attempt) throws HttpException {
-//        boolean authenticating = method.getURI().getPath().equals(LOGIN_PATH);
-//        if (authToken == null && !authenticating) {
-//            updateBearerToken();
-//        }
+        if (isLoginRequest()) {
+            loginAttempts++;
+        }
         try {
             if (multiPartRequest != null) {
                 ((HttpEntityEnclosingRequestBase) method).setEntity(multiPartRequest.toEntity());
@@ -218,8 +220,12 @@ public class HttpHelper implements Closeable {
             return doExecute(method);
         } catch (HttpException e) {
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401 ) {
-                updateBearerToken();
-                return doExecute(method);
+                if (loginAttempts > 1) {
+                    throw e;
+                } else {
+                    updateBearerToken();
+                    return doExecute(method);
+                }
             } else if (e.getStatusCode() >= 500) {
                 attempt++;
                 if (attempt > maxRetries) {
@@ -248,6 +254,10 @@ public class HttpHelper implements Closeable {
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             verifyStatusCode(method, response);
+            if (isLoginRequest()) {
+                loginAttempts = 0;
+                setLoginRequest(false);
+            }
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
                 String resStr = IOUtils.toString(response.getEntity().getContent());
                 logger.debug("RESULT CONTENT: " + resStr);
@@ -283,11 +293,11 @@ public class HttpHelper implements Closeable {
         if (httpClient != null) {
             IOUtils.close(httpClient);
         }
-        HttpClientBuilder builder = HttpClients.custom();
+        HttpClientBuilder builder = HttpClients.custom().disableCookieManagement();
         HttpHost proxyHost = new HttpHost(host, port, scheme);
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxyHost);
         builder = builder.setRoutePlanner(routePlanner);
-        if (username != null && password != null) {
+        if (username != null && StringUtils.isNotEmpty(username) && password != null && StringUtils.isNotEmpty(password)) {
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(new AuthScope(proxyHost), new UsernamePasswordCredentials(username, password));
             builder = builder.setDefaultCredentialsProvider(credsProvider);
@@ -361,6 +371,14 @@ public class HttpHelper implements Closeable {
 
     public void setRetryDelay(long retryDelay) {
         this.retryDelay = retryDelay;
+    }
+
+    public boolean isLoginRequest() {
+        return loginRequest;
+    }
+
+    public void setLoginRequest(boolean loginRequest) {
+        this.loginRequest = loginRequest;
     }
 
     public class RuntimeIOException extends RuntimeException {
