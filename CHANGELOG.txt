@@ -10,3 +10,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Supports anypoint.yml or anypoint.yaml in addition to anypoint.json
 - Changed deploy parameter structure to mirror that of mule's deploy parameters
+- Added maven deploy property 'anypoint.deploy.propertyfile', allowing to specify a property file on deployment

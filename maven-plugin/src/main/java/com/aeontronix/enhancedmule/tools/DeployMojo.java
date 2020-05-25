@@ -24,9 +24,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,11 +90,18 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.properties", required = false)
     protected Map<String, String> properties;
     /**
+     * Application property file
+     */
+    @Parameter(property = "anypoint.deploy.propertyfile", required = false)
+    protected File propertyfile;
+
+    /**
      * Properties that should be inserted into a property file in the application archive
      * @see #filePropertiesPath
      */
     @Parameter(property = "anypoint.deploy.fileproperties", required = false)
     protected Map<String, String> fileProperties;
+
     /**
      * Location of property file to inserted with values specified in {@link #fileProperties}
      */
@@ -256,6 +266,21 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     }
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
+                if( propertyfile != null ) {
+                    if( ! propertyfile.exists() ) {
+                        throw new IllegalArgumentException("Property file not found: "+propertyfile);
+                    }
+                    Properties fileProps = new Properties();
+                    try(FileInputStream fis = new FileInputStream(propertyfile) ) {
+                        fileProps.load(fis);
+                    }
+                    for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
+                        String key = entry.toString();
+                        if( ! properties.containsKey(key) ) {
+                            properties.put(key,entry.getValue().toString());
+                        }
+                    }
+                }
                 deploymentConfig.setProperties(properties);
                 deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
                 deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
