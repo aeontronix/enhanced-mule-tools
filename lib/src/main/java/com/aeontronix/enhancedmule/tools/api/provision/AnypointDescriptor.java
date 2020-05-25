@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 public class AnypointDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(AnypointDescriptor.class);
+    private String id;
     private Boolean mule3;
     private APIDescriptor api;
     private HashMap<String, PropertyDescriptor> properties;
@@ -50,6 +51,14 @@ public class AnypointDescriptor {
 
     public void setApi(APIDescriptor api) {
         this.api = api;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public HashMap<String, PropertyDescriptor> getProperties() {

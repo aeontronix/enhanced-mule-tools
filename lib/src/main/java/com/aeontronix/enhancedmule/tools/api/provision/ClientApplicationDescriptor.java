@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.api.provision;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ClientApplicationDescriptor {
+    private boolean create;
     private String url;
     private String description;
     private String name;
@@ -18,6 +19,14 @@ public class ClientApplicationDescriptor {
         this.url = url;
         this.description = description;
         this.name = name;
+    }
+
+    public boolean isCreate() {
+        return create;
+    }
+
+    public void setCreate(boolean create) {
+        this.create = create;
     }
 
     @JsonProperty

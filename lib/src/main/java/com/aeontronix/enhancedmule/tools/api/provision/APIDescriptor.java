@@ -32,7 +32,6 @@ public class APIDescriptor {
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
     private String label;
-    private boolean createClientApplication = true;
     private ClientApplicationDescriptor clientApp;
     private List<SLATierDescriptor> slaTiers;
 
@@ -49,9 +48,6 @@ public class APIDescriptor {
         ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
         logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
         logger.debug("Provisioning " + this.getAssetId());
-        if (clientApp == null) {
-            clientApp = new ClientApplicationDescriptor();
-        }
         Boolean m3 = cfg.getMule3();
         if (m3 == null) {
             m3 = false;
@@ -84,21 +80,6 @@ public class APIDescriptor {
                 api.createPolicy(policyDescriptor);
             }
         }
-        if (clientApp.getName() == null) {
-            clientApp.setName(api.getAssetId() + "-" + config.getVariables().get("organization.lname") + "-" + config.getVariables().get("environment.lname"));
-        }
-        ClientApplication clientApplication = null;
-        try {
-            clientApplication = environment.getOrganization().findClientApplicationByName(clientApp.getName());
-            logger.debug("Client application found: " + clientApp.getName());
-        } catch (NotFoundException e) {
-            //
-        }
-        if (clientApplication == null && isCreateClientApplication()) {
-            logger.debug("Client application not found, creating: " + clientApp.getName());
-            clientApplication = environment.getOrganization().createClientApplication(clientApp.getName(), clientApp.getUrl(), clientApp.getDescription());
-        }
-        result.setClientApplication(clientApplication);
         if (slaTiers != null) {
             for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                 try {
@@ -112,79 +93,93 @@ public class APIDescriptor {
                 }
             }
         }
-        if (access != null) {
-            if (clientApplication == null) {
-                throw new InvalidStateException("Client Application doesn't exist and automatic client application creation (createClientApplication) set to false");
+        if( clientApp != null ) {
+            if (clientApp.getName() == null) {
+                clientApp.setName(api.getAssetId() + "-" + config.getVariables().get("organization.lname") + "-" + config.getVariables().get("environment.lname"));
             }
-            for (APIAccessDescriptor accessDescriptor : access) {
-                logger.debug("Processing access descriptor : {}",accessDescriptor);
-                Organization accessOrg;
-                if (accessDescriptor.getOrgId() == null) {
-                    logger.debug("Access descriptor has no org id, getting the default org");
-                    accessOrg = environment.getOrganization();
-                    accessDescriptor.setOrgId(accessOrg.getId());
-                } else {
-                    accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
-                }
-                logger.debug("Access org = {}",accessOrg.getId());
-                if (accessDescriptor.getGroupId() == null) {
-                    logger.debug("No group id found, using the org id instead");
-                    accessDescriptor.setGroupId(accessOrg.getId());
-                }
-                logger.debug("Access group id = {}",accessDescriptor.getGroupId());
-                String accessEnvId;
-                if( accessDescriptor.getEnvId() != null ) {
-                    logger.debug("Env id set: {}",accessDescriptor.getEnvId());
-                    accessEnvId = accessDescriptor.getEnvId();
-                } else if(StringUtils.isNotBlank(accessDescriptor.getEnv()) ) {
-                    accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
-                    logger.debug("access environment specified");
-                } else {
-                    logger.debug("No access environment specified, using the API's environment");
-                    accessEnvId = environment.getId();
-                }
-                logger.debug("Access environment id = {}",accessEnvId);
-                ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
-                logger.debug("Found exchangeAsset {}", exchangeAsset);
-                logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
-                AssetInstance instance = exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
-                logger.debug("Found instance {}", instance);
-                Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
-                API accessedAPI = new API(apiEnv);
-                accessedAPI.setId(instance.getId());
-                logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
-                APIContract contract = null;
-                try {
-                    contract = accessedAPI.findContract(clientApplication);
-                } catch (NotFoundException e) {
-                    //
-                } catch( UnauthorizedHttpException e ) {
-                    logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
-                }
-                if( contract == null ) {
-                    SLATier slaTier = null;
-                    if( accessDescriptor.getSlaTier() != null ) {
-                        slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
+            ClientApplication clientApplication = null;
+            try {
+                clientApplication = environment.getOrganization().findClientApplicationByName(clientApp.getName());
+                logger.debug("Client application found: " + clientApp.getName());
+            } catch (NotFoundException e) {
+                //
+            }
+            if (clientApplication == null) {
+                logger.debug("Client application not found, creating: " + clientApp.getName());
+                clientApplication = environment.getOrganization().createClientApplication(clientApp.getName(), clientApp.getUrl(), clientApp.getDescription());
+            }
+            result.setClientApplication(clientApplication);
+            if (access != null) {
+                for (APIAccessDescriptor accessDescriptor : access) {
+                    logger.debug("Processing access descriptor : {}",accessDescriptor);
+                    Organization accessOrg;
+                    if (accessDescriptor.getOrgId() == null) {
+                        logger.debug("Access descriptor has no org id, getting the default org");
+                        accessOrg = environment.getOrganization();
+                        accessDescriptor.setOrgId(accessOrg.getId());
                     } else {
-                        List<SLATier> slaTiers = instance.findSLATiers();
-                        if( slaTiers.size() == 1 ) {
-                            slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
-                        }
+                        accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
                     }
-                    contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
-                }
-                if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
+                    logger.debug("Access org = {}",accessOrg.getId());
+                    if (accessDescriptor.getGroupId() == null) {
+                        logger.debug("No group id found, using the org id instead");
+                        accessDescriptor.setGroupId(accessOrg.getId());
+                    }
+                    logger.debug("Access group id = {}",accessDescriptor.getGroupId());
+                    String accessEnvId;
+                    if( accessDescriptor.getEnvId() != null ) {
+                        logger.debug("Env id set: {}",accessDescriptor.getEnvId());
+                        accessEnvId = accessDescriptor.getEnvId();
+                    } else if(StringUtils.isNotBlank(accessDescriptor.getEnv()) ) {
+                        accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+                        logger.debug("access environment specified");
+                    } else {
+                        logger.debug("No access environment specified, using the API's environment");
+                        accessEnvId = environment.getId();
+                    }
+                    logger.debug("Access environment id = {}",accessEnvId);
+                    ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
+                    logger.debug("Found exchangeAsset {}", exchangeAsset);
+                    logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
+                    AssetInstance instance = exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
+                    logger.debug("Found instance {}", instance);
+                    Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
+                    API accessedAPI = new API(apiEnv);
+                    accessedAPI.setId(instance.getId());
+                    logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
+                    APIContract contract = null;
                     try {
-                        if (contract.isRevoked()) {
-                            contract.restoreAccess();
+                        contract = accessedAPI.findContract(clientApplication);
+                    } catch (NotFoundException e) {
+                        //
+                    } catch( UnauthorizedHttpException e ) {
+                        logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
+                    }
+                    if( contract == null ) {
+                        SLATier slaTier = null;
+                        if( accessDescriptor.getSlaTier() != null ) {
+                            slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
                         } else {
-                            contract.approveAccess();
+                            List<SLATier> slaTiers = instance.findSLATiers();
+                            if( slaTiers.size() == 1 ) {
+                                slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
+                            }
                         }
-                    } catch (HttpException e) {
-                        if (e.getStatusCode() == 403) {
-                            logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions: "+e.getMessage());
-                        } else {
-                            throw e;
+                        contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
+                    }
+                    if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
+                        try {
+                            if (contract.isRevoked()) {
+                                contract.restoreAccess();
+                            } else {
+                                contract.approveAccess();
+                            }
+                        } catch (HttpException e) {
+                            if (e.getStatusCode() == 403) {
+                                logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions: "+e.getMessage());
+                            } else {
+                                throw e;
+                            }
                         }
                     }
                 }
@@ -278,15 +273,6 @@ public class APIDescriptor {
 
     public void setAccessedBy(List<String> accessedBy) {
         this.accessedBy = accessedBy;
-    }
-
-    @JsonProperty(defaultValue = "true")
-    public boolean isCreateClientApplication() {
-        return createClientApplication;
-    }
-
-    public void setCreateClientApplication(boolean createClientApplication) {
-        this.createClientApplication = createClientApplication;
     }
 
     public synchronized List<SLATierDescriptor> getSlaTiers() {

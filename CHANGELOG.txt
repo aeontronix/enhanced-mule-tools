@@ -6,8 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking changes
+
+- Goal 'prepare-deploy' is now 'process-descriptor'
+- API `clientApp` has been renamed to `client` and moved to root
+- descriptor 'access' is now inside "client"
+
 ### Changed
 
 - Supports anypoint.yml or anypoint.yaml in addition to anypoint.json
 - Changed deploy parameter structure to mirror that of mule's deploy parameters
 - Added maven deploy property 'anypoint.deploy.propertyfile', allowing to specify a property file on deployment
+- Automatically defaults api asset id and version based on pom
+- API createClientApplication removed ( the client app will be created if `clientApp` json object exists )
