@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0](https://gitlab.com/aeontronix/oss/enhanced-mule-tools/-/milestones/2)
 
 ### Breaking changes
 
@@ -19,3 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added maven deploy property 'anypoint.deploy.propertyfile', allowing to specify a property file on deployment
 - Automatically defaults api asset id and version based on pom
 - API createClientApplication removed ( the client app will be created if `clientApp` json object exists )
+- Supports bearer token
+- Support creating HTTP exchange assets
+- Supports provisioning-only (to use in combination with official mule plugin)
+
