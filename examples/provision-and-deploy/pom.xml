@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>com.aeontronix.enhanced-mule</groupId>
                 <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
-                <version>1.0.8-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <goals>
