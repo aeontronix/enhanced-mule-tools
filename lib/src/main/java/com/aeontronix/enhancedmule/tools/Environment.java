@@ -297,8 +297,9 @@ public class Environment extends AnypointObject<Organization> {
         DESIGN, SANDBOX, PRODUCTION
     }
 
-    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {
-        return API.create(this, apiSpec, mule4, endpointUrl, label);
+    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label,
+                         @NotNull API.Type type) throws HttpException {
+        return API.create(this, apiSpec, mule4, endpointUrl, label, type);
     }
 
     @SuppressWarnings("unchecked")

@@ -127,7 +127,8 @@ public class API extends AnypointObject<Environment> {
         return jsonHelper.readJson(new API(parent), json, parent);
     }
 
-    public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label) throws HttpException {
+    public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4,
+                             @Nullable String endpointUrl, @Nullable String label, @NotNull Type type) throws HttpException {
         HashMap<String, Object> req = new HashMap<>();
         req.put("instanceLabel", label);
         HashMap<String, Object> specMap = new HashMap<>();
@@ -136,7 +137,7 @@ public class API extends AnypointObject<Environment> {
         specMap.put("groupId", apiSpec.getGroupId());
         req.put("spec", specMap);
         HashMap<String, Object> endpMap = new HashMap<>();
-        endpMap.put("type", "rest");
+        endpMap.put("type", type.name().toLowerCase());
         endpMap.put("uri", endpointUrl);
         endpMap.put("proxyUri", null);
         endpMap.put("isCloudHub", null);
@@ -312,4 +313,7 @@ public class API extends AnypointObject<Environment> {
                 "} " + super.toString();
     }
 
+    public enum Type {
+        REST, HTTP
+    }
 }

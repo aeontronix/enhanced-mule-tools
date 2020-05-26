@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.api.provision.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.kloudtek.util.StringUtils;
@@ -39,6 +40,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private MavenSession session;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
+    @Parameter(property = "anypoint.descriptor.attach")
+    private boolean attachDescriptor = true;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -57,10 +60,12 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             resource.setDirectory(project.getBuild().getDirectory());
             resource.setIncludes(Collections.singletonList(generateDescriptorFile.getName()));
             project.addResource(resource);
-            DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
-                    "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
-            artifact.setFile(generateDescriptorFile);
-            project.addAttachedArtifact(artifact);
+            if(attachDescriptor) {
+                DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                        "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
+                artifact.setFile(generateDescriptorFile);
+                project.addAttachedArtifact(artifact);
+            }
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -142,6 +147,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             } else {
                 om = new ObjectMapper();
             }
+            om.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
             return om.readValue(descriptorFile, AnypointDescriptor.class);
         } else {
             return null;

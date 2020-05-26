@@ -5,15 +5,13 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.*;
-import com.aeontronix.enhancedmule.tools.exchange.AssetList;
-import com.aeontronix.enhancedmule.tools.exchange.AssetVersion;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetOverview;
+import com.aeontronix.enhancedmule.tools.exchange.*;
 import com.aeontronix.enhancedmule.tools.provisioning.VPCOrgProvisioningDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.VPCProvisioningDescriptor;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -519,6 +517,23 @@ public class Organization extends AnypointObject {
             }
         }
         throw new NotFoundException("Rolegroup named " + name + " not found");
+    }
+
+    public void createExchangeHTTPAPIAsset(String groupId, String name, String assetId, String version, String apiVersion) throws AssetCreationException {
+        HttpHelper.MultiPartRequest req = httpHelper.createMultiPartPostRequest("/exchange/api/v1/assets", null);
+        req.addText("organizationId",id);
+        req.addText("groupId",groupId == null ? id : groupId);
+        req.addText("assetId",assetId);
+        req.addText("version",version);
+        req.addText("name",name);
+        req.addText("classifier","http");
+        req.addText("apiVersion",apiVersion);
+        req.addText("asset","undefined");
+        try {
+            req.execute();
+        } catch (HttpException| IOException e) {
+            throw new AssetCreationException(e);
+        }
     }
 
     public enum RequestAPIAccessResult {

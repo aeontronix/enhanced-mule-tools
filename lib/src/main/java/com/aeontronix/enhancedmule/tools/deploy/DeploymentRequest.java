@@ -66,12 +66,6 @@ public abstract class DeploymentRequest {
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
                 apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
-                apiProvisioningConfig.setVariable("app.id", apiProvisioningDescriptor.getId());
-                apiProvisioningConfig.setVariable("environment.id", environment.getId());
-                apiProvisioningConfig.setVariable("environment.name", environment.getName());
-                apiProvisioningConfig.setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
-                apiProvisioningConfig.setVariable("organization.name", environment.getOrganization().getName());
-                apiProvisioningConfig.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);

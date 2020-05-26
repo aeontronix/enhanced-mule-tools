@@ -187,6 +187,8 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.staticips", defaultValue = "false")
     private boolean staticIPs;
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,
@@ -229,7 +231,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Override
     protected void doExecute() throws Exception {
         if (!skipDeploy) {
-            MavenProject project = (MavenProject) getPluginContext().get("project");
             if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
                 project = null;
             }

@@ -16,6 +16,7 @@ public class AnypointDescriptor {
     private Boolean mule3;
     private APIDescriptor api;
     private HashMap<String, PropertyDescriptor> properties;
+    private ClientApplicationDescriptor client;
 
     public AnypointDescriptor() {
     }
@@ -26,10 +27,19 @@ public class AnypointDescriptor {
 
     public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config) throws ProvisioningException {
         try {
+            config.setVariable("app.id", id);
+            config.setVariable("environment.id", environment.getId());
+            config.setVariable("environment.name", environment.getName());
+            config.setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
+            config.setVariable("organization.name", environment.getOrganization().getName());
+            config.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
             APIProvisioningResult result = new APIProvisioningResult();
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
                 api.provision(this, environment, config, result);
+                if( client != null ) {
+                    client.provision(this,environment,config, result);
+                }
             }
             return result;
         } catch (Exception e) {
@@ -74,5 +84,13 @@ public class AnypointDescriptor {
             properties = new HashMap<>();
         }
         properties.put(key, new PropertyDescriptor(key, secure));
+    }
+
+    public ClientApplicationDescriptor getClient() {
+        return client;
+    }
+
+    public void setClient(ClientApplicationDescriptor client) {
+        this.client = client;
     }
 }

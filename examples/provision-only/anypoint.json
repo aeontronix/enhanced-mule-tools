@@ -1,0 +1,10 @@
+{
+  "api": {
+    "type": "http",
+    "assetCreate": true,
+    "assetId": "mydemohttpapi",
+    "assetVersion": "1.0.0"
+  },
+  "client": {
+  }
+}

@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.api.provision;
 
 import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
@@ -13,27 +14,25 @@ import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.util.InvalidStateException;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
-    private List<APIAccessDescriptor> access;
     private String assetId;
     private String assetVersion;
     private String endpoint;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
     private String label;
-    private ClientApplicationDescriptor clientApp;
     private List<SLATierDescriptor> slaTiers;
+    private API.Type type = API.Type.REST;
+    private boolean assetCreate;
 
     public APIDescriptor() {
     }
@@ -43,147 +42,74 @@ public class APIDescriptor {
         this.assetVersion = version;
     }
 
-    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws HttpException, NotFoundException {
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
-        ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
-        logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
-        logger.debug("Provisioning " + this.getAssetId());
-        Boolean m3 = cfg.getMule3();
-        if (m3 == null) {
-            m3 = false;
-        }
-        API api;
+    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws ProvisioningException {
         try {
-            api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
-            logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
-        } catch (NotFoundException e) {
-            logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
-            APISpec apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
-            // now we need to check if there's an existing API with the same productAPIVersion
-            String productAPIVersion = apiSpec.getProductAPIVersion();
+            ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
+            ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
+            logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
+            logger.debug("Provisioning " + this.getAssetId());
+            Boolean m3 = cfg.getMule3();
+            if (m3 == null) {
+                m3 = false;
+            }
+            API api = null;
             try {
-                logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", this.getAssetId(), productAPIVersion, label);
-                api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
-                api = api.updateVersion(assetVersion);
-            } catch (NotFoundException ex) {
-                logger.debug("Couldn't find, creating");
-                api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label);
-            }
-        }
-        if (this.getEndpoint() != null) {
-            api = api.updateEndpoint(this.getEndpoint(), !m3);
-        }
-        result.setApi(api);
-        if (policies != null) {
-            api.deletePolicies();
-            for (PolicyDescriptor policyDescriptor : policies) {
-                api.createPolicy(policyDescriptor);
-            }
-        }
-        if (slaTiers != null) {
-            for (SLATierDescriptor slaTierDescriptor : slaTiers) {
-                try {
-                    SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
-                    slaTier.setAutoApprove(slaTierDescriptor.isAutoApprove());
-                    slaTier.setDescription(slaTierDescriptor.getDescription());
-                    slaTier.setLimits(slaTierDescriptor.getLimits());
-                    slaTier = slaTier.update();
-                } catch (NotFoundException e) {
-                    api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
-                }
-            }
-        }
-        if( clientApp != null ) {
-            if (clientApp.getName() == null) {
-                clientApp.setName(api.getAssetId() + "-" + config.getVariables().get("organization.lname") + "-" + config.getVariables().get("environment.lname"));
-            }
-            ClientApplication clientApplication = null;
-            try {
-                clientApplication = environment.getOrganization().findClientApplicationByName(clientApp.getName());
-                logger.debug("Client application found: " + clientApp.getName());
+                api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
+                logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
             } catch (NotFoundException e) {
-                //
-            }
-            if (clientApplication == null) {
-                logger.debug("Client application not found, creating: " + clientApp.getName());
-                clientApplication = environment.getOrganization().createClientApplication(clientApp.getName(), clientApp.getUrl(), clientApp.getDescription());
-            }
-            result.setClientApplication(clientApplication);
-            if (access != null) {
-                for (APIAccessDescriptor accessDescriptor : access) {
-                    logger.debug("Processing access descriptor : {}",accessDescriptor);
-                    Organization accessOrg;
-                    if (accessDescriptor.getOrgId() == null) {
-                        logger.debug("Access descriptor has no org id, getting the default org");
-                        accessOrg = environment.getOrganization();
-                        accessDescriptor.setOrgId(accessOrg.getId());
-                    } else {
-                        accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
-                    }
-                    logger.debug("Access org = {}",accessOrg.getId());
-                    if (accessDescriptor.getGroupId() == null) {
-                        logger.debug("No group id found, using the org id instead");
-                        accessDescriptor.setGroupId(accessOrg.getId());
-                    }
-                    logger.debug("Access group id = {}",accessDescriptor.getGroupId());
-                    String accessEnvId;
-                    if( accessDescriptor.getEnvId() != null ) {
-                        logger.debug("Env id set: {}",accessDescriptor.getEnvId());
-                        accessEnvId = accessDescriptor.getEnvId();
-                    } else if(StringUtils.isNotBlank(accessDescriptor.getEnv()) ) {
-                        accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
-                        logger.debug("access environment specified");
-                    } else {
-                        logger.debug("No access environment specified, using the API's environment");
-                        accessEnvId = environment.getId();
-                    }
-                    logger.debug("Access environment id = {}",accessEnvId);
-                    ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
-                    logger.debug("Found exchangeAsset {}", exchangeAsset);
-                    logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
-                    AssetInstance instance = exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
-                    logger.debug("Found instance {}", instance);
-                    Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
-                    API accessedAPI = new API(apiEnv);
-                    accessedAPI.setId(instance.getId());
-                    logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
-                    APIContract contract = null;
-                    try {
-                        contract = accessedAPI.findContract(clientApplication);
-                    } catch (NotFoundException e) {
-                        //
-                    } catch( UnauthorizedHttpException e ) {
-                        logger.warn("Unable to List contracts of api "+accessedAPI.getAssetId()+" due to lack of permissions: "+e.getMessage());
-                    }
-                    if( contract == null ) {
-                        SLATier slaTier = null;
-                        if( accessDescriptor.getSlaTier() != null ) {
-                            slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
+                logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
+                APISpec apiSpec = null;
+                try {
+                    apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
+                } catch (NotFoundException ex) {
+                    if(assetCreate) {
+                        logger.debug("Asset not found, creating");
+                        if( type == API.Type.HTTP ) {
+                            environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1" );
                         } else {
-                            List<SLATier> slaTiers = instance.findSLATiers();
-                            if( slaTiers.size() == 1 ) {
-                                slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
-                            }
+                            throw new RuntimeException("Only HTTP Asset creation supported at this time");
                         }
-                        contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
+                    } else {
+                        throw ex;
                     }
-                    if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
-                        try {
-                            if (contract.isRevoked()) {
-                                contract.restoreAccess();
-                            } else {
-                                contract.approveAccess();
-                            }
-                        } catch (HttpException e) {
-                            if (e.getStatusCode() == 403) {
-                                logger.warn("Unable to approve access to "+api.getAssetId()+" due to lack of permissions: "+e.getMessage());
-                            } else {
-                                throw e;
-                            }
-                        }
+                    apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
+                }
+                // now we need to check if there's an existing API with the same productAPIVersion
+                String productAPIVersion = apiSpec.getProductAPIVersion();
+                try {
+                    logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", this.getAssetId(), productAPIVersion, label);
+                    api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
+                    api = api.updateVersion(assetVersion);
+                } catch (NotFoundException ex) {
+                    logger.debug("Couldn't find, creating");
+                    api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type );
+                }
+            }
+            if (this.getEndpoint() != null) {
+                api = api.updateEndpoint(this.getEndpoint(), !m3);
+            }
+            result.setApi(api);
+            if (policies != null) {
+                api.deletePolicies();
+                for (PolicyDescriptor policyDescriptor : policies) {
+                    api.createPolicy(policyDescriptor);
+                }
+            }
+            if (slaTiers != null) {
+                for (SLATierDescriptor slaTierDescriptor : slaTiers) {
+                    try {
+                        SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
+                        slaTier.setAutoApprove(slaTierDescriptor.isAutoApprove());
+                        slaTier.setDescription(slaTierDescriptor.getDescription());
+                        slaTier.setLimits(slaTierDescriptor.getLimits());
+                        slaTier = slaTier.update();
+                    } catch (NotFoundException e) {
+                        api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
                     }
                 }
             }
+        } catch (HttpException|AssetCreationException|NotFoundException e) {
+            throw new ProvisioningException(e);
         }
     }
 
@@ -206,48 +132,12 @@ public class APIDescriptor {
     }
 
     @JsonProperty
-    public synchronized List<APIAccessDescriptor> getAccess() {
-        return access != null ? access : Collections.emptyList();
-    }
-
-    public synchronized void setAccess(List<APIAccessDescriptor> access) {
-        this.access = access;
-    }
-
-    public synchronized APIDescriptor addAccess(APIAccessDescriptor accessDescriptor) {
-        if (access == null) {
-            access = new ArrayList<>();
-        }
-        access.add(accessDescriptor);
-        return this;
-    }
-
-    public synchronized APIDescriptor addAccess(API api) {
-        addAccess(new APIAccessDescriptor(api, null));
-        return this;
-    }
-
-    public synchronized APIDescriptor addAccess(API api, String slaTier) {
-        addAccess(new APIAccessDescriptor(api, slaTier));
-        return this;
-    }
-
-    @JsonProperty
     public String getEndpoint() {
         return endpoint;
     }
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-    }
-
-    @JsonProperty
-    public ClientApplicationDescriptor getClientApp() {
-        return clientApp;
-    }
-
-    public void setClientApp(ClientApplicationDescriptor clientApp) {
-        this.clientApp = clientApp;
     }
 
     public void addPolicy(PolicyDescriptor policy) {
@@ -305,5 +195,21 @@ public class APIDescriptor {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public API.Type getType() {
+        return type;
+    }
+
+    public void setType(API.Type type) {
+        this.type = type;
+    }
+
+    public boolean isAssetCreate() {
+        return assetCreate;
+    }
+
+    public void setAssetCreate(boolean assetCreate) {
+        this.assetCreate = assetCreate;
     }
 }

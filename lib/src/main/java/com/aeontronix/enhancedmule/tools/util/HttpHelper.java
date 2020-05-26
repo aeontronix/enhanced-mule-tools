@@ -164,22 +164,27 @@ public class HttpHelper implements Closeable {
         return executeWithEnv(new HttpDelete(convertPath(path)), env);
     }
 
-    public MultiPartRequest createMultiPartPostRequest(String url, Environment environment) {
+    private void addEnvironmentHeaders(@Nullable Environment environment, HttpRequestBase request) {
+        if( environment != null ) {
+            environment.addHeaders(request);
+        }
+    }
+
+    public MultiPartRequest createMultiPartPostRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPost request = new HttpPost(convertPath(url));
-        environment.addHeaders(request);
+        addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
     }
 
-    public MultiPartRequest createMultiPartPatchRequest(String url, Environment environment) {
+    public MultiPartRequest createMultiPartPatchRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPatch request = new HttpPatch(convertPath(url));
-        environment.addHeaders(request);
+        addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
     }
 
-
-    public MultiPartRequest createMultiPartPutRequest(String url, Environment environment) {
+    public MultiPartRequest createMultiPartPutRequest( @NotNull String url, @Nullable Environment environment) {
         HttpPut request = new HttpPut(convertPath(url));
-        environment.addHeaders(request);
+        addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
     }
 
