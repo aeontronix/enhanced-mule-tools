@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.provision.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Process an anypoint descriptor file and attach resulting file to project
@@ -46,10 +49,14 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = JsonHelper.createMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-            AnypointDescriptor anypointDescriptor = loadDescriptor();
+            Map<String,Object> anypointDescriptorJson = loadDescriptor();
+
+            legacyConvert(anypointDescriptorJson);
+
+            AnypointDescriptor anypointDescriptor = objectMapper.convertValue(anypointDescriptorJson, AnypointDescriptor.class);
 
             processDescriptor(anypointDescriptor);
 
@@ -68,6 +75,25 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             }
         } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void legacyConvert(Map<String, Object> anypointDescriptor) {
+        Map<String,Object> api = (Map<String, Object>) anypointDescriptor.get("api");
+        if( api != null ) {
+            Map<String,Object> client = (Map<String, Object>) api.remove("clientApp");
+            if( client != null ) {
+                anypointDescriptor.put("client",client);
+            }
+            Object access = api.remove("access");
+            if( access != null ) {
+                if( client == null ) {
+                    client = new HashMap<>();
+                    anypointDescriptor.put("client",client);
+                }
+                client.put("access",access);
+            }
         }
     }
 
@@ -121,8 +147,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     }
 
     @NotNull
-    private AnypointDescriptor loadDescriptor() throws IOException {
-        AnypointDescriptor anypointDescriptor = null;
+    private Map<String,Object> loadDescriptor() throws IOException {
+        Map<String,Object> anypointDescriptor = null;
         if (StringUtils.isNotBlank(descriptor)) {
             File descriptorFile = new File(descriptor);
             anypointDescriptor = readFile(descriptorFile);
@@ -133,12 +159,13 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             }
         }
         if (anypointDescriptor == null) {
-            anypointDescriptor = new AnypointDescriptor();
+            anypointDescriptor = new HashMap<>();
         }
         return anypointDescriptor;
     }
 
-    private AnypointDescriptor readFile(File descriptorFile) throws java.io.IOException {
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> readFile(File descriptorFile) throws java.io.IOException {
         if (descriptorFile.exists()) {
             String fname = descriptorFile.getName().toLowerCase();
             ObjectMapper om;
@@ -148,7 +175,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 om = new ObjectMapper();
             }
             om.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-            return om.readValue(descriptorFile, AnypointDescriptor.class);
+            return (Map<String,Object>) om.readValue(descriptorFile, Map.class);
         } else {
             return null;
         }

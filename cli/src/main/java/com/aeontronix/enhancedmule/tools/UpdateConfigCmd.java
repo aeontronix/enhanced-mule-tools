@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.kloudtek.ktcli.CliCommand;
 import com.kloudtek.ktcli.CliHelper;

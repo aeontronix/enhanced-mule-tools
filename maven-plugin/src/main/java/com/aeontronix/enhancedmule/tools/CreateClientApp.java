@@ -37,7 +37,7 @@ public class CreateClientApp extends AbstractOrganizationalMojo {
         logger.info("Creating client application " + name);
         ClientApplication clientApp = getOrganization().findClientApplicationByName(name);
         if (clientApp != null) {
-            clientApp = getOrganization().createClientApplication(name, url, desc);
+            clientApp = getOrganization().createClientApplication(name, url, desc, name);
             logger.info("Created");
         } else {
             logger.info("Client application already exists");

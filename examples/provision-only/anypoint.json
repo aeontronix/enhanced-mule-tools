@@ -1,4 +1,5 @@
 {
+  "id": "mydemoapppi4534534",
   "api": {
     "type": "http",
     "assetCreate": true,
@@ -6,5 +7,12 @@
     "assetVersion": "1.0.0"
   },
   "client": {
+    "access": [
+      {
+        "assetId": "otherapi",
+        "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
+        "assetVersion": "1.0.1"
+      }
+    ]
   }
 }

@@ -23,12 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonHelper implements Serializable {
-    private ObjectMapper jsonMapper = new ObjectMapper();
+    private ObjectMapper jsonMapper = createMapper();
     private AnypointClient client;
 
     public JsonHelper(AnypointClient client) {
         this.client = client;
-        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public ObjectMapper getJsonMapper() {
@@ -207,5 +206,12 @@ public class JsonHelper implements Serializable {
             request.put(name, subMap);
             return new MapBuilder(this, subMap);
         }
+    }
+
+    public static ObjectMapper createMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return objectMapper;
     }
 }

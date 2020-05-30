@@ -4,6 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderBearerTokenImpl;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderClientCredentialsImpl;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;

@@ -12,6 +12,7 @@ import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -97,13 +98,30 @@ public class ClientApplication extends AnypointObject<Organization> {
         return parent.getUriPath() + "/applications/" + id;
     }
 
-    public static ClientApplication create(@NotNull Organization organization, @NotNull String name, String url, String description, List<String> redirectUri, String apiEndpoints) throws HttpException {
+    public static ClientApplication create(@NotNull Organization organization, @NotNull String name, String url,
+                                           String description, List<String> redirectUri, String apiEndpoints,
+                                           String accessedAPIInstanceId) throws HttpException {
         AnypointClient client = organization.getClient();
         Map<String, Object> req = client.getJsonHelper().buildJsonMap().set("name", name.trim()).set("url", url)
                 .set("description", description != null ? description : "")
                 .set("redirectUri", redirectUri).set("apiEndpoints", apiEndpoints)
                 .toMap();
-        String json = client.getHttpHelper().httpPost(organization.getUriPath() + "/applications", req);
+        URLBuilder path = new URLBuilder(organization.getUriPath()).path("/applications");
+        if( accessedAPIInstanceId != null ) {
+            path.param("apiInstanceId", accessedAPIInstanceId);
+        }
+        String json = null;
+        try {
+            json = client.getHttpHelper().httpPost(path.toString(), req);
+        } catch (HttpException e) {
+            String msg = e.getMessage();
+            if( msg != null && msg.contains("apiVersionId") ) {
+                throw new HttpException("apiVersionId error, this most likely means you've enabled client providers, " +
+                        "in which case you must have at least ONE access in your client section: "+e.getMessage(),e,e.getStatusCode());
+            } else {
+                throw e;
+            }
+        }
         return client.getJsonHelper().readJson(new ClientApplication(organization), json);
     }
 

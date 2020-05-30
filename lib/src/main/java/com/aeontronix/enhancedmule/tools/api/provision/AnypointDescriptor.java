@@ -37,9 +37,9 @@ public class AnypointDescriptor {
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
                 api.provision(this, environment, config, result);
-                if( client != null ) {
-                    client.provision(this,environment,config, result);
-                }
+            }
+            if( client != null ) {
+                client.provision(this,environment,config, result);
             }
             return result;
         } catch (Exception e) {

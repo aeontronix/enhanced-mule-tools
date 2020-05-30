@@ -5,6 +5,8 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentService;
 import com.aeontronix.enhancedmule.tools.ocli.OCliClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;

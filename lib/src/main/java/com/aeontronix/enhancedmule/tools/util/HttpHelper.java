@@ -4,26 +4,21 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.*;
+import com.aeontronix.enhancedmule.tools.AnypointClient;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.Environment;
 import com.kloudtek.util.Base64;
-import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.impl.client.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -39,7 +34,7 @@ import java.util.Map;
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
-    private CloseableHttpClient httpClient;
+    private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
     private String authToken;
     private AnypointClient client;
@@ -52,13 +47,9 @@ public class HttpHelper implements Closeable {
     }
 
     public HttpHelper(AnypointClient client, AuthenticationProvider authenticationProvider) {
-        this(HttpClients.createMinimal(), client, authenticationProvider);
-    }
-
-    public HttpHelper(CloseableHttpClient httpClient, AnypointClient client, AuthenticationProvider authenticationProvider) {
         this.client = client;
+        this.httpClient = authenticationProvider.createHttpClient();
         this.authenticationProvider = authenticationProvider;
-        this.httpClient = httpClient;
     }
 
     @Override
@@ -73,7 +64,7 @@ public class HttpHelper implements Closeable {
     private void readObject(java.io.ObjectInputStream in)
             throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        httpClient = HttpClients.createMinimal();
+        this.httpClient = authenticationProvider.createHttpClient();
     }
 
     public void httpGetBasicAuth(String path, OutputStream outputStream) throws HttpException {
@@ -165,7 +156,7 @@ public class HttpHelper implements Closeable {
     }
 
     private void addEnvironmentHeaders(@Nullable Environment environment, HttpRequestBase request) {
-        if( environment != null ) {
+        if (environment != null) {
             environment.addHeaders(request);
         }
     }
@@ -182,7 +173,7 @@ public class HttpHelper implements Closeable {
         return new MultiPartRequest(request);
     }
 
-    public MultiPartRequest createMultiPartPutRequest( @NotNull String url, @Nullable Environment environment) {
+    public MultiPartRequest createMultiPartPutRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPut request = new HttpPut(convertPath(url));
         addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
@@ -224,7 +215,7 @@ public class HttpHelper implements Closeable {
             }
             return doExecute(method);
         } catch (HttpException e) {
-            if (e.getStatusCode() == 403 || e.getStatusCode() == 401 ) {
+            if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
                 if (loginAttempts > 1) {
                     throw e;
                 } else {
@@ -246,15 +237,15 @@ public class HttpHelper implements Closeable {
     }
 
     private void updateBearerToken() throws HttpException {
-        authToken = "bearer "+authenticationProvider.getBearerToken(this);
+        authToken = "bearer " + authenticationProvider.getBearerToken(this);
     }
 
     @Nullable
-    private String doExecute(HttpRequestBase method) throws HttpException {
+    private synchronized String doExecute(HttpRequestBase method) throws HttpException {
         if (authToken != null && method.getFirstHeader(HEADER_AUTH) == null) {
-            if (authToken.startsWith("bearer ")) {
-                authToken = "Bearer " + authToken.substring(7);
-            }
+//            if (authToken.startsWith("bearer ")) {
+//                authToken = "Bearer " + authToken.substring(7);
+//            }
             method.setHeader(HEADER_AUTH, authToken);
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
@@ -285,7 +276,7 @@ public class HttpHelper implements Closeable {
                 errMsg = "";
             }
             String message = "Anypoint returned status code " + statusCode + " - url: " + method.getURI() + " - err: " + errMsg;
-            if( statusCode == 403 ) {
+            if (statusCode == 403) {
                 throw new UnauthorizedHttpException(message, statusCode);
             } else {
                 throw new HttpException(message, statusCode);
@@ -298,23 +289,14 @@ public class HttpHelper implements Closeable {
         if (httpClient != null) {
             IOUtils.close(httpClient);
         }
-        HttpClientBuilder builder = HttpClients.custom().disableCookieManagement();
-        HttpHost proxyHost = new HttpHost(host, port, scheme);
-        DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxyHost);
-        builder = builder.setRoutePlanner(routePlanner);
-        if (username != null && StringUtils.isNotEmpty(username) && password != null && StringUtils.isNotEmpty(password)) {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            credsProvider.setCredentials(new AuthScope(proxyHost), new UsernamePasswordCredentials(username, password));
-            builder = builder.setDefaultCredentialsProvider(credsProvider);
-        }
-        httpClient = builder.build();
+        httpClient = authenticationProvider.createHttpClient(new HttpHost(host, port, scheme), username, password);
     }
 
     public synchronized void unsetProxy() {
         if (httpClient != null) {
             IOUtils.close(httpClient);
         }
-        httpClient = HttpClients.createMinimal();
+        httpClient = authenticationProvider.createHttpClient();
     }
 
     public class MultiPartRequest {
@@ -420,7 +402,7 @@ public class HttpHelper implements Closeable {
     }
 
     private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
-        if( authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl ) {
+        if (authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl) {
             String authStr = ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getUsername() +
                     ":" + ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getPassword();
             byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
@@ -430,9 +412,5 @@ public class HttpHelper implements Closeable {
         } else {
             throw new RuntimeException("Only supported with username/password authentication at this time");
         }
-    }
-
-    public CloseableHttpClient getHttpClient() {
-        return httpClient;
     }
 }

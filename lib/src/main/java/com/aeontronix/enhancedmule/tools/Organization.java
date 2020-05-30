@@ -130,12 +130,17 @@ public class Organization extends AnypointObject {
     }
 
     public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
-        // must always create the application in the root org because anypoint sucks
-        return ClientApplication.create(getRootOrganization(), name, url, description, Collections.emptyList(), null);
+        return createClientApplication(name, url, description, null);
     }
 
-    public ClientApplication createClientApplication(String name, String url, String description, List<String> redirectUri, String apiEndpoints) throws HttpException {
-        return ClientApplication.create(getRootOrganization(), name, url, description, redirectUri, apiEndpoints);
+    public ClientApplication createClientApplication(String name, String url, String description, String accessedAPIInstanceId) throws HttpException {
+        // must always create the application in the root org because anypoint sucks
+        return ClientApplication.create(getRootOrganization(), name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);
+    }
+
+    public ClientApplication createClientApplication(String name, String url, String description, List<String> redirectUri, String apiEndpoints,
+                                                     String accessedAPIInstanceId) throws HttpException {
+        return ClientApplication.create(getRootOrganization(), name, url, description, redirectUri, apiEndpoints, accessedAPIInstanceId);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {
@@ -198,7 +203,7 @@ public class Organization extends AnypointObject {
                 return apiSpec;
             }
         }
-        return findAPISpecsByNameAndVersion(idOrName,version);
+        return findAPISpecsByNameAndVersion(idOrName, version);
     }
 
     public APISpec findAPISpecsByNameAndVersion(String name, String version) throws NotFoundException, HttpException {
@@ -521,17 +526,17 @@ public class Organization extends AnypointObject {
 
     public void createExchangeHTTPAPIAsset(String groupId, String name, String assetId, String version, String apiVersion) throws AssetCreationException {
         HttpHelper.MultiPartRequest req = httpHelper.createMultiPartPostRequest("/exchange/api/v1/assets", null);
-        req.addText("organizationId",id);
-        req.addText("groupId",groupId == null ? id : groupId);
-        req.addText("assetId",assetId);
-        req.addText("version",version);
-        req.addText("name",name);
-        req.addText("classifier","http");
-        req.addText("apiVersion",apiVersion);
-        req.addText("asset","undefined");
+        req.addText("organizationId", id);
+        req.addText("groupId", groupId == null ? id : groupId);
+        req.addText("assetId", assetId);
+        req.addText("version", version);
+        req.addText("name", name);
+        req.addText("classifier", "http");
+        req.addText("apiVersion", apiVersion);
+        req.addText("asset", "undefined");
         try {
             req.execute();
-        } catch (HttpException| IOException e) {
+        } catch (HttpException | IOException e) {
             throw new AssetCreationException(e);
         }
     }

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools;
+package com.aeontronix.enhancedmule.tools.authentication;
 
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticationProviderClientCredentialsImpl implements AuthenticationProvider {
+public class AuthenticationProviderClientCredentialsImpl extends AuthenticationProvider {
     private String clientId;
     private String clientSecret;
     private final ObjectMapper objectMapper = new ObjectMapper();

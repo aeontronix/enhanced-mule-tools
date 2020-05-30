@@ -5,21 +5,20 @@
 package com.aeontronix.enhancedmule.tools.api.provision;
 
 import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.NotFoundException;
+import com.aeontronix.enhancedmule.tools.api.API;
+import com.aeontronix.enhancedmule.tools.api.APISpec;
+import com.aeontronix.enhancedmule.tools.api.SLATier;
+import com.aeontronix.enhancedmule.tools.api.SLATierLimits;
 import com.aeontronix.enhancedmule.tools.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.NotFoundException;
-import com.aeontronix.enhancedmule.tools.Organization;
-import com.aeontronix.enhancedmule.tools.api.*;
-import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class APIDescriptor {
@@ -27,6 +26,7 @@ public class APIDescriptor {
     private String assetId;
     private String assetVersion;
     private String endpoint;
+    private HashMap<String, Object> endpointJson;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
     private String label;
@@ -53,6 +53,7 @@ public class APIDescriptor {
                 m3 = false;
             }
             API api = null;
+            boolean updateEndpoint = true;
             try {
                 api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
                 logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
@@ -62,10 +63,10 @@ public class APIDescriptor {
                 try {
                     apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 } catch (NotFoundException ex) {
-                    if(assetCreate) {
+                    if (assetCreate) {
                         logger.debug("Asset not found, creating");
-                        if( type == API.Type.HTTP ) {
-                            environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1" );
+                        if (type == API.Type.HTTP) {
+                            environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1");
                         } else {
                             throw new RuntimeException("Only HTTP Asset creation supported at this time");
                         }
@@ -82,11 +83,20 @@ public class APIDescriptor {
                     api = api.updateVersion(assetVersion);
                 } catch (NotFoundException ex) {
                     logger.debug("Couldn't find, creating");
-                    api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type );
+                    if( endpointJson != null ) {
+                        api = environment.createAPI(apiSpec, label, endpointJson);
+                    } else {
+                        api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type);
+                    }
+                    updateEndpoint = false;
                 }
             }
-            if (this.getEndpoint() != null) {
-                api = api.updateEndpoint(this.getEndpoint(), !m3);
+            if (updateEndpoint) {
+                if (this.endpointJson != null) {
+
+                } else if (this.getEndpoint() != null) {
+                    api = api.updateEndpoint(this.getEndpoint(), !m3, type);
+                }
             }
             result.setApi(api);
             if (policies != null) {
@@ -108,7 +118,7 @@ public class APIDescriptor {
                     }
                 }
             }
-        } catch (HttpException|AssetCreationException|NotFoundException e) {
+        } catch (HttpException | AssetCreationException | NotFoundException e) {
             throw new ProvisioningException(e);
         }
     }
@@ -138,6 +148,14 @@ public class APIDescriptor {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public HashMap<String, Object> getEndpointJson() {
+        return endpointJson;
+    }
+
+    public void setEndpointJson(HashMap<String, Object> endpointJson) {
+        this.endpointJson = endpointJson;
     }
 
     public void addPolicy(PolicyDescriptor policy) {

@@ -22,7 +22,7 @@ import java.util.Properties;
 
 @Mojo(name = "provision", requiresProject = false, defaultPhase = LifecyclePhase.INSTALL)
 public class ProvisionMojo extends AbstractEnvironmentalMojo {
-    @Parameter(property = "anypoint.pdescriptor", required = false, defaultValue = "${project.build.directory}/anypoint.json")
+    @Parameter(property = "anypoint.descriptor", required = false, defaultValue = "${project.build.directory}/anypoint.json")
     private File file;
     /**
      * Provisioning variables

@@ -5,13 +5,12 @@
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
-import com.aeontronix.enhancedmule.tools.AuthenticationProvider;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -22,11 +21,6 @@ public class HttpHelperRecorder extends HttpHelper {
 
     public HttpHelperRecorder(AnypointClient client, AuthenticationProvider authenticationProvider, String orgName) {
         super(client, authenticationProvider);
-        recording.setOrgName(orgName);
-    }
-
-    public HttpHelperRecorder(CloseableHttpClient httpClient, AnypointClient client, AuthenticationProvider authenticationProvider, String orgName) {
-        super(httpClient, client, authenticationProvider);
         recording.setOrgName(orgName);
     }
 

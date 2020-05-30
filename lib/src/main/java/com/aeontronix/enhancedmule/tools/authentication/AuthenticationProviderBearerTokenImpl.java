@@ -2,12 +2,12 @@
  * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools;
+package com.aeontronix.enhancedmule.tools.authentication;
 
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 
-public class AuthenticationProviderBearerTokenImpl implements AuthenticationProvider {
+public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvider {
     private String bearer;
 
     public AuthenticationProviderBearerTokenImpl(String bearer) {

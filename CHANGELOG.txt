@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking changes
 
 - Goal 'prepare-deploy' is now 'process-descriptor'
-- API `clientApp` has been renamed to `client` and moved to root
-- descriptor 'access' is now inside "client"
 
 ### Changed
 
@@ -22,4 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supports bearer token
 - Support creating HTTP exchange assets
 - Supports provisioning-only (to use in combination with official mule plugin)
-
+- Added "id" inside anypoint.json (defaults to artifactId). This is now used to generate client name, rather than api id.
+- API `clientApp` has been renamed to `client` and moved to root
+- descriptor 'access' is now inside "client"

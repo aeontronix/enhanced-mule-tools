@@ -77,7 +77,7 @@ public class ClientApplicationDescriptor {
         this.name = name;
     }
 
-    @JsonProperty
+    @JsonProperty("access")
     public synchronized List<APIAccessDescriptor> getAccess() {
         return access != null ? access : Collections.emptyList();
     }
@@ -108,7 +108,7 @@ public class ClientApplicationDescriptor {
         try {
             String appId = anypointDescriptor.getId();
             if (name == null) {
-                name = appId + "-" + config.getVariables().get("organization.lname") + "-" + config.getVariables().get("environment.lname");
+                name = appId + "-" + config.getVariables().get("environment.lname");
             }
             ClientApplication clientApplication = null;
             try {
@@ -119,42 +119,16 @@ public class ClientApplicationDescriptor {
             }
             if (clientApplication == null) {
                 logger.debug("Client application not found, creating: " + name);
-                clientApplication = environment.getOrganization().createClientApplication(name, url, description);
+                String instanceId = null;
+                if( access != null && ! access.isEmpty() ) {
+                    instanceId = findAPIInstance(environment, access.get(0)).getId();
+                }
+                clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
             }
             result.setClientApplication(clientApplication);
             if (access != null) {
                 for (APIAccessDescriptor accessDescriptor : access) {
-                    logger.debug("Processing access descriptor : {}", accessDescriptor);
-                    Organization accessOrg;
-                    if (accessDescriptor.getOrgId() == null) {
-                        logger.debug("Access descriptor has no org id, getting the default org");
-                        accessOrg = environment.getOrganization();
-                        accessDescriptor.setOrgId(accessOrg.getId());
-                    } else {
-                        accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
-                    }
-                    logger.debug("Access org = {}", accessOrg.getId());
-                    if (accessDescriptor.getGroupId() == null) {
-                        logger.debug("No group id found, using the org id instead");
-                        accessDescriptor.setGroupId(accessOrg.getId());
-                    }
-                    logger.debug("Access group id = {}", accessDescriptor.getGroupId());
-                    String accessEnvId;
-                    if (accessDescriptor.getEnvId() != null) {
-                        logger.debug("Env id set: {}", accessDescriptor.getEnvId());
-                        accessEnvId = accessDescriptor.getEnvId();
-                    } else if (StringUtils.isNotBlank(accessDescriptor.getEnv())) {
-                        accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
-                        logger.debug("access environment specified");
-                    } else {
-                        logger.debug("No access environment specified, using the API's environment");
-                        accessEnvId = environment.getId();
-                    }
-                    logger.debug("Access environment id = {}", accessEnvId);
-                    ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
-                    logger.debug("Found exchangeAsset {}", exchangeAsset);
-                    logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
-                    AssetInstance instance = exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
+                    AssetInstance instance = findAPIInstance(environment, accessDescriptor);
                     logger.debug("Found instance {}", instance);
                     Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
                     API accessedAPI = new API(apiEnv);
@@ -200,5 +174,39 @@ public class ClientApplicationDescriptor {
         } catch (HttpException | NotFoundException e) {
             throw new ProvisioningException(e);
         }
+    }
+
+    private AssetInstance findAPIInstance(Environment environment, APIAccessDescriptor accessDescriptor) throws HttpException, NotFoundException {
+        logger.debug("Processing access descriptor : {}", accessDescriptor);
+        Organization accessOrg;
+        if (accessDescriptor.getOrgId() == null) {
+            logger.debug("Access descriptor has no org id, getting the default org");
+            accessOrg = environment.getOrganization();
+            accessDescriptor.setOrgId(accessOrg.getId());
+        } else {
+            accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
+        }
+        logger.debug("Access org = {}", accessOrg.getId());
+        if (accessDescriptor.getGroupId() == null) {
+            logger.debug("No group id found, using the org id instead");
+            accessDescriptor.setGroupId(accessOrg.getId());
+        }
+        logger.debug("Access group id = {}", accessDescriptor.getGroupId());
+        String accessEnvId;
+        if (accessDescriptor.getEnvId() != null) {
+            logger.debug("Env id set: {}", accessDescriptor.getEnvId());
+            accessEnvId = accessDescriptor.getEnvId();
+        } else if (StringUtils.isNotBlank(accessDescriptor.getEnv())) {
+            accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+            logger.debug("access environment specified");
+        } else {
+            logger.debug("No access environment specified, using the API's environment");
+            accessEnvId = environment.getId();
+        }
+        logger.debug("Access environment id = {}", accessEnvId);
+        ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
+        logger.debug("Found exchangeAsset {}", exchangeAsset);
+        logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
+        return exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
     }
 }

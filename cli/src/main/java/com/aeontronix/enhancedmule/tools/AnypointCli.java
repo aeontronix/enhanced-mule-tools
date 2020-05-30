@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.ktcli.CliCommand;
 import com.kloudtek.ktcli.CliHelper;

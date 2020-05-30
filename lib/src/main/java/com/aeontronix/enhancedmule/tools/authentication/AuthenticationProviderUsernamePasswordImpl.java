@@ -1,19 +1,29 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools;
+package com.aeontronix.enhancedmule.tools.authentication;
 
+import com.aeontronix.enhancedmule.tools.util.EMHttpClient;
+import com.aeontronix.enhancedmule.tools.util.EMHttpClientDefaultImpl;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.util.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticationProviderUsernamePasswordImpl implements AuthenticationProvider {
+public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationProvider {
     public static final String LOGIN_PATH = "/accounts/login";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String username;

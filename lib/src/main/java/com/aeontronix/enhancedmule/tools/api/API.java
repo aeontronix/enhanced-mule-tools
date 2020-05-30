@@ -6,11 +6,11 @@ package com.aeontronix.enhancedmule.tools.api;
 
 import com.aeontronix.enhancedmule.tools.AnypointObject;
 import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.policy.Policy;
 import com.aeontronix.enhancedmule.tools.api.provision.PolicyDescriptor;
 import com.aeontronix.enhancedmule.tools.api.provision.SLATierCreateRequest;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -109,18 +109,10 @@ public class API extends AnypointObject<Environment> {
         return jsonHelper.readJson(new SLATier(this), json);
     }
 
-    public API updateEndpoint(String endpointUrl, boolean mule4) throws HttpException {
+    public API updateEndpoint(String endpointUrl, boolean mule4, API.Type type) throws HttpException {
         HashMap<String, Object> data = new HashMap<>();
         data.put("endpointUri", endpointUrl);
-        HashMap<String, Object> endpMap = new HashMap<>();
-        endpMap.put("type", "rest");
-        endpMap.put("uri", endpointUrl);
-        endpMap.put("proxyUri", null);
-        endpMap.put("isCloudHub", null);
-        endpMap.put("deploymentType", "CH");
-        endpMap.put("referencesUserDomain", null);
-        endpMap.put("responseTimeout", null);
-        endpMap.put("muleVersion4OrAbove", mule4);
+        HashMap<String, Object> endpMap = createEndpointJson(mule4, endpointUrl, type);
         data.put("endpoint", endpMap);
         String json = parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
         JsonHelper jsonHelper = parent.getClient().getJsonHelper();
@@ -129,6 +121,25 @@ public class API extends AnypointObject<Environment> {
 
     public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4,
                              @Nullable String endpointUrl, @Nullable String label, @NotNull Type type) throws HttpException {
+        HashMap<String, Object> endpointJson = createEndpointJson(mule4, endpointUrl, type);
+        return create(environment, apiSpec, label, endpointJson);
+    }
+
+    @NotNull
+    private static HashMap<String, Object> createEndpointJson(boolean mule4, @Nullable String endpointUrl, @NotNull API.@NotNull Type type) {
+        HashMap<String, Object> endpointJson = new HashMap<>();
+        endpointJson.put("type", type.name().toLowerCase());
+        endpointJson.put("uri", endpointUrl);
+        endpointJson.put("proxyUri", null);
+        endpointJson.put("isCloudHub", null);
+        endpointJson.put("deploymentType", "CH");
+        endpointJson.put("referencesUserDomain", null);
+        endpointJson.put("responseTimeout", null);
+        endpointJson.put("muleVersion4OrAbove", mule4);
+        return endpointJson;
+    }
+
+    public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, @Nullable String label, Map<String, Object> endpointJson) throws HttpException {
         HashMap<String, Object> req = new HashMap<>();
         req.put("instanceLabel", label);
         HashMap<String, Object> specMap = new HashMap<>();
@@ -136,16 +147,7 @@ public class API extends AnypointObject<Environment> {
         specMap.put("version", apiSpec.getVersion());
         specMap.put("groupId", apiSpec.getGroupId());
         req.put("spec", specMap);
-        HashMap<String, Object> endpMap = new HashMap<>();
-        endpMap.put("type", type.name().toLowerCase());
-        endpMap.put("uri", endpointUrl);
-        endpMap.put("proxyUri", null);
-        endpMap.put("isCloudHub", null);
-        endpMap.put("deploymentType", "CH");
-        endpMap.put("referencesUserDomain", null);
-        endpMap.put("responseTimeout", null);
-        endpMap.put("muleVersion4OrAbove", mule4);
-        req.put("endpoint", endpMap);
+        req.put("endpoint", endpointJson);
         String json = environment.getClient().getHttpHelper().httpPost("/apimanager/api/v1/organizations/" + environment.getParent().getId() + "/environments/" + environment.getId() + "/apis", req);
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
