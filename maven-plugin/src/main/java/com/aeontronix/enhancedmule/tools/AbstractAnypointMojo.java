@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderBearerTokenImpl;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderClientCredentialsImpl;
+import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderConnectedAppsImpl;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -33,15 +33,20 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Parameter(property = "anypoint.password")
     protected String password;
     /**
+     * Anypoint username
+     */
+    @Parameter(property = "anypoint.client.id")
+    protected String clientId;
+    /**
+     * Anypoint password
+     */
+    @Parameter(property = "anypoint.client.secret")
+    protected String clientSecret;
+    /**
      * Anypoint bearer token
      */
     @Parameter(property = "anypoint.bearer")
     protected String bearer;
-    /**
-     * If set to true, will use oauth client credentials (use client id as credentials and client secret as password)
-     */
-    @Parameter(property = "anypoint.clientcredentials")
-    protected boolean clientCredentials;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
 
@@ -50,16 +55,14 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             AuthenticationProvider authenticationProvider;
             if (bearer != null) {
                 authenticationProvider = new AuthenticationProviderBearerTokenImpl(bearer);
-            } else if (isNotBlank(username) && isNotBlank(password)) {
-                if (clientCredentials) {
-                    logger.debug("Using client credentials: {}", username);
-                    authenticationProvider = new AuthenticationProviderClientCredentialsImpl(username, password);
-                } else {
-                    logger.debug("Using username/password credentials: {}", username);
-                    authenticationProvider = new AuthenticationProviderUsernamePasswordImpl(username, password);
-                }
+            } else if(isNotBlank(username) && isNotBlank(password)) {
+                logger.debug("Using username/password credentials: {}", username);
+                authenticationProvider = new AuthenticationProviderUsernamePasswordImpl(username, password);
+            } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
+                logger.debug("Using client credentials: {}", clientId);
+                authenticationProvider = new AuthenticationProviderConnectedAppsImpl(clientId, clientSecret);
             } else {
-                throw new IllegalArgumentException("No authentication credentials specified (username/password or bearer)");
+                throw new IllegalArgumentException("No authentication credentials specified (username/password, client id/secret or bearer)");
             }
             client = new AnypointClient(authenticationProvider);
         }

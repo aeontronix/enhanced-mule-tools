@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticationProviderClientCredentialsImpl extends AuthenticationProvider {
+public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvider {
     private String clientId;
     private String clientSecret;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AuthenticationProviderClientCredentialsImpl(String clientId, String clientSecret) {
+    public AuthenticationProviderConnectedAppsImpl(String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
