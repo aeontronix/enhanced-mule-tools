@@ -293,6 +293,10 @@ public class Environment extends AnypointObject<Organization> {
         return Environment.findEnvironmentById(id, client, parent);
     }
 
+    public String getLName() {
+        return getName().replace(" ", "_").toLowerCase();
+    }
+
     public enum Type {
         DESIGN, SANDBOX, PRODUCTION
     }

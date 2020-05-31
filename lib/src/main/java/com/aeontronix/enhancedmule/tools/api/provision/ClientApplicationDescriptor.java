@@ -27,7 +27,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientApplicationDescriptor {
     private static final Logger logger = getLogger(ClientApplicationDescriptor.class);
-    private boolean create;
     private String url;
     private String description;
     private String name;
@@ -40,14 +39,6 @@ public class ClientApplicationDescriptor {
         this.url = url;
         this.description = description;
         this.name = name;
-    }
-
-    public boolean isCreate() {
-        return create;
-    }
-
-    public void setCreate(boolean create) {
-        this.create = create;
     }
 
     @JsonProperty

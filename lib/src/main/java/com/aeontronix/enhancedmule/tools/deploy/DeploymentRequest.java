@@ -92,7 +92,11 @@ public abstract class DeploymentRequest {
                         deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
                         apiProvisioningDescriptor.addProperty(keySecret,true);
                     }
-                    Transformer secureProperties = new Transformer() {
+                    APIDescriptor api = apiProvisioningDescriptor.getApi();
+                    if( api != null && api.isAddAutoDescovery() ) {
+                        transformers.add(new AddEMTFlowTransformer(api.getAutoDiscoveryFlow()));
+                    }
+                    Transformer muleArtifactTransformer = new Transformer() {
                         @SuppressWarnings("unchecked")
                         @Override
                         public void apply(Source source, Destination destination) throws UnpackException {
@@ -127,7 +131,7 @@ public abstract class DeploymentRequest {
                             });
                         }
                     };
-                    transformers.add(secureProperties);
+                    transformers.add(muleArtifactTransformer);
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");
                 }

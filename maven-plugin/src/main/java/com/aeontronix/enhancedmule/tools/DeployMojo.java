@@ -62,7 +62,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     /**
      * Application name
      */
-    @Parameter(property = "anypoint.deploy.name", defaultValue = "${project.artifactId}-${anypoint.env}")
+    @Parameter(property = "anypoint.deploy.name")
     protected String appName;
     /**
      * If true, will force deployment even if same already application was already deployed.
@@ -238,6 +238,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
             if (MavenUtils.isTemplateOrExample(project) && !force) {
                 logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
                 return;
+            }
+            if( appName == null ) {
+                appName = project.getArtifactId();
+                if( StringUtils.isBlank(target) ) {
+                    appName = appName + "-" + getEnvironment().getLName();
+                }
             }
             if (file == null) {
                 if( logger.isDebugEnabled() ) {

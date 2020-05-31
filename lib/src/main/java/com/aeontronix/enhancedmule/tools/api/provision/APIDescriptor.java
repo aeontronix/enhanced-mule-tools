@@ -26,6 +26,8 @@ public class APIDescriptor {
     private String assetId;
     private String assetVersion;
     private String endpoint;
+    private boolean addAutoDescovery = false;
+    private String autoDiscoveryFlow="api-main";
     private HashMap<String, Object> endpointJson;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
@@ -229,5 +231,21 @@ public class APIDescriptor {
 
     public void setAssetCreate(boolean assetCreate) {
         this.assetCreate = assetCreate;
+    }
+
+    public boolean isAddAutoDescovery() {
+        return addAutoDescovery;
+    }
+
+    public void setAddAutoDescovery(boolean addAutoDescovery) {
+        this.addAutoDescovery = addAutoDescovery;
+    }
+
+    public String getAutoDiscoveryFlow() {
+        return autoDiscoveryFlow;
+    }
+
+    public void setAutoDiscoveryFlow(String autoDiscoveryFlow) {
+        this.autoDiscoveryFlow = autoDiscoveryFlow;
     }
 }

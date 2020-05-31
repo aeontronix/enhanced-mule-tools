@@ -166,7 +166,7 @@ public class APIProvisioningConfig {
     public void init(Environment environment) {
         setVariable("environment.id", environment.getId());
         setVariable("environment.name", environment.getName());
-        setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
+        setVariable("environment.lname", environment.getLName() );
         setVariable("organization.name", environment.getOrganization().getName());
         setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
     }
