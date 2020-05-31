@@ -24,7 +24,7 @@
         </file>
         <file>
             <destName>lib/anypoint.jar</destName>
-            <source>target/${artifactId}-${version}-nodeps.jar</source>
+            <source>target/${project.artifactId}-${version}-nodeps.jar</source>
         </file>
     </files>
 </assembly>

@@ -11,7 +11,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.kloudtek.util.FileUtils;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.MavenSession;
@@ -28,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,8 +44,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private MavenSession session;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
-    @Parameter(property = "anypoint.descriptor.attach")
-    private boolean attachDescriptor = true;
+    @Parameter(property = "muleplugin.compat")
+    private boolean mulePluginCompatibility;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -60,14 +61,18 @@ public class ProcessDescriptorMojo extends AbstractMojo {
 
             processDescriptor(anypointDescriptor);
 
-            File generateDescriptorFile = writeDescriptor(objectMapper, anypointDescriptor);
-
-            // attach generated file to project
+            File genResDir = new File(project.getBuild().getDirectory() + File.separator+ "generated-resources");
+            if(! genResDir.exists() ) {
+                FileUtils.mkdirs(genResDir);
+            }
             Resource resource = new Resource();
-            resource.setDirectory(project.getBuild().getDirectory());
-            resource.setIncludes(Collections.singletonList(generateDescriptorFile.getName()));
+            resource.setDirectory(genResDir.getPath());
             project.addResource(resource);
-            if(attachDescriptor) {
+
+            File generateDescriptorFile = new File(genResDir,"anypoint.json");
+            objectMapper.writeValue(generateDescriptorFile, anypointDescriptor);
+
+            if(!mulePluginCompatibility) {
                 DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
                         "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
                 artifact.setFile(generateDescriptorFile);
@@ -95,13 +100,6 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 client.put("access",access);
             }
         }
-    }
-
-    @NotNull
-    private File writeDescriptor(ObjectMapper objectMapper, AnypointDescriptor anypointDescriptor) throws IOException {
-        File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
-        objectMapper.writeValue(generateDescriptorFile, anypointDescriptor);
-        return generateDescriptorFile;
     }
 
     private void processDescriptor(AnypointDescriptor anypointDescriptor) {

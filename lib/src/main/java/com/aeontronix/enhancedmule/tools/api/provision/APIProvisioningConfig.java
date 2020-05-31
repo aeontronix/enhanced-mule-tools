@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.api.provision;
 
+import com.aeontronix.enhancedmule.tools.Environment;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;
@@ -160,5 +161,13 @@ public class APIProvisioningConfig {
                 .add("injectClientIdSecret=" + injectClientIdSecret)
                 .add("injectClientIdSecretKey='" + injectClientIdSecretKey + "'")
                 .toString();
+    }
+
+    public void init(Environment environment) {
+        setVariable("environment.id", environment.getId());
+        setVariable("environment.name", environment.getName());
+        setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
+        setVariable("organization.name", environment.getOrganization().getName());
+        setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
     }
 }

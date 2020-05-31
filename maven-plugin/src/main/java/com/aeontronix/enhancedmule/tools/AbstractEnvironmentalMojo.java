@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMojo {
@@ -21,6 +22,7 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
                 throw new IllegalStateException("environment name (anypoint.env) is missing");
             }
             environment = getOrganization().findEnvironmentByName(env);
+            getLog().debug("Using environment "+env+" : "+environment.getId());
         }
         return environment;
     }

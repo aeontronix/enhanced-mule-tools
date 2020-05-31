@@ -5,6 +5,7 @@
     "assetCreate": true,
     "assetId": "mydemohttpapi",
     "assetVersion": "1.0.0",
+    "label": "${environment.lname}-latest",
     "clientApp": {
     },
     "access": [

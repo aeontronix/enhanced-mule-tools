@@ -46,11 +46,13 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             }
             AnypointDescriptor anypointDescriptor = getClient().getJsonHelper().getJsonMapper().readValue(file, AnypointDescriptor.class);
             apiProvisioningConfig = new APIProvisioningConfig();
+            Environment environment = getEnvironment();
             if (vars != null) {
+                apiProvisioningConfig.init(environment);
                 apiProvisioningConfig.setVariables(vars);
             }
             getLog().info("Provisioning started");
-            APIProvisioningResult result = anypointDescriptor.provision(getEnvironment(), apiProvisioningConfig);
+            APIProvisioningResult result = anypointDescriptor.provision(environment, apiProvisioningConfig);
             getLog().info("Provisioning complete");
             Properties properties = project.getProperties();
             API api = result.getApi();
@@ -64,11 +66,11 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApplication.getClientId());
                 properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApplication.getClientSecret());
             }
-            String envClientId = getEnvironment().getClientId();
+            String envClientId = environment.getClientId();
             getLog().info(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
             properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
             try {
-                properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET,getEnvironment().getClientSecret());
+                properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
             } catch (HttpException e) {
                 if (e.getStatusCode() != 401) {
                     throw e;

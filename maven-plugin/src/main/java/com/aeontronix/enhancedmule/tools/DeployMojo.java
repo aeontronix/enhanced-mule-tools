@@ -62,7 +62,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     /**
      * Application name
      */
-    @Parameter(property = "anypoint.deploy.name")
+    @Parameter(property = "anypoint.deploy.name", defaultValue = "${project.artifactId}-${anypoint.env}")
     protected String appName;
     /**
      * If true, will force deployment even if same already application was already deployed.
@@ -117,6 +117,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter
     protected HashMap<String, String> vars;
+
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
      */
@@ -252,19 +253,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 if (filename == null) {
                     filename = source.getFileName();
                 }
-                if (appName == null) {
-                    if (project != null) {
-                        appName = project.getArtifactId();
-                    } else {
-                        appName = source.getArtifactId();
-                    }
-                }
                 APIProvisioningConfig apiProvisioningConfig = null;
                 if (!skipApiProvisioning) {
                     apiProvisioningConfig = new APIProvisioningConfig();
                     if (vars != null) {
                         apiProvisioningConfig.setVariables(vars);
                     }
+                    apiProvisioningConfig.init(getEnvironment());
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
                 if( propertyfile != null ) {

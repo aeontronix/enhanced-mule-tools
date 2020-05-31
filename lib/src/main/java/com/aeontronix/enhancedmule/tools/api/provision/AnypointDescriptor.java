@@ -5,10 +5,17 @@
 package com.aeontronix.enhancedmule.tools.api.provision;
 
 import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AnypointDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(AnypointDescriptor.class);
@@ -25,14 +32,21 @@ public class AnypointDescriptor {
         api = new APIDescriptor(name, version);
     }
 
+    public static AnypointDescriptor read(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
+        ObjectMapper mapper = JsonHelper.createMapper();
+        String json = IOUtils.toString(is);
+        json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
+        AnypointDescriptor descriptor = mapper.readValue(json, AnypointDescriptor.class);
+        if(descriptor.getProperties()!= null){
+            for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
+                entry.getValue().setName(entry.getKey());
+            }
+        }
+        return descriptor;
+    }
+
     public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config) throws ProvisioningException {
         try {
-            config.setVariable("app.id", id);
-            config.setVariable("environment.id", environment.getId());
-            config.setVariable("environment.name", environment.getName());
-            config.setVariable("environment.lname", environment.getName().replace(" ", "_").toLowerCase());
-            config.setVariable("organization.name", environment.getOrganization().getName());
-            config.setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
             APIProvisioningResult result = new APIProvisioningResult();
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
