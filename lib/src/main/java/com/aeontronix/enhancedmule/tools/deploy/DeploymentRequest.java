@@ -31,10 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
-    public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ANYPOINT_PLATFORM_CLIENT_ID = "anypoint.platform.client_id";
     public static final String ANYPOINT_PLATFORM_CLIENT_SECRET = "anypoint.platform.client_secret";
-    public static final String SECURE_PROPERTIES = "secureProperties";
     protected Environment environment;
     protected String appName;
     protected ApplicationSource source;
@@ -66,6 +64,7 @@ public abstract class DeploymentRequest {
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
                 apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
+                transformers.add(new EnhanceMuleTransformer(apiProvisioningDescriptor));
                 if (apiProvisioningDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
@@ -93,42 +92,10 @@ public abstract class DeploymentRequest {
                         apiProvisioningDescriptor.addProperty(keySecret,true);
                     }
                     APIDescriptor api = apiProvisioningDescriptor.getApi();
-                    if( api != null && api.isAddAutoDescovery() ) {
-                        transformers.add(new AddEMTFlowTransformer(api.getAutoDiscoveryFlow()));
-                    }
                     Transformer muleArtifactTransformer = new Transformer() {
                         @SuppressWarnings("unchecked")
                         @Override
                         public void apply(Source source, Destination destination) throws UnpackException {
-                            SourceFile file = (SourceFile) source.getFile(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON);
-                            if (file == null) {
-                                throw new UnpackException(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON + " not found");
-                            }
-                            file.setInputStream(new InMemInputFilterStream(file.getInputStream()) {
-                                @Override
-                                protected byte[] transform(byte[] data) throws IOException {
-                                    return IOUtils.toByteArray(os -> {
-                                        Map json;
-                                        ObjectMapper om = new ObjectMapper();
-                                        json = om.readValue(data, Map.class);
-                                        List<String> securePropertiesList = (List<String>) json.get(SECURE_PROPERTIES);
-                                        if (securePropertiesList == null) {
-                                            securePropertiesList = new ArrayList();
-                                        }
-                                        HashSet<String> secProps = new HashSet<>(securePropertiesList);
-                                        HashMap<String, PropertyDescriptor> propDesc = apiProvisioningDescriptor.getProperties();
-                                        if( propDesc != null ) {
-                                            for (PropertyDescriptor propertyDescriptor : propDesc.values()) {
-                                                if(propertyDescriptor.isSecure()) {
-                                                    secProps.add(propertyDescriptor.getName());
-                                                }
-                                            }
-                                            json.put(SECURE_PROPERTIES, new ArrayList<>(secProps));
-                                        }
-                                        om.writeValue(os,json);
-                                    });
-                                }
-                            });
                         }
                     };
                     transformers.add(muleArtifactTransformer);

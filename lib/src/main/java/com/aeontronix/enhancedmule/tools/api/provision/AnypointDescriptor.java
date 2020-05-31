@@ -35,6 +35,10 @@ public class AnypointDescriptor {
     public static AnypointDescriptor read(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
         ObjectMapper mapper = JsonHelper.createMapper();
         String json = IOUtils.toString(is);
+        String appId = (String) mapper.readValue(json, Map.class).get("id");
+        if( appId != null ) {
+            apiProvisioningConfig.addVariable("app.id",appId);
+        }
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
         AnypointDescriptor descriptor = mapper.readValue(json, AnypointDescriptor.class);
         if(descriptor.getProperties()!= null){
