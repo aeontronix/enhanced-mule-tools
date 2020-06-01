@@ -95,7 +95,7 @@ public class APIDescriptor {
             }
             if (updateEndpoint) {
                 if (this.endpointJson != null) {
-
+                    api = api.updateEndpoint(this.getEndpoint(), endpointJson );
                 } else if (this.getEndpoint() != null) {
                     api = api.updateEndpoint(this.getEndpoint(), !m3, type);
                 }

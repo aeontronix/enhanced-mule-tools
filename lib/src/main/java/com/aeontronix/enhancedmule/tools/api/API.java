@@ -110,10 +110,13 @@ public class API extends AnypointObject<Environment> {
     }
 
     public API updateEndpoint(String endpointUrl, boolean mule4, API.Type type) throws HttpException {
+        return updateEndpoint(endpointUrl, createEndpointJson(mule4, endpointUrl, type));
+    }
+
+    public API updateEndpoint(String endpointUrl, Map<String,Object> endpointJson) throws HttpException {
         HashMap<String, Object> data = new HashMap<>();
         data.put("endpointUri", endpointUrl);
-        HashMap<String, Object> endpMap = createEndpointJson(mule4, endpointUrl, type);
-        data.put("endpoint", endpMap);
+        data.put("endpoint", endpointJson);
         String json = parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
         JsonHelper jsonHelper = parent.getClient().getJsonHelper();
         return jsonHelper.readJson(new API(parent), json, parent);

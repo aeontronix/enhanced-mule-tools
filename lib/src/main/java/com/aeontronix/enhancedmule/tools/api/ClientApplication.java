@@ -6,21 +6,25 @@ package com.aeontronix.enhancedmule.tools.api;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.AnypointObject;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.URLBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ClientApplication extends AnypointObject<Organization> {
+    private static final Logger logger = getLogger(ClientApplication.class);
     private Integer id;
     private String name;
     private String description;
@@ -107,7 +111,7 @@ public class ClientApplication extends AnypointObject<Organization> {
                 .set("redirectUri", redirectUri).set("apiEndpoints", apiEndpoints)
                 .toMap();
         URLBuilder path = new URLBuilder(organization.getUriPath()).path("/applications");
-        if( accessedAPIInstanceId != null ) {
+        if (accessedAPIInstanceId != null) {
             path.param("apiInstanceId", accessedAPIInstanceId);
         }
         String json = null;
@@ -115,9 +119,8 @@ public class ClientApplication extends AnypointObject<Organization> {
             json = client.getHttpHelper().httpPost(path.toString(), req);
         } catch (HttpException e) {
             String msg = e.getMessage();
-            if( msg != null && msg.contains("apiVersionId") ) {
-                throw new HttpException("apiVersionId error, this most likely means you've enabled client providers, " +
-                        "in which case you must have at least ONE access in your client section: "+e.getMessage(),e,e.getStatusCode());
+            if (accessedAPIInstanceId == null && msg != null && msg.contains("apiVersionId")) {
+                logger.warn("Client Application skipped because no access are defined and client providers have been set");
             } else {
                 throw e;
             }
@@ -181,11 +184,11 @@ public class ClientApplication extends AnypointObject<Organization> {
 
 
     public APIContract requestAPIAccess(API api, AssetInstance assetInstance) throws HttpException {
-        return requestAPIAccess(api,assetInstance, null, false);
+        return requestAPIAccess(api, assetInstance, null, false);
     }
 
     public APIContract requestAPIAccess(API api, AssetInstance assetInstance, SLATier tier) throws HttpException {
-        return requestAPIAccess(api,assetInstance, tier, true);
+        return requestAPIAccess(api, assetInstance, tier, true);
     }
 
     public APIContract requestAPIAccess(API api, AssetInstance apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
