@@ -17,6 +17,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -36,6 +38,10 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
     protected boolean skipApiProvisioning;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+    @Parameter(property = "provision.propsfile",required = false)
+    private File propFile;
+    @Parameter(property = "provision.includeplatcreds",required = false, defaultValue = "true")
+    private boolean includePlatformCreds = true;
 
     @Override
     protected void doExecute() throws Exception {
@@ -54,7 +60,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             getLog().info("Provisioning started");
             APIProvisioningResult result = anypointDescriptor.provision(environment, apiProvisioningConfig);
             getLog().info("Provisioning complete");
-            Properties properties = project.getProperties();
+            Properties properties = new Properties();
             API api = result.getApi();
             if (api != null) {
                 getLog().info(apiProvisioningConfig.getInjectApiIdKey()+"="+api.getId());
@@ -67,13 +73,28 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApplication.getClientSecret());
             }
             String envClientId = environment.getClientId();
-            getLog().info(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
-            properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
-            try {
-                properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
-            } catch (HttpException e) {
-                if (e.getStatusCode() != 401) {
-                    throw e;
+            if( includePlatformCreds ) {
+                getLog().info(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
+                properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
+                try {
+                    properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
+                } catch (HttpException e) {
+                    if (e.getStatusCode() != 401) {
+                        throw e;
+                    }
+                }
+            }
+            project.getProperties().putAll(properties);
+            if( propFile != null ) {
+                Properties props = new Properties();
+                if( propFile.exists() ) {
+                    try(FileReader in = new FileReader(propFile)) {
+                        props.load(in);
+                    }
+                }
+                props.putAll(properties);
+                try(FileWriter out = new FileWriter(propFile)) {
+                    props.store(out, "");
                 }
             }
         }
