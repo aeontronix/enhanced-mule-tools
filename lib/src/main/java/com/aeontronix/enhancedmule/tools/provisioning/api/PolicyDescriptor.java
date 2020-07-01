@@ -1,14 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.api.provision;
+package com.aeontronix.enhancedmule.tools.provisioning.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PolicyDescriptor {
     private List<PolicyPointcut> pointcutData;

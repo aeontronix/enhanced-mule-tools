@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.api.provision.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;

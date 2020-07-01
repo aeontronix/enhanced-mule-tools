@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 
 import java.io.File;

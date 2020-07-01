@@ -6,9 +6,9 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;

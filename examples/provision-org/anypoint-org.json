@@ -1,0 +1,21 @@
+{
+  "name": "Test Org",
+  "environments": [
+    {
+      "name": "Design",
+      "type": "DESIGN"
+    },
+    {
+      "name": "Dev",
+      "type": "SANDBOX"
+    },
+    {
+      "name": "QA",
+      "type": "SANDBOX"
+    },
+    {
+      "name": "Production",
+      "type": "PRODUCTION"
+    }
+  ]
+}

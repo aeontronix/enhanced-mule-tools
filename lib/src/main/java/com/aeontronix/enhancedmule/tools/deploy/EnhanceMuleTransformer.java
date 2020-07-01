@@ -4,9 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools.deploy;
 
-import com.aeontronix.enhancedmule.tools.api.provision.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.api.provision.AnypointDescriptor;
-import com.aeontronix.enhancedmule.tools.api.provision.PropertyDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.unpack.*;
 import com.kloudtek.unpack.transformer.Transformer;

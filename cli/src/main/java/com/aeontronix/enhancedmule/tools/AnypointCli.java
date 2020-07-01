@@ -15,7 +15,7 @@ import picocli.CommandLine.Option;
         subcommands = {
                 CHDeployApplicationCmd.class, HDeployApplicationCmd.class, GetRegistrationKeyCmd.class,
                 UpdateConfigCmd.class, RequestAPIAccessCmd.class, AddServerToGroupCmd.class,
-                ProvisionVPCCmd.class, UpdateReleaseManifestCmd.class})
+                ProvisionVPCCmd.class, UpdateReleaseManifestCmd.class, ProvisionOrgCmd.class})
 public class AnypointCli extends CliCommand<CliCommand> {
     @Option(description = "Anypoint username", names = {"-u", "--username"})
     @JsonProperty

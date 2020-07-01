@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.api.policy;
 import com.aeontronix.enhancedmule.tools.AnypointObject;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.api.API;
-import com.aeontronix.enhancedmule.tools.api.provision.PolicyDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.PolicyDescriptor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 

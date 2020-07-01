@@ -8,7 +8,7 @@ import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
-import com.aeontronix.enhancedmule.tools.api.provision.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;

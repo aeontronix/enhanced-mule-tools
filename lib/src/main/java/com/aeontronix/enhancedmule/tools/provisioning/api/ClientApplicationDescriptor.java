@@ -1,8 +1,8 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.api.provision;
+package com.aeontronix.enhancedmule.tools.provisioning.api;
 
 import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
@@ -13,6 +13,8 @@ import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
 import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;

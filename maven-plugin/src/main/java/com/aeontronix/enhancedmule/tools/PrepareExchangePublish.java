@@ -34,11 +34,11 @@ public class PrepareExchangePublish extends AbstractOrganizationalMojo {
      */
     @Parameter(defaultValue = "maven.anypoint.mulesoft.com")
     private String mavenExchangeDomain;
-    @Parameter(defaultValue = "true", property = "anypoint.prepare.updateVersionIfSnapshot")
+    @Parameter(defaultValue = "false", property = "anypoint.prepare.updateVersionIfSnapshot")
     private boolean updateVersionIfSnapshot;
-    @Parameter(defaultValue = "true")
+    @Parameter(defaultValue = "false")
     private boolean addDistributionManagement;
-    @Parameter(defaultValue = "true")
+    @Parameter(defaultValue = "false")
     private boolean addUserOrgsRepos;
     @Parameter(defaultValue = "false", property = "anypoint.prepare.skip")
     private boolean skip;
@@ -56,15 +56,6 @@ public class PrepareExchangePublish extends AbstractOrganizationalMojo {
             }
             if (project.getArtifact() != null) {
                 project.getArtifact().setGroupId(groupId);
-            }
-            if (updateVersionIfSnapshot && project.getArtifact() != null && project.getArtifact().isSnapshot()) {
-                String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-                String version = project.getVersion() + "-" + timestamp;
-                project.setVersion(version);
-                if (project.getArtifact() != null) {
-                    project.getArtifact().setVersion(version);
-                    project.getArtifact().setVersionRange(VersionRange.createFromVersion(version));
-                }
             }
             if (addDistributionManagement) {
                 MavenArtifactRepository repo = new MavenArtifactRepository();

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.api.provision;
+package com.aeontronix.enhancedmule.tools.provisioning;
 
 public class ProvisioningException extends Exception {
     public ProvisioningException() {
