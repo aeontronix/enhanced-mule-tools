@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.provisioning;
 import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 
+import java.rmi.UnexpectedException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,23 @@ public class RolePermissionScope {
             s = s.filter(e -> scope.matches(scope));
         }
         return s.collect(Collectors.toSet());
+    }
+
+    public String toShortMarkdown() {
+        switch (type) {
+            case ENV:
+                return scope;
+            case ENV_RGX:
+                if( scope.equals(".*") ) {
+                    return "*All*";
+                } else {
+                    return "Regex("+scope+")";
+                }
+            case ENV_TYPE:
+                return "Type("+scope+")";
+            default:
+                return type+"("+scope+")";
+        }
     }
 
     public enum Type {

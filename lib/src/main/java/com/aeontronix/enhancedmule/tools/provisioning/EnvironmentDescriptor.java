@@ -17,6 +17,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class EnvironmentDescriptor {
     private static final Logger logger = getLogger(EnvironmentDescriptor.class);
     private String name;
+    private String description;
     private Environment.Type type;
 
     public Environment provision(Organization org) throws HttpException, ProvisioningException {
@@ -40,6 +41,14 @@ public class EnvironmentDescriptor {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @JsonProperty(required = true)

@@ -13,8 +13,12 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeHeader;
+import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeParagraph;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class OrganizationDescriptor {
@@ -35,28 +39,69 @@ public class OrganizationDescriptor {
     private List<EnvironmentDescriptor> environments;
     private List<RoleDescriptor> roles;
 
+    public void toMarkdown(Writer w, int headingDepth) throws IOException {
+        if (environments != null && !environments.isEmpty()) {
+            writeHeader(w, headingDepth + 1, "Environments");
+            for (EnvironmentDescriptor environment : environments) {
+                writeHeader(w, headingDepth + 2, environment.getName());
+                writeParagraph(w, "Type: " + environment.getType());
+                writeParagraph(w, "Description: " + environment.getDescription());
+            }
+        }
+        if (roles != null && !roles.isEmpty()) {
+            writeHeader(w, headingDepth + 1, "Roles");
+            for (RoleDescriptor role : roles) {
+                writeHeader(w, headingDepth + 2, role.getName());
+                if (StringUtils.isNotEmpty(role.getDescription())) {
+                    writeParagraph(w, "Description: " + role.getDescription());
+                }
+                if (!role.getExternalNames().isEmpty()) {
+                    writeParagraph(w, "Mapped to SSO Roles: " + String.join(", ", role.getExternalNames()));
+                }
+                if (!role.getPermissions().isEmpty()) {
+                    writeParagraph(w, "Permissions:");
+                }
+                for (RolePermissionDescriptor permission : role.getPermissions()) {
+                    StringBuilder perms = new StringBuilder();
+                    perms.append("- " + permission.getName());
+                    if (!permission.getScopes().isEmpty()) {
+                        List<String> scopes = permission.getScopes().stream().map(RolePermissionScope::toShortMarkdown)
+                                .collect(Collectors.toList());
+                        perms.append(" for environment");
+                        if( scopes.size() > 1) {
+                            perms.append("s");
+                        }
+                        perms.append(": ").append(String.join(", ", scopes));
+                    }
+                    writeParagraph(w, perms.toString());
+                }
+            }
+        }
+        w.write('\n');
+    }
+
     public Organization provision(AnypointClient client) throws NotFoundException, HttpException, ProvisioningException {
         Organization org;
-        if( ownerId == null ) {
+        if (ownerId == null) {
             ownerId = client.getUserId();
-            logger.debug("No owner id specified, using {}",ownerId);
+            logger.debug("No owner id specified, using {}", ownerId);
         }
-        if( id != null ) {
+        if (id != null) {
             org = client.findOrganizationById(id);
-        } else if( name != null ) {
+        } else if (name != null) {
             try {
                 org = client.findOrganization(name);
             } catch (NotFoundException e) {
                 logger.info("Organization not found, creating");
-                if( parentId != null ) {
+                if (parentId != null) {
                     Organization parentOrg = client.findOrganizationById(parentId);
-                    org = parentOrg.createSubOrganization( name, ownerId, createSubOrgs, createEnvironments, globalDeployment,
+                    org = parentOrg.createSubOrganization(name, ownerId, createSubOrgs, createEnvironments, globalDeployment,
                             vCoresProduction, vCoresSandbox, vCoresDesign, staticIps, vpcs, loadBalancer);
                 } else {
-                    org = client.createOrganization( name, ownerId, createSubOrgs, createEnvironments, globalDeployment,
+                    org = client.createOrganization(name, ownerId, createSubOrgs, createEnvironments, globalDeployment,
                             vCoresProduction, vCoresSandbox, vCoresDesign, staticIps, vpcs, loadBalancer);
                 }
-                logger.info("Organization not found, created with id "+org.getId());
+                logger.info("Organization not found, created with id " + org.getId());
             }
         } else {
             throw new IllegalArgumentException("Organization descriptor must have an id or a name");
@@ -66,7 +111,7 @@ public class OrganizationDescriptor {
                 environment.provision(org);
             }
         }
-        if( roles != null ) {
+        if (roles != null) {
             for (RoleDescriptor role : roles) {
                 role.provision(org);
             }
@@ -197,9 +242,15 @@ public class OrganizationDescriptor {
     public static Organization provision(AnypointClient client, File orgDescriptorFile, String orgName) throws NotFoundException, HttpException, IOException, ProvisioningException {
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(orgDescriptorFile,
                 OrganizationDescriptor.class);
-        if(StringUtils.isNotBlank(orgName) ) {
+        if (StringUtils.isNotBlank(orgName)) {
             org.setName(orgName);
         }
         return org.provision(client);
+    }
+
+    public static void toMarkdown(AnypointClient client, Writer w, File file, int headingDepth) throws IOException {
+        OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(file,
+                OrganizationDescriptor.class);
+        org.toMarkdown(w, headingDepth);
     }
 }

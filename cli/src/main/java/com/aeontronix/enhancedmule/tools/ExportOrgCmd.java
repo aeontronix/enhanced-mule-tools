@@ -18,7 +18,7 @@ public class ExportOrgCmd extends AbstractOrganizationalCmd {
     @Override
     protected void execute(Organization organization) throws Exception {
         OrganizationDescriptor orgDesc = organization.export(stripIds);
-        new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .writerWithDefaultPrettyPrinter()
                 .writeValue(System.out, orgDesc);
     }

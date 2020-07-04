@@ -13,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.role.RoleGroup;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -48,19 +49,27 @@ public class RoleDescriptor {
         this.description = description;
     }
 
+    @NotNull
     public Set<String> getExternalNames() {
+        if( externalNames == null ) {
+            externalNames = new HashSet<>();
+        }
         return externalNames;
     }
 
-    public void setExternalNames(Set<String> externalNames) {
+    public void setExternalNames(@NotNull Set<String> externalNames) {
         this.externalNames = externalNames;
     }
 
+    @NotNull
     public List<RolePermissionDescriptor> getPermissions() {
+        if( permissions == null ) {
+            permissions = new ArrayList<>();
+        }
         return permissions;
     }
 
-    public void setPermissions(List<RolePermissionDescriptor> permissions) {
+    public void setPermissions(@NotNull List<RolePermissionDescriptor> permissions) {
         this.permissions = permissions;
     }
 

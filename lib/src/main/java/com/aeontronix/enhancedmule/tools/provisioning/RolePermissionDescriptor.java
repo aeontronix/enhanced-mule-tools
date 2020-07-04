@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.Environment;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +40,15 @@ public class RolePermissionDescriptor {
         this.roleId = roleId;
     }
 
+    @NotNull
     public List<RolePermissionScope> getScopes() {
+        if( scopes == null ) {
+            scopes = new ArrayList<>();
+        }
         return scopes;
     }
 
-    public void setScopes(List<RolePermissionScope> scopes) {
+    public void setScopes(@NotNull List<RolePermissionScope> scopes) {
         this.scopes = scopes;
     }
 
