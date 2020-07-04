@@ -9,6 +9,7 @@ import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentService;
 import com.aeontronix.enhancedmule.tools.ocli.OCliClient;
+import com.aeontronix.enhancedmule.tools.provisioning.EnvironmentDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -19,6 +20,9 @@ import com.kloudtek.util.FileUtils;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.spi.DestinationSetter;
+import org.modelmapper.spi.SourceGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,7 @@ public class AnypointClient implements Closeable, Serializable {
     private transient ExecutorService deploymentThreadPool;
     private DeploymentService deploymentService;
     private OCliClient cliClient;
+    private ModelMapper modelMapper;
 
     /**
      * Contructor used for serialization only
@@ -58,7 +63,7 @@ public class AnypointClient implements Closeable, Serializable {
 
     public AnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
         this.maxParallelDeployments = maxParallelDeployments;
-        httpHelper = new HttpHelper(this,  authenticationProvider);
+        httpHelper = new HttpHelper(this, authenticationProvider);
         init();
     }
 
@@ -71,6 +76,8 @@ public class AnypointClient implements Closeable, Serializable {
         jsonHelper = new JsonHelper(this);
         deploymentService = loadService(DeploymentService.class);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
+        modelMapper = new ModelMapper();
+        modelMapper.validate();
     }
 
     private boolean loadAnypointCliConfig() {
@@ -164,13 +171,13 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     @NotNull
-    public Organization findOrganization(String name) throws NotFoundException, HttpException {
+    public Organization findOrganization(String nameOrId) throws NotFoundException, HttpException {
         for (Organization organization : findOrganizations()) {
-            if (organization.getId().equals(name) || organization.getName().equals(name)) {
+            if (organization.getId().equals(nameOrId) || organization.getName().equals(nameOrId)) {
                 return organization;
             }
         }
-        throw new NotFoundException("Organization not found: " + name+" (if using client credentials you must use org id instead of name)");
+        throw new NotFoundException("Organization not found: " + nameOrId + " (if using client credentials you must use org id instead of nameOrId)");
     }
 
     public Organization findOrganizationById(String id) throws HttpException, NotFoundException {
@@ -184,7 +191,7 @@ public class AnypointClient implements Closeable, Serializable {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Enable to find organization " + id, e);
             } else if (e.getStatusCode() == 403) {
-                logger.debug("Access to organization data denied: "+id);
+                logger.debug("Access to organization data denied: " + id);
                 return organization;
             } else {
                 throw e;
@@ -349,6 +356,10 @@ public class AnypointClient implements Closeable, Serializable {
     public String getUserId() throws HttpException {
         // TODO cache this
         return getUser().getId();
+    }
+
+    public ModelMapper getModelMapper() {
+        return modelMapper;
     }
 
     public DeploymentService getDeploymentService() {

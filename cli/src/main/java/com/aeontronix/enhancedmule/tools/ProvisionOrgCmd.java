@@ -20,11 +20,13 @@ public class ProvisionOrgCmd extends CliCommand<AnypointCli> {
     private boolean usageHelpRequested;
     @CommandLine.Parameters(description = "Org descriptor file")
     private File file;
+    @CommandLine.Option(names = {"-n","--provisioned-org-name"},description = "Provisioned organization Name")
+    private String pOrgName;
 
     @Override
     protected final void execute() throws Exception {
         logger.info("Organization provisioning started");
-        OrganizationDescriptor.provision(parent.getClient(), file);
+        OrganizationDescriptor.provision(parent.getClient(), file, pOrgName);
         logger.info("Organization provisioning complete");
     }
 }

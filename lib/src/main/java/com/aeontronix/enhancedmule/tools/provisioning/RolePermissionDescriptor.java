@@ -4,5 +4,81 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning;
 
+import com.aeontronix.enhancedmule.tools.Environment;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class RolePermissionDescriptor {
+    private String id;
+    private String roleId;
+    private String name;
+    private List<RolePermissionScope> scopes;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(String roleId) {
+        this.roleId = roleId;
+    }
+
+    public List<RolePermissionScope> getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(List<RolePermissionScope> scopes) {
+        this.scopes = scopes;
+    }
+
+    public void addScope(RolePermissionScope scope) {
+        if (scopes == null) {
+            scopes = new ArrayList<>();
+        }
+        scopes.add(scope);
+    }
+
+    public List<String> getEnvironments() {
+        return null;
+    }
+
+    public void setEnvironments(List<String> environments) {
+        if (environments != null) {
+            for (String environment : environments) {
+                addScope(new RolePermissionScope(RolePermissionScope.Type.ENV, environment));
+            }
+        }
+    }
+
+    public synchronized void addEnvironment(String environment) {
+        addScope(new RolePermissionScope(RolePermissionScope.Type.ENV, environment));
+    }
+
+    public List<Environment.Type> getEnvType() {
+        return null;
+    }
+
+    public void setEnvType(List<Environment.Type> types) {
+        if( types != null ) {
+            for (Environment.Type envType : types) {
+                addScope(new RolePermissionScope(RolePermissionScope.Type.ENV_TYPE, envType.name()));
+            }
+        }
+    }
 }

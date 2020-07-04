@@ -38,7 +38,7 @@ public class Environment extends AnypointObject<Organization> {
     private String id;
     private String name;
     private boolean production;
-    private String type;
+    private Type type;
     private String clientId;
 
     public Environment() {
@@ -86,11 +86,11 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @JsonProperty
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -297,10 +297,6 @@ public class Environment extends AnypointObject<Organization> {
         return getName().replace(" ", "_").toLowerCase();
     }
 
-    public enum Type {
-        DESIGN, SANDBOX, PRODUCTION
-    }
-
     public API createAPI(@NotNull APISpec apiSpec, @Nullable String label,
                          Map<String,Object> endpointJson ) throws HttpException {
         return API.create(this, apiSpec, label, endpointJson);
@@ -456,5 +452,9 @@ public class Environment extends AnypointObject<Organization> {
             map.put(env.getId(), env);
         }
         return map;
+    }
+
+    public enum Type {
+        DESIGN, SANDBOX, PRODUCTION
     }
 }

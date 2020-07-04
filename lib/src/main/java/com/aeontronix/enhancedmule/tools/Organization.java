@@ -6,8 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.exchange.*;
-import com.aeontronix.enhancedmule.tools.provisioning.VPCOrgProvisioningDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.VPCProvisioningDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -18,8 +17,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.BackendAccessException;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.URLBuilder;
+import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Organization extends AnypointObject {
     public static final Pattern MAJORVERSION_REGEX = Pattern.compile("(\\d*)\\..*");
@@ -473,24 +476,12 @@ public class Organization extends AnypointObject {
     }
 
 
-    public RoleGroupList findAllRoleGroups() throws HttpException {
+    public @NotNull RoleGroupList findAllRoleGroups() throws HttpException {
         return new RoleGroupList(this);
     }
 
     public RoleGroup findRoleGroupById(String roleId) throws HttpException, NotFoundException {
         return RoleGroup.findById(this, httpHelper, jsonHelper, roleId);
-    }
-
-    public RoleAssignmentList findRoleAssignmentsByRoleId(String roleId) throws HttpException, NotFoundException {
-        try {
-            return new RoleAssignmentList(this, roleId);
-        } catch (HttpException e) {
-            if (e.getStatusCode() == 404) {
-                throw new NotFoundException(e.getMessage());
-            } else {
-                throw e;
-            }
-        }
     }
 
     public List<ProductPermissions> findAllProductPermissions() throws HttpException {
@@ -506,6 +497,9 @@ public class Organization extends AnypointObject {
         return results;
     }
 
+    public Map<String,Role> findAllRolesIndexedByName() throws HttpException {
+        return findAllRoles().stream().collect(Collectors.toMap(Role::getName, v -> v));
+    }
 
     public RoleGroup createRoleGroup(String name, String description) throws HttpException {
         HashMap<String, String> req = new HashMap<>();
@@ -539,6 +533,78 @@ public class Organization extends AnypointObject {
         } catch (HttpException | IOException e) {
             throw new AssetCreationException(e);
         }
+    }
+
+    public OrganizationDescriptor export(boolean stripIds) throws HttpException {
+        try {
+            ModelMapper mapper = client.getModelMapper();
+            OrganizationDescriptor org = new OrganizationDescriptor();
+            mapper.map(this,org);
+            if( stripIds ) {
+                org.setParentId(null);
+                org.setId(null);
+            }
+            exportEnvironments(mapper, org, stripIds);
+            exportRoleGroups(mapper, org, stripIds);
+            return org;
+        } catch (NotFoundException e) {
+            throw new UnexpectedException(e);
+        }
+    }
+
+    private void exportEnvironments(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
+        List<EnvironmentDescriptor> environments = mapper.map(findAllEnvironments(), new TypeToken<List<EnvironmentDescriptor>>() {
+        }.getType());
+        org.setEnvironments(environments);
+    }
+
+    private void exportRoleGroups(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException, NotFoundException {
+        ArrayList<RoleDescriptor> roles = new ArrayList<>();
+        for (RoleGroup roleGroup : findAllRoleGroups()) {
+            if (roleGroup.isEditable()) {
+                RoleDescriptor role = new RoleDescriptor();
+                roles.add(role);
+                mapper.map(roleGroup, role);
+                if( stripIds ) {
+                    role.setId(null);
+                }
+                ArrayList<RolePermissionDescriptor> rolePermissions = new ArrayList<>();
+                role.setPermissions(rolePermissions);
+                Map<String,RolePermissionDescriptor> rolePermissionsIdx = new HashMap<>();
+                for (RoleAssignment roleAssignment : roleGroup.findRoleAssignments()) {
+                    String roleId = roleAssignment.getRoleId();
+                    RolePermissionDescriptor rp = rolePermissionsIdx.get(roleId);
+                    if( rp == null ) {
+                        rp = new RolePermissionDescriptor();
+                        mapper.map(roleAssignment,rp);
+                        if( stripIds ) {
+                            rp.setId(null);
+                            rp.setRoleId(null);
+                        }
+                        rolePermissionsIdx.put(roleId,rp);
+                        rolePermissions.add(rp);
+                    }
+                    String raOrgId = roleAssignment.getContextParams().get("org");
+                    String raEnvId = roleAssignment.getContextParams().get("envId");
+                    HashMap<String, Environment> envCache = new HashMap<>();
+                    if( raEnvId != null ) {
+                        Environment raEnv = envCache.get(raEnvId);
+                        if( raEnv == null ) {
+                            Organization raOrg = id.equals(raOrgId) ? this : client.findOrganizationById(raOrgId);
+                            raEnv = raOrg.findEnvironmentById(raEnvId);
+                            envCache.put(raEnvId,raEnv);
+                        }
+                        rp.addEnvironment(raEnv.getName());
+                    }
+                }
+            }
+        }
+        org.setRoles(roles);
+    }
+
+    @NotNull
+    private Role findRoleById(String roleId) throws HttpException, NotFoundException {
+        return findAllRoles().stream().filter(r -> r.getId().equals(roleId)).findFirst().orElseThrow(() -> new NotFoundException("Role " + roleId + " not found"));
     }
 
     public enum RequestAPIAccessResult {

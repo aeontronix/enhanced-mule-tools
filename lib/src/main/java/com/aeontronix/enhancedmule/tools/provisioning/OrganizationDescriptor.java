@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.kloudtek.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -193,9 +194,12 @@ public class OrganizationDescriptor {
         this.roles = roles;
     }
 
-    public static Organization provision(AnypointClient client, File orgDescriptorFile ) throws NotFoundException, HttpException, IOException, ProvisioningException {
+    public static Organization provision(AnypointClient client, File orgDescriptorFile, String orgName) throws NotFoundException, HttpException, IOException, ProvisioningException {
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(orgDescriptorFile,
                 OrganizationDescriptor.class);
+        if(StringUtils.isNotBlank(orgName) ) {
+            org.setName(orgName);
+        }
         return org.provision(client);
     }
 }

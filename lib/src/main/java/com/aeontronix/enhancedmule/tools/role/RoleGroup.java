@@ -5,16 +5,15 @@
 package com.aeontronix.enhancedmule.tools.role;
 
 import com.aeontronix.enhancedmule.tools.*;
+import com.aeontronix.enhancedmule.tools.provisioning.RoleDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.URLBuilder;
+import com.kloudtek.util.UnexpectedException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RoleGroup extends AnypointObject<Organization> {
     @JsonProperty("role_group_id")
@@ -79,10 +78,6 @@ public class RoleGroup extends AnypointObject<Organization> {
         this.externalNames = externalNames;
     }
 
-    public RoleAssignmentList findRoleAssignments() throws HttpException, NotFoundException {
-        return parent.findRoleAssignmentsByRoleId(id);
-    }
-
     public RoleGroup update() throws HttpException {
         HashMap<String, Object> changes = new HashMap<>();
         if (editable) {
@@ -108,14 +103,35 @@ public class RoleGroup extends AnypointObject<Organization> {
         }
     }
 
-    public List<RoleAssignment> addRoleAssignments(ArrayList<RoleAssignmentAddition> requests) throws HttpException {
-        String json = httpHelper.httpPost(buildUrl(parent, id).path("roles").toString(), requests);
+    public RoleAssignmentList findRoleAssignments() throws HttpException, NotFoundException {
+        try {
+            return new RoleAssignmentList(this);
+        } catch (HttpException e) {
+            if (e.getStatusCode() == 404) {
+                throw new NotFoundException(e.getMessage());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    public List<RoleAssignment> assignRoles(Iterable<RoleAssignmentAddition> roleAssignmentAdditions) throws HttpException {
+        String json = httpHelper.httpPost(buildUrl(parent, id).path("roles").toString(), roleAssignmentAdditions);
         return jsonHelper.readJsonList(RoleAssignment.class, json, null);
     }
 
-    public void deleteRoleAssignment(List<RoleAssignment> roleAssignments) throws HttpException {
-        if (!roleAssignments.isEmpty()) {
-            httpHelper.httpDelete(buildUrl(parent, getId()).param("roleId", roleAssignments.get(0).getId()).path("roles").toString(), roleAssignments);
+    public void deleteAllRoleAssignment() throws HttpException {
+        try {
+            deleteRoleAssignment(findRoleAssignments());
+        } catch (NotFoundException e) {
+            throw new UnexpectedException(e);
+        }
+    }
+
+    public void deleteRoleAssignment(Iterable<RoleAssignment> roleAssignments) throws HttpException {
+        for (RoleAssignment roleAssignment : roleAssignments) {
+            httpHelper.httpDelete(buildUrl(parent, getId()).path("roles").param("roleId", roleAssignment.getId()).toString(),
+                    Collections.singletonList(roleAssignment));
         }
     }
 
@@ -125,5 +141,10 @@ public class RoleGroup extends AnypointObject<Organization> {
 
     private static URLBuilder buildUrl(Organization organization, String id) {
         return new URLBuilder("/accounts/api/organizations/").path(organization.getId()).path("rolegroups").path(id);
+    }
+
+    public boolean same(RoleDescriptor roleDescriptor) {
+        return Objects.equals(roleDescriptor.getDescription(),description) &&
+                Objects.equals(roleDescriptor.getExternalNames(),externalNames);
     }
 }

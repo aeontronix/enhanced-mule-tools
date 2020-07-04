@@ -50,4 +50,12 @@ public class EnvironmentDescriptor {
     public void setType(Environment.Type type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "EnvironmentDescriptor{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }
