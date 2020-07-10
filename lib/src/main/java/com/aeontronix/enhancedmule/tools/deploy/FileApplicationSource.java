@@ -37,7 +37,7 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public AnypointDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException {
+    public AnypointDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException {
         return readDescriptorFromZip(file, apiProvisioningConfig);
     }
 

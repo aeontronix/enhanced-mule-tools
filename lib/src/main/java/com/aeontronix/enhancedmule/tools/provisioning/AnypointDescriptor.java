@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,12 +38,12 @@ public class AnypointDescriptor {
         ObjectMapper mapper = JsonHelper.createMapper();
         String json = IOUtils.toString(is);
         String appId = (String) mapper.readValue(json, Map.class).get("id");
-        if( appId != null ) {
-            apiProvisioningConfig.addVariable("app.id",appId);
+        if (appId != null) {
+            apiProvisioningConfig.addVariable("app.id", appId);
         }
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
         AnypointDescriptor descriptor = mapper.readValue(json, AnypointDescriptor.class);
-        if(descriptor.getProperties()!= null){
+        if (descriptor.getProperties() != null) {
             for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
                 entry.getValue().setName(entry.getKey());
             }
@@ -50,15 +51,15 @@ public class AnypointDescriptor {
         return descriptor;
     }
 
-    public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config) throws ProvisioningException {
+    public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config, ApplicationSource source) throws ProvisioningException {
         try {
             APIProvisioningResult result = new APIProvisioningResult();
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
-                api.provision(this, environment, config, result);
+                api.provision(this, environment, config, source, result);
             }
-            if( client != null ) {
-                client.provision(this,environment,config, result);
+            if (client != null) {
+                client.provision(this, environment, config, result);
             }
             return result;
         } catch (Exception e) {

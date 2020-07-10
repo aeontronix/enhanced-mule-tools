@@ -9,7 +9,6 @@ import com.kloudtek.ktcli.CliCommand;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -27,7 +26,7 @@ public class OrgDescriptorToMarkdownCmd extends CliCommand<AnypointCli> {
 
     @Override
     protected final void execute() throws Exception {
-        try( Writer os = new OutputStreamWriter(System.out)) {
+        try (Writer os = new OutputStreamWriter(System.out)) {
             OrganizationDescriptor.toMarkdown(parent.getClient(), os, file, headingDepth);
         }
     }

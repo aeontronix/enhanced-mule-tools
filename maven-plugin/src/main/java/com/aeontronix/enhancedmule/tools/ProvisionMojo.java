@@ -58,7 +58,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 apiProvisioningConfig.setVariables(vars);
             }
             getLog().info("Provisioning started");
-            APIProvisioningResult result = anypointDescriptor.provision(environment, apiProvisioningConfig);
+            APIProvisioningResult result = anypointDescriptor.provision(environment, apiProvisioningConfig, null);
             getLog().info("Provisioning complete");
             Properties properties = new Properties();
             API api = result.getApi();

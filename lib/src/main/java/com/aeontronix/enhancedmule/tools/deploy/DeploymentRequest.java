@@ -39,7 +39,7 @@ public abstract class DeploymentRequest {
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
     protected DeploymentConfig deploymentConfig;
-    protected AnypointDescriptor apiProvisioningDescriptor;
+    protected AnypointDescriptor anypointDescriptor;
 
     public DeploymentRequest() {
     }
@@ -63,17 +63,17 @@ public abstract class DeploymentRequest {
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
-                apiProvisioningDescriptor = source.getAPIProvisioningDescriptor(apiProvisioningConfig);
-                transformers.add(new EnhanceMuleTransformer(apiProvisioningDescriptor));
-                if (apiProvisioningDescriptor != null) {
+                anypointDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
+                transformers.add(new EnhanceMuleTransformer(anypointDescriptor));
+                if (anypointDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
-                    provisioningResult = apiProvisioningDescriptor.provision(environment, apiProvisioningConfig);
+                    provisioningResult = anypointDescriptor.provision(environment, apiProvisioningConfig, source);
                     if (provisioningResult.getApi() != null && apiProvisioningConfig.isInjectApiId()) {
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
-                        apiProvisioningDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
+                        anypointDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
-                        apiProvisioningDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
-                        apiProvisioningDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
+                        anypointDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
+                        anypointDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
                         try {
                             deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
                         } catch (HttpException e) {
@@ -85,13 +85,12 @@ public abstract class DeploymentRequest {
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
                         String keyId = apiProvisioningConfig.getInjectClientIdSecretKey() + ".id";
-                        apiProvisioningDescriptor.addProperty(keyId,false);
+                        anypointDescriptor.addProperty(keyId,false);
                         deploymentConfig.setOverrideProperty(keyId, clientApp.getClientId());
                         String keySecret = apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret";
                         deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
-                        apiProvisioningDescriptor.addProperty(keySecret,true);
+                        anypointDescriptor.addProperty(keySecret,true);
                     }
-                    APIDescriptor api = apiProvisioningDescriptor.getApi();
                     Transformer muleArtifactTransformer = new Transformer() {
                         @SuppressWarnings("unchecked")
                         @Override
@@ -104,8 +103,8 @@ public abstract class DeploymentRequest {
                 }
             }
             if (deploymentConfig.isFilePropertiesSecure() &&
-                    apiProvisioningDescriptor.getProperties() != null) {
-                for (PropertyDescriptor propertyDescriptor : apiProvisioningDescriptor.getProperties().values()) {
+                    anypointDescriptor.getProperties() != null) {
+                for (PropertyDescriptor propertyDescriptor : anypointDescriptor.getProperties().values()) {
                     if (propertyDescriptor.isSecure()) {
                         String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getName());
                         deploymentConfig.addFileProperty(propertyDescriptor.getName(),pVal);

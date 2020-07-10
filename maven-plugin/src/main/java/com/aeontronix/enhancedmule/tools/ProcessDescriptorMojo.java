@@ -104,7 +104,6 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private void processDescriptor(AnypointDescriptor anypointDescriptor) {
         String apiName = project.getArtifactId();
         String version = project.getVersion();
-        String versionNS = version.toLowerCase().endsWith("-snapshot") ? version.substring(0, version.length() - 9) : version;
         if (anypointDescriptor.getId() == null) {
             anypointDescriptor.setId(apiName);
         }
@@ -117,10 +116,10 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                     api.setAssetVersion(dep.getVersion());
                 } else {
                     api.setAssetId(apiName + "-api");
-                    if (api.getAssetVersion() == null) {
-                        api.setAssetVersion(versionNS);
-                    }
                 }
+            }
+            if (api.getAssetVersion() == null) {
+                api.setAssetVersion(version);
             }
         }
     }

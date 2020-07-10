@@ -142,7 +142,8 @@ public class HttpHelper implements Closeable {
 
     public String httpDelete(String path) throws HttpException {
         logger.debug("HTTP DELETE " + path);
-        return executeWrapper(new HttpDelete(convertPath(path)), null);
+        final HttpDelete method = new HttpDelete(convertPath(path));
+        return executeWrapper(method, null);
     }
 
     public String httpDelete(String path, Object data) throws HttpException {

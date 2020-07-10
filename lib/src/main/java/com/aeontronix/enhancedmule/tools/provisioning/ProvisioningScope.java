@@ -8,21 +8,18 @@ import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 
 import java.rmi.UnexpectedException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RolePermissionScope {
+public class ProvisioningScope {
     private Type type;
     private String scope;
 
-    public RolePermissionScope() {
+    public ProvisioningScope() {
     }
 
-    public RolePermissionScope(Type type, String scope) {
+    public ProvisioningScope(Type type, String scope) {
         this.type = type;
         this.scope = scope;
     }
@@ -45,7 +42,9 @@ public class RolePermissionScope {
 
     public Set<Environment> matchEnvironments(Collection<Environment> environments) throws NotFoundException {
         Stream<Environment> s = environments.stream();
-        if( type == Type.ENV ) {
+        if( type == Type.ANY ) {
+            return new HashSet<>(environments);
+        } else if( type == Type.ENV ) {
             s = s.filter(e -> scope.equals(e.getName()));
         } else if( type == Type.ENV_TYPE ) {
             s = s.filter(e -> e.getType().equals(Environment.Type.valueOf(scope.toUpperCase())));
@@ -60,19 +59,17 @@ public class RolePermissionScope {
             case ENV:
                 return scope;
             case ENV_RGX:
-                if( scope.equals(".*") ) {
-                    return "*All*";
-                } else {
-                    return "Regex("+scope+")";
-                }
+                return "Regex("+scope+")";
             case ENV_TYPE:
                 return "Type("+scope+")";
+            case ANY:
+                return "*All*";
             default:
                 return type+"("+scope+")";
         }
     }
 
     public enum Type {
-        ENV, ENV_RGX, ENV_TYPE
+        ENV, ENV_RGX, ENV_TYPE, ANY
     }
 }

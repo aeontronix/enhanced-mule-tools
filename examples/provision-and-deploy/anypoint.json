@@ -1,10 +1,10 @@
 {
   "id": "myreallytestytest",
   "api": {
-    "type": "http",
+    "type": "rest",
     "assetCreate": true,
-    "assetId": "mydemohttpapi",
-    "assetVersion": "1.0.0",
+    "assetId": "mydemohttpapi2",
+    "assetMainFile": "api.raml",
     "label": "${environment.lname}-latest",
     "clientApp": {
     },

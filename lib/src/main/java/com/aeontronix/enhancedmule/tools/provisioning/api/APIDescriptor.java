@@ -6,19 +6,25 @@ package com.aeontronix.enhancedmule.tools.provisioning.api;
 
 import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
+import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.APISpec;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
 import com.aeontronix.enhancedmule.tools.api.SLATierLimits;
+import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.TempFile;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +33,10 @@ public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
     private String assetId;
     private String assetVersion;
+    private String assetAPIVersion = "v1";
     private String endpoint;
     private boolean addAutoDescovery = false;
-    private String autoDiscoveryFlow="api-main";
+    private String autoDiscoveryFlow = "api-main";
     private HashMap<String, Object> endpointJson;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
@@ -37,6 +44,7 @@ public class APIDescriptor {
     private List<SLATierDescriptor> slaTiers;
     private API.Type type = API.Type.REST;
     private boolean assetCreate;
+    private String assetMainFile;
 
     public APIDescriptor() {
     }
@@ -46,7 +54,7 @@ public class APIDescriptor {
         this.assetVersion = version;
     }
 
-    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws ProvisioningException {
+    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
         try {
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
@@ -72,7 +80,18 @@ public class APIDescriptor {
                         if (type == API.Type.HTTP) {
                             environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1");
                         } else {
-                            throw new RuntimeException("Only HTTP Asset creation supported at this time");
+                            if (applicationSource == null) {
+                                throw new AssetCreationException("Cannot create asset due to missing application source (standalone provisioning doesn't support REST asset creation)");
+                            }
+                            if (StringUtils.isBlank(assetMainFile)) {
+                                throw new AssetCreationException("assetMainFile is required for API asset creation");
+                            }
+                            String assetClassifier = assetMainFile.toLowerCase().endsWith(".raml") ? "raml" : "oas";
+                            try (TempFile apiSpecFile = new TempFile(assetId + "-" + assetVersion)) {
+                                applicationSource.getAPISpecificationFiles(assetId, assetVersion, assetMainFile, assetClassifier, apiSpecFile);
+                                environment.getOrganization().publishExchangeAPIAsset(assetId, assetVersion,
+                                        assetAPIVersion, assetClassifier, assetMainFile, apiSpecFile);
+                            }
                         }
                     } else {
                         throw ex;
@@ -87,7 +106,7 @@ public class APIDescriptor {
                     api = api.updateVersion(assetVersion);
                 } catch (NotFoundException ex) {
                     logger.debug("Couldn't find, creating");
-                    if( endpointJson != null ) {
+                    if (endpointJson != null) {
                         api = environment.createAPI(apiSpec, label, endpointJson);
                     } else {
                         api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type);
@@ -97,7 +116,7 @@ public class APIDescriptor {
             }
             if (updateEndpoint) {
                 if (this.endpointJson != null) {
-                    api = api.updateEndpoint(this.getEndpoint(), endpointJson );
+                    api = api.updateEndpoint(this.getEndpoint(), endpointJson);
                 } else if (this.getEndpoint() != null) {
                     api = api.updateEndpoint(this.getEndpoint(), !m3, type);
                 }
@@ -122,8 +141,15 @@ public class APIDescriptor {
                     }
                 }
             }
-        } catch (HttpException | AssetCreationException | NotFoundException e) {
+        } catch (HttpException | AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
+        }
+    }
+
+    public void createAsset(Organization organization, ApplicationSource source) {
+        if (!assetVersion.toLowerCase().endsWith("-snapshot")) {
+            type = API.Type.HTTP;
+            assetCreate = true;
         }
     }
 
@@ -249,5 +275,21 @@ public class APIDescriptor {
 
     public void setAutoDiscoveryFlow(String autoDiscoveryFlow) {
         this.autoDiscoveryFlow = autoDiscoveryFlow;
+    }
+
+    public String getAssetMainFile() {
+        return assetMainFile;
+    }
+
+    public void setAssetMainFile(String assetMainFile) {
+        this.assetMainFile = assetMainFile;
+    }
+
+    public String getAssetAPIVersion() {
+        return assetAPIVersion;
+    }
+
+    public void setAssetAPIVersion(String assetAPIVersion) {
+        this.assetAPIVersion = assetAPIVersion;
     }
 }

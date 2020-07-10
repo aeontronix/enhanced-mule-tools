@@ -84,7 +84,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public AnypointDescriptor getAPIProvisioningDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
+    public AnypointDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
             try (TempFile tempFile = new TempFile("anyp-apparch")) {
                 try (FileOutputStream fos = new FileOutputStream(tempFile)) {

@@ -4,11 +4,13 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.alert.Alert;
 import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.exchange.*;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
+import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -17,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.BackendAccessException;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.URLBuilder;
-import com.kloudtek.util.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.modelmapper.ModelMapper;
@@ -497,7 +498,7 @@ public class Organization extends AnypointObject {
         return results;
     }
 
-    public Map<String,Role> findAllRolesIndexedByName() throws HttpException {
+    public Map<String, Role> findAllRolesIndexedByName() throws HttpException {
         return findAllRoles().stream().collect(Collectors.toMap(Role::getName, v -> v));
     }
 
@@ -536,19 +537,36 @@ public class Organization extends AnypointObject {
     }
 
     public OrganizationDescriptor export(boolean stripIds) throws HttpException {
-        try {
-            ModelMapper mapper = client.getModelMapper();
-            OrganizationDescriptor org = new OrganizationDescriptor();
-            mapper.map(this,org);
-            if( stripIds ) {
-                org.setParentId(null);
-                org.setId(null);
+//        try {
+        ModelMapper mapper = client.getModelMapper();
+        OrganizationDescriptor org = new OrganizationDescriptor();
+        mapper.map(this, org);
+        if (stripIds) {
+            org.setParentId(null);
+            org.setId(null);
+        }
+//            exportEnvironments(mapper, org, stripIds);
+//            exportRoleGroups(mapper, org, stripIds);
+        exportAlerts(mapper, org, stripIds);
+        return org;
+//        } catch (NotFoundException e) {
+//            throw new UnexpectedException(e);
+//        }
+    }
+
+    private void exportAlerts(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
+        ArrayList<AlertDescriptor> alerts = new ArrayList<>();
+        ;
+        org.setRuntimeAlerts(alerts);
+        for (Environment environment : findAllEnvironments()) {
+            for (Alert alert : environment.findAlerts()) {
+                AlertDescriptor alertDesc = new AlertDescriptor();
+                mapper.map(alert, alertDesc);
+                if (stripIds) {
+                    alertDesc.setId(null);
+                }
+                alerts.add(alertDesc);
             }
-            exportEnvironments(mapper, org, stripIds);
-            exportRoleGroups(mapper, org, stripIds);
-            return org;
-        } catch (NotFoundException e) {
-            throw new UnexpectedException(e);
         }
     }
 
@@ -565,34 +583,34 @@ public class Organization extends AnypointObject {
                 RoleDescriptor role = new RoleDescriptor();
                 roles.add(role);
                 mapper.map(roleGroup, role);
-                if( stripIds ) {
+                if (stripIds) {
                     role.setId(null);
                 }
                 ArrayList<RolePermissionDescriptor> rolePermissions = new ArrayList<>();
                 role.setPermissions(rolePermissions);
-                Map<String,RolePermissionDescriptor> rolePermissionsIdx = new HashMap<>();
+                Map<String, RolePermissionDescriptor> rolePermissionsIdx = new HashMap<>();
                 for (RoleAssignment roleAssignment : roleGroup.findRoleAssignments()) {
                     String roleId = roleAssignment.getRoleId();
                     RolePermissionDescriptor rp = rolePermissionsIdx.get(roleId);
-                    if( rp == null ) {
+                    if (rp == null) {
                         rp = new RolePermissionDescriptor();
-                        mapper.map(roleAssignment,rp);
-                        if( stripIds ) {
+                        mapper.map(roleAssignment, rp);
+                        if (stripIds) {
                             rp.setId(null);
                             rp.setRoleId(null);
                         }
-                        rolePermissionsIdx.put(roleId,rp);
+                        rolePermissionsIdx.put(roleId, rp);
                         rolePermissions.add(rp);
                     }
                     String raOrgId = roleAssignment.getContextParams().get("org");
                     String raEnvId = roleAssignment.getContextParams().get("envId");
                     HashMap<String, Environment> envCache = new HashMap<>();
-                    if( raEnvId != null ) {
+                    if (raEnvId != null) {
                         Environment raEnv = envCache.get(raEnvId);
-                        if( raEnv == null ) {
+                        if (raEnv == null) {
                             Organization raOrg = id.equals(raOrgId) ? this : client.findOrganizationById(raOrgId);
                             raEnv = raOrg.findEnvironmentById(raEnvId);
-                            envCache.put(raEnvId,raEnv);
+                            envCache.put(raEnvId, raEnv);
                         }
                         rp.addEnvironment(raEnv.getName());
                     }
@@ -605,6 +623,21 @@ public class Organization extends AnypointObject {
     @NotNull
     private Role findRoleById(String roleId) throws HttpException, NotFoundException {
         return findAllRoles().stream().filter(r -> r.getId().equals(roleId)).findFirst().orElseThrow(() -> new NotFoundException("Role " + roleId + " not found"));
+    }
+
+    public ExchangeAsset publishExchangeAPIAsset(String assetId, String assetVersion, String assetAPIVersion, String assetClassifier, String assetMainFile, File file) throws IOException, HttpException {
+        final HttpHelper.MultiPartRequest req = getClient().getHttpHelper().createMultiPartPostRequest("/exchange/api/v1/assets", null);
+        req.addText("organizationId", id);
+        req.addText("groupId", id);
+        req.addText("assetId", assetId);
+        req.addText("version", assetVersion);
+        req.addText("name", assetId);
+        req.addText("classifier", assetClassifier);
+        req.addText("apiVersion", assetAPIVersion);
+        req.addText("main", assetMainFile);
+        req.addBinary("asset", new FileStreamSource(file));
+        final String json = req.execute();
+        return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
     }
 
     public enum RequestAPIAccessResult {

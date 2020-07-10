@@ -143,7 +143,7 @@ public class AbstractAnypointTest {
     }
 
     protected APIProvisioningResult provision(APIProvisioningConfig config, AnypointDescriptor apd2) throws ProvisioningException {
-        APIProvisioningResult provision = apd2.provision(env, config);
+        APIProvisioningResult provision = apd2.provision(env, config, null);
         // todo register client and delete them after tests
         return provision;
     }

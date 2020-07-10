@@ -38,10 +38,12 @@ public class OrganizationDescriptor {
     private int loadBalancer;
     private List<EnvironmentDescriptor> environments;
     private List<RoleDescriptor> roles;
+    private List<AlertDescriptor> runtimeAlerts;
 
     public void toMarkdown(Writer w, int headingDepth) throws IOException {
         if (environments != null && !environments.isEmpty()) {
             writeHeader(w, headingDepth + 1, "Environments");
+            writeParagraph(w,"Manual setup instruction: [https://docs.mulesoft.com/access-management/environments](https://docs.mulesoft.com/access-management/environments)");
             for (EnvironmentDescriptor environment : environments) {
                 writeHeader(w, headingDepth + 2, environment.getName());
                 writeParagraph(w, "Type: " + environment.getType());
@@ -50,31 +52,16 @@ public class OrganizationDescriptor {
         }
         if (roles != null && !roles.isEmpty()) {
             writeHeader(w, headingDepth + 1, "Roles");
+            writeParagraph(w,"Manual setup instruction: [https://docs.mulesoft.com/access-management/roles](https://docs.mulesoft.com/access-management/roles)");
             for (RoleDescriptor role : roles) {
-                writeHeader(w, headingDepth + 2, role.getName());
-                if (StringUtils.isNotEmpty(role.getDescription())) {
-                    writeParagraph(w, "Description: " + role.getDescription());
-                }
-                if (!role.getExternalNames().isEmpty()) {
-                    writeParagraph(w, "Mapped to SSO Roles: " + String.join(", ", role.getExternalNames()));
-                }
-                if (!role.getPermissions().isEmpty()) {
-                    writeParagraph(w, "Permissions:");
-                }
-                for (RolePermissionDescriptor permission : role.getPermissions()) {
-                    StringBuilder perms = new StringBuilder();
-                    perms.append("- " + permission.getName());
-                    if (!permission.getScopes().isEmpty()) {
-                        List<String> scopes = permission.getScopes().stream().map(RolePermissionScope::toShortMarkdown)
-                                .collect(Collectors.toList());
-                        perms.append(" for environment");
-                        if( scopes.size() > 1) {
-                            perms.append("s");
-                        }
-                        perms.append(": ").append(String.join(", ", scopes));
-                    }
-                    writeParagraph(w, perms.toString());
-                }
+                role.toMarkdown(w,headingDepth);
+            }
+        }
+        if (runtimeAlerts != null && !runtimeAlerts.isEmpty()) {
+            writeHeader(w, 1 + headingDepth, "Alerts");
+            writeParagraph(w,"Manual setup instruction: [https://docs.mulesoft.com/runtime-manager/alerts-on-runtime-manager](https://docs.mulesoft.com/runtime-manager/alerts-on-runtime-manager)");
+            for (AlertDescriptor alert : runtimeAlerts) {
+                alert.toMarkdown(w, headingDepth);
             }
         }
         w.write('\n');
@@ -221,6 +208,14 @@ public class OrganizationDescriptor {
 
     public void setLoadBalancer(int loadBalancer) {
         this.loadBalancer = loadBalancer;
+    }
+
+    public List<AlertDescriptor> getRuntimeAlerts() {
+        return runtimeAlerts;
+    }
+
+    public void setRuntimeAlerts(List<AlertDescriptor> runtimeAlerts) {
+        this.runtimeAlerts = runtimeAlerts;
     }
 
     public List<EnvironmentDescriptor> getEnvironments() {

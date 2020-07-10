@@ -15,7 +15,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeHeader;
+import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeParagraph;
 
 public class RoleDescriptor {
     private String id;
@@ -101,10 +107,10 @@ public class RoleDescriptor {
                         if( role == null ) {
                             throw new ProvisioningException("Role not found: "+permission.getName());
                         }
-                        List<RolePermissionScope> scopes = permission.getScopes();
+                        List<ProvisioningScope> scopes = permission.getScopes();
                         if( scopes != null && ! scopes.isEmpty() ) {
                             ArrayList<Environment> envs = new ArrayList<>(roleGroup.getParent().findAllEnvironments());
-                            for (RolePermissionScope scope : scopes) {
+                            for (ProvisioningScope scope : scopes) {
                                 for (Environment matchEnvironment : scope.matchEnvironments(envs)) {
                                     assignments.add(new RoleAssignmentAddition(role.getId(),matchEnvironment));
                                 }
@@ -118,6 +124,33 @@ public class RoleDescriptor {
             }
         } catch (NotFoundException e) {
             throw new ProvisioningException(e);
+        }
+    }
+
+    public void toMarkdown(Writer w, int headingDepth) throws IOException {
+        writeHeader(w, headingDepth + 2, getName());
+        if (StringUtils.isNotEmpty(getDescription())) {
+            writeParagraph(w, "Description: " + getDescription());
+        }
+        if (!getExternalNames().isEmpty()) {
+            writeParagraph(w, "Mapped to SSO Roles: " + String.join(", ", getExternalNames()));
+        }
+        if (!getPermissions().isEmpty()) {
+            writeParagraph(w, "Permissions:");
+        }
+        for (RolePermissionDescriptor permission : getPermissions()) {
+            StringBuilder perms = new StringBuilder();
+            perms.append("- ").append(permission.getName());
+            if (!permission.getScopes().isEmpty()) {
+                List<String> scopes = permission.getScopes().stream().map(ProvisioningScope::toShortMarkdown)
+                        .collect(Collectors.toList());
+                perms.append(" for environment");
+                if (scopes.size() > 1) {
+                    perms.append("s");
+                }
+                perms.append(": ").append(String.join(", ", scopes));
+            }
+            writeParagraph(w, perms.toString());
         }
     }
 }
