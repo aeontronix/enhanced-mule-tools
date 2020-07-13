@@ -10,6 +10,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/anypoint-mockserver/pom.xml" />
+        <option value="$PROJECT_DIR$/lib-desktop/pom.xml" />
       </set>
     </option>
   </component>

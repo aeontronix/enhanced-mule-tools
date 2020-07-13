@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added interactive authentication
 - Added RAML/OAS upload to exchange
 - Allow to override API Asset creation from Deploy Mojo
 - API Assets with OAS or RAML type will now automatically have it's type switched to HTTP when using snapshot version
