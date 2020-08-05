@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
+import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -14,8 +15,8 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeHeader;
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeParagraph;
@@ -93,14 +94,20 @@ public class OrganizationDescriptor {
         } else {
             throw new IllegalArgumentException("Organization descriptor must have an id or a name");
         }
+        ArrayList<Environment> envs = new ArrayList<>();
         if (environments != null) {
             for (EnvironmentDescriptor environment : environments) {
-                environment.provision(org);
+                envs.add(environment.provision(org));
             }
         }
         if (roles != null) {
             for (RoleDescriptor role : roles) {
-                role.provision(org);
+                role.provision(org,envs);
+            }
+        }
+        if( runtimeAlerts != null ) {
+            for (AlertDescriptor runtimeAlert : runtimeAlerts) {
+                runtimeAlert.provision(org,envs);
             }
         }
         return org;

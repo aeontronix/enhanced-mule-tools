@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning;
 
+import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.Organization;
 import com.aeontronix.enhancedmule.tools.alert.AlertAction;
 import com.aeontronix.enhancedmule.tools.alert.AlertSeverity;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -116,5 +118,9 @@ public class AlertDescriptor {
                 writeParagraph(w,"> "+action.getContent().replaceAll("\n","\n> "));
             }
         }
+    }
+
+    public void provision(Organization org, ArrayList<Environment> envs) {
+
     }
 }

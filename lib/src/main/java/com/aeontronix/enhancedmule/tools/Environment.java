@@ -40,6 +40,7 @@ public class Environment extends AnypointObject<Organization> {
     private boolean production;
     private Type type;
     private String clientId;
+    private String group;
 
     public Environment() {
     }
@@ -74,6 +75,15 @@ public class Environment extends AnypointObject<Organization> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonIgnore
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     @JsonProperty("isProduction")

@@ -4,7 +4,6 @@
 
 POST https://anypoint.mulesoft.com/apimanager/api/v1/organizations/afac985c-1a3b-4750-89ab-58589dca0bb8/environments/6507f2de-72c6-499b-b1d3-afc70406ffbc/apis
 
-
 ```
 {
   "endpoint": {

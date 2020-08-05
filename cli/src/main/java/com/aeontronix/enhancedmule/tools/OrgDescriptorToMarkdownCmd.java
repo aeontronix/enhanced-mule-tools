@@ -22,7 +22,7 @@ public class OrgDescriptorToMarkdownCmd extends CliCommand<AnypointCli> {
     private boolean usageHelpRequested;
     @CommandLine.Parameters(description = "Org descriptor file")
     private File file;
-    @CommandLine.Option(names = {"-h", "--heading-depth"}, description = "Heading depth")
+    @CommandLine.Option(names = {"-d", "--heading-depth"}, description = "Heading depth")
     private int headingDepth = 0;
 
     @Override

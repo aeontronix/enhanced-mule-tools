@@ -6,8 +6,8 @@ package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.Environment;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
+import com.kloudtek.util.UnexpectedException;
 
-import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,14 +42,26 @@ public class ProvisioningScope {
 
     public Set<Environment> matchEnvironments(Collection<Environment> environments) throws NotFoundException {
         Stream<Environment> s = environments.stream();
-        if( type == Type.ANY ) {
-            return new HashSet<>(environments);
-        } else if( type == Type.ENV ) {
-            s = s.filter(e -> scope.equals(e.getName()));
-        } else if( type == Type.ENV_TYPE ) {
-            s = s.filter(e -> e.getType().equals(Environment.Type.valueOf(scope.toUpperCase())));
-        } else if( type == Type.ENV_RGX ) {
-            s = s.filter(e -> scope.matches(scope));
+        switch (type) {
+            case ENV_ALL:
+                return new HashSet<>(environments);
+            case ENV:
+                s = s.filter(e -> scope.equals(e.getName()));
+                break;
+            case ENV_TYPE:
+                s = s.filter(e -> e.getType().equals(Environment.Type.valueOf(scope.toUpperCase())));
+                break;
+            case ENV_RGX:
+                s = s.filter(e -> scope.matches(scope));
+                break;
+            case ENV_GROUP:
+                s = s.filter(e -> e.getGroup() != null && e.getGroup().equals(scope));
+                break;
+            case ENV_NONPROD:
+                s = s.filter(e -> !e.getType().equals(Environment.Type.PRODUCTION));
+                break;
+            default:
+                throw new UnexpectedException("Invalid scope: "+type);
         }
         return s.collect(Collectors.toSet());
     }
@@ -62,7 +74,11 @@ public class ProvisioningScope {
                 return "Regex("+scope+")";
             case ENV_TYPE:
                 return "Type("+scope+")";
-            case ANY:
+            case ENV_GROUP:
+                return "Group("+scope+")";
+            case ENV_NONPROD:
+                return "Non-Prod";
+            case ENV_ALL:
                 return "*All*";
             default:
                 return type+"("+scope+")";
@@ -70,6 +86,6 @@ public class ProvisioningScope {
     }
 
     public enum Type {
-        ENV, ENV_RGX, ENV_TYPE, ANY
+        ENV, ENV_RGX, ENV_TYPE, ENV_ALL, ENV_GROUP, ENV_NONPROD
     }
 }

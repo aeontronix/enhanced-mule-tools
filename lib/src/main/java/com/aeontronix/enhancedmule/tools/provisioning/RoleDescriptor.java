@@ -13,7 +13,9 @@ import com.aeontronix.enhancedmule.tools.role.RoleGroup;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.ThreadUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -22,8 +24,10 @@ import java.util.stream.Collectors;
 
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeHeader;
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeParagraph;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class RoleDescriptor {
+    private static final Logger logger = getLogger(RoleDescriptor.class);
     private String id;
     private String name;
     private String description;
@@ -57,7 +61,7 @@ public class RoleDescriptor {
 
     @NotNull
     public Set<String> getExternalNames() {
-        if( externalNames == null ) {
+        if (externalNames == null) {
             externalNames = new HashSet<>();
         }
         return externalNames;
@@ -69,7 +73,7 @@ public class RoleDescriptor {
 
     @NotNull
     public List<RolePermissionDescriptor> getPermissions() {
-        if( permissions == null ) {
+        if (permissions == null) {
             permissions = new ArrayList<>();
         }
         return permissions;
@@ -79,47 +83,57 @@ public class RoleDescriptor {
         this.permissions = permissions;
     }
 
-    public void provision(Organization org) throws ProvisioningException, HttpException {
+    public void provision(Organization org, ArrayList<Environment> envs) throws ProvisioningException, HttpException {
         try {
-            if(StringUtils.isBlank(name)) {
+            if (StringUtils.isBlank(name)) {
                 throw new ProvisioningException("role name missing");
             }
             List<RoleGroup> roleGroups = org.findAllRoleGroups().getAll();
             Optional<RoleGroup> roleGroupOpt = roleGroups.stream().filter(roleGroup -> roleGroup.getName().equalsIgnoreCase(name)).findFirst();
             RoleGroup roleGroup;
-            if( ! roleGroupOpt.isPresent() ) {
+            if (!roleGroupOpt.isPresent()) {
                 roleGroup = org.createRoleGroup(name, description);
             } else {
                 roleGroup = roleGroupOpt.get();
-                if(!roleGroup.same(this)) {
+                if (!roleGroup.same(this)) {
                     roleGroup.setDescription(description);
                     roleGroup.setExternalNames(externalNames);
                     roleGroup.update();
                 }
             }
-            if( roleGroup.isEditable() ) {
-                roleGroup.deleteAllRoleAssignment();
-                if( permissions != null && ! permissions.isEmpty() ) {
+            if (roleGroup.isEditable()) {
+                do {
+                    roleGroup.deleteAllRoleAssignment();
+                    ThreadUtils.sleep(1000);
+                } while (roleGroup.findRoleAssignments().size() > 0);
+                if (permissions != null && !permissions.isEmpty()) {
                     Map<String, Role> roles = roleGroup.getParent().findAllRolesIndexedByName();
-                    ArrayList<RoleAssignmentAddition> assignments = new ArrayList<>();
+                    HashSet<RoleAssignmentAddition> assignments = new HashSet<>();
                     for (RolePermissionDescriptor permission : permissions) {
                         Role role = roles.get(permission.getName());
-                        if( role == null ) {
-                            throw new ProvisioningException("Role not found: "+permission.getName());
+                        if (role == null) {
+                            throw new ProvisioningException("Role not found: " + permission.getName());
                         }
                         List<ProvisioningScope> scopes = permission.getScopes();
-                        if( scopes != null && ! scopes.isEmpty() ) {
-                            ArrayList<Environment> envs = new ArrayList<>(roleGroup.getParent().findAllEnvironments());
+                        if (!scopes.isEmpty()) {
                             for (ProvisioningScope scope : scopes) {
                                 for (Environment matchEnvironment : scope.matchEnvironments(envs)) {
-                                    assignments.add(new RoleAssignmentAddition(role.getId(),matchEnvironment));
+                                    logger.debug("Assigning role " + role.getName() + " with env " + matchEnvironment.getName() + " to " + roleGroup.getName());
+                                    assignments.add(new RoleAssignmentAddition(role.getId(), matchEnvironment));
                                 }
                             }
                         } else {
-                            assignments.add(new RoleAssignmentAddition(role.getId(),null));
+                            logger.debug("Assigning role " + role.getName() + " to " + roleGroup.getName());
+                            assignments.add(new RoleAssignmentAddition(role.getId(), null));
                         }
                     }
-                    roleGroup.assignRoles(assignments);
+                    try {
+                        roleGroup.assignRoles(assignments);
+                        assignments.clear();
+                    } catch (HttpException | RuntimeException e) {
+                        logger.error("Failed to assign roles to " + roleGroup.getName() + " : " + assignments);
+                        throw e;
+                    }
                 }
             }
         } catch (NotFoundException e) {

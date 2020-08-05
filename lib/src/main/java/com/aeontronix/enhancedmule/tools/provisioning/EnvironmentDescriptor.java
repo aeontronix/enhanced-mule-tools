@@ -18,6 +18,7 @@ public class EnvironmentDescriptor {
     private static final Logger logger = getLogger(EnvironmentDescriptor.class);
     private String name;
     private String description;
+    private String group;
     private Environment.Type type;
 
     public Environment provision(Organization org) throws HttpException, ProvisioningException {
@@ -30,6 +31,9 @@ public class EnvironmentDescriptor {
         } catch (NotFoundException e) {
             env = org.createEnvironment(name, type);
             logger.info("Created environment {}", name);
+        }
+        if( group != null ) {
+            env.setGroup(group);
         }
         return env;
     }
@@ -49,6 +53,14 @@ public class EnvironmentDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     @JsonProperty(required = true)
