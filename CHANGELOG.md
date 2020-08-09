@@ -4,14 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 1.1.3
 
 ### Added
 
-- Added interactive authentication
 - Added RAML/OAS upload to exchange
 - Allow to override API Asset creation from Deploy Mojo
-- API Assets with OAS or RAML type will now automatically have it's type switched to HTTP when using snapshot version
+- Checks roles permissions have been async deleted before re-assigning
 
 ### Changed
 
