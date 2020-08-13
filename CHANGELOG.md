@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Allows individual properties to be passed into maven uding -Danypoint.deploy.properties.*[propertyname]*
+- Allows individual properties to be passed into maven using -Danypoint.deploy.properties.*[propertyname]*
 
 ## 1.1.3
 
