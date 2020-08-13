@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added RAML/OAS upload to exchange
 - Allow to override API Asset creation from Deploy Mojo
 - Checks roles permissions have been async deleted before re-assigning
+- Allows individual properties to be passed into maven uding -Danypoint.deploy.properties.*[propertyname]*
 
 ### Changed
 
