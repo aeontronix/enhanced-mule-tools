@@ -199,7 +199,9 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     protected DeploymentResult deploy(Environment environment,
                                       @NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
-        findDeployProperties(project.getProperties());
+        if( project != null ) {
+            findDeployProperties(project.getProperties());
+        }
         findDeployProperties(session.getUserProperties());
         findDeployProperties(session.getSystemProperties());
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
