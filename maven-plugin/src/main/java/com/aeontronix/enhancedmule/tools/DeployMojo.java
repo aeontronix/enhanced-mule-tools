@@ -15,6 +15,7 @@ import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.io.IOUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -38,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends AbstractEnvironmentalMojo {
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
+    public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     /**
      * If true API provisioning will be skipped
      */
@@ -190,11 +192,16 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     private boolean staticIPs;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    private MavenSession session;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,
                                       @NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
+        findDeployProperties(project.getProperties());
+        findDeployProperties(session.getUserProperties());
+        findDeployProperties(session.getSystemProperties());
         ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
         try {
             if (StringUtils.isBlank(target)) {
@@ -226,6 +233,22 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
             }
         } finally {
             IOUtils.close(applicationSource);
+        }
+    }
+
+    private void findDeployProperties(Properties properties) {
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            String key = entry.getKey().toString();
+            if( key.startsWith(ANYPOINT_DEPLOY_PROPERTIES) ) {
+                key = key.substring(ANYPOINT_DEPLOY_PROPERTIES.length());
+                if( StringUtils.isNotBlank(key) ) {
+                    String value = entry.getValue().toString();
+                    if( this.properties == null ) {
+                        this.properties = new HashMap<>();
+                    }
+                    this.properties.put(key,value);
+                }
+            }
         }
     }
 

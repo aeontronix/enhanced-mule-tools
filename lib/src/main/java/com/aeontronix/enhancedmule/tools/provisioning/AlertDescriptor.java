@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeHeader;
 import static com.aeontronix.enhancedmule.tools.util.MarkdownHelper.writeParagraph;
