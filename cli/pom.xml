@@ -54,8 +54,6 @@
                             <mainClass>com.aeontronix.enhancedmule.tools.AnypointCli</mainClass>
                         </transformer>
                     </transformers>
-                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                    <shadedClassifierName>nodeps</shadedClassifierName>
                 </configuration>
                 <executions>
                     <execution>
