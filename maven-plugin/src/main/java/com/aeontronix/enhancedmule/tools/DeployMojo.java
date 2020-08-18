@@ -302,7 +302,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         fileProps.load(fis);
                     }
                     for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
-                        String key = entry.toString();
+                        String key = entry.getKey().toString();
                         if( ! properties.containsKey(key) ) {
                             properties.put(key,entry.getValue().toString());
                         }
