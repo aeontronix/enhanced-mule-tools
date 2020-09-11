@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.maven</groupId>
         <artifactId>aeontronix-oss-parent-pom</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
     </parent>
 
     <groupId>com.aeontronix.enhanced-mule</groupId>
@@ -18,7 +18,7 @@
     <description>Automation tools for mulesoft's anypoint platform</description>
     <url>https://aeontronix.gitlab.io/oss/enhanced-mule-tools/</url>
     <packaging>pom</packaging>
-    <version>1.1.6-SNAPSHOT</version>
+    <version>1.1.7-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
