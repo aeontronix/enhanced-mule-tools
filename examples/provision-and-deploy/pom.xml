@@ -40,6 +40,7 @@
                 <executions>
                     <execution>
                         <goals>
+                            <goal>auth</goal>
                             <goal>process-descriptor</goal>
                             <goal>deploy</goal>
                         </goals>

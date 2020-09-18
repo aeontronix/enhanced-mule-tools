@@ -23,8 +23,8 @@ import java.util.List;
 /**
  * Prepare a project for deployment to anypoint exchange maven.
  */
-@Mojo(name = "prepare-exchange-publish", defaultPhase = LifecyclePhase.VALIDATE)
-public class PrepareExchangePublish extends AbstractOrganizationalMojo {
+@Mojo(name = "auth", defaultPhase = LifecyclePhase.VALIDATE)
+public class AuthenticateMojo extends AbstractOrganizationalMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
@@ -34,43 +34,42 @@ public class PrepareExchangePublish extends AbstractOrganizationalMojo {
      */
     @Parameter(defaultValue = "maven.anypoint.mulesoft.com")
     private String mavenExchangeDomain;
-    @Parameter(defaultValue = "false", property = "anypoint.prepare.updateVersionIfSnapshot")
-    private boolean updateVersionIfSnapshot;
-    @Parameter(defaultValue = "false")
-    private boolean addDistributionManagement;
-    @Parameter(defaultValue = "false")
-    private boolean addUserOrgsRepos;
-    @Parameter(defaultValue = "false", property = "anypoint.prepare.skip")
+    @Parameter(defaultValue = "true")
+    private boolean addServerCredentials;
+    @Parameter(defaultValue = "anypoint-exchange-v2")
+    private String serverId;
+    @Parameter(defaultValue = "false", property = "anypoint.auth.skip")
     private boolean skip;
 
     @Override
     protected void doExecute() throws Exception {
-        Organization organization = getOrganization();
         if (!skip) {
-            String groupId = organization.getId();
-            project.setGroupId(groupId);
-            if (project.getAttachedArtifacts() != null) {
-                for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-                    attachedArtifact.setGroupId(groupId);
-                }
-            }
-            if (project.getArtifact() != null) {
-                project.getArtifact().setGroupId(groupId);
-            }
-            if (addDistributionManagement) {
-                MavenArtifactRepository repo = new MavenArtifactRepository();
-                repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication(username, password));
-                repo.setId("exchange-maven-" + organization.getId());
-                repo.setUrl("https://" + mavenExchangeDomain + "/api/v1/organizations/" + organization.getId() + "/maven");
-                repo.setLayout(new DefaultRepositoryLayout());
-                project.setReleaseArtifactRepository(repo);
-            }
-            if (addUserOrgsRepos) {
+//            String groupId = organization.getId();
+//            project.setGroupId(groupId);
+//            if (project.getAttachedArtifacts() != null) {
+//                for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
+//                    attachedArtifact.setGroupId(groupId);
+//                }
+//            }
+//            if (project.getArtifact() != null) {
+//                project.getArtifact().setGroupId(groupId);
+//            }
+//            if (addServerCredentials) {
+//                MavenArtifactRepository repo = new MavenArtifactRepository();
+//                repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication(username, password));
+//                repo.setId("exchange-maven-" + organization.getId());
+//                repo.setUrl("https://" + mavenExchangeDomain + "/api/v1/organizations/" + organization.getId() + "/maven");
+//                repo.setLayout(new DefaultRepositoryLayout());
+//                project.setReleaseArtifactRepository(repo);
+//            }
+            String token = getClient().getBearerToken();
+            Organization organization = getOrganization();
+            if (addServerCredentials) {
                 AuthenticationSelector authenticationSelector = session.getRepositorySession().getAuthenticationSelector();
                 List<Organization> orgs = getClient().getUser().getMemberOfOrganizations();
                 if (orgs != null) {
                     for (Organization org : orgs) {
-                        MavenUtils.addRepositoryUsernamePassword(authenticationSelector, "exchange-maven-" + org.getId(), username, password);
+                        MavenUtils.addRepositoryUsernamePassword(authenticationSelector, serverId, username, password);
                     }
                 }
             }

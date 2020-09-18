@@ -370,4 +370,8 @@ public class AnypointClient implements Closeable, Serializable {
     public void unsetProxy() {
         httpHelper.unsetProxy();
     }
+
+    public String getBearerToken() throws HttpException {
+        return getHttpHelper().getAuthToken();
+    }
 }

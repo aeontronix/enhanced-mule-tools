@@ -14,6 +14,7 @@ import com.kloudtek.kryptotek.key.RSAKeyPair;
 import com.kloudtek.kryptotek.key.RSAPrivateKey;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.URLBuilder;
+import com.kloudtek.util.UUIDFactory;
 import com.kloudtek.util.UnexpectedException;
 import org.slf4j.Logger;
 
@@ -53,9 +54,10 @@ public class InteractiveAuthenticationProvider extends AuthenticationProvider {
             final RSAKeyPair keyPair = CryptoUtils.generateRSAKeyPair(2048);
             HashMap<String, String> req = new HashMap<>();
             ServerSocket serverSocket = new ServerSocket(0);
+            req.put("requestId", UUIDFactory.generate().toString());
             req.put("url", "http://localhost:" + serverSocket.getLocalPort());
             req.put("key", StringUtils.base64Encode(keyPair.getPublicKey().getEncoded().getEncodedKey()));
-            final String json = httpHelper.httpPost(new URLBuilder(serverUrl).path("public/emt/sso").toString(), req);
+            final String json = httpHelper.httpPost(new URLBuilder(serverUrl).path("public/anypoint/token").toString(), req);
             String redirectUrl = objectMapper.readValue(json, String.class);
             logger.info("Interactive Single Sign On Login - Please complete authentication using browser");
             Desktop.getDesktop().browse(URI.create(redirectUrl));

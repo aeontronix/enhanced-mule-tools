@@ -57,6 +57,13 @@ public class HttpHelper implements Closeable {
         httpClient.close();
     }
 
+    public String getAuthToken() throws HttpException {
+        if( authToken == null ) {
+            this.authToken = authenticationProvider.getBearerToken(this);
+        }
+        return this.authToken;
+    }
+
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }

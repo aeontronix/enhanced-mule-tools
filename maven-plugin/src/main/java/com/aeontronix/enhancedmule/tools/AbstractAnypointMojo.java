@@ -4,10 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderBearerTokenImpl;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderConnectedAppsImpl;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.authentication.*;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,6 +44,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.bearer")
     protected String bearer;
+    @Parameter(property = "enhancedmule.server.url",defaultValue = "https://www.enhanced-mule.com")
+    protected String enhancedMuleServerUrl;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
 
@@ -62,11 +61,11 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 logger.debug("Using client credentials: {}", clientId);
                 authenticationProvider = new AuthenticationProviderConnectedAppsImpl(clientId, clientSecret);
             } else {
+                authenticationProvider = new InteractiveAuthenticationProvider(enhancedMuleServerUrl);
                 throw new IllegalArgumentException("No authentication credentials specified (username/password, client id/secret or bearer)");
             }
             client = new AnypointClient(authenticationProvider);
         }
-
         Proxy proxy = settings.getActiveProxy();
         logger.debug("Checking debug settings");
         if (proxy != null) {
