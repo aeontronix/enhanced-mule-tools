@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.enhancedmule.tools.NotFoundException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
@@ -14,9 +14,6 @@ import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.aeontronix.enhancedmule.tools.runtime.CHDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
-import com.aeontronix.enhancedmule.tools.util.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,10 +95,10 @@ public class CHDeploymentRequest extends DeploymentRequest {
         if (source.getLocalFile() != null) {
             HttpHelper.MultiPartRequest req;
             if (existingApp != null) {
-                req = httpHelper.createMultiPartPutRequest("/cloudhub/api/v2/applications/" + existingApp.getDomain(),
+                req = httpHelper.createAnypointMultiPartPutRequest("/cloudhub/api/v2/applications/" + existingApp.getDomain(),
                         environment);
             } else {
-                req = httpHelper.createMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment());
+                req = httpHelper.createAnypointMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment());
                 req = req.addText("autoStart", "true");
             }
             String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
@@ -124,10 +121,10 @@ public class CHDeploymentRequest extends DeploymentRequest {
             deployJson.put("applicationInfo", appInfo);
             deployJson.put("applicationSource", source.getSourceJson(client.getJsonHelper()));
             if (existingApp != null) {
-                deploymentJson = httpHelper.httpPut("/cloudhub/api/v2/applications/" + existingApp.getDomain(), deployJson, environment);
+                deploymentJson = httpHelper.anypointHttpPut("/cloudhub/api/v2/applications/" + existingApp.getDomain(), deployJson, environment);
             } else {
                 deployJson.put("autoStart", true);
-                deploymentJson = httpHelper.httpPost("/cloudhub/api/v2/applications/", deployJson, environment);
+                deploymentJson = httpHelper.anypointHttpPost("/cloudhub/api/v2/applications/", deployJson, environment);
             }
         }
         if (logger.isDebugEnabled()) {

@@ -68,7 +68,7 @@ public class AbstractAnypointTest {
             env = org.findEnvironmentByName(orgName);
         } else {
             client = new AnypointClient();
-            HttpHelperReplayer httpHelper = new HttpHelperReplayer(testRecordingFile);
+            HttpHelperReplayer httpHelper = new HttpHelperReplayer(client.getJsonHelper(),testRecordingFile);
             orgName = httpHelper.getOrgName();
             client.setHttpHelper(httpHelper);
             org = client.findOrganization(orgName);

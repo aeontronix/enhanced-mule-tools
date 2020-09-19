@@ -20,7 +20,7 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AuthenticationProvider {
-    public abstract String getBearerToken(HttpHelper httpHelper) throws HttpException;
+    public abstract AccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException;
 
     public EMHttpClient createHttpClient() {
         return createHttpClient(null,null,null);

@@ -10,10 +10,7 @@ import com.aeontronix.enhancedmule.tools.exchange.*;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
-import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kloudtek.util.BackendAccessException;
@@ -418,7 +415,7 @@ public class Organization extends AnypointObject {
                 Environment env = subOrg.findEnvironmentByName(e);
                 eId.add(env.getId());
                 Map<String, Object> req = jsonHelper.buildJsonMap().set("id", vpc.getId()).set("isDefault", vpc.isDefaultVpc()).set("associatedEnvironments", eId).toMap();
-                client.httpHelper.httpPut("/cloudhub/api/organizations/" + subOrg.getId() + "/vpcs/" + vpc.getId(), req, env);
+                client.httpHelper.anypointHttpPut("/cloudhub/api/organizations/" + subOrg.getId() + "/vpcs/" + vpc.getId(), req, env);
             }
         }
         return client.getJsonHelper().readJson(new VPC(), client.httpHelper.httpGet("/cloudhub/api/organizations/" + id + "/vpcs/" + vpc.getId()));
@@ -520,7 +517,7 @@ public class Organization extends AnypointObject {
     }
 
     public void createExchangeHTTPAPIAsset(String groupId, String name, String assetId, String version, String apiVersion) throws AssetCreationException {
-        HttpHelper.MultiPartRequest req = httpHelper.createMultiPartPostRequest("/exchange/api/v1/assets", null);
+        HttpHelper.MultiPartRequest req = httpHelper.createAnypointMultiPartPostRequest("/exchange/api/v1/assets", null);
         req.addText("organizationId", id);
         req.addText("groupId", groupId == null ? id : groupId);
         req.addText("assetId", assetId);
@@ -626,7 +623,7 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset publishExchangeAPIAsset(String assetId, String assetVersion, String assetAPIVersion, String assetClassifier, String assetMainFile, File file) throws IOException, HttpException {
-        final HttpHelper.MultiPartRequest req = getClient().getHttpHelper().createMultiPartPostRequest("/exchange/api/v1/assets", null);
+        final HttpHelper.MultiPartRequest req = getClient().getHttpHelper().createAnypointMultiPartPostRequest("/exchange/api/v1/assets", null);
         req.addText("organizationId", id);
         req.addText("groupId", id);
         req.addText("assetId", assetId);

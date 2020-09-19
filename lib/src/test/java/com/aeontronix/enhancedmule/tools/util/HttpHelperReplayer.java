@@ -19,7 +19,8 @@ public class HttpHelperReplayer extends HttpHelper {
     private String orgName;
     private Map<String, List<HttpHelperOperation>> opMap = new HashMap<>();
 
-    public HttpHelperReplayer(@NotNull File recordingFile) throws IOException {
+    public HttpHelperReplayer(JsonHelper jsonHelper, @NotNull File recordingFile) throws IOException {
+        super(jsonHelper, null);
         HttpHelperRecording recording = new ObjectMapper().readValue(recordingFile, HttpHelperRecording.class);
         orgName = recording.getOrgName();
         for (HttpHelperOperation op : recording.getOperations()) {

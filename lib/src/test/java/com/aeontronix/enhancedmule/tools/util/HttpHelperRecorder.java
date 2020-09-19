@@ -20,7 +20,7 @@ public class HttpHelperRecorder extends HttpHelper {
     private HttpHelperRecording recording = new HttpHelperRecording();
 
     public HttpHelperRecorder(AnypointClient client, AuthenticationProvider authenticationProvider, String orgName) {
-        super(client, authenticationProvider);
+        super(client.getJsonHelper(), authenticationProvider);
         recording.setOrgName(orgName);
     }
 

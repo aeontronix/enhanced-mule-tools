@@ -46,11 +46,11 @@ public class HDeploymentRequest extends DeploymentRequest {
             logger.debug("Searching for pre-existing application named " + appName);
             HApplication application = target.findApplication(appName);
             logger.debug("Found application named {} : {}", appName, application.getId());
-            request = httpHelper.createMultiPartPatchRequest("/hybrid/api/v1/applications/" + application.getId(),
+            request = httpHelper.createAnypointMultiPartPatchRequest("/hybrid/api/v1/applications/" + application.getId(),
                     target.getParent());
         } catch (NotFoundException e) {
             logger.debug("Couldn't find application named {}", appName);
-            request = httpHelper.createMultiPartPostRequest("/hybrid/api/v1/applications", environment);
+            request = httpHelper.createAnypointMultiPartPostRequest("/hybrid/api/v1/applications", environment);
         }
         jsonHelper = target.getClient().getJsonHelper();
         HttpHelper.MultiPartRequest multiPartRequest = request.addText("artifactName", appName)

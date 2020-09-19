@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
+import com.aeontronix.enhancedmule.tools.authentication.AccessTokens;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentService;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 public class AnypointClient implements Closeable, Serializable {
     private static Pattern idRegex = Pattern.compile("[a-zA-Z0-9\\-]+");
     private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
-    protected JsonHelper jsonHelper;
+    protected JsonHelper jsonHelper = new JsonHelper();
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
@@ -60,17 +61,17 @@ public class AnypointClient implements Closeable, Serializable {
 
     public AnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
         this.maxParallelDeployments = maxParallelDeployments;
-        httpHelper = new HttpHelper(this, authenticationProvider);
+        httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
         init();
     }
 
     private void init() {
+        jsonHelper.setClient(this);
         try {
             cliClient = new OCliClient();
         } catch (IllegalStateException e) {
             logger.debug("Anypoint cli not available", e);
         }
-        jsonHelper = new JsonHelper(this);
         deploymentService = loadService(DeploymentService.class);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
         modelMapper = new ModelMapper();
@@ -88,7 +89,7 @@ public class AnypointClient implements Closeable, Serializable {
                     JsonNode usernameNode = def.get("username");
                     JsonNode passwordNode = def.get("password");
                     if (usernameNode != null && passwordNode != null && !usernameNode.isNull() && !passwordNode.isNull()) {
-                        httpHelper = new HttpHelper(this, new AuthenticationProviderUsernamePasswordImpl(usernameNode.asText(), passwordNode.asText()));
+                        httpHelper = new HttpHelper(jsonHelper, new AuthenticationProviderUsernamePasswordImpl(usernameNode.asText(), passwordNode.asText()));
                         return true;
                     }
                 }
@@ -233,11 +234,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     public void setHttpHelper(HttpHelper httpHelper) {
         this.httpHelper = httpHelper;
-        httpHelper.setClient(this);
-    }
-
-    public void setAuthToken(String authToken) {
-        httpHelper.setAuthToken(authToken);
     }
 
     public Environment findEnvironment(String organizationName, String environmentName, boolean createOrganization, boolean createEnvironment, Environment.Type createEnvironmentType) throws NotFoundException, HttpException {
@@ -371,7 +367,7 @@ public class AnypointClient implements Closeable, Serializable {
         httpHelper.unsetProxy();
     }
 
-    public String getBearerToken() throws HttpException {
+    public AccessTokens getBearerToken() throws HttpException {
         return getHttpHelper().getAuthToken();
     }
 }

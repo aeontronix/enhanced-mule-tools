@@ -24,7 +24,7 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
     }
 
     @Override
-    public String getBearerToken(HttpHelper httpHelper) throws HttpException {
+    public AccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException {
         try {
             if (StringUtils.isBlank(clientId)) {
                 throw new IllegalArgumentException("Client ID is missing");
@@ -38,7 +38,7 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
             request.put("grant_type", "client_credentials");
             httpHelper.setLoginRequest(true);
             Map data = objectMapper.readValue(httpHelper.httpPost("/accounts/api/v2/oauth2/token", request),Map.class);
-            return (String) data.get("access_token");
+            return new AccessTokens(null,(String) data.get("access_token"));
         } catch (IOException e) {
             throw new HttpException(e);
         }

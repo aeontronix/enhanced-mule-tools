@@ -4,16 +4,15 @@
 
 package com.aeontronix.enhancedmule.tools.authentication;
 
-import com.aeontronix.enhancedmule.tools.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
+import com.aeontronix.enhancedmule.tools.util.restclient.RESTClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.kryptotek.CryptoUtils;
 import com.kloudtek.kryptotek.DecryptionException;
+import com.kloudtek.kryptotek.SymmetricAlgorithm;
 import com.kloudtek.kryptotek.key.RSAKeyPair;
 import com.kloudtek.kryptotek.key.RSAPrivateKey;
 import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.URLBuilder;
 import com.kloudtek.util.UUIDFactory;
 import com.kloudtek.util.UnexpectedException;
 import org.slf4j.Logger;
@@ -25,31 +24,29 @@ import java.net.Socket;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class InteractiveAuthenticationProvider extends AuthenticationProvider {
+public class EMuleInteractiveAuthenticator {
     public static final Pattern REQ_MATCHER = Pattern.compile("GET.*?\\?tokens=(.*)\\s*?HTTP/1\\.1");
-    private static final Logger logger = getLogger(InteractiveAuthenticationProvider.class);
-    private final ObjectMapper objectMapper;
-    private String serverUrl;
+    private static final Logger logger = getLogger(EMuleInteractiveAuthenticator.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private RESTClient restClient;
 
-    public InteractiveAuthenticationProvider(String serverUrl) {
-        this.serverUrl = serverUrl;
-        objectMapper = new ObjectMapper();
+    public EMuleInteractiveAuthenticator(RESTClient restClient) {
+        this.restClient = restClient;
     }
 
     public static void main(String[] args) throws Exception {
-        final AnypointClient client = new AnypointClient(new InteractiveAuthenticationProvider("http://localhost:8080/api"));
-        client.getUser();
+        final RESTClient restClient = new RESTClient();
+        restClient.setBaseUrl("http://localhost:8080/api");
+        new EMuleInteractiveAuthenticator(restClient).authenticate();
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public String getBearerToken(HttpHelper httpHelper) throws HttpException {
+    public AccessTokens authenticate() throws HttpException {
         try {
             final RSAKeyPair keyPair = CryptoUtils.generateRSAKeyPair(2048);
             HashMap<String, String> req = new HashMap<>();
@@ -57,8 +54,7 @@ public class InteractiveAuthenticationProvider extends AuthenticationProvider {
             req.put("requestId", UUIDFactory.generate().toString());
             req.put("url", "http://localhost:" + serverSocket.getLocalPort());
             req.put("key", StringUtils.base64Encode(keyPair.getPublicKey().getEncoded().getEncodedKey()));
-            final String json = httpHelper.httpPost(new URLBuilder(serverUrl).path("public/anypoint/token").toString(), req);
-            String redirectUrl = objectMapper.readValue(json, String.class);
+            String redirectUrl = restClient.postJson("/public/anypoint/token", req).execute(String.class);
             logger.info("Interactive Single Sign On Login - Please complete authentication using browser");
             Desktop.getDesktop().browse(URI.create(redirectUrl));
             return handleCallback(serverSocket, keyPair.getPrivateKey());
@@ -68,7 +64,7 @@ public class InteractiveAuthenticationProvider extends AuthenticationProvider {
     }
 
     @SuppressWarnings("unchecked")
-    public String handleCallback(ServerSocket serverSocket, RSAPrivateKey privateKey) throws IOException {
+    public AccessTokens handleCallback(ServerSocket serverSocket, RSAPrivateKey privateKey) throws IOException {
         try (final Socket connection = serverSocket.accept();
              BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              PrintStream pout = new PrintStream(new BufferedOutputStream(connection.getOutputStream()))
@@ -82,17 +78,18 @@ public class InteractiveAuthenticationProvider extends AuthenticationProvider {
             if (!matcher.find()) {
                 pout.print("HTTP/1.0 400 Bad Request");
             } else {
-                String token = matcher.group(1);
+                AccessTokens tokens;
+                String encryptedTokenStr = matcher.group(1);
                 try {
-                    final byte[] decrypt = CryptoUtils.decrypt(privateKey, StringUtils.base64Decode(token, true));
-                    final Map<String, String> response = objectMapper.readValue(decrypt, Map.class);
-                    token = response.get("accessToken");
+                    final byte[] decrypt = CryptoUtils.decrypt(privateKey, SymmetricAlgorithm.AES, 256, StringUtils.base64Decode(encryptedTokenStr, true));
+                    tokens = objectMapper.readValue(decrypt, AccessTokens.class);
                 } catch (DecryptionException e) {
                     sendResponse(pout, "400 Bad Request", null);
+                    return null;
                 }
                 String response = "<html><body><center><h1>Authentication Successful</h1><h3>You can now close this window</h3></center></body></html>";
                 sendResponse(pout, "200 OK", response);
-                return token;
+                return tokens;
             }
         }
         return null;

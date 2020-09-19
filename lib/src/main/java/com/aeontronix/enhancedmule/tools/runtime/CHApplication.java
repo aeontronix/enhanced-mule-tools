@@ -90,7 +90,7 @@ public class CHApplication extends AnypointObject<Environment> {
     public static CHApplication find(Environment environment, String domain) throws HttpException, NotFoundException {
         AnypointClient client = environment.getClient();
         try {
-            String json = client.getHttpHelper().httpGet("/cloudhub/api/v2/applications/" + domain, environment);
+            String json = client.getHttpHelper().anypointHttpGet("/cloudhub/api/v2/applications/" + domain, environment);
             return client.getJsonHelper().readJson(new CHApplication(), json, environment);
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
@@ -104,6 +104,6 @@ public class CHApplication extends AnypointObject<Environment> {
     public void start() throws HttpException {
         HashMap<Object, Object> reqJson = new HashMap<>();
         reqJson.put("status","START");
-        httpHelper.httpPost("/cloudhub/api/applications/" + domain+"/status", reqJson, getParent());
+        httpHelper.anypointHttpPost("/cloudhub/api/applications/" + domain+"/status", reqJson, getParent());
     }
 }

@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.AnypointClient;
+import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.authentication.AccessTokens;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.Environment;
 import com.kloudtek.util.Base64;
 import com.kloudtek.util.ThreadUtils;
 import com.kloudtek.util.io.IOUtils;
@@ -18,7 +18,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -36,8 +35,8 @@ public class HttpHelper implements Closeable {
     private static final String HEADER_AUTH = "Authorization";
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
-    private String authToken;
-    private AnypointClient client;
+    private AccessTokens authToken;
+    private JsonHelper jsonHelper;
     private int maxRetries = 4;
     private boolean loginRequest = false;
     private int loginAttempts = 0;
@@ -46,10 +45,28 @@ public class HttpHelper implements Closeable {
     public HttpHelper() {
     }
 
-    public HttpHelper(AnypointClient client, AuthenticationProvider authenticationProvider) {
-        this.client = client;
+    public HttpHelper(JsonHelper jsonHelper, AuthenticationProvider authenticationProvider) {
+        this.jsonHelper = jsonHelper;
         this.httpClient = authenticationProvider.createHttpClient();
         this.authenticationProvider = authenticationProvider;
+    }
+
+    private static void setHeader(Map<String, String> headers, HttpRequestBase method) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            method.setHeader(entry.getKey(), entry.getValue());
+        }
+    }
+
+    protected static String convertPath(String path) {
+        return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
+    }
+
+    @NotNull
+    private static HashMap<String, String> createOrgAndOwnerHeaders(String orgId, String ownerId) {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("x-organization-id", orgId);
+        headers.put("x-owner-id", ownerId);
+        return headers;
     }
 
     @Override
@@ -57,14 +74,14 @@ public class HttpHelper implements Closeable {
         httpClient.close();
     }
 
-    public String getAuthToken() throws HttpException {
-        if( authToken == null ) {
+    public AccessTokens getAuthToken() throws HttpException {
+        if (authToken == null) {
             this.authToken = authenticationProvider.getBearerToken(this);
         }
         return this.authToken;
     }
 
-    public void setAuthToken(String authToken) {
+    public void setAuthToken(AccessTokens authToken) {
         this.authToken = authToken;
     }
 
@@ -89,9 +106,9 @@ public class HttpHelper implements Closeable {
         }
     }
 
-    public String httpGet(String path, Environment env) throws HttpException {
+    public String anypointHttpGet(String path, Environment env) throws HttpException {
         logger.debug("HTTP GET " + path + " env=" + env);
-        return executeWithEnv(new HttpGet(convertPath(path)), env);
+        return executeAnypointWithEnv(new HttpGet(convertPath(path)), env);
     }
 
     public String httpGet(String path) throws HttpException {
@@ -106,17 +123,17 @@ public class HttpHelper implements Closeable {
         return executeWrapper(method, null);
     }
 
-    public String httpGetWithOrgAndOwner(String path, String orgId, String ownerId) throws HttpException {
+    public String anypointHttpGetWithOrgAndOwner(String path, String orgId, String ownerId) throws HttpException {
         logger.debug("HTTP GET " + path);
         return httpGet(path, createOrgAndOwnerHeaders(orgId, ownerId));
     }
 
-    public String httpPost(String path, Object data, Environment env) throws HttpException {
+    public String anypointHttpPost(String path, Object data, Environment env) throws HttpException {
         logger.debug("HTTP POST " + path + " env=" + env + " data=" + data);
-        return executeWithDataAndEnv(new HttpPost(convertPath(path)), data, env);
+        return executeAnypointWithDataAndEnv(new HttpPost(convertPath(path)), data, env);
     }
 
-    public String httpPostWithOrgAndOwner(String path, Object data, String orgId, String ownerId) throws HttpException {
+    public String anypointHttpPostWithOrgAndOwner(String path, Object data, String orgId, String ownerId) throws HttpException {
         return httpPost(path, data, createOrgAndOwnerHeaders(orgId, ownerId));
     }
 
@@ -142,9 +159,9 @@ public class HttpHelper implements Closeable {
         return execute(new HttpPut(convertPath(path)), data);
     }
 
-    public String httpPut(String path, Object data, Environment environment) throws HttpException {
+    public String anypointHttpPut(String path, Object data, Environment environment) throws HttpException {
         logger.debug("HTTP PUT " + path);
-        return executeWithDataAndEnv(new HttpPut(convertPath(path)), data, environment);
+        return executeAnypointWithDataAndEnv(new HttpPut(convertPath(path)), data, environment);
     }
 
     public String httpDelete(String path) throws HttpException {
@@ -158,9 +175,9 @@ public class HttpHelper implements Closeable {
         return execute(new HttpDeleteWithBody(convertPath(path)), data);
     }
 
-    public String httpDelete(@NotNull String path, @NotNull Environment env) throws HttpException {
+    public String anypointHttpDelete(@NotNull String path, @NotNull Environment env) throws HttpException {
         logger.debug("HTTP DELETE " + path + " env=" + env);
-        return executeWithEnv(new HttpDelete(convertPath(path)), env);
+        return executeAnypointWithEnv(new HttpDelete(convertPath(path)), env);
     }
 
     private void addEnvironmentHeaders(@Nullable Environment environment, HttpRequestBase request) {
@@ -169,19 +186,19 @@ public class HttpHelper implements Closeable {
         }
     }
 
-    public MultiPartRequest createMultiPartPostRequest(@NotNull String url, @Nullable Environment environment) {
+    public MultiPartRequest createAnypointMultiPartPostRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPost request = new HttpPost(convertPath(url));
         addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
     }
 
-    public MultiPartRequest createMultiPartPatchRequest(@NotNull String url, @Nullable Environment environment) {
+    public MultiPartRequest createAnypointMultiPartPatchRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPatch request = new HttpPatch(convertPath(url));
         addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
     }
 
-    public MultiPartRequest createMultiPartPutRequest(@NotNull String url, @Nullable Environment environment) {
+    public MultiPartRequest createAnypointMultiPartPutRequest(@NotNull String url, @Nullable Environment environment) {
         HttpPut request = new HttpPut(convertPath(url));
         addEnvironmentHeaders(environment, request);
         return new MultiPartRequest(request);
@@ -193,18 +210,18 @@ public class HttpHelper implements Closeable {
                 method.setEntity((HttpEntity) data);
             } else {
                 method.setHeader("Content-Type", "application/json");
-                method.setEntity(new ByteArrayEntity(client.getJsonHelper().toJson(data)));
+                method.setEntity(new ByteArrayEntity(jsonHelper.toJson(data)));
             }
         }
         return executeWrapper(method, null);
     }
 
-    private String executeWithDataAndEnv(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data, @NotNull Environment env) throws HttpException {
+    private String executeAnypointWithDataAndEnv(@NotNull HttpEntityEnclosingRequestBase method, @NotNull Object data, @NotNull Environment env) throws HttpException {
         env.addHeaders(method);
         return execute(method, data);
     }
 
-    private String executeWithEnv(@NotNull HttpRequestBase method, @NotNull Environment env) throws HttpException {
+    private String executeAnypointWithEnv(@NotNull HttpRequestBase method, @NotNull Environment env) throws HttpException {
         env.addHeaders(method);
         return executeWrapper(method, null);
     }
@@ -245,16 +262,13 @@ public class HttpHelper implements Closeable {
     }
 
     private void updateBearerToken() throws HttpException {
-        authToken = "bearer " + authenticationProvider.getBearerToken(this);
+        authToken = authenticationProvider.getBearerToken(this);
     }
 
     @Nullable
     private synchronized String doExecute(HttpRequestBase method) throws HttpException {
         if (authToken != null && method.getFirstHeader(HEADER_AUTH) == null) {
-//            if (authToken.startsWith("bearer ")) {
-//                authToken = "Bearer " + authToken.substring(7);
-//            }
-            method.setHeader(HEADER_AUTH, authToken);
+            method.setHeader(HEADER_AUTH, "bearer " + authToken.getAnypointAccessToken());
         }
         try (CloseableHttpResponse response = httpClient.execute(method)) {
             verifyStatusCode(method, response);
@@ -307,6 +321,43 @@ public class HttpHelper implements Closeable {
         httpClient = authenticationProvider.createHttpClient();
     }
 
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public long getRetryDelay() {
+        return retryDelay;
+    }
+
+    public void setRetryDelay(long retryDelay) {
+        this.retryDelay = retryDelay;
+    }
+
+    public boolean isLoginRequest() {
+        return loginRequest;
+    }
+
+    public void setLoginRequest(boolean loginRequest) {
+        this.loginRequest = loginRequest;
+    }
+
+    private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
+        if (authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl) {
+            String authStr = ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getUsername() +
+                    ":" + ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getPassword();
+            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
+            String authHeader = "Basic " + new String(encodedAuth);
+            request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+            return request;
+        } else {
+            throw new RuntimeException("Only supported with username/password authentication at this time");
+        }
+    }
+
     public class MultiPartRequest {
         private Map<String, Object> parts = new HashMap<>();
         private HttpEntityEnclosingRequestBase request;
@@ -352,30 +403,6 @@ public class HttpHelper implements Closeable {
         }
     }
 
-    public int getMaxRetries() {
-        return maxRetries;
-    }
-
-    public void setMaxRetries(int maxRetries) {
-        this.maxRetries = maxRetries;
-    }
-
-    public long getRetryDelay() {
-        return retryDelay;
-    }
-
-    public void setRetryDelay(long retryDelay) {
-        this.retryDelay = retryDelay;
-    }
-
-    public boolean isLoginRequest() {
-        return loginRequest;
-    }
-
-    public void setLoginRequest(boolean loginRequest) {
-        this.loginRequest = loginRequest;
-    }
-
     public class RuntimeIOException extends RuntimeException {
         RuntimeIOException(@NotNull IOException ioException) {
             super(ioException.getMessage(), ioException);
@@ -384,41 +411,6 @@ public class HttpHelper implements Closeable {
         @NotNull
         IOException getIOException() {
             return (IOException) getCause();
-        }
-    }
-
-    private static void setHeader(Map<String, String> headers, HttpRequestBase method) {
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            method.setHeader(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public void setClient(AnypointClient client) {
-        this.client = client;
-    }
-
-    protected static String convertPath(String path) {
-        return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
-    }
-
-    @NotNull
-    private static HashMap<String, String> createOrgAndOwnerHeaders(String orgId, String ownerId) {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("x-organization-id", orgId);
-        headers.put("x-owner-id", ownerId);
-        return headers;
-    }
-
-    private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
-        if (authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl) {
-            String authStr = ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getUsername() +
-                    ":" + ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getPassword();
-            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
-            String authHeader = "Basic " + new String(encodedAuth);
-            request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-            return request;
-        } else {
-            throw new RuntimeException("Only supported with username/password authentication at this time");
         }
     }
 }

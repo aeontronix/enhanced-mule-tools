@@ -8,14 +8,14 @@ import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 
 public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvider {
-    private String bearer;
+    private String anypointBearerToken;
 
-    public AuthenticationProviderBearerTokenImpl(String bearer) {
-        this.bearer = bearer;
+    public AuthenticationProviderBearerTokenImpl(String anypointBearerToken) {
+        this.anypointBearerToken = anypointBearerToken;
     }
 
     @Override
-    public String getBearerToken(HttpHelper httpHelper) throws HttpException {
-        return bearer;
+    public AccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException {
+        return new AccessTokens(null, anypointBearerToken);
     }
 }

@@ -56,7 +56,7 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public void delete() throws HttpException {
-        client.getHttpHelper().httpDelete("/hybrid/api/v1/servers/" + id, parent);
+        client.getHttpHelper().anypointHttpDelete("/hybrid/api/v1/servers/" + id, parent);
     }
 
     public boolean checkApplicationExist(@NotNull String name, @NotNull File file, boolean matchDigest) throws HttpException, IOException {
@@ -73,7 +73,7 @@ public class Server extends AnypointObject<Environment> {
     }
 
     public List<HApplication> listApplication() throws HttpException {
-        String json = httpHelper.httpGet("/hybrid/api/v1/applications?targetId=" + id, parent);
+        String json = httpHelper.anypointHttpGet("/hybrid/api/v1/applications?targetId=" + id, parent);
         return jsonHelper.readJsonList(HApplication.class, json, this, "/data");
     }
 

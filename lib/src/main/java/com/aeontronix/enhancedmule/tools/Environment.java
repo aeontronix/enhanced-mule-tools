@@ -124,12 +124,12 @@ public class Environment extends AnypointObject<Organization> {
 
     @NotNull
     public String getServerRegistrationKey() throws HttpException {
-        String json = httpHelper.httpGet("/hybrid/api/v1/servers/registrationToken", this);
+        String json = httpHelper.anypointHttpGet("/hybrid/api/v1/servers/registrationToken", this);
         return (String) jsonHelper.toJsonMap(json).get("data");
     }
 
     public List<Server> findAllServers() throws HttpException {
-        String json = client.getHttpHelper().httpGet("/armui/api/v1/servers", this);
+        String json = client.getHttpHelper().anypointHttpGet("/armui/api/v1/servers", this);
         ArrayList<Server> list = new ArrayList<>();
         for (JsonNode node : jsonHelper.readJsonTree(json).at("/data")) {
             JsonNode type = node.get("type");
@@ -151,7 +151,7 @@ public class Environment extends AnypointObject<Organization> {
         Map<String, Object> request = new HashMap<>();
         request.put("name", name);
         request.put("serverIds", serverIds);
-        String json = httpHelper.httpPost("/hybrid/api/v1/serverGroups", request, this);
+        String json = httpHelper.anypointHttpPost("/hybrid/api/v1/serverGroups", request, this);
         return jsonHelper.readJson(new ServerGroup(this), json, "/data");
     }
 
@@ -357,7 +357,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public List<CHMuleVersion> findCHMuleVersions() throws HttpException {
-        String json = client.getHttpHelper().httpGet("/cloudhub/api/mule-versions", this);
+        String json = client.getHttpHelper().anypointHttpGet("/cloudhub/api/mule-versions", this);
         return client.getJsonHelper().readJsonList(CHMuleVersion.class, json, this, "/data");
     }
 
@@ -380,7 +380,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public List<CHRegion> findAllCHRegions() throws HttpException {
-        String json = client.getHttpHelper().httpGet("/cloudhub/api/regions", this);
+        String json = client.getHttpHelper().anypointHttpGet("/cloudhub/api/regions", this);
         return client.getJsonHelper().readJsonList(CHRegion.class, json, this);
     }
 
@@ -394,7 +394,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public List<CHWorkerType> findAllWorkerTypes() throws HttpException {
-        String json = client.getHttpHelper().httpGet("/cloudhub/api/organization", this);
+        String json = client.getHttpHelper().anypointHttpGet("/cloudhub/api/organization", this);
         return client.getJsonHelper().readJsonList(CHWorkerType.class, json, this, "/plan/workerTypes");
     }
 
@@ -418,7 +418,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public List<Alert> findAlerts() throws HttpException {
-        String json = httpHelper.httpGet("https://anypoint.mulesoft.com/armui/api/v1/alerts", this);
+        String json = httpHelper.anypointHttpGet("https://anypoint.mulesoft.com/armui/api/v1/alerts", this);
         return jsonHelper.readJsonList(Alert.class, json, this, "/data");
     }
 
@@ -442,9 +442,9 @@ public class Environment extends AnypointObject<Organization> {
             Alert existingAlert = findAlertByName(alert.getName());
             url.path(existingAlert.getId());
             logger.info("Updating existing alert " + existingAlert.getId() + " in env " + getNameOrId());
-            httpHelper.httpPut(url.toString(), alert, this);
+            httpHelper.anypointHttpPut(url.toString(), alert, this);
         } catch (NotFoundException e) {
-            httpHelper.httpPost(url.toString(), alert, this);
+            httpHelper.anypointHttpPost(url.toString(), alert, this);
         }
     }
 

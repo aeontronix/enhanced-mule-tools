@@ -26,7 +26,18 @@ public class JsonHelper implements Serializable {
     private ObjectMapper jsonMapper = createMapper();
     private AnypointClient client;
 
+    public JsonHelper() {
+    }
+
     public JsonHelper(AnypointClient client) {
+        this.client = client;
+    }
+
+    public AnypointClient getClient() {
+        return client;
+    }
+
+    public void setClient(AnypointClient client) {
         this.client = client;
     }
 
