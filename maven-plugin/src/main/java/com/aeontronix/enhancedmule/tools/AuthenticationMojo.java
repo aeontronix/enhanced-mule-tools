@@ -21,7 +21,7 @@ import static com.kloudtek.util.StringUtils.isEmpty;
  * Prepare a project for deployment to anypoint exchange maven.
  */
 @Mojo(name = "auth", defaultPhase = LifecyclePhase.VALIDATE)
-public class AuthenticateMojo extends AbstractOrganizationalMojo {
+public class AuthenticationMojo extends AbstractOrganizationalMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)

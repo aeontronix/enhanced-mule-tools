@@ -46,7 +46,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = BEARER_TOKEN_PROPERTY)
     protected String bearerToken;
-    @Parameter(property = "enhancedmule.server.url",defaultValue = "https://www.enhanced-mule.com")
+    @Parameter(property = "enhancedmule.server.url",defaultValue = "https://api.enhanced-mule.com")
     protected String enhancedMuleServerUrl;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
