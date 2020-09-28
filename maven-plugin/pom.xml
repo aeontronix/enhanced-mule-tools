@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.enhanced-mule</groupId>
         <artifactId>enhanced-mule-tools</artifactId>
-        <version>1.1.8-SNAPSHOT</version>
+        <version>1.1.8</version>
     </parent>
 
     <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>enhanced-mule-tools-lib</artifactId>
-            <version>1.1.8-SNAPSHOT</version>
+            <version>1.1.8</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
