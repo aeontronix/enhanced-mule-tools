@@ -4,23 +4,19 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.authentication.*;
 import com.kloudtek.util.io.IOUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.kloudtek.util.StringUtils.isNotBlank;
-
 public abstract class AbstractAnypointMojo extends AbstractMojo {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractAnypointMojo.class);
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
-    private AnypointClient client;
+    public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
+    private static final Logger logger = LoggerFactory.getLogger(AbstractAnypointMojo.class);
     /**
      * Anypoint username
      */
@@ -46,38 +42,27 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = BEARER_TOKEN_PROPERTY)
     protected String bearerToken;
-    @Parameter(property = "enhancedmule.server.url",defaultValue = "https://api.enhanced-mule.com")
+    @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
+    protected EnhancedMuleClient emClient;
+    private AnypointClient client;
+    @Parameter(defaultValue = "true", property = "anypoint.auth.bearer-property.set")
+    private boolean addBearerTokenProperty;
+    @Parameter(defaultValue = BEARER_TOKEN_PROPERTY, property = "anypoint.auth.bearer-property.property")
+    private String addBearerTokenPropertyKey;
+    @Parameter(defaultValue = "anypoint-exchange-v2", property = "anypoint.auth.addservercreds.serverid")
+    private String addServerCredentialsServerId;
+    @Parameter(defaultValue = "true", property = "anypoint.auth.interactive")
+    private boolean interactiveAuth;
     @Parameter(defaultValue = "${settings}", readonly = true)
     private Settings settings;
-    protected EnhancedMuleClient emClient;
 
     public AbstractAnypointMojo() {
     }
 
     public synchronized AnypointClient getClient() {
         if (client == null) {
-            AuthenticationProvider authenticationProvider;
-            if (bearerToken != null) {
-                authenticationProvider = new AuthenticationProviderBearerTokenImpl(bearerToken);
-            } else if(isNotBlank(username) && isNotBlank(password)) {
-                logger.debug("Using username/password credentials: {}", username);
-                authenticationProvider = new AuthenticationProviderUsernamePasswordImpl(username, password);
-            } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
-                logger.debug("Using client credentials: {}", clientId);
-                authenticationProvider = new AuthenticationProviderConnectedAppsImpl(clientId, clientSecret);
-            } else {
-                throw new IllegalArgumentException("No authentication credentials specified (username/password, client id/secret or bearer)");
-            }
-            client = new AnypointClient(authenticationProvider);
-        }
-        Proxy proxy = settings.getActiveProxy();
-        logger.debug("Checking debug settings");
-        if (proxy != null) {
-            logger.debug("Using proxy: " + proxy.getProtocol() + " " + proxy.getHost() + " " + proxy.getPort());
-            client.setProxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), proxy.getUsername(), proxy.getPassword());
-        } else {
-            logger.debug("No proxy specified");
+            client = ClientBuilder.buildClient(bearerToken, username, password, clientId, clientSecret, settings);
         }
         return client;
     }
@@ -92,7 +77,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
-            if( this.client != null ) {
+            if (this.client != null) {
                 IOUtils.close(this.client);
             }
         }

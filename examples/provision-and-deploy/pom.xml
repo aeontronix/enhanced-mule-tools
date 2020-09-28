@@ -20,7 +20,7 @@
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <emt.version>1.1.7-SNAPSHOT</emt.version>
+        <emt.version>1.1.8-SNAPSHOT</emt.version>
     </properties>
 
 	<build>
@@ -37,20 +37,29 @@
                 <groupId>com.aeontronix.enhanced-mule</groupId>
                 <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
                 <version>${emt.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>auth</goal>
                             <goal>process-descriptor</goal>
                             <goal>deploy</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                </configuration>
             </plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
+        <dependency>
+            <groupId>d002eff8-84a5-452f-bce6-145f4a688311</groupId>
+            <artifactId>anypoint-sys-api-spec</artifactId>
+            <version>2.0.0</version>
+            <classifier>oas</classifier>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-http-connector</artifactId>

@@ -54,7 +54,7 @@ public class EMuleInteractiveAuthenticator {
             req.put("requestId", UUIDFactory.generate().toString());
             req.put("url", "http://localhost:" + serverSocket.getLocalPort());
             req.put("key", StringUtils.base64Encode(keyPair.getPublicKey().getEncoded().getEncodedKey()));
-            String redirectUrl = restClient.postJson("/public/anypoint/token", req).execute(String.class);
+            String redirectUrl = restClient.postJson("/public/client/iauth", req).execute(String.class);
             logger.info("Interactive Single Sign On Login - Please complete authentication using browser");
             Desktop.getDesktop().browse(URI.create(redirectUrl));
             return handleCallback(serverSocket, keyPair.getPrivateKey());
@@ -78,17 +78,16 @@ public class EMuleInteractiveAuthenticator {
             if (!matcher.find()) {
                 pout.print("HTTP/1.0 400 Bad Request");
             } else {
-                AccessTokens tokens;
+                TokenResponse tokens;
                 String encryptedTokenStr = matcher.group(1);
                 try {
                     final byte[] decrypt = CryptoUtils.decrypt(privateKey, SymmetricAlgorithm.AES, 256, StringUtils.base64Decode(encryptedTokenStr, true));
-                    tokens = objectMapper.readValue(decrypt, AccessTokens.class);
+                    tokens = objectMapper.readValue(decrypt, TokenResponse.class);
                 } catch (DecryptionException e) {
                     sendResponse(pout, "400 Bad Request", null);
                     return null;
                 }
-                String response = "<html><body><center><h1>Authentication Successful</h1><h3>You can now close this window</h3></center></body></html>";
-                sendResponse(pout, "200 OK", response);
+                pout.print("HTTP/1.0 302\n" + "Location: "+tokens.getSuccessPage()+"\n" + "Date: " + new Date() + "\n\n");
                 return tokens;
             }
         }
@@ -99,6 +98,18 @@ public class EMuleInteractiveAuthenticator {
         pout.print("HTTP/1.0 " + status + "\n" + "Content-Type: \n" + "Date: " + new Date() + "\n");
         if (response != null) {
             pout.print("Content-length: " + response.length() + "\n\n" + response);
+        }
+    }
+
+    public static class TokenResponse extends AccessTokens {
+        private String successPage;
+
+        public String getSuccessPage() {
+            return successPage;
+        }
+
+        public void setSuccessPage(String successPage) {
+            this.successPage = successPage;
         }
     }
 }
