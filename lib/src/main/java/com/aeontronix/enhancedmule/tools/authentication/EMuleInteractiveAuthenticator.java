@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
@@ -48,6 +49,21 @@ public class EMuleInteractiveAuthenticator {
     @SuppressWarnings("unchecked")
     public AccessTokens authenticate() throws HttpException {
         try {
+            // !@#$@!#$!@#%$&!@#($&!@# anypoint / eclipse running maven headless
+            // brute forcing it back to system
+            boolean disableHeadless = GraphicsEnvironment.isHeadless();
+            try {
+                if (disableHeadless) {
+                    Field toolkit = Toolkit.class.getDeclaredField("toolkit");
+                    toolkit.setAccessible(true);
+                    toolkit.set(null, null);
+                    Field headless = GraphicsEnvironment.class.getDeclaredField("headless");
+                    headless.setAccessible(true);
+                    headless.set(null, false);
+                }
+            } catch (Throwable e) {
+                logger.error("Unable to launch browser for interactive authentication");
+            }
             final RSAKeyPair keyPair = CryptoUtils.generateRSAKeyPair(2048);
             HashMap<String, String> req = new HashMap<>();
             ServerSocket serverSocket = new ServerSocket(0);
@@ -56,7 +72,11 @@ public class EMuleInteractiveAuthenticator {
             req.put("key", StringUtils.base64Encode(keyPair.getPublicKey().getEncoded().getEncodedKey()));
             String redirectUrl = restClient.postJson("/public/client/iauth", req).execute(String.class);
             logger.info("Interactive Single Sign On Login - Please complete authentication using browser");
-            Desktop.getDesktop().browse(URI.create(redirectUrl));
+            try {
+                Desktop.getDesktop().browse(URI.create(redirectUrl));
+            } catch (Throwable e) {
+                logger.error("Unable to launch browser for interactive authentication");
+            }
             return handleCallback(serverSocket, keyPair.getPrivateKey());
         } catch (IOException e) {
             throw new UnexpectedException(e);
@@ -87,7 +107,7 @@ public class EMuleInteractiveAuthenticator {
                     sendResponse(pout, "400 Bad Request", null);
                     return null;
                 }
-                pout.print("HTTP/1.0 302\n" + "Location: "+tokens.getSuccessPage()+"\n" + "Date: " + new Date() + "\n\n");
+                pout.print("HTTP/1.0 302\n" + "Location: " + tokens.getSuccessPage() + "\n" + "Date: " + new Date() + "\n\n");
                 return tokens;
             }
         }

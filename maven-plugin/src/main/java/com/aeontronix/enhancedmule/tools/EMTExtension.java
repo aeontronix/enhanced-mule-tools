@@ -47,7 +47,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant implements C
             String password = getProperty(session, "password", "anypoint.password", null);
             boolean addBearerTokenProperty = Boolean.parseBoolean(getProperty(session, "addBearerTokenProperty", "anypoint.auth.bearer-property.set", "true"));
             String addBearerTokenPropertyKey = getProperty(session, "addBearerTokenPropertyKey", "anypoint.auth.bearer-property.property", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY);
-            boolean interactiveAuth = Boolean.parseBoolean(getProperty(session, "interactiveAuth", "anypoint.auth.interactive", "true"));
+            boolean interactiveAuth = Boolean.parseBoolean(getProperty(session, "interactiveAuth", "anypoint.auth.interactive", "false"));
             boolean addServerCredentials = Boolean.parseBoolean(getProperty(session, "addServerCredentials", "anypoint.auth.addservercreds", "true"));
             String serverId = getProperty(session, "addServerCredentialsServerId", "anypoint.auth.addservercreds.serverid", "anypoint-exchange-v2");
 
