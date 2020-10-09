@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning;
 
-import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.alert.AlertAction;
 import com.aeontronix.enhancedmule.tools.alert.AlertSeverity;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kloudtek.util.UnexpectedException;
+import com.aeontronix.commons.UnexpectedException;
 
 import java.io.IOException;
 import java.io.InputStream;

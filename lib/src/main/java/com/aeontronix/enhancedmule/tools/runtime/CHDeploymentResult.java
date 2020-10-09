@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.runtime;
 
 import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.NotFoundException;
-import com.kloudtek.util.ThreadUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.commons.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

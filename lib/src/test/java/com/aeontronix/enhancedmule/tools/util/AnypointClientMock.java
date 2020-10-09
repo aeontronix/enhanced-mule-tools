@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.AnypointClient;
-import com.aeontronix.enhancedmule.tools.Organization;
-import com.kloudtek.util.URLBuilder;
-import com.kloudtek.util.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.io.IOUtils;
 import org.mockito.Mockito;
 
 public class AnypointClientMock extends AnypointClient {

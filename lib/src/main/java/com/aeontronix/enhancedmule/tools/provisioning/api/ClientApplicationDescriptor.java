@@ -4,21 +4,21 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning.api;
 
-import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.NotFoundException;
-import com.aeontronix.enhancedmule.tools.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.APIContract;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
-import com.aeontronix.enhancedmule.tools.exchange.AssetInstance;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.util.StringUtils;
+import com.aeontronix.commons.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;

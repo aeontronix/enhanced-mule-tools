@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.runtime.manifest;
 
-import com.aeontronix.enhancedmule.tools.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.deploy.CHDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentConfig;

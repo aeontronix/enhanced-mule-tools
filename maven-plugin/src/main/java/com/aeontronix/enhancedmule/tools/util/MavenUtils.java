@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.kloudtek.util.StringUtils;
+import com.aeontronix.commons.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;

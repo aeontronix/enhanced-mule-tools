@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.kloudtek.util.FileUtils;
-import com.kloudtek.util.StringUtils;
+import com.aeontronix.commons.FileUtils;
+import com.aeontronix.commons.StringUtils;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.MavenSession;
@@ -115,7 +115,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                     api.setAssetId(dep.getArtifactId());
                     api.setAssetVersion(dep.getVersion());
                 } else {
-                    api.setAssetId(apiName + "-api");
+                    api.setAssetId(apiName + "-spec");
                 }
             }
             if (api.getAssetVersion() == null) {

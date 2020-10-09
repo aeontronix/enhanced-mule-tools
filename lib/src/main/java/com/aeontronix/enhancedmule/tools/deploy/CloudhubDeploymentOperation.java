@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.deploy;
 
-import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.api.policy;
 
-import com.aeontronix.enhancedmule.tools.AnypointObject;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.provisioning.api.PolicyDescriptor;

@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
-import com.aeontronix.enhancedmule.tools.AnypointObject;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.runtime.manifest;
 
-import com.aeontronix.enhancedmule.tools.Organization;
-import com.kloudtek.util.BackendAccessException;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.commons.BackendAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,13 +4,13 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.Environment;
-import com.aeontronix.enhancedmule.tools.authentication.AccessTokens;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProvider;
-import com.aeontronix.enhancedmule.tools.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.kloudtek.util.Base64;
-import com.kloudtek.util.ThreadUtils;
-import com.kloudtek.util.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
+import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
+import com.aeontronix.commons.Base64;
+import com.aeontronix.commons.ThreadUtils;
+import com.aeontronix.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -35,7 +35,7 @@ public class HttpHelper implements Closeable {
     private static final String HEADER_AUTH = "Authorization";
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
-    private AccessTokens authToken;
+    private EMAccessTokens authToken;
     private JsonHelper jsonHelper;
     private int maxRetries = 4;
     private boolean loginRequest = false;
@@ -74,14 +74,14 @@ public class HttpHelper implements Closeable {
         httpClient.close();
     }
 
-    public AccessTokens getAuthToken() throws HttpException {
+    public EMAccessTokens getAuthToken() throws HttpException {
         if (authToken == null) {
             this.authToken = authenticationProvider.getBearerToken(this);
         }
         return this.authToken;
     }
 
-    public void setAuthToken(AccessTokens authToken) {
+    public void setAuthToken(EMAccessTokens authToken) {
         this.authToken = authToken;
     }
 

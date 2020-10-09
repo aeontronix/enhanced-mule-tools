@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.api;
 
-import com.aeontronix.enhancedmule.tools.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 
 public class SLATierNotFoundException extends NotFoundException {
     public SLATierNotFoundException() {

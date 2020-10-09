@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.alert;
 
-import com.aeontronix.enhancedmule.tools.AnypointObject;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;

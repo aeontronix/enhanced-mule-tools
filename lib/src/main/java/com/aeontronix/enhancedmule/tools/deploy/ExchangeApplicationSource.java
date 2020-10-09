@@ -4,12 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.deploy;
 
-import com.aeontronix.enhancedmule.tools.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
-import com.kloudtek.util.TempFile;
+import com.aeontronix.commons.TempFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

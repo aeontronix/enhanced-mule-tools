@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.api;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.util.URLBuilder;
+import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

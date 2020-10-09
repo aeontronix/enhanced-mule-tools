@@ -12,9 +12,9 @@ import com.kloudtek.kryptotek.DecryptionException;
 import com.kloudtek.kryptotek.SymmetricAlgorithm;
 import com.kloudtek.kryptotek.key.RSAKeyPair;
 import com.kloudtek.kryptotek.key.RSAPrivateKey;
-import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.UUIDFactory;
-import com.kloudtek.util.UnexpectedException;
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.UUIDFactory;
+import com.aeontronix.commons.UnexpectedException;
 import org.slf4j.Logger;
 
 import java.awt.*;
@@ -47,7 +47,7 @@ public class EMuleInteractiveAuthenticator {
     }
 
     @SuppressWarnings("unchecked")
-    public AccessTokens authenticate() throws HttpException {
+    public EMAccessTokens authenticate() throws HttpException {
         try {
             // !@#$@!#$!@#%$&!@#($&!@# anypoint / eclipse running maven headless
             // brute forcing it back to system
@@ -84,7 +84,7 @@ public class EMuleInteractiveAuthenticator {
     }
 
     @SuppressWarnings("unchecked")
-    public AccessTokens handleCallback(ServerSocket serverSocket, RSAPrivateKey privateKey) throws IOException {
+    public EMAccessTokens handleCallback(ServerSocket serverSocket, RSAPrivateKey privateKey) throws IOException {
         try (final Socket connection = serverSocket.accept();
              BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
              PrintStream pout = new PrintStream(new BufferedOutputStream(connection.getOutputStream()))
@@ -121,7 +121,7 @@ public class EMuleInteractiveAuthenticator {
         }
     }
 
-    public static class TokenResponse extends AccessTokens {
+    public static class TokenResponse extends EMAccessTokens {
         private String successPage;
 
         public String getSuccessPage() {

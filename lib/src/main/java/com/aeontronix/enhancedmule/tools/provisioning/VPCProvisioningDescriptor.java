@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning;
 
-import com.aeontronix.enhancedmule.tools.FirewallRule;
+import com.aeontronix.enhancedmule.tools.anypoint.FirewallRule;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;

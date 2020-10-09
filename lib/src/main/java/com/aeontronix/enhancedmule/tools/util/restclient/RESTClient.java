@@ -4,14 +4,16 @@
 
 package com.aeontronix.enhancedmule.tools.util.restclient;
 
-import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.URLBuilder;
-import com.kloudtek.util.UnexpectedException;
-import org.apache.http.HttpHost;
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.io.IOUtils;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
@@ -22,12 +24,15 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RESTClient implements Closeable, AutoCloseable {
+    private final List<RESTAuthenticationProvider> authenticationProviders = new ArrayList<>();
     private CloseableHttpClient httpClient;
     private String baseUrl;
     private RESTClientJsonParser jsonParser;
@@ -41,6 +46,10 @@ public class RESTClient implements Closeable, AutoCloseable {
         setProxy(proxyHost, proxyUsername, proxyPassword);
     }
 
+    public void addAuthProvider(RESTAuthenticationProvider provider) {
+        authenticationProviders.add(provider);
+    }
+
     public void setProxy(HttpHost proxyHost, String proxyUsername, String proxyPassword) {
         HttpClientBuilder builder = HttpClients.custom().disableCookieManagement();
         if (proxyHost != null) {
@@ -52,6 +61,7 @@ public class RESTClient implements Closeable, AutoCloseable {
                 builder = builder.setDefaultCredentialsProvider(credsProvider);
             }
         }
+        builder.addInterceptorFirst(new AuthenticationFilter());
         httpClient = builder.build();
     }
 
@@ -61,6 +71,10 @@ public class RESTClient implements Closeable, AutoCloseable {
         } else {
             return path;
         }
+    }
+
+    public GetBuilder get(String path) throws RESTException {
+        return new GetBuilder(new HttpGet(toUrl(path)));
     }
 
     public PostBuilder postJson(String path, Object entity) {
@@ -83,27 +97,165 @@ public class RESTClient implements Closeable, AutoCloseable {
         this.baseUrl = baseUrl;
     }
 
-    public interface HttpOperationBuilder {
-        <X> X execute(Class<X> clazz) throws IOException;
+    @Override
+    public void close() throws IOException {
+        httpClient.close();
     }
 
-    public class PostBuilder implements HttpOperationBuilder {
-        private HttpRequestBase method;
+    public interface HttpOperationBuilder {
+    }
 
-        public PostBuilder(HttpRequestBase method) {
+    public interface ResponseHandler {
+        <X> X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException;
+    }
+
+    public abstract class AbstractMethodBuilder implements HttpOperationBuilder {
+        protected HttpRequestBase method;
+
+        public AbstractMethodBuilder(HttpRequestBase method) {
             this.method = method;
         }
 
-        @Override
-        public <X> X execute(Class<X> clazz) throws IOException {
-            try (CloseableHttpResponse response = httpClient.execute(method)) {
-                return jsonParser.parse(response.getEntity().getContent(), clazz);
+        protected <X> X execute(ResponseHandler responseHandler) throws RESTException {
+            try {
+                try (CloseableHttpResponse response = httpClient.execute(method)) {
+                    final StatusLine statusLine = response.getStatusLine();
+                    final int statusCode = statusLine.getStatusCode();
+                    if (statusCode >= 200 && statusCode <= 299) {
+                        return responseHandler.handleResponse(statusLine, response);
+                    } else {
+                        throw new RESTException(statusLine.getReasonPhrase(), null, statusCode);
+                    }
+                }
+            } catch (IOException e) {
+                throw new RESTException(e, -1);
+            }
+        }
+
+        protected InputStream executeReturnStreamInternal() throws RESTException {
+            try {
+                try (CloseableHttpResponse response = httpClient.execute(method)) {
+                    final StatusLine statusLine = response.getStatusLine();
+                    final int statusCode = statusLine.getStatusCode();
+                    if (statusCode >= 200 && statusCode <= 299) {
+                        if( response.getEntity() != null && response.getEntity().getContent() != null ) {
+                            return new ResponseStream(response);
+                        } else {
+                            return new ByteArrayInputStream(new byte[0]);
+                        }
+                    } else {
+                        throw new RESTException(statusLine.getReasonPhrase(), null, statusCode);
+                    }
+                }
+            } catch (IOException e) {
+                throw new RESTException(e, -1);
             }
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        httpClient.close();
+    public class GetBuilder extends AbstractMethodBuilder {
+        public GetBuilder(HttpRequestBase method) {
+            super(method);
+
+        }
+
+        public void execute() throws IOException {
+            execute(new ResponseHandler() {
+                @Override
+                public <X> X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException {
+                    return null;
+                }
+            });
+        }
+
+        public InputStream executeReturnStream() throws RESTException {
+            return executeReturnStreamInternal();
+        }
+    }
+
+    public class PostBuilder extends AbstractMethodBuilder {
+        public PostBuilder(HttpRequestBase method) {
+            super(method);
+        }
+
+        public <X> X execute(Class<X> clazz) throws IOException {
+            return execute(new ResponseHandler() {
+                @Override
+                public X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException {
+                    return jsonParser.parse(response.getEntity().getContent(), clazz);
+                }
+            });
+        }
+    }
+
+    public class AuthenticationFilter implements HttpRequestInterceptor {
+        @Override
+        public void process(HttpRequest req, HttpContext httpContext) throws HttpException, IOException {
+            for (RESTAuthenticationProvider authenticationProvider : authenticationProviders) {
+                if (authenticationProvider.handles(req)) {
+                    authenticationProvider.process(req, httpContext);
+                }
+            }
+        }
+    }
+
+    public class ResponseStream extends InputStream {
+        private final InputStream content;
+        private CloseableHttpResponse response;
+
+        public ResponseStream(CloseableHttpResponse response) throws IOException {
+            this.response = response;
+            content = response.getEntity().getContent();
+        }
+
+        @Override
+        public int read() throws IOException {
+            return content.read();
+        }
+
+        @Override
+        public int read(@NotNull byte[] b) throws IOException {
+            return content.read(b);
+        }
+
+        @Override
+        public int read(@NotNull byte[] b, int off, int len) throws IOException {
+            return content.read(b, off, len);
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            return content.skip(n);
+        }
+
+        @Override
+        public void skipNBytes(long n) throws IOException {
+            content.skipNBytes(n);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return content.available();
+        }
+
+        @Override
+        public void close() throws IOException {
+            IOUtils.close(content,response);
+        }
+
+        @Override
+        public void mark(int readlimit) {
+            content.mark(readlimit);
+        }
+
+        @Override
+        public void reset() throws IOException {
+            content.reset();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return content.markSupported();
+        }
     }
 }

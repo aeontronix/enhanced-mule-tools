@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 

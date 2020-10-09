@@ -4,9 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.AnypointObject;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.kloudtek.util.URLBuilder;
+import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

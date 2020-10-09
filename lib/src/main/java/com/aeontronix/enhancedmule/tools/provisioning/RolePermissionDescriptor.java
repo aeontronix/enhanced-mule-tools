@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning;
 
-import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

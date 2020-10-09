@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning.api;
 
-import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;

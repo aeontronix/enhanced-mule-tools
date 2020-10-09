@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
-import com.aeontronix.enhancedmule.tools.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 
 import java.util.Map;
