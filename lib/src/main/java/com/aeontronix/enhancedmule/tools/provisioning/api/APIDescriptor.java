@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools.provisioning.api;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetTag;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.api.API;
@@ -113,9 +112,13 @@ public class APIDescriptor {
                 try {
                     logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", this.getAssetId(), productAPIVersion, label);
                     api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
-                    api = api.updateVersion(assetVersion);
+                    final String currentAssetVersion = api.getAssetVersion();
+                    if( ! currentAssetVersion.equalsIgnoreCase(assetVersion) ) {
+                        api = api.updateVersion(assetVersion);
+                        logger.info("Changed asset version from {} to {}",currentAssetVersion, assetVersion);
+                    }
                 } catch (NotFoundException ex) {
-                    logger.debug("Couldn't find, creating");
+                    logger.debug("Creating API");
                     if (endpointJson != null) {
                         api = environment.createAPI(apiSpec, label, endpointJson);
                     } else {
@@ -124,16 +127,6 @@ public class APIDescriptor {
                     updateEndpoint = false;
                 }
             }
-            final ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
-            updateExchangeTags(exchangeAsset);
-            if (updateEndpoint) {
-                if (this.endpointJson != null) {
-                    api = api.updateEndpoint(this.getEndpoint(), endpointJson);
-                } else if (this.getEndpoint() != null) {
-                    api = api.updateEndpoint(this.getEndpoint(), !m3, type);
-                }
-            }
-            result.setApi(api);
             if (policies != null) {
                 api.deletePolicies();
                 for (PolicyDescriptor policyDescriptor : policies) {
@@ -153,24 +146,34 @@ public class APIDescriptor {
                     }
                 }
             }
+            api = updateEndpoint(m3, api, updateEndpoint);
+            result.setApi(api);
+            // exchange
+            ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
+            exchangeAsset = updateExchangeTags(exchangeAsset);
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
         }
     }
 
-    private void updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
-        ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
-        if( !current.equals(exchangeTags) ) {
-            exchangeAsset.updateLabels(exchangeTags);
-            logger.info("Updated exchange tags to "+exchangeTags);
+    private API updateEndpoint(Boolean m3, API api, boolean updateEndpoint) throws HttpException {
+        if (updateEndpoint) {
+            if (this.endpointJson != null) {
+                api = api.updateEndpoint(this.getEndpoint(), endpointJson);
+            } else if (this.getEndpoint() != null) {
+                api = api.updateEndpoint(this.getEndpoint(), !m3, type);
+            }
         }
+        return api;
     }
 
-    public void createAsset(Organization organization, ApplicationSource source) {
-        if (!assetVersion.toLowerCase().endsWith("-snapshot")) {
-            type = API.Type.HTTP;
-            assetCreate = true;
+    private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
+        ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
+        if( !current.equals(exchangeTags) ) {
+            exchangeAsset = exchangeAsset.updateLabels(exchangeTags);
+            logger.info("Updated exchange tags to "+exchangeTags);
         }
+        return exchangeAsset;
     }
 
     @JsonProperty

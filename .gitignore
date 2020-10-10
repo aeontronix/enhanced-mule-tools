@@ -131,3 +131,15 @@ fabric.properties
 # Generated documentation
 src/site/markdown/schema
 src/site/resources/schema
+
+docs/src/_site
+docs/src/.sass-cache
+.jekyll-cache
+.jekyll-metadata
+docs/vendor
+docs/schemas/*.md
+docs/public
+_tmp
+docs/src/anypoint.schema.markdown
+docs/enhanced-mule-tools
+docs/_staging/
