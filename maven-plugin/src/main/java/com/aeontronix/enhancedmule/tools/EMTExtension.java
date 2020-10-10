@@ -4,64 +4,97 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.config.CredentialsProviderAnypointBearerToken;
-import com.aeontronix.enhancedmule.tools.config.CredentialsProviderAnypointUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.config.CredentialsProviderInteractiveAuthentication;
+import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
-import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.Authentication;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextException;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.eclipse.aether.repository.AuthenticationSelector;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.slf4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Component(role = AbstractMavenLifecycleParticipant.class)
-public class EMTExtension extends AbstractMavenLifecycleParticipant implements Contextualizable {
+public class EMTExtension extends AbstractMavenLifecycleParticipant {
+    private static final Logger logger = getLogger(EMTExtension.class);
     public static final String PLUGINKEY = "com.aeontronix.enhanced-mule:enhanced-mule-tools-maven-plugin";
     public static final String TOKEN = "~~~Token~~~";
-    static EnhancedMuleClient emClient;
-
-    @Override
-    public void contextualize(Context context) throws ContextException {
-    }
+    public static final String ENHANCED_MULE_CLIENT = "enhancedMuleClient";
+    private EnhancedMuleClient emClient;
+    private AnypointBearerTokenCredentialsProvider credentialsProvider;
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         try {
             String enhancedMuleServerUrl = getProperty(session, "enhancedMuleServerUrl", "enhancedmule.server.url", AbstractAnypointMojo.DEFAULT_EMSERVER_URL);
-            emClient = new EnhancedMuleClient(enhancedMuleServerUrl);
             String anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
             String username = getProperty(session, "username", "anypoint.username", null);
             String password = getProperty(session, "password", "anypoint.password", null);
             boolean interactiveAuth = Boolean.parseBoolean(getProperty(session, "interactiveAuth", "anypoint.auth.interactive", "false"));
-            if (anypointBearerToken != null) {
-                emClient.setCredentialsLoader(new CredentialsProviderAnypointBearerToken(anypointBearerToken));
-            } else if (StringUtils.isNotBlank(username)) {
-                emClient.setCredentialsLoader(new CredentialsProviderAnypointUsernamePasswordImpl(username, password));
-            } else if (interactiveAuth && session.getRequest().isInteractiveMode() ) {
-                emClient.setCredentialsLoader(new CredentialsProviderInteractiveAuthentication());
-            }
+            emClient = createClient(enhancedMuleServerUrl, session,anypointBearerToken, username, password, interactiveAuth);
+            String serverId = "anypoint-exchange-v2";
+            final MavenProject currentProject = session.getCurrentProject();
+                AuthenticationSelector authenticationSelector = session.getRepositorySession().getAuthenticationSelector();
+            // Lambdas here break the build for some @#$@#$@#$ reason
+            //noinspection Convert2Lambda
+            MavenUtils.addRepositoryUsernamePassword(authenticationSelector, serverId, TOKEN, new MavenUtils.SecretResolver() {
+                    @Override
+                    public String getSecret() throws Exception {
+                        return emClient.getAnypointBearerToken();
+                    }
+                });
+                final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
+                RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
+                final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
+                        .setUrl(prep.getUrl())
+                        .setSnapshotPolicy(prep.getPolicy(true))
+                        .setReleasePolicy(prep.getPolicy(false))
+                        .setRepositoryManager(prep.isRepositoryManager())
+                        .setProxy(prep.getProxy())
+                        .setMirroredRepositories(prep.getMirroredRepositories())
+                        .setContentType(prep.getContentType())
+                        .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
+                remoteProjectRepositories.remove(prep);
+                remoteProjectRepositories.add(newRepo);
         } catch (Exception e) {
             throw new MavenExecutionException(e.getMessage(), e);
         }
         super.afterProjectsRead(session);
     }
 
-    private ArtifactRepository findRepo(List<ArtifactRepository> remoteArtifactRepositories, String serverId) {
-        for (ArtifactRepository remoteArtifactRepository : remoteArtifactRepositories) {
-            if (remoteArtifactRepository.getId().equals(serverId)) {
-                return remoteArtifactRepository;
+    static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken, String username, String password, boolean interactiveAuth) throws MavenExecutionException {
+        EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
+        if( emClient == null ) {
+            emClient = new EnhancedMuleClient(enhancedMuleServerUrl);
+            session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT,emClient);
+            logger.info("Initializing Enhanced Mule Tools");
+            CredentialsProvider credentialsProvider;
+            if (anypointBearerToken != null) {
+                logger.info("Using Bearer Token");
+                credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
+            } else if (StringUtils.isNotBlank(username)) {
+                logger.info("Using Username Password");
+                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
+            } else if (interactiveAuth && session.getRequest().isInteractiveMode() ) {
+                logger.info("Using Interactive login");
+                credentialsProvider = new CredentialsProviderInteractiveAuthentication();
+            } else {
+                throw new MavenExecutionException("No credentials provided and not in interactive mode", (File)null);
             }
+            emClient.setCredentialsLoader(credentialsProvider);
         }
-        throw new IllegalStateException("serverId not found: " + serverId);
+        return emClient;
     }
 
     private RemoteRepository findRemoteRepo(List<RemoteRepository> remoteArtifactRepositories, String serverId) {
@@ -81,9 +114,9 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant implements C
         }
         final Object configuration = plugin.getConfiguration();
         if (configuration instanceof Xpp3Dom) {
-            final String attribute = ((Xpp3Dom) configuration).getAttribute(field);
+            final Xpp3Dom attribute = ((Xpp3Dom) configuration).getChild(field);
             if (attribute != null) {
-                return attribute;
+                return attribute.getValue();
             }
         }
         Object prop = session.getUserProperties().get(property);
@@ -98,5 +131,27 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant implements C
             return defaultValue;
         }
         return null;
+    }
+
+    public class AuthenticationWrapper extends Authentication {
+        private String bearerToken;
+        private EnhancedMuleClient emClient;
+
+        public AuthenticationWrapper(EnhancedMuleClient emClient) {
+            super(TOKEN,null);
+            this.emClient = emClient;
+        }
+
+        @Override
+        public String getPassword() {
+            if( bearerToken == null ) {
+                try {
+                    bearerToken = emClient.getAnypointBearerToken();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return bearerToken;
+        }
     }
 }

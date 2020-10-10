@@ -7,6 +7,8 @@ package com.aeontronix.enhancedmule.tools.provisioning.api;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetTag;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.APISpec;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
@@ -27,13 +29,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
     private String assetId;
     private String assetVersion;
-    private String assetAPIVersion = "v1";
+    private String version;
+    /** Backwards compatibility, use 'version' instead */
+    @Deprecated
+    private String apiVersion;
     private String endpoint;
+    private List<String> tags;
+    private List<String> exchangeTags;
     private boolean addAutoDescovery = false;
     private String autoDiscoveryFlow = "api-main";
     private HashMap<String, Object> endpointJson;
@@ -55,10 +63,13 @@ public class APIDescriptor {
 
     public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
         try {
+            if( version == null && apiVersion != null ) {
+                // backwards compatibility
+                version = apiVersion;
+            }
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
-            logger.debug("Provisioning " + this + " within org " + environment.getParent().getName() + " env " + environment.getName());
-            logger.debug("Provisioning " + this.getAssetId());
+            logger.info("Provisioning " + this.getAssetId() + " within org " + environment.getParent().getName() + " env " + environment.getName());
             Boolean m3 = cfg.getMule3();
             if (m3 == null) {
                 m3 = false;
@@ -69,13 +80,13 @@ public class APIDescriptor {
                 api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
                 logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
             } catch (NotFoundException e) {
-                logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
+                logger.info("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
                 APISpec apiSpec = null;
                 try {
                     apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 } catch (NotFoundException ex) {
                     if (assetCreate) {
-                        logger.debug("Asset not found, creating");
+                        logger.info("Asset not found, creating");
                         if (type == API.Type.HTTP) {
                             environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1");
                         } else {
@@ -89,7 +100,7 @@ public class APIDescriptor {
                             try (TempFile apiSpecFile = new TempFile(assetId + "-" + assetVersion)) {
                                 applicationSource.getAPISpecificationFiles(assetId, assetVersion, assetMainFile, assetClassifier, apiSpecFile);
                                 environment.getOrganization().publishExchangeAPIAsset(assetId, assetVersion,
-                                        assetAPIVersion, assetClassifier, assetMainFile, apiSpecFile);
+                                        version, assetClassifier, assetMainFile, apiSpecFile);
                             }
                         }
                     } else {
@@ -113,6 +124,8 @@ public class APIDescriptor {
                     updateEndpoint = false;
                 }
             }
+            final ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
+            updateExchangeTags(exchangeAsset);
             if (updateEndpoint) {
                 if (this.endpointJson != null) {
                     api = api.updateEndpoint(this.getEndpoint(), endpointJson);
@@ -140,8 +153,16 @@ public class APIDescriptor {
                     }
                 }
             }
-        } catch (HttpException | AssetCreationException | NotFoundException | IOException e) {
+        } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
+        }
+    }
+
+    private void updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
+        ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
+        if( !current.equals(exchangeTags) ) {
+            exchangeAsset.updateLabels(exchangeTags);
+            logger.info("Updated exchange tags to "+exchangeTags);
         }
     }
 
@@ -284,11 +305,37 @@ public class APIDescriptor {
         this.assetMainFile = assetMainFile;
     }
 
-    public String getAssetAPIVersion() {
-        return assetAPIVersion;
+    @Deprecated
+    public String getApiVersion() {
+        return apiVersion;
     }
 
-    public void setAssetAPIVersion(String assetAPIVersion) {
-        this.assetAPIVersion = assetAPIVersion;
+    @Deprecated
+    public void setApiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public List<String> getExchangeTags() {
+        return exchangeTags;
+    }
+
+    public void setExchangeTags(List<String> exchangeTags) {
+        this.exchangeTags = exchangeTags;
     }
 }

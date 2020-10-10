@@ -11,6 +11,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
     private static final Logger logger = LoggerFactory.getLogger(AbstractOrganizationalMojo.class);
     private Organization organization;
@@ -20,7 +22,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
     @Parameter(property = "anypoint.org")
     protected String org;
 
-    public synchronized Organization getOrganization() throws NotFoundException, HttpException {
+    public synchronized Organization getOrganization() throws NotFoundException, IOException {
         if (organization == null) {
             if (org != null) {
                 organization = getClient().findOrganization(org);

@@ -4,7 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-public class HttpException extends Exception {
+import java.io.IOException;
+
+public class HttpException extends IOException {
     protected int statusCode;
 
     public HttpException() {
@@ -20,10 +22,6 @@ public class HttpException extends Exception {
 
     public HttpException(Throwable cause) {
         super(cause);
-    }
-
-    public HttpException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 
     public HttpException(int statusCode) {
@@ -42,11 +40,6 @@ public class HttpException extends Exception {
 
     public HttpException(Throwable cause, int statusCode) {
         super(cause);
-        this.statusCode = statusCode;
-    }
-
-    public HttpException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, int statusCode) {
-        super(message, cause, enableSuppression, writableStackTrace);
         this.statusCode = statusCode;
     }
 

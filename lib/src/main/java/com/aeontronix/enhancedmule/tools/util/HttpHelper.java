@@ -284,6 +284,9 @@ public class HttpHelper implements Closeable {
                 return null;
             }
         } catch (IOException e) {
+            if(e instanceof HttpException) {
+                throw (HttpException)e;
+            }
             throw new RuntimeIOException(e);
         }
     }

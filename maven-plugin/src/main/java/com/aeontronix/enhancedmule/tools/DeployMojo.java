@@ -192,10 +192,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.staticips", defaultValue = "false")
     private boolean staticIPs;
-    @Parameter(defaultValue = "${project}", readonly = true, required = true)
-    private MavenProject project;
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession session;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,

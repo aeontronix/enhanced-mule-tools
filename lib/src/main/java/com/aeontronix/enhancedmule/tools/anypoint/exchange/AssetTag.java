@@ -16,6 +16,8 @@ public class AssetTag {
     private String value;
     @JsonProperty("key")
     private String key;
+    @JsonProperty("tagType")
+    private String tagType;
 
     public String getValue() {
         return value;
@@ -31,5 +33,13 @@ public class AssetTag {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getTagType() {
+        return tagType;
+    }
+
+    public void setTagType(String tagType) {
+        this.tagType = tagType;
     }
 }

@@ -1,7 +1,10 @@
 {
   "id": "myreallytestytest",
   "api": {
-    "exchangeTags": ["footag","batag"],
+    "type": "rest",
+    "assetCreate": true,
+    "assetId": "mydemohttpapi2",
+    "assetMainFile": "api.raml",
     "label": "${environment.lname}-latest",
     "clientApp": {
     },

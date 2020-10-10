@@ -6,6 +6,8 @@ package com.aeontronix.enhancedmule.tools.config;
 
 import com.aeontronix.enhancedmule.tools.EnhancedMuleClient;
 
+import java.io.IOException;
+
 public class CredentialsProviderAnypointBearerToken implements CredentialsProvider, AnypointBearerTokenCredentialsProvider {
     private String anypointBearerToken;
 
@@ -14,7 +16,7 @@ public class CredentialsProviderAnypointBearerToken implements CredentialsProvid
     }
 
     @Override
-    public String getAnypointBearerToken(EnhancedMuleClient restClient) {
+    public String getAnypointBearerToken(EnhancedMuleClient restClient) throws IOException {
         return anypointBearerToken;
     }
 }

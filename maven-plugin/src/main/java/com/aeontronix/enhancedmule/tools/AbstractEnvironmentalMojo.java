@@ -9,6 +9,8 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.IOException;
+
 public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMojo {
     private Environment environment;
     /**
@@ -17,7 +19,7 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     @Parameter(property = "anypoint.env", required = true)
     protected String env;
 
-    public synchronized Environment getEnvironment() throws NotFoundException, HttpException {
+    public synchronized Environment getEnvironment() throws NotFoundException, IOException {
         if (environment == null) {
             if (env == null) {
                 throw new IllegalStateException("environment name (anypoint.env) is missing");

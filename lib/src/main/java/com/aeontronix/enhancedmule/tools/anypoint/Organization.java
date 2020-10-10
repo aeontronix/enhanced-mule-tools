@@ -528,7 +528,7 @@ public class Organization extends AnypointObject {
         req.addText("asset", "undefined");
         try {
             req.execute();
-        } catch (HttpException | IOException e) {
+        } catch (IOException e) {
             throw new AssetCreationException(e);
         }
     }

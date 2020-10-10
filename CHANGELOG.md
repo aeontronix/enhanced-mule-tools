@@ -6,9 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.1.9
 
-### Fixed
+### Added
 
-- Authentication fails when maven runs in studio
+- Interactive authentication only happens on-demand now
 
 ## 1.1.8
 

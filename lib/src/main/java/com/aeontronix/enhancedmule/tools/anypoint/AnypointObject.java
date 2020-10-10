@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AnypointObject<X extends AnypointObject> implements Serializable {

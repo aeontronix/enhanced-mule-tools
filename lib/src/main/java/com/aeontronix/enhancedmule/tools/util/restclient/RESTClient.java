@@ -25,7 +25,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -132,24 +131,27 @@ public class RESTClient implements Closeable, AutoCloseable {
             }
         }
 
-        protected InputStream executeReturnStreamInternal() throws RESTException {
+        protected ResponseStream executeReturnStreamInternal() throws IOException {
+            CloseableHttpResponse response;
             try {
-                try (CloseableHttpResponse response = httpClient.execute(method)) {
-                    final StatusLine statusLine = response.getStatusLine();
-                    final int statusCode = statusLine.getStatusCode();
-                    if (statusCode >= 200 && statusCode <= 299) {
-                        if( response.getEntity() != null && response.getEntity().getContent() != null ) {
-                            return new ResponseStream(response);
-                        } else {
-                            return new ByteArrayInputStream(new byte[0]);
-                        }
-                    } else {
-                        throw new RESTException(statusLine.getReasonPhrase(), null, statusCode);
-                    }
-                }
+                response = httpClient.execute(method);
             } catch (IOException e) {
                 throw new RESTException(e, -1);
             }
+            ResponseStream is = null;
+            final StatusLine statusLine = response.getStatusLine();
+            final int statusCode = statusLine.getStatusCode();
+            if (statusCode >= 200 && statusCode <= 299) {
+                if (response.getEntity() != null && response.getEntity().getContent() != null) {
+                    is = new ResponseStream(response);
+                } else {
+                    return null;
+                }
+            } else {
+                IOUtils.close(response);
+                throw new RESTException(statusLine.getReasonPhrase(), null, statusCode);
+            }
+            return is;
         }
     }
 
@@ -168,7 +170,7 @@ public class RESTClient implements Closeable, AutoCloseable {
             });
         }
 
-        public InputStream executeReturnStream() throws RESTException {
+        public ResponseStream executeReturnStream() throws IOException {
             return executeReturnStreamInternal();
         }
     }
@@ -199,63 +201,4 @@ public class RESTClient implements Closeable, AutoCloseable {
         }
     }
 
-    public class ResponseStream extends InputStream {
-        private final InputStream content;
-        private CloseableHttpResponse response;
-
-        public ResponseStream(CloseableHttpResponse response) throws IOException {
-            this.response = response;
-            content = response.getEntity().getContent();
-        }
-
-        @Override
-        public int read() throws IOException {
-            return content.read();
-        }
-
-        @Override
-        public int read(@NotNull byte[] b) throws IOException {
-            return content.read(b);
-        }
-
-        @Override
-        public int read(@NotNull byte[] b, int off, int len) throws IOException {
-            return content.read(b, off, len);
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            return content.skip(n);
-        }
-
-        @Override
-        public void skipNBytes(long n) throws IOException {
-            content.skipNBytes(n);
-        }
-
-        @Override
-        public int available() throws IOException {
-            return content.available();
-        }
-
-        @Override
-        public void close() throws IOException {
-            IOUtils.close(content,response);
-        }
-
-        @Override
-        public void mark(int readlimit) {
-            content.mark(readlimit);
-        }
-
-        @Override
-        public void reset() throws IOException {
-            content.reset();
-        }
-
-        @Override
-        public boolean markSupported() {
-            return content.markSupported();
-        }
-    }
 }

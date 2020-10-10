@@ -20,10 +20,6 @@ public class UnauthorizedHttpException extends HttpException {
         super(cause);
     }
 
-    public UnauthorizedHttpException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
     public UnauthorizedHttpException(int statusCode) {
         super(statusCode);
     }
@@ -38,9 +34,5 @@ public class UnauthorizedHttpException extends HttpException {
 
     public UnauthorizedHttpException(Throwable cause, int statusCode) {
         super(cause, statusCode);
-    }
-
-    public UnauthorizedHttpException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, int statusCode) {
-        super(message, cause, enableSuppression, writableStackTrace, statusCode);
     }
 }

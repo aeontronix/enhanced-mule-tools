@@ -11,12 +11,14 @@ package com.aeontronix.enhancedmule.tools.anypoint.exchange;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.aeontronix.commons.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,7 +64,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     @JsonProperty("version")
     private String version;
     @JsonProperty("labels")
-    private List labels;
+    private List<AssetTag> labels;
     @JsonProperty("tags")
     private List<AssetTag> tags;
     @JsonProperty("dependencies")
@@ -115,6 +117,10 @@ public class ExchangeAsset extends AnypointObject<Organization> {
             }
         }
         throw new NotFoundException("Can't find asset "+name+" in env "+envId);
+    }
+
+    public void updateLabels(List<String> exchangeTags) throws HttpException {
+        getClient().getHttpHelper().httpPut("/exchange/api/v1/organizations/"+getParent().getId()+"/assets/"+groupId+"/"+assetId+"/"+version+"/tags",exchangeTags.stream().map( t -> Collections.singletonMap("value", t) ).collect(Collectors.toList()));
     }
 
     public String getProductAPIVersion() {
@@ -269,11 +275,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.version = version;
     }
 
-    public List getLabels() {
+    public List<AssetTag> getLabels() {
         return labels;
     }
 
-    public void setLabels(List labels) {
+    public void setLabels(List<AssetTag> labels) {
         this.labels = labels;
     }
 

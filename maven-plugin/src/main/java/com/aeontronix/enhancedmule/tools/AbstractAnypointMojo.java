@@ -6,18 +6,24 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.commons.io.IOUtils;
+import org.apache.maven.MavenExecutionException;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     private static final Logger logger = LoggerFactory.getLogger(AbstractAnypointMojo.class);
+    public static final String EM_CLIENT = "emClient";
     /**
      * Anypoint username
      */
@@ -47,30 +53,36 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String enhancedMuleServerUrl;
     protected EnhancedMuleClient emClient;
     private AnypointClient client;
-    @Parameter(defaultValue = "true", property = "anypoint.auth.bearer-property.set")
-    private boolean addBearerTokenProperty;
-    @Parameter(defaultValue = BEARER_TOKEN_PROPERTY, property = "anypoint.auth.bearer-property.property")
-    private String addBearerTokenPropertyKey;
-    @Parameter(defaultValue = "anypoint-exchange-v2", property = "anypoint.auth.addservercreds.serverid")
-    private String addServerCredentialsServerId;
     @Parameter(defaultValue = "true", property = "anypoint.auth.interactive")
     private boolean interactiveAuth;
     @Parameter(defaultValue = "${settings}", readonly = true)
-    private Settings settings;
+    protected Settings settings;
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    protected MavenProject project;
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    protected MavenSession session;
 
     public AbstractAnypointMojo() {
     }
 
-    public synchronized AnypointClient getClient() {
+    public synchronized AnypointClient getClient() throws IOException {
         if (client == null) {
-            client = ClientBuilder.buildClient(bearerToken, username, password, clientId, clientSecret, settings);
+            client = ClientBuilder.buildClient(emClient.getAnypointBearerToken(), null, null, null, null, settings);
         }
         return client;
     }
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
-        emClient = new EnhancedMuleClient(enhancedMuleServerUrl);
+        try {
+            emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password, interactiveAuth);
+        } catch (MavenExecutionException e) {
+            Throwable cause = e.getCause();
+            if( cause == null ) {
+                cause = e;
+            }
+            throw new MojoExecutionException(cause.getMessage(), cause);
+        }
         try {
             doExecute();
         } catch (MojoFailureException | MojoExecutionException e) {

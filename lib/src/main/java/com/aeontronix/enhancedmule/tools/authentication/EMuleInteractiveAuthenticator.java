@@ -49,21 +49,6 @@ public class EMuleInteractiveAuthenticator {
     @SuppressWarnings("unchecked")
     public EMAccessTokens authenticate() throws HttpException {
         try {
-            // !@#$@!#$!@#%$&!@#($&!@# anypoint / eclipse running maven headless
-            // brute forcing it back to system
-            boolean disableHeadless = GraphicsEnvironment.isHeadless();
-            try {
-                if (disableHeadless) {
-                    Field toolkit = Toolkit.class.getDeclaredField("toolkit");
-                    toolkit.setAccessible(true);
-                    toolkit.set(null, null);
-                    Field headless = GraphicsEnvironment.class.getDeclaredField("headless");
-                    headless.setAccessible(true);
-                    headless.set(null, false);
-                }
-            } catch (Throwable e) {
-                logger.error("Unable to launch browser for interactive authentication");
-            }
             final RSAKeyPair keyPair = CryptoUtils.generateRSAKeyPair(2048);
             HashMap<String, String> req = new HashMap<>();
             ServerSocket serverSocket = new ServerSocket(0);

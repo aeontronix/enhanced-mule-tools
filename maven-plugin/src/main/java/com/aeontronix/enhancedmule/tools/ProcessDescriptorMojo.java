@@ -39,8 +39,6 @@ import java.util.Map;
 public class ProcessDescriptorMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession session;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
     @Parameter(property = "muleplugin.compat")
@@ -109,8 +107,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         }
         APIDescriptor api = anypointDescriptor.getApi();
         if (api != null) {
+            Dependency dep = findRAMLDependency();
             if (api.getAssetId() == null) {
-                Dependency dep = findRAMLDependency();
                 if( dep != null ) {
                     api.setAssetId(dep.getArtifactId());
                     api.setAssetVersion(dep.getVersion());
@@ -120,6 +118,17 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             }
             if (api.getAssetVersion() == null) {
                 api.setAssetVersion(version);
+            }
+            if(api.getVersion() == null) {
+                if( dep != null ) {
+                    if( dep.getClassifier().equalsIgnoreCase("oas") ) {
+                        api.setVersion(api.getAssetVersion().replaceFirst("\\.\\d\\.\\d",".0.0"));
+                    } else {
+                        api.setVersion("v1");
+                    }
+                } else {
+                    api.setVersion("v1");
+                }
             }
         }
     }
