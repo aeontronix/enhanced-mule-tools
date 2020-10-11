@@ -25,7 +25,7 @@ public class APIContract extends AnypointObject<API> {
     @JsonProperty("tierId")
     private String tierId;
     @JsonProperty("terms")
-    private String terms;
+    private APIContractTerm terms;
     @JsonProperty("revokedDate")
     private String revokedDate;
     @JsonProperty("partyName")
@@ -142,11 +142,11 @@ public class APIContract extends AnypointObject<API> {
         this.tierId = tierId;
     }
 
-    public String getTerms() {
+    public APIContractTerm getTerms() {
         return terms;
     }
 
-    public void setTerms(String terms) {
+    public void setTerms(APIContractTerm terms) {
         this.terms = terms;
     }
 

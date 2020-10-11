@@ -179,6 +179,9 @@ public class ClientApplicationDescriptor {
         } else {
             accessOrg = environment.getOrganization().getClient().findOrganizationById(accessDescriptor.getOrgId());
         }
+        if( StringUtils.isBlank(accessDescriptor.getAssetId()) ) {
+            throw new IllegalArgumentException("access descriptor missing assetId");
+        }
         logger.debug("Access org = {}", accessOrg.getId());
         if (accessDescriptor.getGroupId() == null) {
             logger.debug("No group id found, using the org id instead");

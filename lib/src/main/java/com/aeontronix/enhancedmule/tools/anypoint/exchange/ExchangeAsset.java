@@ -119,13 +119,23 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         throw new NotFoundException("Can't find asset "+name+" in env "+envId);
     }
 
+    public Portal getPortal() throws HttpException {
+        final String json = httpHelper.httpGet(getUrl() + "/portal");
+        return jsonHelper.readJson(new Portal(),json);
+    }
+
     public ExchangeAsset updateLabels(List<String> exchangeTags) throws HttpException {
-        getClient().getHttpHelper().httpPut("/exchange/api/v1/organizations/" + getParent().getId() + "/assets/" + groupId + "/" + assetId + "/" + version + "/tags", exchangeTags.stream().map(t -> Collections.singletonMap("value", t)).collect(Collectors.toList()));
+        httpHelper.httpPut(getUrl() + "/tags", exchangeTags.stream().map(t -> Collections.singletonMap("value", t)).collect(Collectors.toList()));
         try {
             return getParent().findExchangeAsset(groupId,assetId);
         } catch (NotFoundException e) {
             throw new UnexpectedException(e);
         }
+    }
+
+    @NotNull
+    private String getUrl() {
+        return "/exchange/api/v1/organizations/" + getParent().getId() + "/assets/" + groupId + "/" + assetId + "/" + version;
     }
 
     public String getProductAPIVersion() {
