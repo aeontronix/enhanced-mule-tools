@@ -1,6 +1,18 @@
 {
   "id": "myreallytestytest",
   "api": {
+    "portal": {
+      "pages": [
+        {
+          "name": "home",
+          "path": "src/main/pages/home.md"
+        },
+        {
+          "name": "hello",
+          "path": "src/main/pages/hello.md"
+        }
+      ]
+    },
     "exchangeTags": ["footag","batag"],
     "label": "${environment.lname}-latest",
     "clientApp": {

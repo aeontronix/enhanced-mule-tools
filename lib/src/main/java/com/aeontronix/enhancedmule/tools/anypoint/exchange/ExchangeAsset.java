@@ -8,6 +8,7 @@ package com.aeontronix.enhancedmule.tools.anypoint.exchange;
  * Created by JacksonGenerator on 6/26/18.
  */
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -119,6 +120,18 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         throw new NotFoundException("Can't find asset "+name+" in env "+envId);
     }
 
+    public String getPage(String name) throws HttpException, NotFoundException {
+        try {
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown"));
+        } catch (HttpException e) {
+            if( e.getStatusCode() == 404 ) {
+                throw new NotFoundException("Page not found: "+name);
+            } else {
+                throw e;
+            }
+        }
+    }
+
     public Portal getPortal() throws HttpException {
         final String json = httpHelper.httpGet(getUrl() + "/portal");
         return jsonHelper.readJson(new Portal(),json);
@@ -131,6 +144,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         } catch (NotFoundException e) {
             throw new UnexpectedException(e);
         }
+    }
+
+    public void updatePage(String name, String content) throws HttpException {
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name).toString(), Collections.singletonMap("Content-Type","text/markdown"), content);
+        httpHelper.httpPatch(getUrl(),null);
     }
 
     @NotNull

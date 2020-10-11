@@ -6,15 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="enhanced-mule-application-demo" />
-      </profile>
-      <profile name="Annotation profile for Enhanced Mule Tools" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
+        <module name="enhanced-mule-tools-cli" />
         <module name="enhanced-mule-tools-maven-plugin" />
         <module name="enhanced-mule-tools-lib" />
-        <module name="enhanced-mule-tools-cli" />
+        <module name="enhanced-mule-application-demo" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

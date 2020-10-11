@@ -33,6 +33,7 @@ import java.util.Map;
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
+    public static final String CONTENT_TYPE = "Content-Type";
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
     private EMAccessTokens authToken;
@@ -159,6 +160,13 @@ public class HttpHelper implements Closeable {
         return execute(new HttpPut(convertPath(path)), data);
     }
 
+    public String httpPut(String path, Map<String,String> headers, Object data) throws HttpException {
+        logger.debug("HTTP PUT " + path + " data=" + data);
+        final HttpPut method = new HttpPut(convertPath(path));
+        setHeader(headers, method);
+        return execute(method, data);
+    }
+
     public String anypointHttpPut(String path, Object data, Environment environment) throws HttpException {
         logger.debug("HTTP PUT " + path);
         return executeAnypointWithDataAndEnv(new HttpPut(convertPath(path)), data, environment);
@@ -209,7 +217,9 @@ public class HttpHelper implements Closeable {
             if (data instanceof HttpEntity) {
                 method.setEntity((HttpEntity) data);
             } else {
-                method.setHeader("Content-Type", "application/json");
+                if( method.getHeaders(CONTENT_TYPE) == null ) {
+                    method.setHeader(CONTENT_TYPE, "application/json");
+                }
                 method.setEntity(new ByteArrayEntity(jsonHelper.toJson(data)));
             }
         }

@@ -16,6 +16,8 @@ import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.aeontronix.commons.StringUtils;
@@ -51,6 +53,7 @@ public class APIDescriptor {
     private API.Type type = API.Type.REST;
     private boolean assetCreate;
     private String assetMainFile;
+    private PortalDescriptor portal;
 
     public APIDescriptor() {
     }
@@ -151,6 +154,10 @@ public class APIDescriptor {
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             exchangeAsset = updateExchangeTags(exchangeAsset);
+            // portal
+            if( portal != null ) {
+                portal.provision(exchangeAsset);
+            }
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
         }
@@ -340,5 +347,13 @@ public class APIDescriptor {
 
     public void setExchangeTags(List<String> exchangeTags) {
         this.exchangeTags = exchangeTags;
+    }
+
+    public PortalDescriptor getPortal() {
+        return portal;
+    }
+
+    public void setPortal(PortalDescriptor portal) {
+        this.portal = portal;
     }
 }
