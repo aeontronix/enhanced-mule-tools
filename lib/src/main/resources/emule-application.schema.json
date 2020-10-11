@@ -76,6 +76,33 @@
                     "description": "API endpoint",
                     "type": "string"
                 },
+                "portal": {
+                    "type": "object",
+                    "description": "Portal provisioning",
+                    "properties": {
+                        "pages": {
+                            "type": "array",
+                            "items": {
+                                "description": "Portal page",
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Page name"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "description": "Path to the markdown file that contains this page's content"
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "path"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "policies": {
                     "description": "Policies that should be assigned to the API. Please note that unless this properties is null or not set, all existing API policies will be removed prior to those being added",
                     "type": "array",
