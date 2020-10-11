@@ -13,4 +13,6 @@ read VERSION
 mvn versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${VERSION}-SNAPSHOT
 upd provision-only
 upd provision-and-deploy
+upd provision-and-deploy-inprojectraml
+
 
