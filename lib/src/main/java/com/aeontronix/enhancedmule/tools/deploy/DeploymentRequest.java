@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -39,7 +39,7 @@ public abstract class DeploymentRequest {
     protected String filename;
     protected APIProvisioningConfig apiProvisioningConfig;
     protected DeploymentConfig deploymentConfig;
-    protected AnypointDescriptor anypointDescriptor;
+    protected ApplicationDescriptor applicationDescriptor;
 
     public DeploymentRequest() {
     }
@@ -63,17 +63,17 @@ public abstract class DeploymentRequest {
             APIProvisioningResult provisioningResult = null;
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
-                anypointDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
-                transformers.add(new EnhanceMuleTransformer(anypointDescriptor));
-                if (anypointDescriptor != null) {
+                applicationDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
+                transformers.add(new EnhanceMuleTransformer(applicationDescriptor));
+                if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
-                    provisioningResult = anypointDescriptor.provision(environment, apiProvisioningConfig, source);
+                    provisioningResult = applicationDescriptor.provision(environment, apiProvisioningConfig, source);
                     if (provisioningResult.getApi() != null && apiProvisioningConfig.isInjectApiId()) {
                         deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
-                        anypointDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
+                        applicationDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
-                        anypointDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
-                        anypointDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
+                        applicationDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
+                        applicationDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
                         try {
                             deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
                         } catch (HttpException e) {
@@ -85,11 +85,11 @@ public abstract class DeploymentRequest {
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
                         String keyId = apiProvisioningConfig.getInjectClientIdSecretKey() + ".id";
-                        anypointDescriptor.addProperty(keyId,false);
+                        applicationDescriptor.addProperty(keyId,false);
                         deploymentConfig.setOverrideProperty(keyId, clientApp.getClientId());
                         String keySecret = apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret";
                         deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
-                        anypointDescriptor.addProperty(keySecret,true);
+                        applicationDescriptor.addProperty(keySecret,true);
                     }
                     Transformer muleArtifactTransformer = new Transformer() {
                         @SuppressWarnings("unchecked")
@@ -103,8 +103,8 @@ public abstract class DeploymentRequest {
                 }
             }
             if (deploymentConfig.isFilePropertiesSecure() &&
-                    anypointDescriptor.getProperties() != null) {
-                for (PropertyDescriptor propertyDescriptor : anypointDescriptor.getProperties().values()) {
+                    applicationDescriptor.getProperties() != null) {
+                for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
                     if (propertyDescriptor.isSecure()) {
                         String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getName());
                         deploymentConfig.addFileProperty(propertyDescriptor.getName(),pVal);

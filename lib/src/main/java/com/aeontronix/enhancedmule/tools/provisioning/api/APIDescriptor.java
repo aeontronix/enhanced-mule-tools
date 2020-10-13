@@ -14,10 +14,9 @@ import com.aeontronix.enhancedmule.tools.api.SLATier;
 import com.aeontronix.enhancedmule.tools.api.SLATierLimits;
 import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.aeontronix.commons.StringUtils;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class APIDescriptor {
         this.assetVersion = version;
     }
 
-    public void provision(AnypointDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
+    public void provision(ApplicationDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
         try {
             if( version == null && apiVersion != null ) {
                 // backwards compatibility
@@ -176,9 +176,10 @@ public class APIDescriptor {
 
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
         ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
-        if( !current.equals(exchangeTags) ) {
-            exchangeAsset = exchangeAsset.updateLabels(exchangeTags);
-            logger.info("Updated exchange tags to "+exchangeTags);
+        List<String> expectedTags = this.exchangeTags != null ? this.exchangeTags : Collections.emptyList();
+        if( !current.equals(expectedTags) ) {
+            exchangeAsset = exchangeAsset.updateLabels(expectedTags);
+            logger.info("Updated exchange tags to "+expectedTags);
         }
         return exchangeAsset;
     }

@@ -9,7 +9,7 @@ import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -51,7 +51,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             if (!file.exists()) {
                 throw new IllegalArgumentException("Descriptor file doesn't exist: " + file.getPath());
             }
-            AnypointDescriptor anypointDescriptor = getClient().getJsonHelper().getJsonMapper().readValue(file, AnypointDescriptor.class);
+            ApplicationDescriptor applicationDescriptor = getClient().getJsonHelper().getJsonMapper().readValue(file, ApplicationDescriptor.class);
             apiProvisioningConfig = new APIProvisioningConfig();
             Environment environment = getEnvironment();
             if (vars != null) {
@@ -59,7 +59,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 apiProvisioningConfig.setVariables(vars);
             }
             getLog().info("Provisioning started");
-            APIProvisioningResult result = anypointDescriptor.provision(environment, apiProvisioningConfig, null);
+            APIProvisioningResult result = applicationDescriptor.provision(environment, apiProvisioningConfig, null);
             getLog().info("Provisioning complete");
             Properties properties = new Properties();
             API api = result.getApi();

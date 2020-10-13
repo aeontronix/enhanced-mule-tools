@@ -13,7 +13,7 @@ import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
@@ -97,9 +97,9 @@ public class ClientApplicationDescriptor {
         return this;
     }
 
-    public void provision(AnypointDescriptor anypointDescriptor, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws ProvisioningException {
+    public void provision(ApplicationDescriptor applicationDescriptor, Environment environment, APIProvisioningConfig config, APIProvisioningResult result) throws ProvisioningException {
         try {
-            String appId = anypointDescriptor.getId();
+            String appId = applicationDescriptor.getId();
             if (name == null) {
                 name = appId + "-" + config.getVariables().get("environment.lname");
             }

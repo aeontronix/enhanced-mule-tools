@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.unpack.*;
@@ -22,10 +22,10 @@ public class EnhanceMuleTransformer extends Transformer {
     public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ENHANCED_MULE_TOOLS_FLOW_XML = "enhanced-mule-tools-flow.xml";
     private final boolean autoDiscovery;
-    private AnypointDescriptor apiProvisioningDescriptor;
+    private ApplicationDescriptor apiProvisioningDescriptor;
     private final APIDescriptor api;
 
-    public EnhanceMuleTransformer(@NotNull AnypointDescriptor apiProvisioningDescriptor) {
+    public EnhanceMuleTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor) {
         this.apiProvisioningDescriptor = apiProvisioningDescriptor;
         api = apiProvisioningDescriptor.getApi();
         this.autoDiscovery = api != null && api.isAddAutoDescovery();

@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -15,7 +15,6 @@ import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -54,9 +53,9 @@ public class ProcessDescriptorMojo extends AbstractMojo {
 
             legacyConvert(anypointDescriptorJson);
 
-            AnypointDescriptor anypointDescriptor = objectMapper.convertValue(anypointDescriptorJson, AnypointDescriptor.class);
+            ApplicationDescriptor applicationDescriptor = objectMapper.convertValue(anypointDescriptorJson, ApplicationDescriptor.class);
 
-            processDescriptor(anypointDescriptor);
+            processDescriptor(applicationDescriptor);
 
             File genResDir = new File(project.getBuild().getDirectory() + File.separator+ "generated-resources");
             if(! genResDir.exists() ) {
@@ -67,7 +66,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             project.addResource(resource);
 
             File generateDescriptorFile = new File(genResDir,"anypoint.json");
-            objectMapper.writeValue(generateDescriptorFile, anypointDescriptor);
+            objectMapper.writeValue(generateDescriptorFile, applicationDescriptor);
 
             if(!mulePluginCompatibility) {
                 DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
@@ -99,13 +98,16 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         }
     }
 
-    private void processDescriptor(AnypointDescriptor anypointDescriptor) {
+    private void processDescriptor(ApplicationDescriptor applicationDescriptor) {
         String apiName = project.getArtifactId();
         String version = project.getVersion();
-        if (anypointDescriptor.getId() == null) {
-            anypointDescriptor.setId(apiName);
+        if (applicationDescriptor.getId() == null) {
+            applicationDescriptor.setId(apiName);
         }
-        APIDescriptor api = anypointDescriptor.getApi();
+        if( applicationDescriptor.getVersion() == null ) {
+            applicationDescriptor.setVersion(version);
+        }
+        APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
             Dependency dep = findRAMLDependency();
             if (api.getAssetId() == null) {

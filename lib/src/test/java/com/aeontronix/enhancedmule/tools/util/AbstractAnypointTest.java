@@ -13,7 +13,7 @@ import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.DesignCenterProject;
 import com.aeontronix.enhancedmule.tools.api.DesignCenterProjectExchange;
 import com.aeontronix.enhancedmule.tools.api.policy.Policy;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -105,7 +105,7 @@ public class AbstractAnypointTest {
     }
 
     @Contract("_ -> param1")
-    protected AnypointDescriptor addClientIdPolicy(AnypointDescriptor apd) {
+    protected ApplicationDescriptor addClientIdPolicy(ApplicationDescriptor apd) {
         if (apd.getApi() != null) {
             apd.setApi(new APIDescriptor());
         }
@@ -146,7 +146,7 @@ public class AbstractAnypointTest {
         return apiProject;
     }
 
-    protected APIProvisioningResult provision(APIProvisioningConfig config, AnypointDescriptor apd2) throws ProvisioningException {
+    protected APIProvisioningResult provision(APIProvisioningConfig config, ApplicationDescriptor apd2) throws ProvisioningException {
         APIProvisioningResult provision = apd2.provision(env, config, null);
         // todo register client and delete them after tests
         return provision;

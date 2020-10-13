@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -34,15 +34,15 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract boolean exists();
 
-    public abstract AnypointDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
+    public abstract ApplicationDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
 
     @Nullable
-    protected AnypointDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
+    protected ApplicationDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return AnypointDescriptor.read(apiProvisioningConfig, is);
+                return ApplicationDescriptor.read(apiProvisioningConfig, is);
             }
         } else {
             return null;

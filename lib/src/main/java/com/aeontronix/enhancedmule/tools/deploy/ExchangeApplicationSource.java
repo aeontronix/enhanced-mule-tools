@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.provisioning.AnypointDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.commons.TempFile;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class ExchangeApplicationSource extends ApplicationSource {
     private static final Logger logger = LoggerFactory.getLogger(ExchangeApplicationSource.class);
     public static final String PREFIX = "exchange://";
-    private AnypointDescriptor apiProvisioningDescriptor;
+    private ApplicationDescriptor apiProvisioningDescriptor;
     private String orgId;
     private String groupId;
     private String artifactId;
@@ -84,7 +84,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public AnypointDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
+    public ApplicationDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
             try (TempFile tempFile = new TempFile("anyp-apparch")) {
                 try (FileOutputStream fos = new FileOutputStream(tempFile)) {

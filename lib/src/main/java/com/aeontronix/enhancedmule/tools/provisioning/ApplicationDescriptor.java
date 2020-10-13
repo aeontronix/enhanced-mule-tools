@@ -19,22 +19,23 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AnypointDescriptor {
-    private static final Logger logger = LoggerFactory.getLogger(AnypointDescriptor.class);
+public class ApplicationDescriptor {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationDescriptor.class);
     private String id;
+    private String version;
     private Boolean mule3;
     private APIDescriptor api;
     private HashMap<String, PropertyDescriptor> properties;
     private ClientApplicationDescriptor client;
 
-    public AnypointDescriptor() {
+    public ApplicationDescriptor() {
     }
 
-    public AnypointDescriptor(String name, String version) {
+    public ApplicationDescriptor(String name, String version) {
         api = new APIDescriptor(name, version);
     }
 
-    public static AnypointDescriptor read(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
+    public static ApplicationDescriptor read(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {
         ObjectMapper mapper = JsonHelper.createMapper();
         String json = IOUtils.toString(is);
         String appId = (String) mapper.readValue(json, Map.class).get("id");
@@ -42,7 +43,7 @@ public class AnypointDescriptor {
             apiProvisioningConfig.addVariable("app.id", appId);
         }
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
-        AnypointDescriptor descriptor = mapper.readValue(json, AnypointDescriptor.class);
+        ApplicationDescriptor descriptor = mapper.readValue(json, ApplicationDescriptor.class);
         if (descriptor.getProperties() != null) {
             for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
                 entry.getValue().setName(entry.getKey());
@@ -112,5 +113,13 @@ public class AnypointDescriptor {
 
     public void setClient(ClientApplicationDescriptor client) {
         this.client = client;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
