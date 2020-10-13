@@ -217,7 +217,7 @@ public class HttpHelper implements Closeable {
             if (data instanceof HttpEntity) {
                 method.setEntity((HttpEntity) data);
             } else {
-                if( method.getHeaders(CONTENT_TYPE) == null ) {
+                if( method.getFirstHeader(CONTENT_TYPE) == null ) {
                     method.setHeader(CONTENT_TYPE, "application/json");
                 }
                 method.setEntity(new ByteArrayEntity(jsonHelper.toJson(data)));

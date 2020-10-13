@@ -93,12 +93,8 @@
                                     "path": {
                                         "type": "string",
                                         "description": "Path to the markdown file that contains this page's content"
-                                    },
-                                },
-                                "required": [
-                                    "name",
-                                    "path"
-                                ]
+                                    }
+                                }
                             }
                         }
                     }
