@@ -4,19 +4,27 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.commons.FileUtils;
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.enhancedmule.tools.deploy.EnhanceMuleTransformer;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.aeontronix.commons.FileUtils;
-import com.aeontronix.commons.StringUtils;
+import com.kloudtek.unpack.FileType;
+import com.kloudtek.unpack.UnpackException;
+import com.kloudtek.unpack.Unpacker;
+import com.kloudtek.unpack.transformer.Transformer;
+import com.kloudtek.util.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,17 +35,21 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Process an anypoint descriptor file and attach resulting file to project
  */
-@Mojo(name = "process-descriptor", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
+@Mojo(name = "process-descriptor", defaultPhase = LifecyclePhase.PACKAGE)
 public class ProcessDescriptorMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    private MavenSession session;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
     @Parameter(property = "muleplugin.compat")
@@ -49,7 +61,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             ObjectMapper objectMapper = JsonHelper.createMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-            Map<String,Object> anypointDescriptorJson = loadDescriptor();
+            Map<String, Object> anypointDescriptorJson = loadDescriptor();
 
             legacyConvert(anypointDescriptorJson);
 
@@ -57,81 +69,120 @@ public class ProcessDescriptorMojo extends AbstractMojo {
 
             processDescriptor(applicationDescriptor);
 
-            File genResDir = new File(project.getBuild().getDirectory() + File.separator+ "generated-resources");
-            if(! genResDir.exists() ) {
-                FileUtils.mkdirs(genResDir);
+            File buildDir = new File(project.getBuild().getDirectory());
+            if (!buildDir.exists()) {
+                FileUtils.mkdirs(buildDir);
             }
-            Resource resource = new Resource();
-            resource.setDirectory(genResDir.getPath());
-            project.addResource(resource);
-
-            File generateDescriptorFile = new File(genResDir,"anypoint.json");
+            File generateDescriptorFile = new File(buildDir, "anypoint.json");
             objectMapper.writeValue(generateDescriptorFile, applicationDescriptor);
 
-            if(!mulePluginCompatibility) {
-                DefaultArtifact artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
-                        "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
-                artifact.setFile(generateDescriptorFile);
-                project.addAttachedArtifact(artifact);
+            final Artifact artifact = findAppArtifact(project);
+            if (artifact.getFile() == null || !artifact.getFile().exists()) {
+                throw new IllegalStateException("Mule artifact not found");
             }
-        } catch (IOException e) {
+            File artifactFile = artifact.getFile();
+            File oldArtifactFile = new File(artifactFile.getPath() + ".preweaving");
+            if (oldArtifactFile.exists()) {
+                FileUtils.delete(oldArtifactFile);
+            }
+            if (!artifactFile.renameTo(oldArtifactFile)) {
+                throw new IOException("Unable to move " + artifactFile.getPath() + " to " + oldArtifactFile.getPath());
+            }
+            Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, artifactFile, FileType.ZIP);
+            final ArrayList<Transformer> transformers = new ArrayList<>();
+            transformers.add(new EnhanceMuleTransformer(applicationDescriptor, generateDescriptorFile));
+            unpacker.addTransformers(transformers);
+            unpacker.unpack();
+            if (!mulePluginCompatibility) {
+                DefaultArtifact descriptorArtifactor = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
+                        "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
+                descriptorArtifactor.setFile(generateDescriptorFile);
+                project.addAttachedArtifact(descriptorArtifactor);
+            }
+        } catch (IOException | UnpackException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
+    private Artifact findAppArtifact(MavenProject project) {
+        for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
+            if (attachedArtifact.getClassifier().equals("mule-application")) {
+                return attachedArtifact;
+            }
+        }
+        throw new IllegalStateException("Unable to find attached mule application jar file");
+    }
+
     @SuppressWarnings("unchecked")
     private void legacyConvert(Map<String, Object> anypointDescriptor) {
-        Map<String,Object> api = (Map<String, Object>) anypointDescriptor.get("api");
-        if( api != null ) {
-            Map<String,Object> client = (Map<String, Object>) api.remove("clientApp");
-            if( client != null ) {
-                anypointDescriptor.put("client",client);
+        Map<String, Object> api = (Map<String, Object>) anypointDescriptor.get("api");
+        if (api != null) {
+            Map<String, Object> client = (Map<String, Object>) api.remove("clientApp");
+            if (client != null) {
+                anypointDescriptor.put("client", client);
             }
             Object access = api.remove("access");
-            if( access != null ) {
-                if( client == null ) {
+            if (access != null) {
+                if (client == null) {
                     client = new HashMap<>();
-                    anypointDescriptor.put("client",client);
+                    anypointDescriptor.put("client", client);
                 }
-                client.put("access",access);
+                client.put("access", access);
             }
         }
     }
 
-    private void processDescriptor(ApplicationDescriptor applicationDescriptor) {
-        String apiName = project.getArtifactId();
-        String version = project.getVersion();
-        if (applicationDescriptor.getId() == null) {
-            applicationDescriptor.setId(apiName);
-        }
-        if( applicationDescriptor.getVersion() == null ) {
-            applicationDescriptor.setVersion(version);
-        }
-        APIDescriptor api = applicationDescriptor.getApi();
-        if (api != null) {
-            Dependency dep = findRAMLDependency();
-            if (api.getAssetId() == null) {
-                if( dep != null ) {
-                    api.setAssetId(dep.getArtifactId());
-                    api.setAssetVersion(dep.getVersion());
-                } else {
-                    api.setAssetId(apiName + "-spec");
+    private void processDescriptor(ApplicationDescriptor applicationDescriptor) throws MojoFailureException {
+        try {
+            String apiName = project.getArtifactId();
+            String version = project.getVersion();
+            if (applicationDescriptor.getId() == null) {
+                applicationDescriptor.setId(apiName);
+            }
+            if (applicationDescriptor.getName() == null) {
+                applicationDescriptor.setName(project.getName());
+            }
+            if (applicationDescriptor.getVersion() == null) {
+                applicationDescriptor.setVersion(version);
+            }
+            APIDescriptor api = applicationDescriptor.getApi();
+            if (api != null) {
+                Dependency dep = findRAMLDependency();
+                if (api.getAssetId() == null) {
+                    if (dep != null) {
+                        api.setAssetId(dep.getArtifactId());
+                        api.setAssetVersion(dep.getVersion());
+                    } else {
+                        api.setAssetId(apiName + "-spec");
+                    }
                 }
-            }
-            if (api.getAssetVersion() == null) {
-                api.setAssetVersion(version);
-            }
-            if(api.getVersion() == null) {
-                if( dep != null ) {
-                    if( dep.getClassifier().equalsIgnoreCase("oas") ) {
-                        api.setVersion(api.getAssetVersion().replaceFirst("\\.\\d\\.\\d",".0.0"));
+                if (api.getPortal() != null && api.getPortal().getPages() != null) {
+                    for (PortalPageDescriptor page : api.getPortal().getPages()) {
+                        if (page.getContent() == null) {
+                            try (FileInputStream fis = new FileInputStream(project.getBasedir() + File.separator + page.getPath().replace("/", File.separator))) {
+                                page.setPath(null);
+                                page.setContent(IOUtils.toString(fis));
+                            }
+                        }
+                    }
+                }
+                if (api.getAssetVersion() == null) {
+                    api.setAssetVersion(version);
+                }
+                if (api.getVersion() == null) {
+                    if (dep != null) {
+                        if (dep.getClassifier().equalsIgnoreCase("oas")) {
+                            api.setVersion(api.getAssetVersion().replaceFirst("\\.\\d\\.\\d", ".0.0"));
+                        } else {
+                            api.setVersion("v1");
+                        }
                     } else {
                         api.setVersion("v1");
                     }
-                } else {
-                    api.setVersion("v1");
                 }
             }
+        } catch (IOException e) {
+            throw new MojoFailureException(e.getMessage(), e);
         }
     }
 
@@ -139,9 +190,9 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         Dependency dependency = null;
         for (Dependency d : project.getDependencies()) {
             String classifier = d.getClassifier();
-            if( classifier != null ) {
-                if( classifier.equalsIgnoreCase("raml") || classifier.equalsIgnoreCase("oas") ) {
-                    if( dependency != null ) {
+            if (classifier != null) {
+                if (classifier.equalsIgnoreCase("raml") || classifier.equalsIgnoreCase("oas")) {
+                    if (dependency != null) {
                         getLog().warn("Found more than one raml/oas dependencies in pom, ignoring all");
                         return null;
                     } else {
@@ -154,8 +205,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     }
 
     @NotNull
-    private Map<String,Object> loadDescriptor() throws IOException {
-        Map<String,Object> anypointDescriptor = null;
+    private Map<String, Object> loadDescriptor() throws IOException {
+        Map<String, Object> anypointDescriptor = null;
         if (StringUtils.isNotBlank(descriptor)) {
             File descriptorFile = new File(descriptor);
             anypointDescriptor = readFile(descriptorFile);
@@ -172,7 +223,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String,Object> readFile(File descriptorFile) throws java.io.IOException {
+    private Map<String, Object> readFile(File descriptorFile) throws java.io.IOException {
         if (descriptorFile.exists()) {
             String fname = descriptorFile.getName().toLowerCase();
             ObjectMapper om;
@@ -182,7 +233,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 om = new ObjectMapper();
             }
             om.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-            return (Map<String,Object>) om.readValue(descriptorFile, Map.class);
+            return (Map<String, Object>) om.readValue(descriptorFile, Map.class);
         } else {
             return null;
         }

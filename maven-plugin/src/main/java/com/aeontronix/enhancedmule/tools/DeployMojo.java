@@ -262,12 +262,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
                 return;
             }
-            if( appName == null ) {
-                appName = project.getArtifactId();
-                if( StringUtils.isBlank(target) ) {
-                    appName = appName + "-" + getEnvironment().getLName();
-                }
-            }
             if (file == null) {
                 if( logger.isDebugEnabled() ) {
                     logger.debug("No deploy file defined");
@@ -278,6 +272,16 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 file = MavenUtils.getProjectJar(project).getPath();
             }
             source = ApplicationSource.create(getEnvironment().getOrganization().getId(), getClient(), file);
+            if( appName == null ) {
+                if( project != null ) {
+                    appName = project.getArtifactId();
+                } else {
+                    appName = source.getArtifactId();
+                }
+                if( StringUtils.isBlank(target) ) {
+                    appName = appName + "-" + getEnvironment().getLName();
+                }
+            }
             try {
                 if (filename == null) {
                     filename = source.getFileName();

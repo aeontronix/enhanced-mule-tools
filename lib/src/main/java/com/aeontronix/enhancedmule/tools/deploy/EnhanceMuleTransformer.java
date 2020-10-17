@@ -12,22 +12,28 @@ import com.kloudtek.unpack.*;
 import com.kloudtek.unpack.transformer.Transformer;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.io.InMemInputFilterStream;
+import com.kloudtek.util.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class EnhanceMuleTransformer extends Transformer {
     public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ENHANCED_MULE_TOOLS_FLOW_XML = "enhanced-mule-tools-flow.xml";
+    public static final String ANYPOINT_JSON = "anypoint.json";
     private final boolean autoDiscovery;
     private ApplicationDescriptor apiProvisioningDescriptor;
     private final APIDescriptor api;
+    private File descriptorFile;
 
-    public EnhanceMuleTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor) {
+    public EnhanceMuleTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor,
+                                  File descriptorFile) {
         this.apiProvisioningDescriptor = apiProvisioningDescriptor;
         api = apiProvisioningDescriptor.getApi();
+        this.descriptorFile = descriptorFile;
         this.autoDiscovery = api != null && api.isAddAutoDescovery();
     }
 
@@ -45,7 +51,13 @@ public class EnhanceMuleTransformer extends Transformer {
         } else {
             source.add(new InMemSourceFile(ENHANCED_MULE_TOOLS_FLOW_XML, ENHANCED_MULE_TOOLS_FLOW_XML, data));
         }
-
+        if( descriptorFile != null ) {
+            try {
+                source.add(new InMemSourceFile(ANYPOINT_JSON,ANYPOINT_JSON, FileUtils.toByteArray(descriptorFile)));
+            } catch (IOException e) {
+                throw new UnpackException(e);
+            }
+        }
         SourceFile file = (SourceFile) source.getFile(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON);
         if (file == null) {
             throw new UnpackException(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON + " not found");
@@ -64,8 +76,12 @@ public class EnhanceMuleTransformer extends Transformer {
                     List<String> configs = (List<String>) json.computeIfAbsent("configs", key -> new ArrayList<String>());
                     List<String> secureProperties = (List<String>) json.computeIfAbsent("secureProperties", key -> new ArrayList<>());
 
-                    configs.add(ENHANCED_MULE_TOOLS_FLOW_XML);
-                    exportedResources.add(ENHANCED_MULE_TOOLS_FLOW_XML);
+                    if( !configs.contains(ENHANCED_MULE_TOOLS_FLOW_XML)) {
+                        configs.add(ENHANCED_MULE_TOOLS_FLOW_XML);
+                    }
+                    if( !exportedResources.contains(ENHANCED_MULE_TOOLS_FLOW_XML)) {
+                        exportedResources.add(ENHANCED_MULE_TOOLS_FLOW_XML);
+                    }
 
                     addSecureProperties(secureProperties);
 

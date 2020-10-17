@@ -1,12 +1,20 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "http://www.enhanced-mule.com/schemas/emule-application.schema.json",
+    "$id": "http://static.enhanced-mule.com/schemas/emule-application.schema.json",
     "title": "Enhanced Mule Application provisioning description",
     "description": "Used to automatically provision all application-related anypoint capabilities",
     "type": "object",
     "properties": {
         "id": {
-            "description": "Application's identifier",
+            "description": "Application identifier (defaults to application maven artifactId)",
+            "type": "string"
+        },
+        "name": {
+            "description": "Application identifier (defaults to application maven name)",
+            "type": "string"
+        },
+        "version": {
+            "description": "Application version (defaults to application maven version)",
             "type": "string"
         },
         "mule3": {
@@ -93,8 +101,12 @@
                                     "path": {
                                         "type": "string",
                                         "description": "Path to the markdown file that contains this page's content"
-                                    }
-                                }
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "path"
+                                ]
                             }
                         }
                     }

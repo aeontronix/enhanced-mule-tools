@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.aeontronix.commons.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,13 +123,15 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown"));
+            return jsonHelper.getJsonMapper().readValue(httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown")),String.class);
         } catch (HttpException e) {
             if( e.getStatusCode() == 404 ) {
                 throw new NotFoundException("Page not found: "+name);
             } else {
                 throw e;
             }
+        } catch (JsonProcessingException e) {
+            throw new UnexpectedException(e);
         }
     }
 

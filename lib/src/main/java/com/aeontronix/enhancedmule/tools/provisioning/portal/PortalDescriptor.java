@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools.provisioning.portal;
 
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.kloudtek.util.FileUtils;
 import org.slf4j.Logger;
 
@@ -29,18 +28,23 @@ public class PortalDescriptor {
     }
 
     public void provision(ExchangeAsset exchangeAsset) throws IOException {
-        if( pages != null ) {
+        if (pages != null) {
             for (PortalPageDescriptor page : pages) {
-                final String expectedPage = FileUtils.toString(new File(page.getPath()));
+                String expectedPage;
+                if (page.getContent() != null) {
+                    expectedPage = page.getContent();
+                } else {
+                    expectedPage = FileUtils.toString(new File(page.getPath()));
+                }
                 String pageContent;
                 try {
                     pageContent = exchangeAsset.getPage(page.getName());
                 } catch (NotFoundException e) {
                     pageContent = null;
                 }
-                if( pageContent == null || !pageContent.equals(expectedPage) ) {
-                    exchangeAsset.updatePage(page.getName(),expectedPage);
-                    logger.info("Updated page "+page.getName());
+                if (pageContent == null || !pageContent.equals(expectedPage)) {
+                    exchangeAsset.updatePage(page.getName(), expectedPage);
+                    logger.info("Updated page " + page.getName());
                 }
             }
         }

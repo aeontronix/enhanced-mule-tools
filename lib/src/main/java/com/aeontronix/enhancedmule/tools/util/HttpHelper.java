@@ -29,11 +29,13 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class HttpHelper implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(HttpHelper.class);
     private static final String HEADER_AUTH = "Authorization";
     public static final String CONTENT_TYPE = "Content-Type";
+    public static final long TOOMANYCALLSRETRYDELAY = TimeUnit.SECONDS.toMillis(45);
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
     private EMAccessTokens authToken;
@@ -262,7 +264,11 @@ public class HttpHelper implements Closeable {
                 if (attempt > maxRetries) {
                     throw e;
                 } else {
-                    ThreadUtils.sleep(retryDelay);
+                    if( e.getStatusCode() == 502 && retryDelay < TOOMANYCALLSRETRYDELAY) {
+                        ThreadUtils.sleep(TOOMANYCALLSRETRYDELAY);
+                    } else {
+                        ThreadUtils.sleep(retryDelay);
+                    }
                     return executeWrapper(method, multiPartRequest, attempt);
                 }
             } else {
@@ -359,15 +365,15 @@ public class HttpHelper implements Closeable {
     }
 
     private HttpRequestBase setBasicAuthHeader(HttpRequestBase request) {
-        if (authenticationProvider instanceof AuthenticationProviderUsernamePasswordImpl) {
-            String authStr = ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getUsername() +
-                    ":" + ((AuthenticationProviderUsernamePasswordImpl) authenticationProvider).getPassword();
-            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.ISO_8859_1));
+        try {
+            String authStr = "~~~Token~~~" +
+                    ":" + authenticationProvider.getBearerToken(this).getAnypointAccessToken();
+            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
             return request;
-        } else {
-            throw new RuntimeException("Only supported with username/password authentication at this time");
+        } catch (HttpException e) {
+            throw new RuntimeException(e);
         }
     }
 

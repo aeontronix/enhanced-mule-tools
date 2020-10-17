@@ -51,7 +51,7 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract String getArtifactId();
 
-    public static ApplicationSource create(String orgId, AnypointClient client, String path) {
+    public static ApplicationSource create(String orgId, AnypointClient client, String path) throws IOException {
         if (path.startsWith("exchange://")) {
             return new ExchangeApplicationSource(orgId, client, path);
         } else {

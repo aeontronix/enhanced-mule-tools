@@ -1,0 +1,34 @@
+{
+  "id": "myreallytestytest",
+  "api": {
+    "portal": {
+      "pages": [
+        {
+          "name": "home",
+          "path": "src/main/pages/home.md"
+        },
+        {
+          "name": "hello",
+          "path": "src/main/pages/hello.md"
+        }
+      ]
+    },
+    "exchangeTags": ["footag","batag"],
+    "label": "${environment.lname}-latest",
+    "clientApp": {
+    },
+    "access": [
+      {
+        "assetId": "otherapi",
+        "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
+        "assetVersion": "1.0.1"
+      },
+      {
+        "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
+        "assetId": "anypoint-sys-api-spec",
+        "assetVersion": "1.0.2",
+        "label": "sandbox-latest"
+      }
+    ]
+  }
+}

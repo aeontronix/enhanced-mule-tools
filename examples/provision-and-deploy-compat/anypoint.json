@@ -1,0 +1,6 @@
+{
+  "api": {
+    "exchangeTags": ["footag","batag"],
+    "label": "${environment.lname}-latest"
+  }
+}

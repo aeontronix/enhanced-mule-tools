@@ -27,7 +27,8 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     private RESTClient restClient;
     private CredentialsProvider credentialsProvider;
     private String anypointPlatformUrl = "https://anypoint.mulesoft.com/";
-    private String exchangeMavenUrl = "https://maven.anypoint.mulesoft.com";
+    private String exchangeMavenBaseUrl = "https://maven.anypoint.mulesoft.com";
+    private String exchangeMavenPath = "/api/v2/maven";
     private ExchangeClient exchangeClient;
 
     public EnhancedMuleClient() {
@@ -38,7 +39,7 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         restClient = new RESTClient(new RESTClientJsonParserJacksonImpl(), null, null, null);
         restClient.setBaseUrl(serverUrl);
         restClient.addAuthProvider(new MavenAuthenticationProvider());
-        exchangeClient = new ExchangeClient(restClient, exchangeMavenUrl);
+        exchangeClient = new ExchangeClient(restClient, exchangeMavenBaseUrl);
     }
 
     public void setProxy(HttpHost proxyHost, String proxyUsername, String proxyPassword) {
@@ -83,6 +84,18 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         this.anypointPlatformUrl = anypointPlatformUrl;
     }
 
+    public String getExchangeMavenUrl() {
+        return exchangeMavenBaseUrl + exchangeMavenPath;
+    }
+
+    public String getExchangeMavenBaseUrl() {
+        return exchangeMavenBaseUrl;
+    }
+
+    public void setExchangeMavenBaseUrl(String exchangeMavenBaseUrl) {
+        this.exchangeMavenBaseUrl = exchangeMavenBaseUrl;
+    }
+
     public String getAnypointBearerToken() throws IOException {
         if (credentialsProvider instanceof AnypointBearerTokenCredentialsProvider) {
             return ((AnypointBearerTokenCredentialsProvider) credentialsProvider).getAnypointBearerToken(this);
@@ -94,8 +107,8 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     public class MavenAuthenticationProvider implements RESTAuthenticationProvider {
         @Override
         public boolean handles(HttpRequest req) {
-            return (req instanceof HttpRequestWrapper && ((HttpRequestWrapper) req).getTarget().toString().startsWith(exchangeMavenUrl)) ||
-                    (req instanceof HttpUriRequest && ((HttpUriRequest) req).getURI().toString().startsWith(exchangeMavenUrl));
+            return (req instanceof HttpRequestWrapper && ((HttpRequestWrapper) req).getTarget().toString().startsWith(exchangeMavenBaseUrl)) ||
+                    (req instanceof HttpUriRequest && ((HttpUriRequest) req).getURI().toString().startsWith(exchangeMavenBaseUrl));
         }
 
         @Override

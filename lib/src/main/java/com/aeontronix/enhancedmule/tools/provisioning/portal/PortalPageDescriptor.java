@@ -11,6 +11,8 @@ public class PortalPageDescriptor {
     private String name;
     @JsonProperty
     private String path;
+    @JsonProperty
+    private String content;
 
     public String getName() {
         return name;
@@ -26,5 +28,13 @@ public class PortalPageDescriptor {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

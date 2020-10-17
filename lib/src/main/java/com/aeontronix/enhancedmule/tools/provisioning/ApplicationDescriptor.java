@@ -22,6 +22,7 @@ import java.util.Map;
 public class ApplicationDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDescriptor.class);
     private String id;
+    private String name;
     private String version;
     private Boolean mule3;
     private APIDescriptor api;
@@ -66,6 +67,14 @@ public class ApplicationDescriptor {
         } catch (Exception e) {
             throw new ProvisioningException(e);
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Boolean getMule3() {

@@ -64,7 +64,6 @@ public abstract class DeploymentRequest {
             List<Transformer> transformers = new ArrayList<>();
             if (apiProvisioningConfig != null) {
                 applicationDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
-                transformers.add(new EnhanceMuleTransformer(applicationDescriptor));
                 if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = applicationDescriptor.provision(environment, apiProvisioningConfig, source);
@@ -91,13 +90,6 @@ public abstract class DeploymentRequest {
                         deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
                         applicationDescriptor.addProperty(keySecret,true);
                     }
-                    Transformer muleArtifactTransformer = new Transformer() {
-                        @SuppressWarnings("unchecked")
-                        @Override
-                        public void apply(Source source, Destination destination) throws UnpackException {
-                        }
-                    };
-                    transformers.add(muleArtifactTransformer);
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");
                 }
