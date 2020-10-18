@@ -157,29 +157,33 @@ public class APIDescriptor {
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             exchangeAsset = updateExchangeTags(exchangeAsset);
-            final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
-                    toMap(AssetCategory::getKey, AssetCategory::getValue));
-            if( categories == null ) {
-                categories = new HashMap<>();
-            }
-            for (String curCatKey : assetCategories.keySet()) {
-                if( ! categories.containsKey(curCatKey) ) {
-                    exchangeAsset.deleteCategory(curCatKey);
-                }
-            }
-            for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
-                List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
-                List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(),Collections.emptyList());
-                if( !catValues.equals(assetCatValues)) {
-                    exchangeAsset.updateCategory(catEntries.getKey(),catValues);
-                }
-            }
+            updateExchangeCategories(exchangeAsset);
             // portal
             if (portal != null) {
                 portal.provision(exchangeAsset);
             }
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
+        }
+    }
+
+    private void updateExchangeCategories(ExchangeAsset exchangeAsset) throws HttpException {
+        final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
+                toMap(AssetCategory::getKey, AssetCategory::getValue));
+        if( categories == null ) {
+            categories = new HashMap<>();
+        }
+        for (String curCatKey : assetCategories.keySet()) {
+            if( ! categories.containsKey(curCatKey) ) {
+                exchangeAsset.deleteCategory(curCatKey);
+            }
+        }
+        for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
+            List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
+            List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(),Collections.emptyList());
+            if( !catValues.equals(assetCatValues)) {
+                exchangeAsset.updateCategory(catEntries.getKey(),catValues);
+            }
         }
     }
 
