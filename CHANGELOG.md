@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Interactive authentication only happens on-demand now
+- Support for Exchange Labels
+- Support for Exchange Categories
+- Improved publish to exchanges and publish from exchange
+- Publish exchange portal pages
 
 ## 1.1.8
 
