@@ -58,7 +58,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     @JsonProperty("isPublic")
     private Boolean isPublic;
     @JsonProperty("categories")
-    private List categories;
+    private List<AssetCategory> categories;
     @JsonProperty("id")
     private String id;
     @JsonProperty("assetLink")
@@ -123,15 +123,13 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return jsonHelper.getJsonMapper().readValue(httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown")),String.class);
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown"));
         } catch (HttpException e) {
             if( e.getStatusCode() == 404 ) {
                 throw new NotFoundException("Page not found: "+name);
             } else {
                 throw e;
             }
-        } catch (JsonProcessingException e) {
-            throw new UnexpectedException(e);
         }
     }
 
@@ -150,8 +148,18 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updatePage(String name, String content) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name).toString(), Collections.singletonMap("Content-Type","text/markdown"), content);
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name).toString(),
+                Collections.singletonMap("Content-Type","text/markdown"), content);
         httpHelper.httpPatch(getUrl(),null);
+    }
+
+    public void deleteCategory(String key) throws HttpException {
+        httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").path(key,true).toString());
+    }
+
+    public void updateCategory(String key, List<String> catValues) throws HttpException {
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").path(key,true).toString(),
+                Collections.singletonMap("tagValue",catValues));
     }
 
     @NotNull
@@ -279,11 +287,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         isPublic = aPublic;
     }
 
-    public List getCategories() {
+    public List<AssetCategory> getCategories() {
         return categories;
     }
 
-    public void setCategories(List categories) {
+    public void setCategories(List<AssetCategory> categories) {
         this.categories = categories;
     }
 
@@ -396,4 +404,5 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     public void setNumberOfRates(Integer numberOfRates) {
         this.numberOfRates = numberOfRates;
     }
+
 }

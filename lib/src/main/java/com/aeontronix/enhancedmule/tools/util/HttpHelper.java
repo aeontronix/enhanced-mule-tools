@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
@@ -17,6 +18,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -221,8 +224,20 @@ public class HttpHelper implements Closeable {
             } else {
                 if( method.getFirstHeader(CONTENT_TYPE) == null ) {
                     method.setHeader(CONTENT_TYPE, "application/json");
+                    method.setEntity(new ByteArrayEntity(jsonHelper.toJson(data)));
+                } else {
+                    try {
+                        if( data instanceof byte[] ) {
+                            method.setEntity(new ByteArrayEntity((byte[])data));
+                        } else if( data instanceof String ) {
+                            method.setEntity(new StringEntity((String)data));
+                        } else {
+                            throw new IllegalArgumentException("Invalid data http entity object type");
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        throw new UnexpectedException(e);
+                    }
                 }
-                method.setEntity(new ByteArrayEntity(jsonHelper.toJson(data)));
             }
         }
         return executeWrapper(method, null);

@@ -4,8 +4,13 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning.api;
 
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.TempFile;
+import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetTag;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.api.API;
@@ -13,31 +18,28 @@ import com.aeontronix.enhancedmule.tools.api.APISpec;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
 import com.aeontronix.enhancedmule.tools.api.SLATierLimits;
 import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.TempFile;
-import com.aeontronix.commons.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
     private String assetId;
     private String assetVersion;
     private String version;
-    /** Backwards compatibility, use 'version' instead */
+    /**
+     * Backwards compatibility, use 'version' instead
+     */
     @Deprecated
     private String apiVersion;
     private String endpoint;
@@ -54,6 +56,7 @@ public class APIDescriptor {
     private boolean assetCreate;
     private String assetMainFile;
     private PortalDescriptor portal;
+    private Map<String,List<String>> categories;
 
     public APIDescriptor() {
     }
@@ -65,7 +68,7 @@ public class APIDescriptor {
 
     public void provision(ApplicationDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
         try {
-            if( version == null && apiVersion != null ) {
+            if (version == null && apiVersion != null) {
                 // backwards compatibility
                 version = apiVersion;
             }
@@ -116,9 +119,9 @@ public class APIDescriptor {
                     logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", this.getAssetId(), productAPIVersion, label);
                     api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(this.getAssetId(), productAPIVersion, label);
                     final String currentAssetVersion = api.getAssetVersion();
-                    if( ! currentAssetVersion.equalsIgnoreCase(assetVersion) ) {
+                    if (!currentAssetVersion.equalsIgnoreCase(assetVersion)) {
                         api = api.updateVersion(assetVersion);
-                        logger.info("Changed asset version from {} to {}",currentAssetVersion, assetVersion);
+                        logger.info("Changed asset version from {} to {}", currentAssetVersion, assetVersion);
                     }
                 } catch (NotFoundException ex) {
                     logger.debug("Creating API");
@@ -154,8 +157,25 @@ public class APIDescriptor {
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             exchangeAsset = updateExchangeTags(exchangeAsset);
+            final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
+                    toMap(AssetCategory::getKey, AssetCategory::getValue));
+            if( categories == null ) {
+                categories = new HashMap<>();
+            }
+            for (String curCatKey : assetCategories.keySet()) {
+                if( ! categories.containsKey(curCatKey) ) {
+                    exchangeAsset.deleteCategory(curCatKey);
+                }
+            }
+            for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
+                List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
+                List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(),Collections.emptyList());
+                if( !catValues.equals(assetCatValues)) {
+                    exchangeAsset.updateCategory(catEntries.getKey(),catValues);
+                }
+            }
             // portal
-            if( portal != null ) {
+            if (portal != null) {
                 portal.provision(exchangeAsset);
             }
         } catch (AssetCreationException | NotFoundException | IOException e) {
@@ -177,9 +197,9 @@ public class APIDescriptor {
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
         ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
         List<String> expectedTags = this.exchangeTags != null ? this.exchangeTags : Collections.emptyList();
-        if( !current.equals(expectedTags) ) {
+        if (!current.equals(expectedTags)) {
             exchangeAsset = exchangeAsset.updateLabels(expectedTags);
-            logger.info("Updated exchange tags to "+expectedTags);
+            logger.info("Updated exchange tags to " + expectedTags);
         }
         return exchangeAsset;
     }
@@ -356,5 +376,13 @@ public class APIDescriptor {
 
     public void setPortal(PortalDescriptor portal) {
         this.portal = portal;
+    }
+
+    public Map<String, List<String>> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Map<String, List<String>> categories) {
+        this.categories = categories;
     }
 }

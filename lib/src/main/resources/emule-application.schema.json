@@ -171,6 +171,17 @@
                     "description": "API instance label",
                     "type": "string"
                 },
+                "categories": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
                 "slaTiers": {
                     "description": "SLA Tiers to setup for this API",
                     "type": "array",
