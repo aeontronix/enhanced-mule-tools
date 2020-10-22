@@ -76,23 +76,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             File generateDescriptorFile = new File(buildDir, "anypoint.json");
             objectMapper.writeValue(generateDescriptorFile, applicationDescriptor);
 
-            final Artifact artifact = findAppArtifact(project);
-            if (artifact.getFile() == null || !artifact.getFile().exists()) {
-                throw new IllegalStateException("Mule artifact not found");
-            }
-            File artifactFile = artifact.getFile();
-            File oldArtifactFile = new File(artifactFile.getPath() + ".preweaving");
-            if (oldArtifactFile.exists()) {
-                FileUtils.delete(oldArtifactFile);
-            }
-            if (!artifactFile.renameTo(oldArtifactFile)) {
-                throw new IOException("Unable to move " + artifactFile.getPath() + " to " + oldArtifactFile.getPath());
-            }
-            Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, artifactFile, FileType.ZIP);
-            final ArrayList<Transformer> transformers = new ArrayList<>();
-            transformers.add(new EnhanceMuleTransformer(applicationDescriptor, generateDescriptorFile));
-            unpacker.addTransformers(transformers);
-            unpacker.unpack();
+            enhanceAppArchive(applicationDescriptor, generateDescriptorFile);
+
             if (!mulePluginCompatibility) {
                 DefaultArtifact descriptorArtifactor = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
                         "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
@@ -102,6 +87,26 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         } catch (IOException | UnpackException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
+    }
+
+    private void enhanceAppArchive(ApplicationDescriptor applicationDescriptor, File generateDescriptorFile) throws IOException, UnpackException {
+        final Artifact artifact = findAppArtifact(project);
+        if (artifact.getFile() == null || !artifact.getFile().exists()) {
+            throw new IllegalStateException("Mule artifact not found");
+        }
+        File artifactFile = artifact.getFile();
+        File oldArtifactFile = new File(artifactFile.getPath() + ".preweaving");
+        if (oldArtifactFile.exists()) {
+            FileUtils.delete(oldArtifactFile);
+        }
+        if (!artifactFile.renameTo(oldArtifactFile)) {
+            throw new IOException("Unable to move " + artifactFile.getPath() + " to " + oldArtifactFile.getPath());
+        }
+        Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, artifactFile, FileType.ZIP);
+        final ArrayList<Transformer> transformers = new ArrayList<>();
+        transformers.add(new EnhanceMuleTransformer(applicationDescriptor, generateDescriptorFile));
+        unpacker.addTransformers(transformers);
+        unpacker.unpack();
     }
 
     private Artifact findAppArtifact(MavenProject project) {

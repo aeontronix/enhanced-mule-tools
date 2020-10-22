@@ -36,6 +36,7 @@
                         <goals>
                             <goal>process-descriptor</goal>
                             <goal>prepare-publish</goal>
+                            <goal>create-deploy-script</goal>
                         </goals>
                     </execution>
                 </executions>
