@@ -45,7 +45,7 @@ public class APIDescriptor {
     private String endpoint;
     private List<String> tags;
     private List<String> exchangeTags;
-    private boolean addAutoDescovery = false;
+    private boolean addAutoDiscovery = false;
     private String autoDiscoveryFlow = "api-main";
     private HashMap<String, Object> endpointJson;
     private List<PolicyDescriptor> policies;
@@ -316,12 +316,12 @@ public class APIDescriptor {
         this.assetCreate = assetCreate;
     }
 
-    public boolean isAddAutoDescovery() {
-        return addAutoDescovery;
+    public boolean isAddAutoDiscovery() {
+        return addAutoDiscovery;
     }
 
-    public void setAddAutoDescovery(boolean addAutoDescovery) {
-        this.addAutoDescovery = addAutoDescovery;
+    public void setAddAutoDiscovery(boolean addAutoDiscovery) {
+        this.addAutoDiscovery = addAutoDiscovery;
     }
 
     public String getAutoDiscoveryFlow() {

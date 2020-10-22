@@ -122,6 +122,10 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private void legacyConvert(Map<String, Object> anypointDescriptor) {
         Map<String, Object> api = (Map<String, Object>) anypointDescriptor.get("api");
         if (api != null) {
+            final Object addAutoDiscovery = api.remove("addAutoDescovery");
+            if(addAutoDiscovery != null) {
+                api.put("addAutoDiscovery",addAutoDiscovery);
+            }
             Map<String, Object> client = (Map<String, Object>) api.remove("clientApp");
             if (client != null) {
                 anypointDescriptor.put("client", client);

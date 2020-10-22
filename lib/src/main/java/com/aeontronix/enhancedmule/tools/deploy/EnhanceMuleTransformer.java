@@ -37,7 +37,7 @@ public class EnhanceMuleTransformer extends Transformer {
         this.apiProvisioningDescriptor = apiProvisioningDescriptor;
         api = apiProvisioningDescriptor.getApi();
         this.descriptorFile = descriptorFile;
-        this.autoDiscovery = api != null && api.isAddAutoDescovery();
+        this.autoDiscovery = api != null && api.isAddAutoDiscovery();
     }
 
     @Override

@@ -71,7 +71,7 @@
                     "description": "API Version",
                     "type": "string",
                 },
-                "addAutoDescovery": {
+                "addAutoDiscovery": {
                     "description": "Add autodiscovery to flows",
                     "type": "boolean",
                     "default": true
