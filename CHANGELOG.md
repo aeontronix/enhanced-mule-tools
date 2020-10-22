@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Exchange Categories
 - Improved publish to exchanges and publish from exchange
 - Publish exchange portal pages
+- Ability to create deployment zip file for exchange-based deployments
 
 ## 1.1.8
 
