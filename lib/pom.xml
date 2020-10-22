@@ -64,11 +64,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.aeontronix.genesis</groupId>
             <artifactId>genesis-lib</artifactId>
             <version>1.0-beta1-SNAPSHOT</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.aeontronix.aeon-commons</groupId>
             <artifactId>aeon-commons</artifactId>
