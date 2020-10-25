@@ -3,9 +3,6 @@ include:
     file: 'maven-oss-lib.yml'
 
 docs:
-  dependencies:
-    - build-maven-release-candidates
-    - release-approve
   only:
     - master
     - /^rel-.*$/
