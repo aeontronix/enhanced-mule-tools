@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Mule Application Deployment
 permalink: /application-deployment.html
 nav_order: 1

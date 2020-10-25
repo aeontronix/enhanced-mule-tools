@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 title: Automated API Management
 permalink: /automated-api-management.html
 nav_order: 2

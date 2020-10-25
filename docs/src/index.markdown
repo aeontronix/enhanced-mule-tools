@@ -1,6 +1,14 @@
 ---
 layout: home
 ---
-Enhanced mule tools is an open source project designed to greatly facilitate application deployment and automation of 
-[Mulesoft](https://www.mulesoft.com/)'s [Anypoint platform™](https://www.mulesoft.com/platform/enterprise-integration).
+# Overview
 
+[Enhanced Mule](https://www.enhanced-mule.com) provides advanced automation and capabilities designed to help with development
+and maintenance of Mule / Anypoint application.
+
+It provide various capabilities that can either be accessed from the website, or using the Enhanced Mule Tools (either 
+via it command line tool or via it's Maven Plugin)
+
+# Features
+
+- API Management Automated Provisioning

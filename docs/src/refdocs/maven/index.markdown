@@ -1,11 +1,14 @@
 ---
-layout: page
-title: Maven Plugin Docs
-permalink: /maven-plugin.html
-nav_order: 3
+layout: default
+title: Maven Plugin
+parent: Reference Docs
+permalink: /refdocs/maven/index.html
+nav_order: 1
+has_children: true
 ---
-
 # 1. Authentication
+
+[authentication](authentication.html)
 
 For any goal marked as 'authenticated' below, you will need to specify one of the following authentication credentials
 

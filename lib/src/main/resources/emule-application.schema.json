@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://static.enhanced-mule.com/schemas/emule-application.schema.json",
-    "title": "EMule application provisioning description",
+    "title": "Application Provisioning",
     "description": "Used to automatically provision all application-related anypoint capabilities",
     "type": "object",
     "properties": {
