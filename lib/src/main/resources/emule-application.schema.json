@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://static.enhanced-mule.com/schemas/emule-application.schema.json",
-    "title": "Enhanced Mule Application provisioning description",
+    "title": "EMule application provisioning description",
     "description": "Used to automatically provision all application-related anypoint capabilities",
     "type": "object",
     "properties": {
@@ -69,7 +69,7 @@
                 },
                 "version": {
                     "description": "API Version",
-                    "type": "string",
+                    "type": "string"
                 },
                 "addAutoDiscovery": {
                     "description": "Add autodiscovery to flows",
@@ -101,7 +101,7 @@
                                     "path": {
                                         "type": "string",
                                         "description": "Path to the markdown file that contains this page's content"
-                                    },
+                                    }
                                 },
                                 "required": [
                                     "name",

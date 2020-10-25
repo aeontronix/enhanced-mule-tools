@@ -1,27 +1,17 @@
 #!/bin/bash
 
-git clone git@gitlab.com:aeontronix/oss/enhanced-mule-tools.git
-cd enhanced-mule-tools
-TAG=$(git describe --tags $(git rev-list --tags --max-count=1) | sed 's/^v\(.*\)/\1/')
-echo ${TAG}
-cd ..
-rm -rf enhanced-mule-tools
+set -e
 
-mkdir -p ../public _tmp _staging
+VERSION=$1
+
+rm -rf _build/ _staging/
+mkdir -p ../_build _staging/schemas
 rsync -avz src/ _staging/
-
-jsonschema2md -n -d src/anypoint.schema.json -o _tmp
-cat << EOF >_staging/anypoint.schema.markdown
----
-layout: page
-title: Anypoint Descriptor JSON Schema
-permalink: /anypoint-json-descriptor.html
-nav_order: 5
----
-EOF
-cat _tmp/anypoint.schema.md >>_staging/anypoint.schema.markdown
-rm -rf _tmp
-sed "s/@version@/${TAG}/" src/application-deployment.markdown >_staging/application-deployment.markdown
+jsonschema2md -n -d ../lib/src/main/resources/ -o _staging/schemas -h false
+find _staging -depth -name "*.md" -exec sh -c 'mv "$1" "${1%.md}.markdown"' _ {} \;
+find _staging -name "*.markdown" -exec sed -i.bak "s/@version@/${VERSION}/" {} +
+find . -name "*.bak" -exec rm -f {} \;
 cd _staging/
 bundle install
-bundle exec jekyll build -d ../public
+bundle exec jekyll build -d ../_build
+
