@@ -1,6 +1,7 @@
 {
   "id": "myreallytestytest",
   "api": {
+    "addAutoDiscovery": true,
     "portal": {
       "pages": [
         {

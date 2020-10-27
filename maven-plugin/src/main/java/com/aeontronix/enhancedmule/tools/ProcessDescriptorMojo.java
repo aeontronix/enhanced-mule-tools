@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,11 +42,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * Process an anypoint descriptor file and attach resulting file to project
  */
 @Mojo(name = "process-descriptor", defaultPhase = LifecyclePhase.PACKAGE)
 public class ProcessDescriptorMojo extends AbstractMojo {
+    private static final Logger logger = getLogger(ProcessDescriptorMojo.class);
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
@@ -124,14 +128,17 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         if (api != null) {
             final Object addAutoDiscovery = api.remove("addAutoDescovery");
             if(addAutoDiscovery != null) {
+                logger.warn("'addAutoDescovery' is deprecated, please use 'addAutoDiscovery' instead");
                 api.put("addAutoDiscovery",addAutoDiscovery);
             }
             Map<String, Object> client = (Map<String, Object>) api.remove("clientApp");
             if (client != null) {
+                logger.warn("'clientApp' under 'api' is deprecated, please use 'client' at application descriptor level instead.");
                 anypointDescriptor.put("client", client);
             }
             Object access = api.remove("access");
             if (access != null) {
+                logger.warn("'access' under 'api' is deprecated, please move it inside 'client' instead.");
                 if (client == null) {
                     client = new HashMap<>();
                     anypointDescriptor.put("client", client);
