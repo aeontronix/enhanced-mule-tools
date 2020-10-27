@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved publish to exchanges and publish from exchange
 - Publish exchange portal pages
 - Ability to create deployment zip file for exchange-based deployments
+- Added deprecated warnings when using legacy descriptors
 
 ## 1.1.8
 
