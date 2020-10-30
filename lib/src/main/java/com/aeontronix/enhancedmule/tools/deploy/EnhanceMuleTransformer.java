@@ -14,6 +14,7 @@ import com.kloudtek.unpack.*;
 import com.kloudtek.unpack.transformer.Transformer;
 import com.kloudtek.util.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -23,7 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class EnhanceMuleTransformer extends Transformer {
+    private static final Logger logger = getLogger(EnhanceMuleTransformer.class);
     public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ENHANCED_MULE_TOOLS_FLOW_XML = "enhanced-mule-tools-flow.xml";
     public static final String ANYPOINT_JSON = "anypoint.json";
@@ -44,7 +48,8 @@ public class EnhanceMuleTransformer extends Transformer {
     public void apply(Source source, Destination destination) throws UnpackException {
         StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mule xmlns:api-gateway=\"http://www.mulesoft.org/schema/mule/api-gateway\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd\">\n");
         if (autoDiscovery) {
-            xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"" + api.getAutoDiscoveryFlow() + "\" />\n");
+            logger.info("Added autodiscovery using flow: "+api.getAutoDiscoveryFlow());
+            xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
         }
         xml.append("</mule>");
         byte[] data = xml.toString().getBytes();

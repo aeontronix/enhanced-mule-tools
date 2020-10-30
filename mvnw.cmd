@@ -18,7 +18,7 @@
 @REM ----------------------------------------------------------------------------
 
 @REM ----------------------------------------------------------------------------
-@REM Maven2 Start Up Batch script
+@REM Maven Start Up Batch script
 @REM
 @REM Required ENV vars:
 @REM JAVA_HOME - location of a JDK home dir
@@ -26,7 +26,7 @@
 @REM Optional ENV vars
 @REM M2_HOME - location of maven2's installed home dir
 @REM MAVEN_BATCH_ECHO - set to 'on' to enable the echoing of the batch commands
-@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a key stroke before ending
+@REM MAVEN_BATCH_PAUSE - set to 'on' to wait for a keystroke before ending
 @REM MAVEN_OPTS - parameters passed to the Java VM when running Maven
 @REM     e.g. to debug Maven itself, use
 @REM set MAVEN_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000
@@ -35,7 +35,9 @@
 
 @REM Begin all REM lines with '@' in case MAVEN_BATCH_ECHO is 'on'
 @echo off
-@REM enable echoing my setting MAVEN_BATCH_ECHO to 'on'
+@REM set title of command window
+title %0
+@REM enable echoing by setting MAVEN_BATCH_ECHO to 'on'
 @if "%MAVEN_BATCH_ECHO%" == "on"  echo %MAVEN_BATCH_ECHO%
 
 @REM set %HOME% to equivalent of $HOME
@@ -54,31 +56,6 @@ set ERROR_CODE=0
 
 @REM To isolate internal variables from possible post scripts, we use another setlocal
 @setlocal
-
-@REM ==== START VALIDATION ====
-if not "%JAVA_HOME%" == "" goto OkJHome
-
-echo.
-echo Error: JAVA_HOME not found in your environment. >&2
-echo Please set the JAVA_HOME variable in your environment to match the >&2
-echo location of your Java installation. >&2
-echo.
-goto error
-
-:OkJHome
-if exist "%JAVA_HOME%\bin\java.exe" goto init
-
-echo.
-echo Error: JAVA_HOME is set to an invalid directory. >&2
-echo JAVA_HOME = "%JAVA_HOME%" >&2
-echo Please set the JAVA_HOME variable in your environment to match the >&2
-echo location of your Java installation. >&2
-echo.
-goto error
-
-@REM ==== END VALIDATION ====
-
-:init
 
 @REM Find the project base dir, i.e. the directory that contains the folder ".mvn".
 @REM Fallback to current working directory if not found.
@@ -106,6 +83,83 @@ cd "%EXEC_DIR%"
 
 :endDetectBaseDir
 
+@REM ==== START VALIDATION ====
+if not "%JAVA_HOME%" == "" goto OkJHome
+
+For /F "tokens=1* delims==" %%A IN ('type %MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties') DO (
+    IF "%%A"=="winJVMUrl" SET JVM_DOWNLOAD_URL=%%B
+    IF "%%A"=="winJVMChecksumSHA256" SET JVM_DOWNLOAD_SHA256=%%B
+    IF "%%A"=="winJVMName" SET JVM_DOWNLOAD_NAME=%%B
+)
+
+@setlocal EnableExtensions EnableDelayedExpansion
+if not "%JVM_DOWNLOAD_URL%" == "" (
+    if "%JVM_DOWNLOAD_NAME%" == "" (
+        echo winJVMName property not set
+        goto error
+    )
+    IF EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm\%JVM_DOWNLOAD_NAME%" goto skipJvmDownload
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Downloading JVM from %JVM_DOWNLOAD_URL%
+    )
+    powershell -Command "&{"^
+		"$webclient = new-object System.Net.WebClient;"^
+		"if (-not ([string]::IsNullOrEmpty('%MVNW_USERNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
+		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_USERNAME%', '%MVNW_PASSWORD%');"^
+		"}"^
+		"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $webclient.DownloadFile('%JVM_DOWNLOAD_URL%', '%MAVEN_PROJECTBASEDIR%\.mvn\jvm.zip')"^
+		"}"
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Finished downloading %WRAPPER_JAR%
+    )
+    if not "%JVM_DOWNLOAD_SHA256%" == "true" (
+        for /f %%i in ('powershell -Command "(Get-FileHash %MAVEN_PROJECTBASEDIR%\.mvn\jvm.zip -Algorithm SHA256).Hash"') do set CHECKSUM256=%%i
+        if not "!CHECKSUM256!" == "%JVM_DOWNLOAD_SHA256%" (
+            echo "Invalid checksum for %MAVEN_PROJECTBASEDIR%\.mvn\jvm.zip expected %JVM_DOWNLOAD_SHA256% but got !CHECKSUM256!"
+            goto error
+        )
+    )
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Unzipping JVM
+    )
+    IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm" mkdir "%MAVEN_PROJECTBASEDIR%\.mvn\jvm"
+    powershell -Command "Expand-Archive -LiteralPath '%MAVEN_PROJECTBASEDIR%\.mvn\jvm.zip' -DestinationPath '%MAVEN_PROJECTBASEDIR%\.mvn\jvm'"
+    del "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.zip"
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Finished unzipping jvm
+    )
+    :skipJvmDownload
+    set JAVA_HOME=%MAVEN_PROJECTBASEDIR%\.mvn\jvm\%JVM_DOWNLOAD_NAME%
+    if not exist "%MAVEN_PROJECTBASEDIR%\.mvn\jvm\%JVM_DOWNLOAD_NAME%\bin\java.exe" (
+        echo "%MAVEN_PROJECTBASEDIR%\.mvn\jvm\%JVM_DOWNLOAD_NAME%\bin\java.exe not found"
+        goto error
+    )
+)
+@endlocal & set JAVA_HOME=%JAVA_HOME%
+if not "%JAVA_HOME%" == "" goto OkJHome
+
+echo.
+echo Error: JAVA_HOME not found in your environment. >&2
+echo Please set the JAVA_HOME variable in your environment to match the >&2
+echo location of your Java installation. >&2
+echo.
+goto error
+
+:OkJHome
+if exist "%JAVA_HOME%\bin\java.exe" goto init
+
+echo.
+echo Error: JAVA_HOME is set to an invalid directory. >&2
+echo JAVA_HOME = "%JAVA_HOME%" >&2
+echo Please set the JAVA_HOME variable in your environment to match the >&2
+echo location of your Java installation. >&2
+echo.
+goto error
+
+@REM ==== END VALIDATION ====
+
+:init
+
 IF NOT EXIST "%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config" goto endReadAdditionalConfig
 
 @setlocal EnableExtensions EnableDelayedExpansion
@@ -115,9 +169,46 @@ for /F "usebackq delims=" %%a in ("%MAVEN_PROJECTBASEDIR%\.mvn\jvm.config") do s
 :endReadAdditionalConfig
 
 SET MAVEN_JAVA_EXE="%JAVA_HOME%\bin\java.exe"
-
 set WRAPPER_JAR="%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar"
 set WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
+
+set DOWNLOAD_URL="https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
+
+FOR /F "tokens=1,2 delims==" %%A IN ('type %MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.properties') DO (
+    IF "%%A"=="wrapperUrl" SET DOWNLOAD_URL=%%B
+)
+
+@REM Extension to allow automatically downloading the maven-wrapper.jar from Maven-central
+@REM This allows using the maven wrapper in projects that prohibit checking in binary data.
+if exist %WRAPPER_JAR% (
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Found %WRAPPER_JAR%
+    )
+) else (
+    if not "%MVNW_REPOURL%" == "" (
+        SET DOWNLOAD_URL="%MVNW_REPOURL%/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar"
+    )
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Couldn't find %WRAPPER_JAR%, downloading it ...
+        echo Downloading from: %DOWNLOAD_URL%
+    )
+
+    powershell -Command "&{"^
+		"$webclient = new-object System.Net.WebClient;"^
+		"if (-not ([string]::IsNullOrEmpty('%MVNW_USERNAME%') -and [string]::IsNullOrEmpty('%MVNW_PASSWORD%'))) {"^
+		"$webclient.Credentials = new-object System.Net.NetworkCredential('%MVNW_USERNAME%', '%MVNW_PASSWORD%');"^
+		"}"^
+		"[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $webclient.DownloadFile('%DOWNLOAD_URL%', '%WRAPPER_JAR%')"^
+		"}"
+    if "%MVNW_VERBOSE%" == "true" (
+        echo Finished downloading %WRAPPER_JAR%
+    )
+)
+@REM End of extension
+
+@REM Provide a "standardized" way to retrieve the CLI args that will
+@REM work with both Windows and non-Windows executions.
+set MAVEN_CMD_LINE_ARGS=%*
 
 %MAVEN_JAVA_EXE% %JVM_CONFIG_MAVEN_PROPS% %MAVEN_OPTS% %MAVEN_DEBUG_OPTS% -classpath %WRAPPER_JAR% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %WRAPPER_LAUNCHER% %MAVEN_CONFIG% %*
 if ERRORLEVEL 1 goto error

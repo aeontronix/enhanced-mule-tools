@@ -85,8 +85,9 @@ public class ApplicationDeployerScriptBuilder {
                 copyFileToZip(zos, MVN_WRAPPER_PREFIX, "MavenWrapperDownloader.java", mvnWrapperDir);
             }
             writeFileToZip(zos, "deploy.sh", buildUnix());
-            writeFileToZip(zos, "deploy.bat", buildWin());
+            writeFileToZip(zos, "deploy.cmd", buildWin());
             writeFileToZip(zos, "deploy.json", buildJsonDescriptor());
+            writeFileToZip(zos, "deploy.ps1", "start -wait -NoNewWindow '.\\deploy.cmd' -args \"$args\"");
         }
     }
 
