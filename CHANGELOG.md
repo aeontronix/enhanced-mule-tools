@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Interactive Login (anypoint connected apps is too buggy, replaced by access tokens)
 
-## 1.1.10
+## 1.1.9
 
 ### Added
 
