@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.1.9
+## 1.1.10
 
 ### Added
 
@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Publish exchange portal pages
 - Ability to create deployment zip file for exchange-based deployments
 - Added deprecated warnings when using legacy descriptors
+- Access Token Support
+
+### Removed
+
+- Interactive Login (anypoint connected apps is too buggy, replaced by access tokens)
+
+## 1.1.10
+
+### Added
+
+- Improvements to interactive authentication
 
 ## 1.1.8
 

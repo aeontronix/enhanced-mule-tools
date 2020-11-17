@@ -19,14 +19,15 @@ If you have a user with username/password credentials (so NOT a Single Sign On u
 | username | anypoint.username | Anypoint Username
 | password | anypoint.password | Anypoint Password
 
-## Username / Password
+## Access Token
 
-If you have a user with username/password credentials (so NOT a Single Sign On user), you can just specify the following properties:
+You can obtain an access token by logging on to https://www.enhanced-mule.com, and in the profile (click on the user
+icon top right), enable offline access and create a user token.
 
 | Name | Property | Description |
 |------|----------|-------------|
-| username | anypoint.username | Anypoint Username
-| password | anypoint.password | Anypoint Password
+| emAccessTokenId | emule.accesstoken.id | Access Token Id
+| emAccessTokenSecret | emule.accesstoken.secret | Access Token Secret
 
 ## Connected Apps
 

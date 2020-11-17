@@ -54,8 +54,6 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String bearerToken;
     @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
-    @Parameter(defaultValue = "true", property = "anypoint.auth.interactive")
-    private boolean interactiveAuth;
     @Parameter(defaultValue = "true", property = "anypoint.adddistmngmt")
     private boolean addDistMngmnt;
     @Parameter(defaultValue = "true", property = "anypoint.updateorgid")
