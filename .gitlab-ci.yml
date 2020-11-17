@@ -3,17 +3,15 @@ include:
     file: 'maven-oss-lib.yml'
 
 #docs:
-#  only:
-#    - master
-#    - /^rel-.*$/
-#  allow_failure: false
-#  stage: Build
-#  except:
-#    refs:
-#      - tags
-#    variables:
-#      - $SKIP_DOCS
-#  script:
-#    - source /usr/bin/prepare-build
-#    - cd docs
-#    - sh build.sh
+  only:
+    - master
+    - /^rel-.*$/
+  allow_failure: false
+  stage: Build
+  except:
+    refs:
+      - tags
+  script:
+    - source /usr/bin/prepare-build
+    - cd docs
+    - sh build.sh
