@@ -12,7 +12,16 @@ For any goal marked as 'authenticated' below, you will need to specify one of th
 
 ## Username / Password
 
-If you have an user with username/password credentials (so NOT a Single Sign On user), you can just specify the following properties:
+If you have a user with username/password credentials (so NOT a Single Sign On user), you can just specify the following properties:
+
+| Name | Property | Description |
+|------|----------|-------------|
+| username | anypoint.username | Anypoint Username
+| password | anypoint.password | Anypoint Password
+
+## Username / Password
+
+If you have a user with username/password credentials (so NOT a Single Sign On user), you can just specify the following properties:
 
 | Name | Property | Description |
 |------|----------|-------------|
