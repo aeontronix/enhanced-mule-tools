@@ -30,7 +30,7 @@ public abstract class AbstractOrganizationalCmd extends CliCommand<AnypointCli> 
         }
         Organization organization = null;
         try {
-            organization = client.findOrganization(organizationName);
+            organization = client.findOrganizationByNameOrId(organizationName);
         } catch (NotFoundException e) {
             if (createOrganization) {
                 client.createOrganization(organizationName);

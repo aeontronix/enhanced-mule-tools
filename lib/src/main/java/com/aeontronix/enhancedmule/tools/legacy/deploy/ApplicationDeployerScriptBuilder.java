@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.deploy;
+package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.UnexpectedException;
 import com.fasterxml.jackson.core.JsonProcessingException;

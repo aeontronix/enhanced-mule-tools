@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.deploy.EnhanceMuleTransformer;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.EnhanceMuleTransformer;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
@@ -95,22 +95,26 @@ public class ProcessDescriptorMojo extends AbstractMojo {
 
     private void enhanceAppArchive(ApplicationDescriptor applicationDescriptor, File generateDescriptorFile) throws IOException, UnpackException {
         final Artifact artifact = findAppArtifact(project);
-        if (artifact.getFile() == null || !artifact.getFile().exists()) {
-            throw new IllegalStateException("Mule artifact not found");
+        if( artifact != null ) {
+            if (artifact.getFile() == null || !artifact.getFile().exists()) {
+                throw new IllegalStateException("Mule artifact not found");
+            }
+            File artifactFile = artifact.getFile();
+            File oldArtifactFile = new File(artifactFile.getPath() + ".preweaving");
+            if (oldArtifactFile.exists()) {
+                FileUtils.delete(oldArtifactFile);
+            }
+            if (!artifactFile.renameTo(oldArtifactFile)) {
+                throw new IOException("Unable to move " + artifactFile.getPath() + " to " + oldArtifactFile.getPath());
+            }
+            Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, artifactFile, FileType.ZIP);
+            final ArrayList<Transformer> transformers = new ArrayList<>();
+            transformers.add(new EnhanceMuleTransformer(applicationDescriptor, generateDescriptorFile));
+            unpacker.addTransformers(transformers);
+            unpacker.unpack();
+        } else {
+            logger.warn("No mule application attached, skipping archive enhancement");
         }
-        File artifactFile = artifact.getFile();
-        File oldArtifactFile = new File(artifactFile.getPath() + ".preweaving");
-        if (oldArtifactFile.exists()) {
-            FileUtils.delete(oldArtifactFile);
-        }
-        if (!artifactFile.renameTo(oldArtifactFile)) {
-            throw new IOException("Unable to move " + artifactFile.getPath() + " to " + oldArtifactFile.getPath());
-        }
-        Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, artifactFile, FileType.ZIP);
-        final ArrayList<Transformer> transformers = new ArrayList<>();
-        transformers.add(new EnhanceMuleTransformer(applicationDescriptor, generateDescriptorFile));
-        unpacker.addTransformers(transformers);
-        unpacker.unpack();
     }
 
     private Artifact findAppArtifact(MavenProject project) {
@@ -119,7 +123,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 return attachedArtifact;
             }
         }
-        throw new IllegalStateException("Unable to find attached mule application jar file");
+        return null;
     }
 
     @SuppressWarnings("unchecked")

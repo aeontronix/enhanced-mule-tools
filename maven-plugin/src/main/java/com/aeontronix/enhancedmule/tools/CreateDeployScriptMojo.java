@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.deploy.ApplicationDeployerScriptBuilder;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationDeployerScriptBuilder;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.plugin.AbstractMojo;
@@ -18,7 +18,7 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.io.IOException;
 
-import static com.aeontronix.enhancedmule.tools.deploy.ApplicationDeployerScriptBuilder.DEFAULT_MVN_OPTIONS;
+import static com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationDeployerScriptBuilder.DEFAULT_MVN_OPTIONS;
 
 @Mojo(name = "create-deploy-script", requiresProject = true, defaultPhase = LifecyclePhase.PACKAGE)
 public class CreateDeployScriptMojo extends AbstractMojo {

@@ -6,6 +6,8 @@ package com.aeontronix.enhancedmule.tools.config;
 
 import com.aeontronix.enhancedmule.tools.EnhancedMuleClient;
 import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.enhancedmule.tools.authentication.AnypointUsernamePasswordCredentials;
+import com.aeontronix.enhancedmule.tools.authentication.Credentials;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,6 +20,11 @@ public class CredentialsProviderAnypointUsernamePasswordImpl implements Anypoint
     public CredentialsProviderAnypointUsernamePasswordImpl(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    @Override
+    public Credentials getCredentials() throws IOException {
+        return new AnypointUsernamePasswordCredentials(username, password);
     }
 
     @Override

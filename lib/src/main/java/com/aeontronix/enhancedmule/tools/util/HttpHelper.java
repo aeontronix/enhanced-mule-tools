@@ -6,9 +6,7 @@ package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
-import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.commons.Base64;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.io.IOUtils;
@@ -41,7 +39,7 @@ public class HttpHelper implements Closeable {
     public static final long TOOMANYCALLSRETRYDELAY = TimeUnit.SECONDS.toMillis(45);
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
-    private EMAccessTokens authToken;
+    private AnypointAccessToken authToken;
     private JsonHelper jsonHelper;
     private int maxRetries = 4;
     private boolean loginRequest = false;
@@ -80,14 +78,14 @@ public class HttpHelper implements Closeable {
         httpClient.close();
     }
 
-    public EMAccessTokens getAuthToken() throws HttpException {
+    public AnypointAccessToken getAuthToken() throws HttpException {
         if (authToken == null) {
             this.authToken = authenticationProvider.getBearerToken(this);
         }
         return this.authToken;
     }
 
-    public void setAuthToken(EMAccessTokens authToken) {
+    public void setAuthToken(AnypointAccessToken authToken) {
         this.authToken = authToken;
     }
 

@@ -14,16 +14,15 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
-    private static final Logger logger = LoggerFactory.getLogger(AbstractAnypointMojo.class);
     public static final String EM_CLIENT = "emClient";
+    public static final String EMULE_ACCESSTOKEN_ID = "emule.accesstoken.id";
+    public static final String EMULE_ACCESSTOKEN_SECRET = "emule.accesstoken.secret";
     /**
      * Anypoint username
      */
@@ -44,6 +43,10 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.client.secret")
     protected String clientSecret;
+    @Parameter(property = EMULE_ACCESSTOKEN_ID)
+    protected String emAccessTokenId;
+    @Parameter(property = EMULE_ACCESSTOKEN_SECRET)
+    protected String emAccessTokenSecret;
     /**
      * Anypoint bearer token
      */
@@ -71,7 +74,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
 
     public synchronized AnypointClient getClient() throws IOException {
         if (client == null) {
-            client = ClientBuilder.buildClient(emClient.getAnypointBearerToken(), null, null, null, null, settings);
+            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings);
         }
         return client;
     }
@@ -79,7 +82,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password, interactiveAuth);
+            emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
+                    emAccessTokenId, emAccessTokenSecret);
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {

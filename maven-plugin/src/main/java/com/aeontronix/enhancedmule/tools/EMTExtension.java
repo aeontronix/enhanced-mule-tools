@@ -7,27 +7,24 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
+import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.repository.Authentication;
-import org.apache.maven.artifact.repository.MavenArtifactRepository;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.DeploymentRepository;
-import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.RepositoryPolicy;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.repository.AuthenticationSelector;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static com.aeontronix.commons.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component(role = AbstractMavenLifecycleParticipant.class)
@@ -39,24 +36,30 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private EnhancedMuleClient emClient;
     private AnypointBearerTokenCredentialsProvider credentialsProvider;
 
-    static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken, String username, String password, boolean interactiveAuth) throws MavenExecutionException {
+    static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
+                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret) throws MavenExecutionException {
         EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
         if (emClient == null) {
             emClient = new EnhancedMuleClient(enhancedMuleServerUrl);
+            final Proxy proxy = session.getSettings().getActiveProxy();
+            if( proxy != null ) {
+                emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword() );;
+            }
             session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
             logger.info("Initializing Enhanced Mule Tools");
             CredentialsProvider credentialsProvider;
             if (anypointBearerToken != null) {
                 logger.info("Using Bearer Token");
                 credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
-            } else if (StringUtils.isNotBlank(username)) {
+            } else if (isNotBlank(username)) {
                 logger.info("Using Username Password");
                 credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
-            } else if (interactiveAuth && session.getRequest().isInteractiveMode()) {
-                logger.info("Using Interactive login");
-                credentialsProvider = new CredentialsProviderInteractiveAuthentication();
+            } else if( isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret) ) {
+                logger.info("Using Access Token");
+                credentialsProvider = new CredentialsProviderAccessTokenImpl(emAccessTokenId, emAccessTokenSecret);
             } else {
-                throw new MavenExecutionException("No credentials provided and not in interactive mode", (File) null);
+                logger.info("No EMT credentials available");
+                credentialsProvider = new CredentialsProviderEmptyImpl();
             }
             emClient.setCredentialsLoader(credentialsProvider);
         }
@@ -70,8 +73,10 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             String anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
             String username = getProperty(session, "username", "anypoint.username", null);
             String password = getProperty(session, "password", "anypoint.password", null);
-            boolean interactiveAuth = Boolean.parseBoolean(getProperty(session, "interactiveAuth", "anypoint.auth.interactive", "false"));
-            emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password, interactiveAuth);
+            String emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
+            String emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
+            emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
+                    emAccessTokenId, emAccessTokenSecret);
             String serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
             final MavenProject currentProject = session.getCurrentProject();
             AuthenticationSelector authenticationSelector = session.getRepositorySession().getAuthenticationSelector();

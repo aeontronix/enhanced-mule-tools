@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2019
  */
 
-package com.aeontronix.enhancedmule.tools.deploy;
+package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;

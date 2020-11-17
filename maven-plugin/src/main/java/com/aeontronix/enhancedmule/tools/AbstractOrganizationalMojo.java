@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
     public synchronized Organization getOrganization() throws NotFoundException, IOException {
         if (organization == null) {
             if (org != null) {
-                organization = getClient().findOrganization(org);
+                organization = getClient().findOrganizationByNameOrId(org);
             } else {
                 organization = getClient().getUser().getOrganization();
                 if( organization == null ) {

@@ -123,7 +123,11 @@ public class RESTClient implements Closeable, AutoCloseable {
                     if (statusCode >= 200 && statusCode <= 299) {
                         return responseHandler.handleResponse(statusLine, response);
                     } else {
-                        throw new RESTException(statusLine.getReasonPhrase(), null, statusCode);
+                        String reasonPhrase = statusLine.getReasonPhrase();
+                        if( StringUtils.isBlank(reasonPhrase) ) {
+                            reasonPhrase = "Received HTTP error code: "+ statusCode;
+                        }
+                        throw new RESTException(reasonPhrase, null, statusCode);
                     }
                 }
             } catch (IOException e) {
@@ -158,14 +162,19 @@ public class RESTClient implements Closeable, AutoCloseable {
     public class GetBuilder extends AbstractMethodBuilder {
         public GetBuilder(HttpRequestBase method) {
             super(method);
-
         }
 
-        public void execute() throws IOException {
-            execute(new ResponseHandler() {
+        public <X> X execute(Class<X> cl) throws IOException {
+            return execute(new ResponseHandler() {
+                @SuppressWarnings("unchecked")
                 @Override
                 public <X> X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException {
-                    return null;
+                    final HttpEntity entity = response.getEntity();
+                    if( entity != null ) {
+                        return (X) jsonParser.parse(entity.getContent(),cl);
+                    } else {
+                        return null;
+                    }
                 }
             });
         }
@@ -183,8 +192,8 @@ public class RESTClient implements Closeable, AutoCloseable {
         public <X> X execute(Class<X> clazz) throws IOException {
             return execute(new ResponseHandler() {
                 @Override
-                public X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException {
-                    return jsonParser.parse(response.getEntity().getContent(), clazz);
+                public <X> X handleResponse(StatusLine statusLine, CloseableHttpResponse response) throws IOException {
+                    return (X) jsonParser.parse(response.getEntity().getContent(), clazz);
                 }
             });
         }
@@ -200,5 +209,4 @@ public class RESTClient implements Closeable, AutoCloseable {
             }
         }
     }
-
 }

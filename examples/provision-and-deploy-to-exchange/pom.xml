@@ -7,7 +7,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mycompany</groupId>
+    <groupId>b69aaacc-1d0d-4824-9780-d6c8a44aabd5</groupId>
     <artifactId>anypointtoolsdemo</artifactId>
     <version>1.0.5-SNAPSHOT</version>
     <packaging>mule-application</packaging>
@@ -21,7 +21,7 @@
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>false</maven.deploy.skip>
-        <emt.version>1.1.9-beta6-SNAPSHOT</emt.version>
+        <emt.version>1.1.10-beta1-SNAPSHOT</emt.version>
     </properties>
 
     <build>
@@ -53,13 +53,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>d002eff8-84a5-452f-bce6-145f4a688311</groupId>
-            <artifactId>anypoint-sys-api-spec</artifactId>
-            <version>1.0.0</version>
-            <classifier>oas</classifier>
-            <type>zip</type>
-        </dependency>
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-http-connector</artifactId>
@@ -111,5 +104,13 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>anypoint-exchange-v2</id>
+            <name>Anypoint Exchange</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v2/maven</url>
+        </repository>
+    </distributionManagement>
 
 </project>

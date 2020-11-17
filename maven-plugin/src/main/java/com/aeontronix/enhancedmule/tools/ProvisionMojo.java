@@ -10,7 +10,7 @@ import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.deploy.DeploymentRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;

@@ -78,7 +78,7 @@ public class OrganizationDescriptor {
             org = client.findOrganizationById(id);
         } else if (name != null) {
             try {
-                org = client.findOrganization(name);
+                org = client.findOrganizationByNameOrId(name);
             } catch (NotFoundException e) {
                 logger.info("Organization not found, creating");
                 if (parentId != null) {

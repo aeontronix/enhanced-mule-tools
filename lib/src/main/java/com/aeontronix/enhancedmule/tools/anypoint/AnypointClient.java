@@ -5,10 +5,10 @@
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.deploy.DeploymentService;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentService;
 import com.aeontronix.enhancedmule.tools.ocli.OCliClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
@@ -169,7 +169,7 @@ public class AnypointClient implements Closeable, Serializable {
     }
 
     @NotNull
-    public Organization findOrganization(String nameOrId) throws NotFoundException, HttpException {
+    public Organization findOrganizationByNameOrId(String nameOrId) throws NotFoundException, HttpException {
         for (Organization organization : findOrganizations()) {
             if (organization.getId().equals(nameOrId) || organization.getName().equals(nameOrId)) {
                 return organization;
@@ -239,7 +239,7 @@ public class AnypointClient implements Closeable, Serializable {
     public Environment findEnvironment(String organizationName, String environmentName, boolean createOrganization, boolean createEnvironment, Environment.Type createEnvironmentType) throws NotFoundException, HttpException {
         Organization organization;
         try {
-            organization = findOrganization(organizationName);
+            organization = findOrganizationByNameOrId(organizationName);
         } catch (NotFoundException e) {
             if (createOrganization) {
                 organization = createOrganization(organizationName);
@@ -367,7 +367,7 @@ public class AnypointClient implements Closeable, Serializable {
         httpHelper.unsetProxy();
     }
 
-    public EMAccessTokens getBearerToken() throws HttpException {
+    public AnypointAccessToken getBearerToken() throws HttpException {
         return getHttpHelper().getAuthToken();
     }
 }

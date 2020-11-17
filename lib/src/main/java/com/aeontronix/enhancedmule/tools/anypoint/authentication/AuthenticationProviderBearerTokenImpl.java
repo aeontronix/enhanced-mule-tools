@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 
@@ -16,7 +16,7 @@ public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvide
     }
 
     @Override
-    public EMAccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException {
-        return new EMAccessTokens(null, anypointBearerToken);
+    public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
+        return new AnypointAccessToken(anypointBearerToken);
     }
 }

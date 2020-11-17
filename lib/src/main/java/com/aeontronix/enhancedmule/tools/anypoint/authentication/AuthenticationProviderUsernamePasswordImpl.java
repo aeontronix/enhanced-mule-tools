@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,7 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
     }
 
     @Override
-    public EMAccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException {
+    public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
         try {
             if (StringUtils.isBlank(username)) {
                 throw new IllegalArgumentException("Username missing");
@@ -39,7 +39,7 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
             request.put("password", password);
             httpHelper.setLoginRequest(true);
             Map data = objectMapper.readValue(httpHelper.httpPost(LOGIN_PATH, request),Map.class);
-            return new EMAccessTokens(null,(String) data.get("access_token"));
+            return new AnypointAccessToken((String) data.get("access_token"));
         } catch (IOException e) {
             throw new HttpException(e);
         }

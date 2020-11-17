@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2019
  */
 
-package com.aeontronix.enhancedmule.tools.deploy;
+package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -14,7 +14,6 @@ import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

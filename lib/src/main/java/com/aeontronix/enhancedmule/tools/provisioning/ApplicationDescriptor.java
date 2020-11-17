@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;

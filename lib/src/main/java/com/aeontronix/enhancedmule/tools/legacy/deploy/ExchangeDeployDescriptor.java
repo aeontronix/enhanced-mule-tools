@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.deploy;
+package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 public class ExchangeDeployDescriptor {
     private String groupId;

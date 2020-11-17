@@ -399,7 +399,7 @@ public class Organization extends AnypointObject {
             envIds.add(env.getId());
         }
         for (VPCOrgProvisioningDescriptor o : vd.getOrganizations()) {
-            Organization subOrg = client.findOrganization(o.getName());
+            Organization subOrg = client.findOrganizationByNameOrId(o.getName());
             orgIds.add(subOrg.getId());
         }
         vpc.setAssociatedEnvironments(envIds);
@@ -409,7 +409,7 @@ public class Organization extends AnypointObject {
         String json = client.getHttpHelper().httpPost("/cloudhub/api/organizations/" + id + "/vpcs", vpc);
         vpc = client.getJsonHelper().readJson(new VPC(), json);
         for (VPCOrgProvisioningDescriptor o : vd.getOrganizations()) {
-            Organization subOrg = client.findOrganization(o.getName());
+            Organization subOrg = client.findOrganizationByNameOrId(o.getName());
             List<String> eId = new ArrayList<>();
             for (String e : o.getEnvironments()) {
                 Environment env = subOrg.findEnvironmentByName(e);

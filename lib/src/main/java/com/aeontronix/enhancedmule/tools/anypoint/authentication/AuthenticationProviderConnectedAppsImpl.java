@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +25,7 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
     }
 
     @Override
-    public EMAccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException {
+    public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
         try {
             if (StringUtils.isBlank(clientId)) {
                 throw new IllegalArgumentException("Client ID is missing");
@@ -39,7 +39,7 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
             request.put("grant_type", "client_credentials");
             httpHelper.setLoginRequest(true);
             Map data = objectMapper.readValue(httpHelper.httpPost("/accounts/api/v2/oauth2/token", request),Map.class);
-            return new EMAccessTokens(null,(String) data.get("access_token"));
+            return new AnypointAccessToken((String) data.get("access_token"));
         } catch (IOException e) {
             throw new HttpException(e);
         }

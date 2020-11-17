@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
-import com.aeontronix.enhancedmule.tools.authentication.EMAccessTokens;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.EMHttpClient;
 import com.aeontronix.enhancedmule.tools.util.EMHttpClientDefaultImpl;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -20,7 +20,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 
 public abstract class AuthenticationProvider {
-    public abstract EMAccessTokens getBearerToken(HttpHelper httpHelper) throws HttpException;
+    public abstract AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException;
 
     public EMHttpClient createHttpClient() {
         return createHttpClient(null,null,null);

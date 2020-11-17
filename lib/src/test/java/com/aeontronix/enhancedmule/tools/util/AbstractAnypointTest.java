@@ -68,14 +68,14 @@ public class AbstractAnypointTest {
             env = org.createEnvironment(orgName, Environment.Type.SANDBOX);
 //            httpHelperRecorder = new HttpHelperRecorder(client, username, password, orgName);
 //            client.setHttpHelper(httpHelperRecorder);
-            org = client.findOrganization(orgName);
+            org = client.findOrganizationByNameOrId(orgName);
             env = org.findEnvironmentByName(orgName);
         } else {
             client = new AnypointClient();
             HttpHelperReplayer httpHelper = new HttpHelperReplayer(client.getJsonHelper(),testRecordingFile);
             orgName = httpHelper.getOrgName();
             client.setHttpHelper(httpHelper);
-            org = client.findOrganization(orgName);
+            org = client.findOrganizationByNameOrId(orgName);
             env = org.findEnvironmentByName(orgName);
         }
     }

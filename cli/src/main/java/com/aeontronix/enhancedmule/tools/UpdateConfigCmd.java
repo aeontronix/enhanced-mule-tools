@@ -56,7 +56,7 @@ public class UpdateConfigCmd extends CliCommand<AnypointCli> {
         try {
             if (defaultOrg != null) {
                 try {
-                    Organization organization = anypointClient.findOrganization(defaultOrg);
+                    Organization organization = anypointClient.findOrganizationByNameOrId(defaultOrg);
                     if (defaultEnv != null) {
                         try {
                             organization.findEnvironmentByName(defaultEnv);

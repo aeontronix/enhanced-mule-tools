@@ -35,7 +35,7 @@ public class ClientAppITCase {
         try {
             clientAppName = "int-test-" + DataUtils.uuidToB32Str(UUID.randomUUID());
             client = new AnypointClient();
-            organization = client.findOrganization("mySubOrg");
+            organization = client.findOrganizationByNameOrId("mySubOrg");
             clientApp = null;
             env = organization.findEnvironmentByName("Sandbox");
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class ClientAppITCase {
         if (clientApp == null) {
             throw new IllegalStateException("Client App not created");
         }
-        APIList list = client.findOrganization("mySubOrg").findEnvironmentByName("Sandbox").findAPIs("someotherorgapi");
+        APIList list = client.findOrganizationByNameOrId("mySubOrg").findEnvironmentByName("Sandbox").findAPIs("someotherorgapi");
         assertEquals(1,list.getTotal());
         APIAsset apiAsset = list.iterator().next();
         List<API> apis = apiAsset.getApis();
