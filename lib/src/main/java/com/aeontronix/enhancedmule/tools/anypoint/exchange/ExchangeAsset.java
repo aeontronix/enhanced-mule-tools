@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -160,6 +161,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     public void updateCategory(String key, List<String> catValues) throws HttpException {
         httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").path(key,true).toString(),
                 Collections.singletonMap("tagValue",catValues));
+    }
+
+
+    public void setField(String key, Object value) throws HttpException {
+        httpHelper.httpPost(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),new TagValueWrapper(value));
     }
 
     @NotNull
@@ -405,4 +411,23 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.numberOfRates = numberOfRates;
     }
 
+    public static class TagValueWrapper {
+        @JsonProperty
+        private Object tagValue;
+
+        public TagValueWrapper() {
+        }
+
+        public TagValueWrapper(Object tagValue) {
+            this.tagValue = tagValue;
+        }
+
+        public Object getTagValue() {
+            return tagValue;
+        }
+
+        public void setTagValue(String tagValue) {
+            this.tagValue = tagValue;
+        }
+    }
 }

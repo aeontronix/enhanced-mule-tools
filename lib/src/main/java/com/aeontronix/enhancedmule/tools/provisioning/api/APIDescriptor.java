@@ -56,7 +56,8 @@ public class APIDescriptor {
     private boolean assetCreate;
     private String assetMainFile;
     private PortalDescriptor portal;
-    private Map<String,List<String>> categories;
+    private Map<String, List<String>> categories;
+    private Map<String, Object> fields;
 
     public APIDescriptor() {
     }
@@ -153,7 +154,7 @@ public class APIDescriptor {
                 }
             }
             api = updateEndpoint(m3, api, updateEndpoint);
-            if( api.getGroupId() == null ) {
+            if (api.getGroupId() == null) {
                 api.setGroupId(environment.getParent().getId());
             }
             result.setApi(api);
@@ -165,6 +166,12 @@ public class APIDescriptor {
             if (portal != null) {
                 portal.provision(exchangeAsset);
             }
+            // custom fields
+            if (fields != null && !fields.isEmpty()) {
+                for (Map.Entry<String, Object> field : fields.entrySet()) {
+                    exchangeAsset.setField(field.getKey(), field.getValue());
+                }
+            }
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
         }
@@ -173,19 +180,19 @@ public class APIDescriptor {
     private void updateExchangeCategories(ExchangeAsset exchangeAsset) throws HttpException {
         final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
                 toMap(AssetCategory::getKey, AssetCategory::getValue));
-        if( categories == null ) {
+        if (categories == null) {
             categories = new HashMap<>();
         }
         for (String curCatKey : assetCategories.keySet()) {
-            if( ! categories.containsKey(curCatKey) ) {
+            if (!categories.containsKey(curCatKey)) {
                 exchangeAsset.deleteCategory(curCatKey);
             }
         }
         for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
             List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
-            List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(),Collections.emptyList());
-            if( !catValues.equals(assetCatValues)) {
-                exchangeAsset.updateCategory(catEntries.getKey(),catValues);
+            List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(), Collections.emptyList());
+            if (!catValues.equals(assetCatValues)) {
+                exchangeAsset.updateCategory(catEntries.getKey(), catValues);
             }
         }
     }
@@ -391,5 +398,13 @@ public class APIDescriptor {
 
     public void setCategories(Map<String, List<String>> categories) {
         this.categories = categories;
+    }
+
+    public Map<String, Object> getFields() {
+        return fields;
+    }
+
+    public void setFields(Map<String, Object> fields) {
+        this.fields = fields;
     }
 }
