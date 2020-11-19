@@ -165,7 +165,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
 
     public void setField(String key, Object value) throws HttpException {
-        httpHelper.httpPost(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),new TagValueWrapper(value));
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),new TagValueWrapper(value));
     }
 
     @NotNull
