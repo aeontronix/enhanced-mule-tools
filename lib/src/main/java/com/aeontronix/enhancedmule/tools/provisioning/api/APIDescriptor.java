@@ -153,6 +153,9 @@ public class APIDescriptor {
                 }
             }
             api = updateEndpoint(m3, api, updateEndpoint);
+            if( api.getGroupId() == null ) {
+                api.setGroupId(environment.getParent().getId());
+            }
             result.setApi(api);
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
