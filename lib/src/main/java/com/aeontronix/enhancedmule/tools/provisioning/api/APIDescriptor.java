@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
@@ -57,7 +58,7 @@ public class APIDescriptor {
     private String assetMainFile;
     private PortalDescriptor portal;
     private Map<String, List<String>> categories;
-    private Map<String, Object> fields;
+    private List<APICustomFieldDescriptor> fields;
 
     public APIDescriptor() {
     }
@@ -161,16 +162,17 @@ public class APIDescriptor {
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             exchangeAsset = updateExchangeTags(exchangeAsset);
+            final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
+            for (String field : results.getModified()) {
+                logger.info("Updated custom field: "+field);
+            };
+            for (String field : results.getNotDefined()) {
+                logger.warn("Custom field not defined, assignment failed: "+field);
+            };
             updateExchangeCategories(exchangeAsset);
             // portal
             if (portal != null) {
                 portal.provision(exchangeAsset);
-            }
-            // custom fields
-            if (fields != null && !fields.isEmpty()) {
-                for (Map.Entry<String, Object> field : fields.entrySet()) {
-                    exchangeAsset.setField(field.getKey(), field.getValue());
-                }
             }
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);
@@ -400,11 +402,11 @@ public class APIDescriptor {
         this.categories = categories;
     }
 
-    public Map<String, Object> getFields() {
+    public List<APICustomFieldDescriptor> getFields() {
         return fields;
     }
 
-    public void setFields(Map<String, Object> fields) {
+    public void setFields(List<APICustomFieldDescriptor> fields) {
         this.fields = fields;
     }
 }

@@ -8,26 +8,29 @@ package com.aeontronix.enhancedmule.tools.anypoint.exchange;
  * Created by JacksonGenerator on 6/26/18.
  */
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomField;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomFieldDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.StringUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 
 public class ExchangeAsset extends AnypointObject<Organization> {
+    private static final Logger logger = getLogger(ExchangeAsset.class);
     @JsonProperty("productAPIVersion")
     private String productAPIVersion;
     @JsonProperty("runtimeVersion")
@@ -36,8 +39,6 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private AssetMetadata metadata;
     @JsonProperty("instances")
     private List<AssetInstance> instances;
-    @JsonProperty("customFields")
-    private List customFields;
     @JsonProperty("modifiedAt")
     private String modifiedAt;
     @JsonProperty("groupId")
@@ -86,6 +87,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private String status;
     @JsonProperty("numberOfRates")
     private Integer numberOfRates;
+    @JsonProperty("customFields")
+    private List<APICustomField> customFields;
 
     public ExchangeAsset() {
     }
@@ -99,14 +102,14 @@ public class ExchangeAsset extends AnypointObject<Organization> {
             for (AssetInstance instance : instances) {
                 instance.setParent(this);
             }
-            Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null && i.getEnvironmentId().equalsIgnoreCase(envId) );
+            Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null && i.getEnvironmentId().equalsIgnoreCase(envId));
             boolean namedInstance = !StringUtils.isEmpty(name);
             if (namedInstance) {
-                s = s.filter(i -> i.getName().equalsIgnoreCase(name) );
+                s = s.filter(i -> i.getName().equalsIgnoreCase(name));
             }
             List<AssetInstance> ilist = s.collect(Collectors.toList());
             if (ilist.size() == 0) {
-                throw new NotFoundException("Can't find asset "+name+" in env "+envId);
+                throw new NotFoundException("Can't find asset " + name + " in env " + envId);
             } else if (ilist.size() > 1) {
                 if (namedInstance) {
                     throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + " while searching for instance " + name +
@@ -119,15 +122,15 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 return ilist.iterator().next();
             }
         }
-        throw new NotFoundException("Can't find asset "+name+" in env "+envId);
+        throw new NotFoundException("Can't find asset " + name + " in env " + envId);
     }
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(),Collections.singletonMap("Accept","text/markdown"));
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(), Collections.singletonMap("Accept", "text/markdown"));
         } catch (HttpException e) {
-            if( e.getStatusCode() == 404 ) {
-                throw new NotFoundException("Page not found: "+name);
+            if (e.getStatusCode() == 404) {
+                throw new NotFoundException("Page not found: " + name);
             } else {
                 throw e;
             }
@@ -136,13 +139,13 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public Portal getPortal() throws HttpException {
         final String json = httpHelper.httpGet(getUrl() + "/portal");
-        return jsonHelper.readJson(new Portal(),json);
+        return jsonHelper.readJson(new Portal(), json);
     }
 
     public ExchangeAsset updateLabels(List<String> exchangeTags) throws HttpException {
         httpHelper.httpPut(getUrl() + "/tags", exchangeTags.stream().map(t -> Collections.singletonMap("value", t)).collect(Collectors.toList()));
         try {
-            return getParent().findExchangeAsset(groupId,assetId);
+            return getParent().findExchangeAsset(groupId, assetId);
         } catch (NotFoundException e) {
             throw new UnexpectedException(e);
         }
@@ -150,22 +153,51 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void updatePage(String name, String content) throws HttpException {
         httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name).toString(),
-                Collections.singletonMap("Content-Type","text/markdown"), content);
-        httpHelper.httpPatch(getUrl(),null);
+                Collections.singletonMap("Content-Type", "text/markdown"), content);
+        httpHelper.httpPatch(getUrl(), null);
     }
 
     public void deleteCategory(String key) throws HttpException {
-        httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").path(key,true).toString());
+        httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").path(key, true).toString());
     }
 
     public void updateCategory(String key, List<String> catValues) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").path(key,true).toString(),
-                Collections.singletonMap("tagValue",catValues));
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").path(key, true).toString(),
+                Collections.singletonMap("tagValue", catValues));
     }
 
-
-    public void setField(String key, Object value) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),new TagValueWrapper(value));
+    public CustomFieldUpdateResults updateCustomFields(List<APICustomFieldDescriptor> fields) throws HttpException {
+        CustomFieldUpdateResults results = new CustomFieldUpdateResults();
+        final List<APICustomFieldDescriptor> definedFields = new ArrayList<>(fields != null ? fields : Collections.emptyList());
+        final Map<String, Object> presentFields = customFields != null ?
+                customFields.stream().collect(Collectors.toMap(APICustomField::getKey, APICustomField::getValue)) :
+                new HashMap<>();
+        for (APICustomFieldDescriptor f : definedFields) {
+            final String key = f.getKey();
+            final Object v = presentFields.remove(key);
+            if (v == null || !v.equals(f.getValue())) {
+                try {
+                    httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),
+                            new TagValueWrapper(f.getValue()));
+                    results.modified.add(key);
+                    logger.debug("Updated field {} to {}",key,f.getValue().toString());
+                } catch (HttpException e) {
+                    if( e.getStatusCode() == 404 && !f.isRequired() ) {
+                        results.notDefined.add(key);
+                        logger.debug("Unable to set custom field as it's not defined: "+key);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
+        if( ! presentFields.isEmpty() ) {
+            for (String key : presentFields.keySet()) {
+                httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/fields").path(key).toString());
+                results.modified.add(key);
+            }
+        }
+        return results;
     }
 
     @NotNull
@@ -203,14 +235,6 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void setInstances(List<AssetInstance> instances) {
         this.instances = instances;
-    }
-
-    public List getCustomFields() {
-        return customFields;
-    }
-
-    public void setCustomFields(List customFields) {
-        this.customFields = customFields;
     }
 
     public String getModifiedAt() {
@@ -411,6 +435,14 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.numberOfRates = numberOfRates;
     }
 
+    public List<APICustomField> getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(List<APICustomField> customFields) {
+        this.customFields = customFields;
+    }
+
     public static class TagValueWrapper {
         @JsonProperty
         private Object tagValue;
@@ -428,6 +460,19 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
         public void setTagValue(String tagValue) {
             this.tagValue = tagValue;
+        }
+    }
+
+    public class CustomFieldUpdateResults {
+        List<String> modified = new ArrayList<>();
+        List<String> notDefined = new ArrayList<>();
+
+        public List<String> getModified() {
+            return modified;
+        }
+
+        public List<String> getNotDefined() {
+            return notDefined;
         }
     }
 }

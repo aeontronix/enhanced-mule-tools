@@ -84,6 +84,29 @@
                     "description": "API endpoint",
                     "type": "string"
                 },
+                "fields": {
+                    "description": "Custom fields",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "key": {
+                                "type": "string",
+                                "description": "Custom field key"
+                            },
+                            "value": {
+                                "type": "object",
+                                "description": "Custom field value"
+                            },
+                            "required": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Field is required and provisioning will fail if not defined in root org"
+                            }
+                        },
+                        "required": ["key","value"]
+                    }
+                },
                 "portal": {
                     "type": "object",
                     "description": "Portal provisioning",
