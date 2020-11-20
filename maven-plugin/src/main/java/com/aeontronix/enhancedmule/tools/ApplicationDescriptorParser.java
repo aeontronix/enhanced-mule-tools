@@ -35,7 +35,8 @@ public class ApplicationDescriptorParser {
     private static final Logger logger = getLogger(ApplicationDescriptorParser.class);
 
     public static ApplicationDescriptor parse(@Nullable String descriptor, @NotNull MavenProject project,
-                                              @Nullable File writeToFile, boolean addWriteToFileToProject) throws IOException {
+                                              @Nullable File writeToFile, boolean addWriteToFileToProject,
+                                              boolean inheritNameAndDesc) throws IOException {
         ObjectMapper objectMapper = JsonHelper.createMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> anypointDescriptorJson = null;
@@ -53,7 +54,7 @@ public class ApplicationDescriptorParser {
         }
         legacyConvert(anypointDescriptorJson);
         ApplicationDescriptor applicationDescriptor = objectMapper.convertValue(anypointDescriptorJson, ApplicationDescriptor.class);
-        setDefaultValues(applicationDescriptor, project);
+        setDefaultValues(applicationDescriptor, project, inheritNameAndDesc);
         if (writeToFile != null) {
             final File parentFile = writeToFile.getParentFile();
             if (!parentFile.exists()) {
@@ -70,16 +71,16 @@ public class ApplicationDescriptorParser {
         return applicationDescriptor;
     }
 
-    private static void setDefaultValues(ApplicationDescriptor applicationDescriptor, MavenProject project) throws IOException {
+    private static void setDefaultValues(ApplicationDescriptor applicationDescriptor, MavenProject project, boolean inheritNameAndDesc) throws IOException {
         String apiArtifactId = project.getArtifactId();
         String version = project.getVersion();
         if (applicationDescriptor.getId() == null) {
             applicationDescriptor.setId(apiArtifactId);
         }
-        if( applicationDescriptor.getDescription() == null && StringUtils.isNotBlank(project.getDescription())  ) {
+        if( applicationDescriptor.getDescription() == null && inheritNameAndDesc && StringUtils.isNotBlank(project.getDescription() )  ) {
             applicationDescriptor.setDescription(project.getDescription());
         }
-        if (applicationDescriptor.getName() == null) {
+        if (applicationDescriptor.getName() == null && inheritNameAndDesc) {
             applicationDescriptor.setName(project.getName());
         }
         if (applicationDescriptor.getVersion() == null) {
@@ -91,7 +92,7 @@ public class ApplicationDescriptorParser {
             if (api.getAssetId() == null) {
                 api.setAssetId(dep != null ? dep.getArtifactId() : apiArtifactId + "-spec");
             }
-            if( api.getDescription() == null ) {
+            if( api.getDescription() == null && inheritNameAndDesc ) {
                 api.setDescription(applicationDescriptor.getDescription());
             }
             if( api.getAssetVersion() == null ) {
@@ -106,7 +107,7 @@ public class ApplicationDescriptorParser {
                     api.setAssetMainFile(apiSpecFile);
                 }
             }
-            if( api.getName() == null ) {
+            if( api.getName() == null && inheritNameAndDesc ) {
                 api.setName(applicationDescriptor.getName());
             }
             if (api.getPortal() != null && api.getPortal().getPages() != null) {

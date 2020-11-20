@@ -34,15 +34,20 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private MavenProject project;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
+    @Parameter(property = "anypoint.descriptor.inheritNameAndDesc", required = false, defaultValue = "true")
+    private boolean inheritNameAndDesc;
     @Parameter(property = "muleplugin.compat")
     private boolean mulePluginCompatibility;
+
+    public ProcessDescriptorMojo() {
+    }
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
             final ApplicationDescriptor applicationDescriptor = ApplicationDescriptorParser.parse(descriptor, project,
-                    generateDescriptorFile, true);
+                    generateDescriptorFile, true, inheritNameAndDesc);
             final Artifact artifact = findAppArtifact(project);
             if (artifact != null) {
                 final File file = artifact.getFile();
