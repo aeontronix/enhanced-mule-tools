@@ -9,6 +9,7 @@ import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetTag;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
@@ -37,6 +37,8 @@ public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
     private String assetId;
     private String assetVersion;
+    private String name;
+    private String description;
     private String version;
     /**
      * Backwards compatibility, use 'version' instead
@@ -54,7 +56,7 @@ public class APIDescriptor {
     private String label;
     private List<SLATierDescriptor> slaTiers;
     private API.Type type = API.Type.REST;
-    private boolean assetCreate;
+    private Boolean assetCreate;
     private String assetMainFile;
     private PortalDescriptor portal;
     private Map<String, List<String>> categories;
@@ -76,7 +78,8 @@ public class APIDescriptor {
             }
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetId", assetId);
             ValidationUtils.notEmpty(IllegalStateException.class, "API Descriptor missing value: assetVersion", assetVersion);
-            logger.info("Provisioning " + this.getAssetId() + " within org " + environment.getParent().getName() + " env " + environment.getName());
+            final Organization organization = environment.getParent();
+            logger.info("Provisioning " + this.getAssetId() + " within org " + organization.getName() + " env " + environment.getName());
             Boolean m3 = cfg.getMule3();
             if (m3 == null) {
                 m3 = false;
@@ -90,7 +93,7 @@ public class APIDescriptor {
                 logger.info("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
                 APISpec apiSpec = null;
                 try {
-                    apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
+                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 } catch (NotFoundException ex) {
                     if (assetCreate) {
                         logger.info("Asset not found, creating");
@@ -105,15 +108,15 @@ public class APIDescriptor {
                             }
                             String assetClassifier = assetMainFile.toLowerCase().endsWith(".raml") ? "raml" : "oas";
                             try (TempFile apiSpecFile = new TempFile(assetId + "-" + assetVersion)) {
-                                applicationSource.getAPISpecificationFiles(assetId, assetVersion, assetMainFile, assetClassifier, apiSpecFile);
-                                environment.getOrganization().publishExchangeAPIAsset(assetId, assetVersion,
-                                        version, assetClassifier, assetMainFile, apiSpecFile);
+                                applicationSource.copyAPISpecs(assetMainFile, apiSpecFile);
+                                environment.getOrganization().publishExchangeAPIAsset(name, assetId,
+                                        assetVersion, version, assetClassifier, assetMainFile, apiSpecFile);
                             }
                         }
                     } else {
                         throw ex;
                     }
-                    apiSpec = environment.getParent().findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
+                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 }
                 // now we need to check if there's an existing API with the same productAPIVersion
                 String productAPIVersion = apiSpec.getProductAPIVersion();
@@ -156,19 +159,27 @@ public class APIDescriptor {
             }
             api = updateEndpoint(m3, api, updateEndpoint);
             if (api.getGroupId() == null) {
-                api.setGroupId(environment.getParent().getId());
+                api.setGroupId(organization.getId());
             }
             result.setApi(api);
             // exchange
-            ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
+            ExchangeAsset exchangeAsset = organization.findExchangeAsset(api.getGroupId(), api.getAssetId());
+            if (name != null && !name.equals(exchangeAsset.getName())) {
+                exchangeAsset.updateName(name);
+            }
+            if (description != null && !description.equals(exchangeAsset.getDescription())) {
+                exchangeAsset.updateDescription(description);
+            }
             exchangeAsset = updateExchangeTags(exchangeAsset);
             final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
             for (String field : results.getModified()) {
-                logger.info("Updated custom field: "+field);
-            };
+                logger.info("Updated custom field: " + field);
+            }
+            ;
             for (String field : results.getNotDefined()) {
-                logger.warn("Custom field not defined, assignment failed: "+field);
-            };
+                logger.warn("Custom field not defined, assignment failed: " + field);
+            }
+            ;
             updateExchangeCategories(exchangeAsset);
             // portal
             if (portal != null) {
@@ -320,11 +331,11 @@ public class APIDescriptor {
         this.type = type;
     }
 
-    public boolean isAssetCreate() {
+    public Boolean isAssetCreate() {
         return assetCreate;
     }
 
-    public void setAssetCreate(boolean assetCreate) {
+    public void setAssetCreate(Boolean assetCreate) {
         this.assetCreate = assetCreate;
     }
 
@@ -408,5 +419,21 @@ public class APIDescriptor {
 
     public void setFields(List<APICustomFieldDescriptor> fields) {
         this.fields = fields;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

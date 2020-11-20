@@ -622,13 +622,13 @@ public class Organization extends AnypointObject {
         return findAllRoles().stream().filter(r -> r.getId().equals(roleId)).findFirst().orElseThrow(() -> new NotFoundException("Role " + roleId + " not found"));
     }
 
-    public ExchangeAsset publishExchangeAPIAsset(String assetId, String assetVersion, String assetAPIVersion, String assetClassifier, String assetMainFile, File file) throws IOException, HttpException {
+    public ExchangeAsset publishExchangeAPIAsset(String name, String assetId, String assetVersion, String assetAPIVersion, String assetClassifier, String assetMainFile, File file) throws IOException, HttpException {
         final HttpHelper.MultiPartRequest req = getClient().getHttpHelper().createAnypointMultiPartPostRequest("/exchange/api/v1/assets", null);
+        req.addText("name", name);
         req.addText("organizationId", id);
         req.addText("groupId", id);
         req.addText("assetId", assetId);
         req.addText("version", assetVersion);
-        req.addText("name", assetId);
         req.addText("classifier", assetClassifier);
         req.addText("apiVersion", assetAPIVersion);
         req.addText("main", assetMainFile);

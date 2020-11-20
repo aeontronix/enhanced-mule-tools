@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2020
  */
 
-package com.aeontronix.enhancedmule.tools.legacy.deploy;
+package com.aeontronix.enhancedmule.tools.application;
 
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.io.InMemInputFilterStream;
@@ -12,7 +12,6 @@ import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kloudtek.unpack.*;
 import com.kloudtek.unpack.transformer.Transformer;
-import com.kloudtek.util.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -26,21 +25,18 @@ import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class EnhanceMuleTransformer extends Transformer {
-    private static final Logger logger = getLogger(EnhanceMuleTransformer.class);
+public class ApplicationEnhancementCoreTransformer extends Transformer {
+    private static final Logger logger = getLogger(ApplicationEnhancementCoreTransformer.class);
     public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ENHANCED_MULE_TOOLS_FLOW_XML = "enhanced-mule-tools-flow.xml";
-    public static final String ANYPOINT_JSON = "anypoint.json";
     private final boolean autoDiscovery;
     private final APIDescriptor api;
     private ApplicationDescriptor apiProvisioningDescriptor;
     private File descriptorFile;
 
-    public EnhanceMuleTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor,
-                                  @NotNull File descriptorFile) {
+    public ApplicationEnhancementCoreTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor) {
         this.apiProvisioningDescriptor = apiProvisioningDescriptor;
         api = apiProvisioningDescriptor.getApi();
-        this.descriptorFile = descriptorFile;
         this.autoDiscovery = api != null && api.isAddAutoDiscovery();
     }
 
@@ -58,11 +54,6 @@ public class EnhanceMuleTransformer extends Transformer {
             emFlowFile.setInputStream(new ByteArrayInputStream(data));
         } else {
             source.add(new InMemSourceFile(ENHANCED_MULE_TOOLS_FLOW_XML, ENHANCED_MULE_TOOLS_FLOW_XML, data));
-        }
-        try {
-            source.add(new InMemSourceFile(ANYPOINT_JSON, ANYPOINT_JSON, FileUtils.toByteArray(descriptorFile)));
-        } catch (IOException e) {
-            throw new UnpackException(e);
         }
         SourceFile file = (SourceFile) source.getFile(META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON);
         if (file == null) {

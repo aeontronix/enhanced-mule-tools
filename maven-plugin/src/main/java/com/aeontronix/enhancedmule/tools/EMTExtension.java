@@ -11,6 +11,9 @@ import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.repository.Authentication;
+import org.apache.maven.eventspy.EventSpy;
+import org.apache.maven.execution.ExecutionEvent;
+import org.apache.maven.execution.ExecutionListener;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -22,7 +25,9 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Properties;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -35,6 +40,64 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private static final Logger logger = getLogger(EMTExtension.class);
     private EnhancedMuleClient emClient;
     private AnypointBearerTokenCredentialsProvider credentialsProvider;
+    private boolean mulePluginCompatibility;
+    private String enhancedMuleServerUrl;
+    private String anypointBearerToken;
+    private String username;
+    private String password;
+    private String emAccessTokenId;
+    private String emAccessTokenSecret;
+    private String serverId;
+
+    @Override
+    public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
+        try {
+            loadProperties(session);
+            emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
+                    emAccessTokenId, emAccessTokenSecret);
+            addRepositoriesAuthentication(session);
+        } catch (Exception e) {
+            throw new MavenExecutionException(e.getMessage(), e);
+        }
+        super.afterProjectsRead(session);
+    }
+
+    private void addRepositoriesAuthentication(MavenSession session) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        final MavenProject currentProject = session.getCurrentProject();
+        AuthenticationSelector authenticationSelector = session.getRepositorySession().getAuthenticationSelector();
+        // Lambdas here break the build for some @#$@#$@#$ reason
+        //noinspection Convert2Lambda
+        MavenUtils.addRepositoryUsernamePassword(authenticationSelector, serverId, TOKEN, new MavenUtils.SecretResolver() {
+            @Override
+            public String getSecret() throws Exception {
+                return emClient.getAnypointBearerToken();
+            }
+        });
+        final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
+        RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
+        final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
+                .setUrl(prep.getUrl())
+                .setSnapshotPolicy(prep.getPolicy(true))
+                .setReleasePolicy(prep.getPolicy(false))
+                .setRepositoryManager(prep.isRepositoryManager())
+                .setProxy(prep.getProxy())
+                .setMirroredRepositories(prep.getMirroredRepositories())
+                .setContentType(prep.getContentType())
+                .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
+        remoteProjectRepositories.remove(prep);
+        remoteProjectRepositories.add(newRepo);
+    }
+
+    private void loadProperties(MavenSession session) {
+        mulePluginCompatibility = Boolean.parseBoolean(getProperty(session, "mulePluginCompatibility", "muleplugin.compat", "false"));
+        enhancedMuleServerUrl = getProperty(session, "enhancedMuleServerUrl", "enhancedmule.server.url", AbstractAnypointMojo.DEFAULT_EMSERVER_URL);
+        anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
+        username = getProperty(session, "username", "anypoint.username", null);
+        password = getProperty(session, "password", "anypoint.password", null);
+        emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
+        emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
+        serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
+    }
 
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
                                            String username, String password, String emAccessTokenId, String emAccessTokenSecret) throws MavenExecutionException {
@@ -64,47 +127,6 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             emClient.setCredentialsLoader(credentialsProvider);
         }
         return emClient;
-    }
-
-    @Override
-    public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
-        try {
-            String enhancedMuleServerUrl = getProperty(session, "enhancedMuleServerUrl", "enhancedmule.server.url", AbstractAnypointMojo.DEFAULT_EMSERVER_URL);
-            String anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
-            String username = getProperty(session, "username", "anypoint.username", null);
-            String password = getProperty(session, "password", "anypoint.password", null);
-            String emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
-            String emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
-            emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret);
-            String serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
-            final MavenProject currentProject = session.getCurrentProject();
-            AuthenticationSelector authenticationSelector = session.getRepositorySession().getAuthenticationSelector();
-            // Lambdas here break the build for some @#$@#$@#$ reason
-            //noinspection Convert2Lambda
-            MavenUtils.addRepositoryUsernamePassword(authenticationSelector, serverId, TOKEN, new MavenUtils.SecretResolver() {
-                @Override
-                public String getSecret() throws Exception {
-                    return emClient.getAnypointBearerToken();
-                }
-            });
-            final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
-            RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
-            final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
-                    .setUrl(prep.getUrl())
-                    .setSnapshotPolicy(prep.getPolicy(true))
-                    .setReleasePolicy(prep.getPolicy(false))
-                    .setRepositoryManager(prep.isRepositoryManager())
-                    .setProxy(prep.getProxy())
-                    .setMirroredRepositories(prep.getMirroredRepositories())
-                    .setContentType(prep.getContentType())
-                    .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
-            remoteProjectRepositories.remove(prep);
-            remoteProjectRepositories.add(newRepo);
-        } catch (Exception e) {
-            throw new MavenExecutionException(e.getMessage(), e);
-        }
-        super.afterProjectsRead(session);
     }
 
     private RemoteRepository findRemoteRepo(List<RemoteRepository> remoteArtifactRepositories, String serverId) {

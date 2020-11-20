@@ -79,6 +79,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private List<AssetVersion> versions;
     @JsonProperty("name")
     private String name;
+    @JsonProperty("description")
+    private String description;
     @JsonProperty("files")
     private List<AssetFile> files;
     @JsonProperty("attributes")
@@ -159,6 +161,18 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void deleteCategory(String key) throws HttpException {
         httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").path(key, true).toString());
+    }
+
+    public void updateName(String name) throws HttpException {
+        HashMap<String,String> req = new HashMap<>();
+        req.put("name",name);
+        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/emtdemo-spec",req);
+    }
+
+    public void updateDescription(String description) throws HttpException {
+        HashMap<String,String> req = new HashMap<>();
+        req.put("description",description);
+        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/emtdemo-spec",req);
     }
 
     public void updateCategory(String key, List<String> catValues) throws HttpException {
@@ -401,6 +415,14 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<AssetFile> getFiles() {

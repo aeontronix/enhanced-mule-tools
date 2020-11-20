@@ -8,11 +8,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mycompany</groupId>
-    <artifactId>anypointtoolsdemo</artifactId>
+    <artifactId>emtdemo</artifactId>
     <version>1.0.5-SNAPSHOT</version>
     <packaging>mule-application</packaging>
 
-    <name>anypointtoolsdemo</name>
+    <name>Enhanced Mule Tools Demo</name>
+    <description>Demo Application for Enhanced Mule Tools</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,13 +55,6 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>d002eff8-84a5-452f-bce6-145f4a688311</groupId>
-            <artifactId>anypoint-sys-api-spec</artifactId>
-            <version>1.0.0</version>
-            <classifier>oas</classifier>
-            <type>zip</type>
-        </dependency>
         <dependency>
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-http-connector</artifactId>
@@ -112,5 +106,20 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+    <profiles>
+        <profile>
+            <id>spec-dependency</id>
+            <dependencies>
+                <dependency>
+                    <groupId>d002eff8-84a5-452f-bce6-145f4a688311</groupId>
+                    <artifactId>anypoint-sys-api-spec</artifactId>
+                    <version>1.0.0</version>
+                    <classifier>oas</classifier>
+                    <type>zip</type>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

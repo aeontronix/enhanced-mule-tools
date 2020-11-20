@@ -23,6 +23,7 @@ public class ApplicationDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDescriptor.class);
     private String id;
     private String name;
+    private String description;
     private String version;
     private Boolean mule3;
     private APIDescriptor api;
@@ -130,5 +131,13 @@ public class ApplicationDescriptor {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

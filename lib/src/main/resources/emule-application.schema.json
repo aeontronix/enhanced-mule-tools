@@ -51,12 +51,11 @@
                     "enum": ["rest","http"]
                 },
                 "assetCreate": {
-                    "description": "If the asset should be automatically created in exchange",
-                    "type": "boolean",
-                    "default": false
+                    "description": "If the asset should be automatically created in exchange. If not set it will default to true if the project has no API spec dependency and an appropriate api spec file named api.[ext] or [artifactId].[ext] is found (in an api/ folder in any of the project's resource paths)",
+                    "type": "boolean"
                 },
                 "assetMainFile": {
-                    "description": "specification main file (required if creating asset)",
+                    "description": "specification main file (required if creating asset). If not set it will search for an api spec file named api.[ext] or [artifactId].[ext] is found (in an api/ folder in any of the project's resource paths)",
                     "type": "string"
                 },
                 "assetId": {
@@ -65,6 +64,10 @@
                 },
                 "assetVersion": {
                     "description": "Asset version",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "API Name",
                     "type": "string"
                 },
                 "version": {

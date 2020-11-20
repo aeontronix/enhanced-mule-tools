@@ -13,6 +13,7 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -21,7 +22,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public abstract class ApplicationSource implements Closeable {
+    private static final Logger logger = getLogger(ApplicationSource.class);
+
     protected AnypointClient client;
 
     public ApplicationSource(AnypointClient client) {
@@ -61,30 +66,8 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract Map<String, Object> getSourceJson(JsonHelper jsonHelper);
 
-    public void getAPISpecificationFiles(String assetId, String assetVersion, String assetMainFile, String assetClassifier, TempFile apiSpecFile) throws IOException {
+    public void copyAPISpecs(String assetMainFile, TempFile apiSpecFile) throws IOException {
         try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(apiSpecFile))) {
-            if (assetVersion.toLowerCase().endsWith("-snapshot")) {
-                os.putNextEntry(new ZipEntry(assetMainFile));
-                String ext = assetClassifier.toLowerCase();
-                if (ext.endsWith(".raml")) {
-                    os.write(("#%RAML 1.0\ntitle: " + assetId).getBytes());
-                } else if (ext.endsWith(".yaml") || ext.endsWith(".yml") ) {
-                    os.write(("swagger: \"2.0\"\n" +
-                            "info:\n" +
-                            "  version: 1.0.0\n" +
-                            "  title: "+assetId+"\n" +
-                            "paths: {}").getBytes());
-                } else {
-                    os.write(("{\n" +
-                            "  \"swagger\": \"2.0\",\n" +
-                            "  \"info\": {\n" +
-                            "    \"version\": \"1.0.0\",\n" +
-                            "    \"title\": \""+assetId+"\"\n" +
-                            "  },\n" +
-                            "  \"paths\": {}\n" +
-                            "}").getBytes());
-                }
-            }
             ZipFile zipFile = new ZipFile(getLocalFile());
             if (zipFile.getEntry("api/" + assetMainFile) == null) {
                 throw new IOException("asset main file not found: " + assetMainFile);

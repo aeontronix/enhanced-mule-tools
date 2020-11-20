@@ -1,5 +1,4 @@
 {
-  "id": "myreallytestytest",
   "api": {
     "addAutoDiscovery": true,
     "portal": {
@@ -36,12 +35,6 @@
         "assetId": "otherapi",
         "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
         "assetVersion": "1.0.1"
-      },
-      {
-        "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
-        "assetId": "anypoint-sys-api-spec",
-        "assetVersion": "1.0.2",
-        "label": "sandbox-latest"
       }
     ]
   }
