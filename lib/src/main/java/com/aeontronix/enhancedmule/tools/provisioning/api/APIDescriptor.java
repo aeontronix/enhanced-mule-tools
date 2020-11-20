@@ -85,14 +85,14 @@ public class APIDescriptor {
             if (m3 == null) {
                 m3 = false;
             }
-            API api = null;
+            API api;
             boolean updateEndpoint = true;
             try {
                 api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
                 logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
             } catch (NotFoundException e) {
                 logger.info("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
-                APISpec apiSpec = null;
+                APISpec apiSpec;
                 try {
                     apiSpec = organization.findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 } catch (NotFoundException ex) {
@@ -180,7 +180,6 @@ public class APIDescriptor {
             for (String field : results.getNotDefined()) {
                 logger.warn("Custom field not defined, assignment failed: " + field);
             }
-            ;
             updateExchangeCategories(exchangeAsset);
             // portal
             if (portal != null) {
@@ -192,21 +191,20 @@ public class APIDescriptor {
     }
 
     private void updateExchangeCategories(ExchangeAsset exchangeAsset) throws HttpException {
-        final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
-                toMap(AssetCategory::getKey, AssetCategory::getValue));
-        if (categories == null) {
-            categories = new HashMap<>();
-        }
-        for (String curCatKey : assetCategories.keySet()) {
-            if (!categories.containsKey(curCatKey)) {
-                exchangeAsset.deleteCategory(curCatKey);
+        if( categories != null ) {
+            final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
+                    toMap(AssetCategory::getKey, AssetCategory::getValue));
+            for (String curCatKey : assetCategories.keySet()) {
+                if (!categories.containsKey(curCatKey)) {
+                    exchangeAsset.deleteCategory(curCatKey);
+                }
             }
-        }
-        for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
-            List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
-            List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(), Collections.emptyList());
-            if (!catValues.equals(assetCatValues)) {
-                exchangeAsset.updateCategory(catEntries.getKey(), catValues);
+            for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
+                List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
+                List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(), Collections.emptyList());
+                if (!catValues.equals(assetCatValues)) {
+                    exchangeAsset.updateCategory(catEntries.getKey(), catValues);
+                }
             }
         }
     }
@@ -223,11 +221,13 @@ public class APIDescriptor {
     }
 
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
-        ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
-        List<String> expectedTags = this.exchangeTags != null ? this.exchangeTags : Collections.emptyList();
-        if (!current.equals(expectedTags)) {
-            exchangeAsset = exchangeAsset.updateLabels(expectedTags);
-            logger.info("Updated exchange tags to " + expectedTags);
+        if( this.exchangeTags != null ) {
+            ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
+            List<String> expectedTags = this.exchangeTags;
+            if (!current.equals(expectedTags)) {
+                exchangeAsset = exchangeAsset.updateLabels(expectedTags);
+                logger.info("Updated exchange tags to " + expectedTags);
+            }
         }
         return exchangeAsset;
     }
