@@ -166,13 +166,13 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     public void updateName(String name) throws HttpException {
         HashMap<String,String> req = new HashMap<>();
         req.put("name",name);
-        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+id,req);
+        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+assetId,req);
     }
 
     public void updateDescription(String description) throws HttpException {
         HashMap<String,String> req = new HashMap<>();
         req.put("description",description);
-        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+id,req);
+        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+assetId,req);
     }
 
     public void updateCategory(String key, List<String> catValues) throws HttpException {

@@ -55,7 +55,7 @@ public class Policy extends AnypointObject<API> {
 
     @NotNull
     private String getUrl() {
-        return "https://anypoint.mulesoft.com/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/policies/" + id;
+        return "/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/policies/" + id;
     }
 
 
