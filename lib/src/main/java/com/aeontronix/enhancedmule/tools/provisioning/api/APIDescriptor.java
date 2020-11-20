@@ -24,6 +24,7 @@ import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,13 +158,14 @@ public class APIDescriptor {
                     }
                 }
             }
-            api = updateEndpoint(m3, api, updateEndpoint);
-            if (api.getGroupId() == null) {
-                api.setGroupId(organization.getId());
-            }
+            updateEndpoint(m3, api, updateEndpoint);
+            api = environment.findAPIById(api.getId());
             result.setApi(api);
+            if( logger.isDebugEnabled() ) {
+                logger.debug("api: {}",api.toString());
+            }
             // exchange
-            ExchangeAsset exchangeAsset = organization.findExchangeAsset(api.getGroupId(), api.getAssetId());
+            ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
             }
@@ -175,7 +177,6 @@ public class APIDescriptor {
             for (String field : results.getModified()) {
                 logger.info("Updated custom field: " + field);
             }
-            ;
             for (String field : results.getNotDefined()) {
                 logger.warn("Custom field not defined, assignment failed: " + field);
             }

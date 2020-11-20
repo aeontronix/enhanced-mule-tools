@@ -288,6 +288,11 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API based on exchange asset not found: groupId=" + groupId + ", assetId=" + assetId + ", assetVersion=" + assetVersion + ", label=" + label);
     }
 
+    public API findAPIById(String id) throws HttpException {
+        final String json = httpHelper.httpGet(new URLBuilder("/apimanager/api/v1/organizations/" + getParent().getId() + "/environments/" + getId() + "/apis/").path(id).toString());
+        return jsonHelper.readJson(new API(this), json );
+    }
+
     public CHApplication findCHApplicationByDomain(String domain) throws HttpException, NotFoundException {
         return CHApplication.find(this, domain);
     }

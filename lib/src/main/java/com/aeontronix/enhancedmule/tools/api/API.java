@@ -302,7 +302,7 @@ public class API extends AnypointObject<Environment> {
     @Override
     public String toString() {
         return "API{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", assetVersion='" + assetVersion + '\'' +
                 ", productVersion='" + productVersion + '\'' +
                 ", environmentId='" + environmentId + '\'' +
@@ -313,9 +313,9 @@ public class API extends AnypointObject<Environment> {
                 ", groupId='" + groupId + '\'' +
                 ", assetId='" + assetId + '\'' +
                 ", autodiscoveryInstanceName='" + autodiscoveryInstanceName + '\'' +
-                ", endpointUri=" + endpointUri +
                 ", endpoint=" + endpoint +
-                "} " + super.toString();
+                ", endpointUri='" + endpointUri + '\'' +
+                '}';
     }
 
     public enum Type {

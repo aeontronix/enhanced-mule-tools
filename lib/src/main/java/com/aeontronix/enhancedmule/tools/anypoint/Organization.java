@@ -355,6 +355,7 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
+        logger.debug("searching exchange asset, groupId="+groupId+" assetId="+assetId);
         for (ExchangeAssetOverview assetOverview : findExchangeAssets()) {
             if (groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId())) {
                 return assetOverview.getAsset();
