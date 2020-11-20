@@ -1,8 +1,5 @@
 {
   "api": {
-    "assetId": "emtdemo-spec",
-    "assetVersion": "1.0.0",
-    "version": "v1",
     "addAutoDiscovery": true,
     "portal": {
       "pages": [

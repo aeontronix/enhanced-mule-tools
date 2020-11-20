@@ -155,6 +155,10 @@ public class API extends AnypointObject<Environment> {
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
 
+    public API refresh() throws HttpException {
+        return parent.findAPIById(id);
+    }
+
     public List<Policy> findPolicies() throws HttpException {
         String json = parent.getClient().getHttpHelper().httpGet(getUrl() + "/policies?fullInfo=false");
         JsonHelper jsonHelper = parent.getClient().getJsonHelper();

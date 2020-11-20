@@ -159,7 +159,7 @@ public class APIDescriptor {
                 }
             }
             updateEndpoint(m3, api, updateEndpoint);
-            api = environment.findAPIById(api.getId());
+            api = api.refresh();
             result.setApi(api);
             if( logger.isDebugEnabled() ) {
                 logger.debug("api: {}",api.toString());

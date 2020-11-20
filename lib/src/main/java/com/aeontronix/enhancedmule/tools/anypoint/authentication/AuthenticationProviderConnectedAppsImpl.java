@@ -44,4 +44,9 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
             throw new HttpException(e);
         }
     }
+
+    @Override
+    public String filterSecret(String resStr) {
+        return resStr.replace(clientSecret,"**********");
+    }
 }

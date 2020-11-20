@@ -307,7 +307,7 @@ public class HttpHelper implements Closeable {
             }
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
                 String resStr = IOUtils.toString(response.getEntity().getContent());
-                logger.debug("RESULT CONTENT: " + resStr);
+                logger.debug("RESULT CONTENT: " + authenticationProvider.filterSecret(resStr));
                 return resStr;
             } else {
                 return null;

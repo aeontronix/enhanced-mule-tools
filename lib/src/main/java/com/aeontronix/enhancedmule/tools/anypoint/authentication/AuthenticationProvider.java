@@ -39,4 +39,6 @@ public abstract class AuthenticationProvider {
         }
         return new EMHttpClientDefaultImpl(builder.build());
     }
+
+    public abstract String filterSecret(String resStr);
 }

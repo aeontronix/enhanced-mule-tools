@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
@@ -17,7 +18,6 @@ import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTAuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClient;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClientJsonParserJacksonImpl;
-import com.aeontronix.commons.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpRequestWrapper;
@@ -84,9 +84,17 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
             final String anypointBearerToken = ((AnypointBearerTokenCredentialsProvider) credentialsProvider).getAnypointBearerToken(this);
             return new AnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken));
         } else {
+            if (true) {
+                throw new RuntimeException("not implemented");
+            }
             return new AnypointClient(new AuthenticationProvider() {
                 @Override
                 public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
+                    return null;
+                }
+
+                @Override
+                public String filterSecret(String resStr) {
                     return null;
                 }
             });
@@ -131,7 +139,7 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         @Override
         public void process(HttpRequest req, HttpContext httpContext) throws IOException {
             String authStr = "~~~Token~~~:" + getAnypointBearerToken();
-            req.addHeader(new BasicHeader("Authorization", "Basic "+StringUtils.base64Encode(authStr.getBytes())));
+            req.addHeader(new BasicHeader("Authorization", "Basic " + StringUtils.base64Encode(authStr.getBytes())));
         }
     }
 
@@ -143,12 +151,12 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
 
         @Override
         public boolean handles(HttpRequest req) {
-            if( req instanceof HttpRequestWrapper ) {
+            if (req instanceof HttpRequestWrapper) {
                 final HttpRequestWrapper wrapper = (HttpRequestWrapper) req;
                 return wrapper.getTarget().toString().startsWith(serverUrl) && !wrapper.getURI().toString().startsWith("/public");
-            } else if( req instanceof HttpUriRequest ) {
+            } else if (req instanceof HttpUriRequest) {
                 final String url = ((HttpUriRequest) req).getURI().toString();
-                return url.startsWith(serverUrl) && ! url.startsWith(publicServerUrl) ;
+                return url.startsWith(serverUrl) && !url.startsWith(publicServerUrl);
             } else {
                 return false;
             }
@@ -157,14 +165,14 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         @SuppressWarnings("unchecked")
         @Override
         public void process(HttpRequest req, HttpContext httpContext) throws IOException {
-            if( bearer == null ) {
-                final Map<String,String> authResult = restClient.postJson("/public/auth", credentialsProvider.getCredentials().toAuthRequestPayload()).execute(Map.class);
+            if (bearer == null) {
+                final Map<String, String> authResult = restClient.postJson("/public/auth", credentialsProvider.getCredentials().toAuthRequestPayload()).execute(Map.class);
                 bearer = authResult.get("accessToken");
-                if( StringUtils.isBlank(bearer) ) {
+                if (StringUtils.isBlank(bearer)) {
                     throw new IOException("No access token return by authentication");
                 }
             }
-            req.addHeader(new BasicHeader("Authorization", "Bearer "+bearer));
+            req.addHeader(new BasicHeader("Authorization", "Bearer " + bearer));
         }
     }
 }

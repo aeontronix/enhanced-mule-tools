@@ -45,6 +45,11 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
         }
     }
 
+    @Override
+    public String filterSecret(String resStr) {
+        return resStr.replace(password,"**********");
+    }
+
     public String getUsername() {
         return username;
     }

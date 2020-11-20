@@ -19,4 +19,9 @@ public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvide
     public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
         return new AnypointAccessToken(anypointBearerToken);
     }
+
+    @Override
+    public String filterSecret(String resStr) {
+        return resStr.replace(anypointBearerToken,"**********");
+    }
 }
