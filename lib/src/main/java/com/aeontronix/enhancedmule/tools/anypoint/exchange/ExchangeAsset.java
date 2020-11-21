@@ -17,6 +17,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomField;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomFieldDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,6 +90,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private String status;
     @JsonProperty("numberOfRates")
     private Integer numberOfRates;
+    @JsonProperty("icon")
+    private String icon;
     @JsonProperty("customFields")
     private List<APICustomField> customFields;
 
@@ -465,6 +468,29 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public void setCustomFields(List<APICustomField> customFields) {
         this.customFields = customFields;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    @JsonIgnore
+    public byte[] getIconImage() throws HttpException {
+        if( icon != null ) {
+            return httpHelper.httpGetBinary(icon);
+        } else {
+            return null;
+        }
+    }
+
+    public void updateIcon(byte[] base64Decode, String mimeType) throws HttpException {
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Content-Type",mimeType);
+        httpHelper.httpPut(new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(),true).path(assetId,true).path("icon").toString(),headers, base64Decode);
     }
 
     public static class TagValueWrapper {

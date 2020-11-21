@@ -390,6 +390,19 @@ public class HttpHelper implements Closeable {
         }
     }
 
+    public byte[] httpGetBinary(String url) throws HttpException {
+        HttpGet request = new HttpGet(convertPath(url));
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            verifyStatusCode(request, response);
+            if (response.getEntity() == null) {
+                throw new HttpException("Not body returned by url " + request.getURI());
+            }
+            return IOUtils.toByteArray(response.getEntity().getContent());
+        } catch (IOException e) {
+            throw new HttpException(e.getMessage(), e);
+        }
+    }
+
     public class MultiPartRequest {
         private Map<String, Object> parts = new HashMap<>();
         private HttpEntityEnclosingRequestBase request;

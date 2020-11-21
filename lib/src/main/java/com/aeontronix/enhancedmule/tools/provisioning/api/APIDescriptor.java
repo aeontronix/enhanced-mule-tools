@@ -63,6 +63,7 @@ public class APIDescriptor {
     private PortalDescriptor portal;
     private Map<String, List<String>> categories;
     private List<APICustomFieldDescriptor> fields;
+    private IconDescriptor icon;
 
     public APIDescriptor() {
     }
@@ -180,6 +181,10 @@ public class APIDescriptor {
                 plogger.info(EMTLogger.Product.EXCHANGE, "Updated description of {} to {}",exchangeAsset.getAssetId(),description);
             }
             exchangeAsset = updateExchangeTags(exchangeAsset);
+            if( icon != null ) {
+                exchangeAsset.updateIcon(StringUtils.base64Decode(icon.getContent()),icon.getMimeType());
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated icon of {}",exchangeAsset.getAssetId());
+            }
             final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
             for (String field : results.getModified()) {
                 plogger.info(EMTLogger.Product.EXCHANGE, "Updated custom field of {} to {}",exchangeAsset.getAssetId(),field);
@@ -188,6 +193,7 @@ public class APIDescriptor {
                 logger.warn("Custom field not defined, assignment failed: " + field);
             }
             updateExchangeCategories(exchangeAsset);
+
             // portal
             if (portal != null) {
                 portal.provision(exchangeAsset);
@@ -446,5 +452,13 @@ public class APIDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public IconDescriptor getIcon() {
+        return icon;
+    }
+
+    public void setIcon(IconDescriptor icon) {
+        this.icon = icon;
     }
 }

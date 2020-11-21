@@ -87,6 +87,21 @@
                     "description": "API endpoint",
                     "type": "string"
                 },
+                "Icon": {
+                    "description": "Exchange asset icon",
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "description": "Base64 encoded image content",
+                            "type": "string"
+                        },
+                        "mimeType": {
+                            "description": "Image MIME type",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["content","mimeType"]
+                },
                 "fields": {
                     "description": "Custom fields",
                     "type": "array",

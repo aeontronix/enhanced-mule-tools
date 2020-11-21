@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 import static java.io.File.separator;
@@ -88,6 +90,26 @@ public class ApplicationDescriptorParser {
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
+            IconDescriptor icon = api.getIcon();
+            if( icon == null ) {
+                File iconFile = findIcon(project);
+                if( iconFile != null ) {
+                    icon = new IconDescriptor(iconFile.getPath());
+                    api.setIcon(icon);
+                }
+            }
+            if( icon != null && icon.getPath() != null ) {
+                File iconFile = new File(icon.getPath());
+                if( ! iconFile.exists() ) {
+                    throw new IOException("Unable to find icon file: "+iconFile.getPath());
+                }
+                final String mimeType = Files.probeContentType(iconFile.toPath());
+                if( StringUtils.isNotBlank(mimeType) ) {
+                    icon.setMimeType(mimeType);
+                }
+                icon.setContent(StringUtils.base64Encode(FileUtils.toByteArray(iconFile)));
+                icon.setPath(null);
+            }
             Dependency dep = findRAMLDependency(project);
             if (api.getAssetId() == null) {
                 api.setAssetId(dep != null ? dep.getArtifactId() : apiArtifactId + "-spec");
@@ -135,6 +157,16 @@ public class ApplicationDescriptorParser {
                 }
             }
         }
+    }
+
+    private static File findIcon(MavenProject project) {
+        for (String fn : Arrays.asList("icon.svg", "icon.png", "icon.jpeg", "icon.jpg", "icon.gif")) {
+            final File f = new File(project.getBasedir(), fn);
+            if( f.exists() ) {
+                return f;
+            }
+        }
+        return null;
     }
 
     @Nullable
