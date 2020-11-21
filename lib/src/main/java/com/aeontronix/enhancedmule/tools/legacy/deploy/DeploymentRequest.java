@@ -9,6 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
+    private static final EMTLogger elogger = new EMTLogger(logger);
     public static final String ANYPOINT_PLATFORM_CLIENT_ID = "anypoint.platform.client_id";
     public static final String ANYPOINT_PLATFORM_CLIENT_SECRET = "anypoint.platform.client_secret";
     protected Environment environment;
@@ -106,6 +108,7 @@ public abstract class DeploymentRequest {
             if (deploymentConfig.getFileProperties() != null && !deploymentConfig.getFileProperties().isEmpty()) {
                 transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(),
                         new HashMap<>(deploymentConfig.getFileProperties())));
+                logger.info("Added properties file to application archive");
             }
             if (!transformers.isEmpty()) {
                 try {
@@ -116,6 +119,7 @@ public abstract class DeploymentRequest {
                         Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, newFile, FileType.ZIP);
                         unpacker.addTransformers(transformers);
                         unpacker.unpack();
+                        logger.info("Enhanced application archive");
                     } else if (source instanceof ExchangeApplicationSource) {
                         throw new ProvisioningException("Transformations on exchange sources not supported at this (so OnPrem provisioned deployments won't work with exchange sources until this feature is added)");
                     }

@@ -16,11 +16,11 @@
     "fields": [
       {
         "key": "author",
-        "value": "Roger Smith"
+        "value": "Roger Smitherasfd"
       },
       {
-        "key": "foo",
-        "value": "bar"
+        "key": "subType",
+        "value": ["RAML"]
       }
     ],
     "exchangeTags": ["footag","batag"],

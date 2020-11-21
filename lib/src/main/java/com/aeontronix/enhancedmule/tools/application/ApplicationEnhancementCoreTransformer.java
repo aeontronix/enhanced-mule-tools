@@ -9,10 +9,12 @@ import com.aeontronix.commons.io.InMemInputFilterStream;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kloudtek.unpack.*;
 import com.kloudtek.unpack.transformer.Transformer;
-import org.jetbrains.annotations.NotNull;
+import com.kloudtek.util.FileUtils;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -29,22 +31,31 @@ public class ApplicationEnhancementCoreTransformer extends Transformer {
     private static final Logger logger = getLogger(ApplicationEnhancementCoreTransformer.class);
     public static final String META_INF_MULE_ARTIFACT_MULE_ARTIFACT_JSON = "META-INF/mule-artifact/mule-artifact.json";
     public static final String ENHANCED_MULE_TOOLS_FLOW_XML = "enhanced-mule-tools-flow.xml";
+    public static final String ANYPOINT_JSON = "anypoint.json";
     private final boolean autoDiscovery;
     private final APIDescriptor api;
-    private ApplicationDescriptor apiProvisioningDescriptor;
-    private File descriptorFile;
+    private final ObjectMapper om = JsonHelper.createMapper();
+    private final ApplicationDescriptor applicationDescriptor;
+    private final File descriptorFile;
 
-    public ApplicationEnhancementCoreTransformer(@NotNull ApplicationDescriptor apiProvisioningDescriptor) {
-        this.apiProvisioningDescriptor = apiProvisioningDescriptor;
-        api = apiProvisioningDescriptor.getApi();
+    public ApplicationEnhancementCoreTransformer(File descriptorFile, ApplicationDescriptor applicationDescriptor) {
+        this.applicationDescriptor = applicationDescriptor;
+        api = this.applicationDescriptor.getApi();
+        this.descriptorFile = descriptorFile;
         this.autoDiscovery = api != null && api.isAddAutoDiscovery();
     }
 
     @Override
     public void apply(Source source, Destination destination) throws UnpackException {
+        SourceFile anypointDescFile = (SourceFile) source.getFile("anypoint.json");
+        try {
+            source.add(new InMemSourceFile(ANYPOINT_JSON, ANYPOINT_JSON, FileUtils.toByteArray(descriptorFile)));
+        } catch (IOException e) {
+            throw new UnpackException(e);
+        }
         StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mule xmlns:api-gateway=\"http://www.mulesoft.org/schema/mule/api-gateway\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd\">\n");
         if (autoDiscovery) {
-            logger.info("Added autodiscovery using flow: "+api.getAutoDiscoveryFlow());
+            logger.info("Added autodiscovery using flow: " + api.getAutoDiscoveryFlow());
             xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
         }
         xml.append("</mule>");
@@ -65,7 +76,6 @@ public class ApplicationEnhancementCoreTransformer extends Transformer {
             protected byte[] transform(byte[] data) throws IOException {
                 return IOUtils.toByteArray(os -> {
                     Map<String, Object> json;
-                    ObjectMapper om = new ObjectMapper();
                     json = om.readValue(data, Map.class);
                     Map<String, Object> clm = (Map<String, Object>) json.computeIfAbsent("classLoaderModelLoaderDescriptor", key -> new HashMap<>());
                     Map<String, Object> clmAttr = (Map<String, Object>) clm.computeIfAbsent("attributes", key -> new HashMap<>());
@@ -80,15 +90,15 @@ public class ApplicationEnhancementCoreTransformer extends Transformer {
                         exportedResources.add(ENHANCED_MULE_TOOLS_FLOW_XML);
                     }
 
-                    addSecureProperties(secureProperties);
+                    addSecureProperties(secureProperties, applicationDescriptor);
 
                     // write
                     om.writeValue(os, json);
                 });
             }
 
-            private void addSecureProperties(List<String> secureProperties) {
-                HashMap<String, PropertyDescriptor> propDesc = apiProvisioningDescriptor.getProperties();
+            private void addSecureProperties(List<String> secureProperties, ApplicationDescriptor applicationDescriptor) {
+                HashMap<String, PropertyDescriptor> propDesc = applicationDescriptor.getProperties();
                 if (propDesc != null) {
                     for (PropertyDescriptor propertyDescriptor : propDesc.values()) {
                         if (propertyDescriptor.isSecure()) {
@@ -101,6 +111,5 @@ public class ApplicationEnhancementCoreTransformer extends Transformer {
                 }
             }
         });
-
     }
 }

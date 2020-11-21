@@ -154,7 +154,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updatePage(String name, String content) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name).toString(),
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name,true).toString(),
                 Collections.singletonMap("Content-Type", "text/markdown"), content);
         httpHelper.httpPatch(getUrl(), null);
     }
@@ -183,7 +183,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     public CustomFieldUpdateResults updateCustomFields(List<APICustomFieldDescriptor> fields) throws HttpException {
         CustomFieldUpdateResults results = new CustomFieldUpdateResults();
         if( fields != null ) {
-            final List<APICustomFieldDescriptor> definedFields = new ArrayList<>(fields != null ? fields : Collections.emptyList());
+            final List<APICustomFieldDescriptor> definedFields = new ArrayList<>(fields);
             final Map<String, Object> presentFields = customFields != null ?
                     customFields.stream().collect(Collectors.toMap(APICustomField::getKey, APICustomField::getValue)) :
                     new HashMap<>();
@@ -192,7 +192,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 final Object v = presentFields.remove(key);
                 if (v == null || !v.equals(f.getValue())) {
                     try {
-                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key).toString(),
+                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key,true).toString(),
                                 new TagValueWrapper(f.getValue()));
                         results.modified.add(key);
                         logger.debug("Updated field {} to {}",key,f.getValue().toString());

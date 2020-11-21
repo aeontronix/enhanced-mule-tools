@@ -23,8 +23,8 @@ import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +36,7 @@ import static java.util.stream.Collectors.toMap;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
+    private static final EMTLogger plogger = new EMTLogger(logger);
     private String assetId;
     private String assetVersion;
     private String name;
@@ -91,15 +92,15 @@ public class APIDescriptor {
                 api = environment.findAPIByExchangeAssetIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion(), label);
                 logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " exists: " + api);
             } catch (NotFoundException e) {
-                logger.info("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
+                logger.debug("API " + this.getAssetId() + " " + this.getAssetVersion() + " not found, creating");
                 APISpec apiSpec;
                 try {
                     apiSpec = organization.findAPISpecsByIdOrNameAndVersion(this.getAssetId(), this.getAssetVersion());
                 } catch (NotFoundException ex) {
                     if (assetCreate) {
-                        logger.info("Asset not found, creating");
                         if (type == API.Type.HTTP) {
-                            environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, "v1");
+                            environment.getOrganization().createExchangeHTTPAPIAsset(null, assetId, assetId, assetVersion, version);
+                            plogger.info(EMTLogger.Product.EXCHANGE, "Created HTTP asset : {} : {} : {}", assetId, assetVersion, version);
                         } else {
                             if (applicationSource == null) {
                                 throw new AssetCreationException("Cannot create asset due to missing application source (standalone provisioning doesn't support REST asset creation)");
@@ -112,6 +113,7 @@ public class APIDescriptor {
                                 applicationSource.copyAPISpecs(assetMainFile, apiSpecFile);
                                 environment.getOrganization().publishExchangeAPIAsset(name, assetId,
                                         assetVersion, version, assetClassifier, assetMainFile, apiSpecFile);
+                                plogger.info(EMTLogger.Product.EXCHANGE, "Created API asset : {} : {} : {}", assetId, assetVersion, version);
                             }
                         }
                     } else {
@@ -127,7 +129,7 @@ public class APIDescriptor {
                     final String currentAssetVersion = api.getAssetVersion();
                     if (!currentAssetVersion.equalsIgnoreCase(assetVersion)) {
                         api = api.updateVersion(assetVersion);
-                        logger.info("Changed asset version from {} to {}", currentAssetVersion, assetVersion);
+                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated asset {} version to {}",api.getAssetId(),assetVersion);
                     }
                 } catch (NotFoundException ex) {
                     logger.debug("Creating API");
@@ -136,16 +138,19 @@ public class APIDescriptor {
                     } else {
                         api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type);
                     }
+                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}",api.getAssetId(),assetVersion);
                     updateEndpoint = false;
                 }
             }
             if (policies != null) {
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}",api.getAssetId());
                 api.deletePolicies();
                 for (PolicyDescriptor policyDescriptor : policies) {
                     api.createPolicy(policyDescriptor);
                 }
             }
             if (slaTiers != null) {
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}",api.getAssetId());
                 for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                     try {
                         SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
@@ -161,21 +166,23 @@ public class APIDescriptor {
             updateEndpoint(m3, api, updateEndpoint);
             api = api.refresh();
             result.setApi(api);
-            if( logger.isDebugEnabled() ) {
-                logger.debug("api: {}",api.toString());
+            if (logger.isDebugEnabled()) {
+                logger.debug("api: {}", api.toString());
             }
             // exchange
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated asset name of {} to {}",exchangeAsset.getAssetId(),name);
             }
             if (description != null && !description.equals(exchangeAsset.getDescription())) {
                 exchangeAsset.updateDescription(description);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated description of {} to {}",exchangeAsset.getAssetId(),description);
             }
             exchangeAsset = updateExchangeTags(exchangeAsset);
             final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
             for (String field : results.getModified()) {
-                logger.info("Updated custom field: " + field);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated custom field of {} to {}",exchangeAsset.getAssetId(),field);
             }
             for (String field : results.getNotDefined()) {
                 logger.warn("Custom field not defined, assignment failed: " + field);
@@ -191,12 +198,13 @@ public class APIDescriptor {
     }
 
     private void updateExchangeCategories(ExchangeAsset exchangeAsset) throws HttpException {
-        if( categories != null ) {
+        if (categories != null) {
             final Map<String, List<String>> assetCategories = exchangeAsset.getCategories().stream().collect(
                     toMap(AssetCategory::getKey, AssetCategory::getValue));
             for (String curCatKey : assetCategories.keySet()) {
                 if (!categories.containsKey(curCatKey)) {
                     exchangeAsset.deleteCategory(curCatKey);
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Deleted category of {}: {}",exchangeAsset.getAssetId(),curCatKey);
                 }
             }
             for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
@@ -204,6 +212,7 @@ public class APIDescriptor {
                 List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(), Collections.emptyList());
                 if (!catValues.equals(assetCatValues)) {
                     exchangeAsset.updateCategory(catEntries.getKey(), catValues);
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Updated category of {} : {}",exchangeAsset.getAssetId(),catValues);
                 }
             }
         }
@@ -216,17 +225,18 @@ public class APIDescriptor {
             } else if (this.getEndpoint() != null) {
                 api = api.updateEndpoint(this.getEndpoint(), !m3, type);
             }
+            plogger.info(EMTLogger.Product.API_MANAGER, "Updated endpoint of {}",api.getAssetId());
         }
         return api;
     }
 
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
-        if( this.exchangeTags != null ) {
+        if (this.exchangeTags != null) {
             ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
             List<String> expectedTags = this.exchangeTags;
             if (!current.equals(expectedTags)) {
                 exchangeAsset = exchangeAsset.updateLabels(expectedTags);
-                logger.info("Updated exchange tags to " + expectedTags);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated tags of {} : {}",exchangeAsset.getAssetId(),expectedTags);
             }
         }
         return exchangeAsset;

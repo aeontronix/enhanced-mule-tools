@@ -16,20 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class ApplicationEnhancer {
-    public static void enhanceApplicationDescriptor() {
-
-    }
-
-    public static void enhanceApplicationArchive(ApplicationDescriptor applicationDescriptor, File file) throws IOException, UnpackException {
-        try(final ZipFile zipFile = new ZipFile(file);
-            final InputStream is = zipFile.getInputStream(zipFile.getEntry("anypoint.json")) ) {
-            final ObjectMapper objectMapper = new ObjectMapper();
-        }
+    public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor) throws IOException, UnpackException {
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
         if (oldArtifactFile.exists()) {
             FileUtils.delete(oldArtifactFile);
@@ -39,27 +29,8 @@ public class ApplicationEnhancer {
         }
         Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, file, FileType.ZIP);
         final ArrayList<Transformer> transformers = new ArrayList<>();
-        transformers.add(new ApplicationEnhancementCoreTransformer(applicationDescriptor));
+        transformers.add(new ApplicationEnhancementCoreTransformer(descriptorFile,applicationDescriptor));
         unpacker.addTransformers(transformers);
         unpacker.unpack();
     }
-
-//    @NotNull
-//    private static Map<String, Object> loadDescriptor() throws IOException {
-//        Map<String, Object> anypointDescriptor = null;
-//        if (StringUtils.isNotBlank(descriptor)) {
-//            File descriptorFile = new File(descriptor);
-//            anypointDescriptor = readFile(descriptorFile);
-//        } else {
-//            File descriptorFile = findAnypointFile(project.getBasedir());
-//            if (descriptorFile != null) {
-//                anypointDescriptor = readFile(descriptorFile);
-//            }
-//        }
-//        if (anypointDescriptor == null) {
-//            anypointDescriptor = new HashMap<>();
-//        }
-//        return anypointDescriptor;
-//    }
-
 }

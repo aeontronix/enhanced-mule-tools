@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.aeontronix.commons.StringUtils;
@@ -25,10 +26,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.aeontronix.enhancedmule.tools.util.EMTLogger.Product.API_MANAGER;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientApplicationDescriptor {
     private static final Logger logger = getLogger(ClientApplicationDescriptor.class);
+    private static final EMTLogger plogger = new EMTLogger(logger);
     private String url;
     private String description;
     private String name;
@@ -117,6 +120,7 @@ public class ClientApplicationDescriptor {
                     instanceId = findAPIInstance(environment, access.get(0)).getId();
                 }
                 clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
+                plogger.info(API_MANAGER,"Created client application: {}",name);
             }
             result.setClientApplication(clientApplication);
             if (access != null) {
@@ -146,13 +150,16 @@ public class ClientApplicationDescriptor {
                             }
                         }
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
+                        plogger.info(API_MANAGER,"Requested API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
                     }
                     if (!contract.isApproved() && config.isAutoApproveAPIAccessRequest()) {
                         try {
                             if (contract.isRevoked()) {
                                 contract.restoreAccess();
+                                plogger.info(API_MANAGER,"Restored API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
                             } else {
                                 contract.approveAccess();
+                                plogger.info(API_MANAGER,"Approved API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
                             }
                         } catch (HttpException e) {
                             if (e.getStatusCode() == 403) {

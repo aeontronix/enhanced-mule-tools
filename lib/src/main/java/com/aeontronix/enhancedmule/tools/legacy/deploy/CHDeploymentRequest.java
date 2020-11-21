@@ -28,6 +28,7 @@ import static com.aeontronix.commons.StringUtils.isBlank;
 
 public class CHDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(CHDeploymentRequest.class);
+    private static final EMTLogger elogger = new EMTLogger(logger);
     private int workerCount;
     private CHMuleVersion muleVersion;
     private String region;
@@ -115,7 +116,9 @@ public class CHDeploymentRequest extends DeploymentRequest {
                     return new FileInputStream(source.getLocalFile());
                 }
             });
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to Cloudhub");
             deploymentJson = req.execute();
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting");
         } else {
             Map<String, Object> deployJson = new HashMap<>();
             deployJson.put("applicationInfo", appInfo);
@@ -126,6 +129,7 @@ public class CHDeploymentRequest extends DeploymentRequest {
                 deployJson.put("autoStart", true);
                 deploymentJson = httpHelper.anypointHttpPost("/cloudhub/api/v2/applications/", deployJson, environment);
             }
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Requested application start from exchange asset");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");

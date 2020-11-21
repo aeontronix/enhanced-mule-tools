@@ -27,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 /**
  * Process an anypoint descriptor file and attach resulting file to project
  */
-@Mojo(name = "process-descriptor", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
+@Mojo(name = "process-descriptor", defaultPhase = LifecyclePhase.PACKAGE)
 public class ProcessDescriptorMojo extends AbstractMojo {
     private static final Logger logger = getLogger(ProcessDescriptorMojo.class);
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -48,24 +48,27 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
             final ApplicationDescriptor applicationDescriptor = ApplicationDescriptorParser.parse(descriptor, project,
                     generateDescriptorFile, true, inheritNameAndDesc);
-            final Artifact artifact = findAppArtifact(project);
-            if (artifact != null) {
-                final File file = artifact.getFile();
-                if (file == null || !file.exists()) {
-                    throw new IllegalStateException("Mule artifact not found");
-                }
-                ApplicationEnhancer.enhanceApplicationArchive(applicationDescriptor, file);
-            } else {
-                logger.warn("No mule application attached, skipping archive enhancement");
-            }
-
             if (!mulePluginCompatibility) {
                 DefaultArtifact descriptorArtifactor = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
                         "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
                 descriptorArtifactor.setFile(generateDescriptorFile);
                 project.addAttachedArtifact(descriptorArtifactor);
             }
-        } catch (IOException | UnpackException e) {
+            try {
+                final Artifact artifact = findAppArtifact(project);
+                if (artifact != null) {
+                    final File file = artifact.getFile();
+                    if (file == null || !file.exists()) {
+                        throw new IllegalStateException("Mule artifact not found");
+                    }
+                    ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, applicationDescriptor);
+                } else {
+                    logger.warn("No mule application attached, skipping archive enhancement");
+                }
+            } catch (IOException | UnpackException e) {
+                throw new MojoExecutionException(e.getMessage(), e);
+            }
+        } catch (IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
@@ -78,5 +81,4 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         }
         return null;
     }
-
 }

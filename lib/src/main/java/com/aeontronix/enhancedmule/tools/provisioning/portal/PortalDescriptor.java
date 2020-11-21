@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.provisioning.portal;
 
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.kloudtek.util.FileUtils;
 import org.slf4j.Logger;
 
@@ -17,6 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class PortalDescriptor {
     private static final Logger logger = getLogger(PortalDescriptor.class);
+    private static final EMTLogger plogger = new EMTLogger(logger);
     private List<PortalPageDescriptor> pages;
 
     public List<PortalPageDescriptor> getPages() {
@@ -44,7 +46,7 @@ public class PortalDescriptor {
                 }
                 if (pageContent == null || !pageContent.equals(expectedPage)) {
                     exchangeAsset.updatePage(page.getName(), expectedPage);
-                    logger.info("Updated page " + page.getName());
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Updated portal page {} : {}",exchangeAsset.getAssetId(),page.getName());
                 }
             }
         }

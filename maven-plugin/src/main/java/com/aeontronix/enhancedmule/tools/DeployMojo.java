@@ -11,6 +11,7 @@ import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends AbstractEnvironmentalMojo {
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
+    private static final EMTLogger elogger = new EMTLogger(logger);
     public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     /**
      * If true API provisioning will be skipped
@@ -313,11 +315,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
                 DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);
                 if (!skipWait) {
-                    logger.info("Waiting for application start");
+                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
                     app.waitDeployed(deployTimeout, deployRetryDelay);
-                    logger.info("Application started successfully");
+                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");
                 }
-                logger.info("Deployment completed successfully");
+                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deployment completed");
             } finally {
                 IOUtils.close(source);
             }
