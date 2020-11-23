@@ -87,6 +87,18 @@
                     "description": "API endpoint",
                     "type": "string"
                 },
+                "implementationUrl": {
+                    "description": "Implementation URL",
+                    "type": "string"
+                },
+                "implementationUrlJson": {
+                    "description": "Implementation URL (JSON format). This will override consumerUrl if set",
+                    "type": "object"
+                },
+                "consumerUrl": {
+                    "description": "Consumer URL",
+                    "type": "string"
+                },
                 "Icon": {
                     "description": "Exchange asset icon",
                     "type": "object",

@@ -1,5 +1,7 @@
 {
   "api": {
+    "implementationUrl": "http://myapi.com/imp1",
+    "consumerUrl": "http://myapi.com/con1",
     "addAutoDiscovery": true,
     "portal": {
       "pages": [

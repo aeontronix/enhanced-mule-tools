@@ -47,12 +47,13 @@ public class APIDescriptor {
      */
     @Deprecated
     private String apiVersion;
-    private String endpoint;
+    private String implementationUrl;
+    private String consumerUrl;
+    private Map<String,Object> implementationUrlJson;
     private List<String> tags;
     private List<String> exchangeTags;
     private boolean addAutoDiscovery = false;
     private String autoDiscoveryFlow = "api-main";
-    private HashMap<String, Object> endpointJson;
     private List<PolicyDescriptor> policies;
     private List<String> accessedBy;
     private String label;
@@ -134,10 +135,10 @@ public class APIDescriptor {
                     }
                 } catch (NotFoundException ex) {
                     logger.debug("Creating API");
-                    if (endpointJson != null) {
-                        api = environment.createAPI(apiSpec, label, endpointJson);
+                    if (implementationUrlJson != null) {
+                        api = environment.createAPI(apiSpec, label, implementationUrlJson, consumerUrl );
                     } else {
-                        api = environment.createAPI(apiSpec, !m3, this.getEndpoint(), label, type);
+                        api = environment.createAPI(apiSpec, !m3, implementationUrl, consumerUrl , label, type);
                     }
                     plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}",api.getAssetId(),assetVersion);
                     updateEndpoint = false;
@@ -164,7 +165,17 @@ public class APIDescriptor {
                     }
                 }
             }
-            updateEndpoint(m3, api, updateEndpoint);
+            if( consumerUrl != null ) {
+                api.updateConsumerUrl(consumerUrl);
+                plogger.info(EMTLogger.Product.API_MANAGER, "Updated consumer url to {}",consumerUrl);
+            }
+            if( implementationUrlJson !=null ) {
+                api.updateImplementationUrl(implementationUrlJson);
+                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrlJson.toString());
+            } else if( implementationUrl != null ) {
+                api.updateImplementationUrl(implementationUrl, !m3, type );
+                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}",implementationUrl);
+            }
             api = api.refresh();
             result.setApi(api);
             if (logger.isDebugEnabled()) {
@@ -224,18 +235,6 @@ public class APIDescriptor {
         }
     }
 
-    private API updateEndpoint(Boolean m3, API api, boolean updateEndpoint) throws HttpException {
-        if (updateEndpoint) {
-            if (this.endpointJson != null) {
-                api = api.updateEndpoint(this.getEndpoint(), endpointJson);
-            } else if (this.getEndpoint() != null) {
-                api = api.updateEndpoint(this.getEndpoint(), !m3, type);
-            }
-            plogger.info(EMTLogger.Product.API_MANAGER, "Updated endpoint of {}",api.getAssetId());
-        }
-        return api;
-    }
-
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
         if (this.exchangeTags != null) {
             ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
@@ -264,23 +263,6 @@ public class APIDescriptor {
 
     public void setAssetVersion(String assetVersion) {
         this.assetVersion = assetVersion;
-    }
-
-    @JsonProperty
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public HashMap<String, Object> getEndpointJson() {
-        return endpointJson;
-    }
-
-    public void setEndpointJson(HashMap<String, Object> endpointJson) {
-        this.endpointJson = endpointJson;
     }
 
     public void addPolicy(PolicyDescriptor policy) {
@@ -460,5 +442,32 @@ public class APIDescriptor {
 
     public void setIcon(IconDescriptor icon) {
         this.icon = icon;
+    }
+
+    @JsonProperty
+    public String getImplementationUrl() {
+        return implementationUrl;
+    }
+
+    public void setImplementationUrl(String implementationUrl) {
+        this.implementationUrl = implementationUrl;
+    }
+
+    @JsonProperty
+    public String getConsumerUrl() {
+        return consumerUrl;
+    }
+
+    public void setConsumerUrl(String consumerUrl) {
+        this.consumerUrl = consumerUrl;
+    }
+
+    @JsonProperty
+    public Map<String, Object> getImplementationUrlJson() {
+        return implementationUrlJson;
+    }
+
+    public void setImplementationUrlJson(Map<String, Object> implementationUrlJson) {
+        this.implementationUrlJson = implementationUrlJson;
     }
 }

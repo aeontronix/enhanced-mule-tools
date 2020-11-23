@@ -313,13 +313,13 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API createAPI(@NotNull APISpec apiSpec, @Nullable String label,
-                         Map<String,Object> endpointJson ) throws HttpException {
-        return API.create(this, apiSpec, label, endpointJson);
+                         Map<String, Object> implementationUrlJson, String consumerUrl) throws HttpException {
+        return API.create(this, apiSpec, label, implementationUrlJson, consumerUrl);
     }
 
-    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String endpointUrl, @Nullable String label,
+    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String implementationUrl, String consumerUrl , @Nullable String label,
                          @NotNull API.Type type) throws HttpException {
-        return API.create(this, apiSpec, mule4, endpointUrl, label, type);
+        return API.create(this, apiSpec, mule4, implementationUrl, consumerUrl, label, type);
     }
 
     @SuppressWarnings("unchecked")

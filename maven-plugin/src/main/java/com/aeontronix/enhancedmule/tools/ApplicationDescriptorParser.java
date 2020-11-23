@@ -210,6 +210,17 @@ public class ApplicationDescriptorParser {
     private static void legacyConvert(Map<String, Object> anypointDescriptor) {
         Map<String, Object> api = (Map<String, Object>) anypointDescriptor.get("api");
         if (api != null) {
+            final Object endpoint = api.remove("endpoint");
+            if( endpoint != null ) {
+                logger.warn("'endpoint' is deprecated, please use implementationUrl and/or consumerUrl instead");
+                api.put("implementationUrl",endpoint);
+                api.put("consumerUrl",endpoint);
+            }
+            final Object endpointJson = api.remove("endpointJson");
+            if( endpointJson != null ) {
+                logger.warn("'endpointJson' is deprecated, please use consumerUrlJson instead");
+                api.put("consumerUrlJson",endpointJson);
+            }
             final Object addAutoDiscovery = api.remove("addAutoDescovery");
             if (addAutoDiscovery != null) {
                 logger.warn("'addAutoDescovery' is deprecated, please use 'addAutoDiscovery' instead");

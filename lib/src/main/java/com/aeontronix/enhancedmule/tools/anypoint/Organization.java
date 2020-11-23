@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.anypoint;
 import com.aeontronix.enhancedmule.tools.alert.Alert;
 import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
@@ -636,6 +637,10 @@ public class Organization extends AnypointObject {
         req.addBinary("asset", new FileStreamSource(file));
         final String json = req.execute();
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
+    }
+
+    public void publishApplication(ApplicationSource applicationSource) {
+        final File archiveFile = applicationSource.getLocalFile();
     }
 
     public enum RequestAPIAccessResult {

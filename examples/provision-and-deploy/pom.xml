@@ -22,7 +22,7 @@
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <emt.version>1.2.0-beta1-SNAPSHOT</emt.version>
+        <emt.version>1.2.0-beta2-SNAPSHOT</emt.version>
     </properties>
 
     <build>
@@ -119,6 +119,12 @@
                     <type>zip</type>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>deploy-exchange-emt</id>
+            <properties>
+                <anypoint.target>exchange</anypoint.target>
+            </properties>
         </profile>
     </profiles>
 

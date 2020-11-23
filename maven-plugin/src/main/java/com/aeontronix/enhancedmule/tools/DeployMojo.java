@@ -9,9 +9,11 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.*;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
@@ -199,9 +201,9 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
         }
         findDeployProperties(session.getUserProperties());
         findDeployProperties(session.getSystemProperties());
-        ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file);
-        try {
-            if (StringUtils.isBlank(target)) {
+
+        try( ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file) ) {
+            if (StringUtils.isBlank(target) || target.equalsIgnoreCase("cloudhub")) {
                 if (workerCount == null) {
                     workerCount = 1;
                 }
@@ -219,17 +221,24 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
             } else {
                 try {
-                    Server server = environment.findServerByName(target);
-                    return new HDeploymentRequest(server, appName, applicationSource, filename,
-                            apiProvisioningConfig, deploymentConfig).deploy();
+                    if( target.equalsIgnoreCase("exchange") ) {
+                        getOrganization().publishApplication(applicationSource);
+                        return new DeploymentResult() {
+                            @Override
+                            public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
+                            }
+                        };
+                    } else {
+                        Server server = environment.findServerByName(target);
+                        return new HDeploymentRequest(server, appName, applicationSource, filename,
+                                apiProvisioningConfig, deploymentConfig).deploy();
+                    }
                 } catch (NotFoundException e) {
                     throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
                 } catch (ProvisioningException | IOException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
             }
-        } finally {
-            IOUtils.close(applicationSource);
         }
     }
 

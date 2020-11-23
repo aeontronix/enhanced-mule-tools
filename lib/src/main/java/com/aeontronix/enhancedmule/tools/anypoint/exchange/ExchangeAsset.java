@@ -132,7 +132,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name).toString(), Collections.singletonMap("Accept", "text/markdown"));
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name,true).toString(), Collections.singletonMap("Accept", "text/markdown"));
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Page not found: " + name);

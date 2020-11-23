@@ -109,27 +109,30 @@ public class API extends AnypointObject<Environment> {
         return jsonHelper.readJson(new SLATier(this), json);
     }
 
-    public API updateEndpoint(String endpointUrl, boolean mule4, API.Type type) throws HttpException {
-        return updateEndpoint(endpointUrl, createEndpointJson(mule4, endpointUrl, type));
+    public void updateConsumerUrl(String consumerUrl) throws HttpException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("endpointUri", consumerUrl);
+        parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
     }
 
-    public API updateEndpoint(String endpointUrl, Map<String,Object> endpointJson) throws HttpException {
+    public void updateImplementationUrl(String implementationUrl, boolean mule4, Type type) throws HttpException {
+        updateImplementationUrl(createImplementationUrlJson(mule4, implementationUrl, type));
+    }
+
+    public void updateImplementationUrl(Map<String,Object> consumerUrlJson) throws HttpException {
         HashMap<String, Object> data = new HashMap<>();
-        data.put("endpointUri", endpointUrl);
-        data.put("endpoint", endpointJson);
-        String json = parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
-        JsonHelper jsonHelper = parent.getClient().getJsonHelper();
-        return jsonHelper.readJson(new API(parent), json, parent);
+        data.put("endpoint", consumerUrlJson);
+        parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
     }
 
     public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, boolean mule4,
-                             @Nullable String endpointUrl, @Nullable String label, @NotNull Type type) throws HttpException {
-        HashMap<String, Object> endpointJson = createEndpointJson(mule4, endpointUrl, type);
-        return create(environment, apiSpec, label, endpointJson);
+                             @Nullable String implementationUrl, String consumerUrl, @Nullable String label, @NotNull Type type) throws HttpException {
+        HashMap<String, Object> implementationUrlJson = createImplementationUrlJson(mule4, consumerUrl, type);
+        return create(environment, apiSpec, label, implementationUrlJson, implementationUrl);
     }
 
     @NotNull
-    private static HashMap<String, Object> createEndpointJson(boolean mule4, @Nullable String endpointUrl, @NotNull API.@NotNull Type type) {
+    private static HashMap<String, Object> createImplementationUrlJson(boolean mule4, @Nullable String endpointUrl, @NotNull API.@NotNull Type type) {
         HashMap<String, Object> endpointJson = new HashMap<>();
         endpointJson.put("type", type.name().toLowerCase());
         endpointJson.put("uri", endpointUrl);
@@ -142,7 +145,8 @@ public class API extends AnypointObject<Environment> {
         return endpointJson;
     }
 
-    public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, @Nullable String label, Map<String, Object> endpointJson) throws HttpException {
+    public static API create(@NotNull Environment environment, @NotNull APISpec apiSpec, @Nullable String label,
+                             Map<String, Object> implementationUrlJson, String consumerUrl) throws HttpException {
         HashMap<String, Object> req = new HashMap<>();
         req.put("instanceLabel", label);
         HashMap<String, Object> specMap = new HashMap<>();
@@ -150,7 +154,12 @@ public class API extends AnypointObject<Environment> {
         specMap.put("version", apiSpec.getVersion());
         specMap.put("groupId", apiSpec.getGroupId());
         req.put("spec", specMap);
-        req.put("endpoint", endpointJson);
+        if( consumerUrl != null ) {
+            req.put("endpointUrl", consumerUrl);
+        }
+        if( implementationUrlJson != null ) {
+            req.put("endpoint", implementationUrlJson);
+        }
         String json = environment.getClient().getHttpHelper().httpPost("/apimanager/api/v1/organizations/" + environment.getParent().getId() + "/environments/" + environment.getId() + "/apis", req);
         return environment.getClient().getJsonHelper().readJson(new API(environment), json);
     }
