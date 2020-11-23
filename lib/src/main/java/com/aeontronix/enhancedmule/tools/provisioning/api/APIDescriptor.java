@@ -185,26 +185,25 @@ public class APIDescriptor {
             ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(api.getGroupId(), api.getAssetId());
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
-                plogger.info(EMTLogger.Product.EXCHANGE, "Updated asset name of {} to {}",exchangeAsset.getAssetId(),name);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name",exchangeAsset.getAssetId());
             }
             if (description != null && !description.equals(exchangeAsset.getDescription())) {
                 exchangeAsset.updateDescription(description);
-                plogger.info(EMTLogger.Product.EXCHANGE, "Updated description of {} to {}",exchangeAsset.getAssetId(),description);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' description",exchangeAsset.getAssetId());
             }
             exchangeAsset = updateExchangeTags(exchangeAsset);
             if( icon != null ) {
                 exchangeAsset.updateIcon(StringUtils.base64Decode(icon.getContent()),icon.getMimeType());
-                plogger.info(EMTLogger.Product.EXCHANGE, "Updated icon of {}",exchangeAsset.getAssetId());
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' icon",exchangeAsset.getAssetId());
             }
             final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
             for (String field : results.getModified()) {
-                plogger.info(EMTLogger.Product.EXCHANGE, "Updated custom field of {} to {}",exchangeAsset.getAssetId(),field);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' custom field '{}'",exchangeAsset.getAssetId(),field);
             }
             for (String field : results.getNotDefined()) {
                 logger.warn("Custom field not defined, assignment failed: " + field);
             }
             updateExchangeCategories(exchangeAsset);
-
             // portal
             if (portal != null) {
                 portal.provision(exchangeAsset);
@@ -221,15 +220,16 @@ public class APIDescriptor {
             for (String curCatKey : assetCategories.keySet()) {
                 if (!categories.containsKey(curCatKey)) {
                     exchangeAsset.deleteCategory(curCatKey);
-                    plogger.info(EMTLogger.Product.EXCHANGE, "Deleted category of {}: {}",exchangeAsset.getAssetId(),curCatKey);
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' category '{}'",exchangeAsset.getAssetId(),curCatKey);
                 }
             }
             for (Map.Entry<String, List<String>> catEntries : categories.entrySet()) {
                 List<String> catValues = catEntries.getValue() != null ? catEntries.getValue() : Collections.emptyList();
-                List<String> assetCatValues = assetCategories.getOrDefault(catEntries.getKey(), Collections.emptyList());
+                final String catKey = catEntries.getKey();
+                List<String> assetCatValues = assetCategories.getOrDefault(catKey, Collections.emptyList());
                 if (!catValues.equals(assetCatValues)) {
-                    exchangeAsset.updateCategory(catEntries.getKey(), catValues);
-                    plogger.info(EMTLogger.Product.EXCHANGE, "Updated category of {} : {}",exchangeAsset.getAssetId(),catValues);
+                    exchangeAsset.updateCategory(catKey, catValues);
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' category '{}' to '{}'",exchangeAsset.getAssetId(),catKey,catValues);
                 }
             }
         }

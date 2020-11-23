@@ -5,16 +5,13 @@
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.HApplication;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
-import com.aeontronix.enhancedmule.tools.util.StreamSource;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +23,7 @@ import java.util.HashMap;
 
 public class HDeploymentRequest extends DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
+    private static final EMTLogger elogger = new EMTLogger(logger);
     private Server target;
     private JsonHelper jsonHelper;
 
@@ -75,7 +73,9 @@ public class HDeploymentRequest extends DeploymentRequest {
                 return new FileInputStream(source.getLocalFile());
             }
         });
+        elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to on-prem server");
         String json = executeRequest(start, multiPartRequest);
+        elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting");
         HApplication application = jsonHelper.readJson(new HApplication(target), json, "/data");
         return new HDeploymentResult(application);
     }
