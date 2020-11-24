@@ -4,19 +4,22 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.*;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveHelper;
+import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.CHDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentConfig;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.HDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
-import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -38,9 +41,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends AbstractEnvironmentalMojo {
+    public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
-    public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     /**
      * If true API provisioning will be skipped
      */
@@ -100,6 +103,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
 
     /**
      * Properties that should be inserted into a property file in the application archive
+     *
      * @see #filePropertiesPath
      */
     @Parameter(property = "anypoint.deploy.fileproperties", required = false)
@@ -120,14 +124,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter
     protected HashMap<String, String> vars;
-
+    protected ApplicationSource source;
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
      */
     @Parameter(name = "target", property = "anypoint.target")
     private String target;
-    protected ApplicationSource source;
-
     /**
      * Cloudhub only: Mule version name (will default to latest if not set)
      */
@@ -196,13 +198,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     protected DeploymentResult deploy(Environment environment,
                                       @NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
-        if( project != null ) {
+        if (project != null) {
             findDeployProperties(project.getProperties());
         }
         findDeployProperties(session.getUserProperties());
         findDeployProperties(session.getSystemProperties());
 
-        try( ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file) ) {
+        try (ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file)) {
             if (StringUtils.isBlank(target) || target.equalsIgnoreCase("cloudhub")) {
                 if (workerCount == null) {
                     workerCount = 1;
@@ -221,13 +223,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
             } else {
                 try {
-                    if( target.equalsIgnoreCase("exchange") ) {
-                        getOrganization().publishApplication(applicationSource);
-                        return new DeploymentResult() {
-                            @Override
-                            public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
-                            }
-                        };
+                    if (target.equalsIgnoreCase("exchange")) {
+                        if (project != null) {
+                            ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null);
+                        } else {
+                            ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null);
+                        }
+                        return null;
                     } else {
                         Server server = environment.findServerByName(target);
                         return new HDeploymentRequest(server, appName, applicationSource, filename,
@@ -245,14 +247,14 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     private void findDeployProperties(Properties properties) {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
-            if( key.startsWith(ANYPOINT_DEPLOY_PROPERTIES) ) {
+            if (key.startsWith(ANYPOINT_DEPLOY_PROPERTIES)) {
                 key = key.substring(ANYPOINT_DEPLOY_PROPERTIES.length());
-                if( StringUtils.isNotBlank(key) ) {
+                if (StringUtils.isNotBlank(key)) {
                     String value = entry.getValue().toString();
-                    if( this.properties == null ) {
+                    if (this.properties == null) {
                         this.properties = new HashMap<>();
                     }
-                    this.properties.put(key,value);
+                    this.properties.put(key, value);
                 }
             }
         }
@@ -269,7 +271,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 return;
             }
             if (file == null) {
-                if( logger.isDebugEnabled() ) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("No deploy file defined");
                 }
                 if (project == null) {
@@ -278,13 +280,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 file = MavenUtils.getProjectJar(project).getPath();
             }
             source = ApplicationSource.create(getEnvironment().getOrganization().getId(), getClient(), file);
-            if( appName == null ) {
-                if( project != null ) {
+            if (appName == null) {
+                if (project != null) {
                     appName = project.getArtifactId();
                 } else {
                     appName = source.getArtifactId();
                 }
-                if( StringUtils.isBlank(target) ) {
+                if (StringUtils.isBlank(target)) {
                     appName = appName + "-" + getEnvironment().getLName();
                 }
             }
@@ -301,18 +303,18 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     apiProvisioningConfig.init(getEnvironment());
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
-                if( propertyfile != null ) {
-                    if( ! propertyfile.exists() ) {
-                        throw new IllegalArgumentException("Property file not found: "+propertyfile);
+                if (propertyfile != null) {
+                    if (!propertyfile.exists()) {
+                        throw new IllegalArgumentException("Property file not found: " + propertyfile);
                     }
                     Properties fileProps = new Properties();
-                    try(FileInputStream fis = new FileInputStream(propertyfile) ) {
+                    try (FileInputStream fis = new FileInputStream(propertyfile)) {
                         fileProps.load(fis);
                     }
                     for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
                         String key = entry.getKey().toString();
-                        if( ! properties.containsKey(key) ) {
-                            properties.put(key,entry.getValue().toString());
+                        if (!properties.containsKey(key)) {
+                            properties.put(key, entry.getValue().toString());
                         }
                     }
                 }
@@ -323,7 +325,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 deploymentConfig.setFilePropertiesPath(filePropertiesPath);
                 deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
                 DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);
-                if (!skipWait) {
+                if (app != null && !skipWait) {
                     elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
                     app.waitDeployed(deployTimeout, deployRetryDelay);
                     elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");

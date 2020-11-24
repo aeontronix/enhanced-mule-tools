@@ -16,6 +16,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -23,10 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,13 +96,32 @@ public class HttpHelper implements Closeable {
     public void httpGetBasicAuth(String path, OutputStream outputStream) throws HttpException {
         logger.debug("HTTP GET W/ BASIC AUTH: " + path);
         HttpGet request = new HttpGet(convertPath(path));
+        httpExecuteMethodBasicAuth(outputStream, request);
+    }
+
+    public void httpPutBasicAuth(String path, byte[] data, OutputStream outputStream) throws HttpException {
+        logger.debug("HTTP PUT W/ BASIC AUTH: " + path);
+        HttpPut request = new HttpPut(convertPath(path));
+        request.setEntity(new ByteArrayEntity(data));
+        httpExecuteMethodBasicAuth(outputStream, request);
+    }
+    public void httpPutBasicAuth(String path, InputStream is, OutputStream outputStream) throws HttpException {
+        logger.debug("HTTP PUT W/ BASIC AUTH: " + path);
+        HttpPut request = new HttpPut(convertPath(path));
+        request.setEntity(new InputStreamEntity(is));
+        httpExecuteMethodBasicAuth(outputStream, request);
+    }
+
+    private void httpExecuteMethodBasicAuth(OutputStream outputStream, HttpRequestBase request) throws HttpException {
         setBasicAuthHeader(request);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             verifyStatusCode(request, response);
-            if (response.getEntity() == null) {
-                throw new HttpException("Not body returned by url " + request.getURI());
+            if( outputStream != null ) {
+                if (response.getEntity() == null) {
+                    throw new HttpException("Not body returned by url " + request.getURI());
+                }
+                IOUtils.copy(response.getEntity().getContent(), outputStream);
             }
-            IOUtils.copy(response.getEntity().getContent(), outputStream);
         } catch (IOException e) {
             throw new HttpException(e.getMessage(), e);
         }

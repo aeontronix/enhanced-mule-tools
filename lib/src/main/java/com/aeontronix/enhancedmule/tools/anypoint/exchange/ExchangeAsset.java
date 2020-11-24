@@ -487,10 +487,10 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         }
     }
 
-    public void updateIcon(byte[] base64Decode, String mimeType) throws HttpException {
+    public void updateIcon(byte[] data, String mimeType) throws HttpException {
         Map<String,String> headers = new HashMap<>();
         headers.put("Content-Type",mimeType);
-        httpHelper.httpPut(new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(),true).path(assetId,true).path("icon").toString(),headers, base64Decode);
+        httpHelper.httpPut(new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(),true).path(assetId,true).path("icon").toString(),headers, data);
     }
 
     public static class TagValueWrapper {

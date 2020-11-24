@@ -25,6 +25,7 @@ public class ApplicationDescriptor {
     private String name;
     private String description;
     private String version;
+    private boolean versionInherited;
     private Boolean mule3;
     private APIDescriptor api;
     private HashMap<String, PropertyDescriptor> properties;
@@ -139,5 +140,13 @@ public class ApplicationDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isVersionInherited() {
+        return versionInherited;
+    }
+
+    public void setVersionInherited(boolean versionInherited) {
+        this.versionInherited = versionInherited;
     }
 }

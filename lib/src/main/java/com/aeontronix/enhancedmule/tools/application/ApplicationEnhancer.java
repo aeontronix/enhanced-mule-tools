@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 
 public class ApplicationEnhancer {
     public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor) throws IOException, UnpackException {
+        final ApplicationEnhancementCoreTransformer transformer = new ApplicationEnhancementCoreTransformer(descriptorFile, applicationDescriptor);
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
         if (oldArtifactFile.exists()) {
             FileUtils.delete(oldArtifactFile);
@@ -29,7 +30,7 @@ public class ApplicationEnhancer {
         }
         Unpacker unpacker = new Unpacker(oldArtifactFile, FileType.ZIP, file, FileType.ZIP);
         final ArrayList<Transformer> transformers = new ArrayList<>();
-        transformers.add(new ApplicationEnhancementCoreTransformer(descriptorFile,applicationDescriptor));
+        transformers.add(transformer);
         unpacker.addTransformers(transformers);
         unpacker.unpack();
     }

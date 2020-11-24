@@ -4,19 +4,23 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
+import com.aeontronix.commons.BackendAccessException;
+import com.aeontronix.commons.ThreadUtils;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.alert.Alert;
-import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
+import com.aeontronix.enhancedmule.tools.api.*;
+import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveHelper;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
-import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpHelper;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.BackendAccessException;
-import com.aeontronix.commons.ThreadUtils;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.modelmapper.ModelMapper;
@@ -26,11 +30,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.ZipFile;
 
 public class Organization extends AnypointObject {
     public static final Pattern MAJORVERSION_REGEX = Pattern.compile("(\\d*)\\..*");
@@ -261,11 +267,6 @@ public class Organization extends AnypointObject {
         findExchangeAssets().delete();
     }
 
-    @JsonIgnore
-    public String getUriPath() {
-        return new URLBuilder("/apiplatform/repository/v2/organizations/").path(id).toString();
-    }
-
 //    public RequestAPIAccessResult requestAPIAccess(String clientApplicationName, String apiName, String apiVersionName, boolean autoApprove, boolean autoRestore, String slaTier) throws HttpException, RequestAPIAccessException, NotFoundException {
 //        ClientApplication clientApplication;
 //        try {
@@ -320,6 +321,11 @@ public class Organization extends AnypointObject {
 //        }
 //    }
 
+    @JsonIgnore
+    public String getUriPath() {
+        return new URLBuilder("/apiplatform/repository/v2/organizations/").path(id).toString();
+    }
+
     @Override
     public String toString() {
         return "Organization{" +
@@ -356,7 +362,7 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
-        logger.debug("searching exchange asset, groupId="+groupId+" assetId="+assetId);
+        logger.debug("searching exchange asset, groupId=" + groupId + " assetId=" + assetId);
         for (ExchangeAssetOverview assetOverview : findExchangeAssets()) {
             if (groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId())) {
                 return assetOverview.getAsset();
@@ -474,7 +480,6 @@ public class Organization extends AnypointObject {
         }
         return null;
     }
-
 
     public @NotNull RoleGroupList findAllRoleGroups() throws HttpException {
         return new RoleGroupList(this);
@@ -637,10 +642,6 @@ public class Organization extends AnypointObject {
         req.addBinary("asset", new FileStreamSource(file));
         final String json = req.execute();
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
-    }
-
-    public void publishApplication(ApplicationSource applicationSource) {
-        final File archiveFile = applicationSource.getLocalFile();
     }
 
     public enum RequestAPIAccessResult {

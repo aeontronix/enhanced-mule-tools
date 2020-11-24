@@ -47,7 +47,6 @@ public class ApplicationEnhancementCoreTransformer extends Transformer {
 
     @Override
     public void apply(Source source, Destination destination) throws UnpackException {
-        SourceFile anypointDescFile = (SourceFile) source.getFile("anypoint.json");
         try {
             source.add(new InMemSourceFile(ANYPOINT_JSON, ANYPOINT_JSON, FileUtils.toByteArray(descriptorFile)));
         } catch (IOException e) {

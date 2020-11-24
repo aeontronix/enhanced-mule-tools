@@ -88,6 +88,7 @@ public class ApplicationDescriptorParser {
         }
         if (applicationDescriptor.getVersion() == null) {
             applicationDescriptor.setVersion(version);
+            applicationDescriptor.setVersionInherited(true);
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
@@ -157,7 +158,8 @@ public class ApplicationDescriptorParser {
                 }
             }
             if (api.getAssetVersion() == null) {
-                api.setAssetVersion(version);
+                api.setAssetVersion(applicationDescriptor.getVersion());
+                api.setVersionInherited(true);
             }
             if (api.getVersion() == null) {
                 if (dep != null) {

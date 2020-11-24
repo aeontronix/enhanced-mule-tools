@@ -42,6 +42,7 @@ public class APIDescriptor {
     private String name;
     private String description;
     private String version;
+    private boolean versionInherited;
     /**
      * Backwards compatibility, use 'version' instead
      */
@@ -469,5 +470,13 @@ public class APIDescriptor {
 
     public void setImplementationUrlJson(Map<String, Object> implementationUrlJson) {
         this.implementationUrlJson = implementationUrlJson;
+    }
+
+    public boolean isVersionInherited() {
+        return versionInherited;
+    }
+
+    public void setVersionInherited(boolean versionInherited) {
+        this.versionInherited = versionInherited;
     }
 }
