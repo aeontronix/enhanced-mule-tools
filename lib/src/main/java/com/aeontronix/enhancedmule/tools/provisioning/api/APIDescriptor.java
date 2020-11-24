@@ -152,7 +152,7 @@ public class APIDescriptor {
                 }
             }
             if (slaTiers != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}",api.getAssetId());
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting SLA Tiers for {}",api.getAssetId());
                 for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                     try {
                         SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
