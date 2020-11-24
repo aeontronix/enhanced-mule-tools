@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static java.io.File.separator;
@@ -103,9 +104,22 @@ public class ApplicationDescriptorParser {
                 if( ! iconFile.exists() ) {
                     throw new IOException("Unable to find icon file: "+iconFile.getPath());
                 }
-                final String mimeType = Files.probeContentType(iconFile.toPath());
+                final Path path = iconFile.toPath();
+                String mimeType = Files.probeContentType(path);
+                if( StringUtils.isBlank(mimeType) ) {
+                    String fpath = path.toString().toLowerCase();
+                    if( fpath.endsWith(".png") ) {
+                        mimeType = "image/png";
+                    } else if( fpath.endsWith(".svg") ) {
+                        mimeType = "image/svg";
+                    } else if( fpath.endsWith(".jpg") ) {
+                        mimeType = "image/jpg";
+                    }
+                }
                 if( StringUtils.isNotBlank(mimeType) ) {
                     icon.setMimeType(mimeType);
+                } else {
+                    throw new IOException("Unable to identity mime-Type of icon image, please specify mimeType in descriptor: "+icon.getPath());
                 }
                 icon.setContent(StringUtils.base64Encode(FileUtils.toByteArray(iconFile)));
                 icon.setPath(null);
