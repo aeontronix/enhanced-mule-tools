@@ -88,7 +88,6 @@ public class ApplicationDescriptorParser {
         }
         if (applicationDescriptor.getVersion() == null) {
             applicationDescriptor.setVersion(version);
-            applicationDescriptor.setVersionInherited(true);
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
@@ -112,8 +111,10 @@ public class ApplicationDescriptorParser {
                     if( fpath.endsWith(".png") ) {
                         mimeType = "image/png";
                     } else if( fpath.endsWith(".svg") ) {
-                        mimeType = "image/svg";
-                    } else if( fpath.endsWith(".jpg") ) {
+                        mimeType = "image/svg+xml";
+                    } else if( fpath.endsWith(".gif") ) {
+                        mimeType = "image/gif";
+                    } else if( fpath.endsWith(".jpg") || fpath.endsWith(".jepg") ) {
                         mimeType = "image/jpg";
                     }
                 }
@@ -133,7 +134,11 @@ public class ApplicationDescriptorParser {
                 api.setDescription(applicationDescriptor.getDescription());
             }
             if( api.getAssetVersion() == null ) {
-                api.setAssetVersion(dep != null ? dep.getVersion() : "1.0.0");
+                if( dep != null ) {
+                    api.setAssetVersion(dep.getVersion());
+                } else {
+                    api.setAssetVersion(version);
+                }
             }
             if( api.isAssetCreate() == null || api.getAssetMainFile() == null ) {
                 String apiSpecFile = findAPISpecFile(project,api.getAssetId());
@@ -158,8 +163,7 @@ public class ApplicationDescriptorParser {
                 }
             }
             if (api.getAssetVersion() == null) {
-                api.setAssetVersion(applicationDescriptor.getVersion());
-                api.setVersionInherited(true);
+                api.setAssetVersion("1.0.0");
             }
             if (api.getVersion() == null) {
                 if (dep != null) {

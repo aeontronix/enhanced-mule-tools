@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
+import com.aeontronix.commons.Required;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
@@ -15,12 +16,14 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.kloudtek.unpack.*;
-import com.kloudtek.unpack.transformer.SetPropertyTransformer;
-import com.kloudtek.unpack.transformer.Transformer;
 import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.unpack.FileType;
+import com.aeontronix.unpack.Unpacker;
+import com.aeontronix.unpack.transformer.FileMatcher;
+import com.aeontronix.unpack.transformer.SetPropertyTransformer;
+import com.aeontronix.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.aeontronix.commons.Required.CREATE;
 
 public abstract class DeploymentRequest {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
@@ -106,7 +111,7 @@ public abstract class DeploymentRequest {
                 }
             }
             if (deploymentConfig.getFileProperties() != null && !deploymentConfig.getFileProperties().isEmpty()) {
-                transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(),
+                transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(), CREATE,
                         new HashMap<>(deploymentConfig.getFileProperties())));
                 logger.info("Added properties file to application archive");
             }

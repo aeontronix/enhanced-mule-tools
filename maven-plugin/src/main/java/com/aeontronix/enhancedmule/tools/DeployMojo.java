@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -193,6 +195,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.staticips", defaultValue = "false")
     private boolean staticIPs;
+    /**
+     * Build number
+     */
+    @Parameter(property = "anypoint.deploy.buildnumber")
+    private String buildNumber;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,
@@ -224,10 +231,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
             } else {
                 try {
                     if (target.equalsIgnoreCase("exchange")) {
+                        if( buildNumber == null ) {
+                            buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
+                        }
                         if (project != null) {
-                            ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null);
+                            ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null, buildNumber);
                         } else {
-                            ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null);
+                            ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null, buildNumber);
                         }
                         return null;
                     } else {

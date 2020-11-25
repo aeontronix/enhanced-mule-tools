@@ -4,14 +4,14 @@
 
 package com.aeontronix.enhancedmule.tools.application;
 
-import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
-import com.kloudtek.unpack.FileType;
-import com.kloudtek.unpack.UnpackException;
-import com.kloudtek.unpack.Unpacker;
+import com.aeontronix.unpack.FileType;
+import com.aeontronix.unpack.UnpackException;
+import com.aeontronix.unpack.Unpacker;
+import com.kloudtek.util.TempFile;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -28,12 +28,11 @@ import static com.kloudtek.util.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class ApplicationArchiveHelper {
-    public static final DateTimeFormatter RSFORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS");
     private static final Logger logger = getLogger(ApplicationArchiveHelper.class);
 
     @SuppressWarnings("unchecked")
     public static void uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
-                                     String newVersion) throws IOException, UnpackException {
+                                     String newVersion, String buildNumber) throws IOException, UnpackException {
         final File appArchFile = applicationSource.getLocalFile();
         if (appId == null) {
             try (final ZipFile zipFile = new ZipFile(appArchFile)) {
@@ -41,13 +40,13 @@ public class ApplicationArchiveHelper {
             }
         }
         if (newVersion == null && appId.getVersion().toLowerCase().endsWith("-snapshot")) {
-            newVersion = appId.getVersion() + "-" + RSFORMAT.format(LocalDateTime.now());
+            newVersion = appId.getVersion() + "-" + buildNumber;
         }
         if (!org.getId().equals(appId.getGroupId()) || newVersion != null) {
-            File emteh = new File("enhanced-archive.zip");
+File emteh = new File("target/emteh.zip");
 //            try (final TempFile emteh = new TempFile("emteh")) {
                 Unpacker unpacker = new Unpacker(appArchFile, FileType.ZIP, emteh, FileType.ZIP);
-                unpacker.addTransformer(new ApplicationArchiveVersionTransformer(appId,org.getId(),newVersion));
+                unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, org.getId(), newVersion, buildNumber));
                 unpacker.unpack();
                 publishArchive(appId, org, emteh);
 //            }
@@ -77,7 +76,7 @@ public class ApplicationArchiveHelper {
 
     @NotNull
     public static String mavenMetaPath(ApplicationIdentifier appId, String orgId, String file) {
-        return "META-INF/maven/" + orgId + "/" + appId.getArtifactId() + "/"+ file;
+        return "META-INF/maven/" + orgId + "/" + appId.getArtifactId() + "/" + file;
     }
 
     @SuppressWarnings("unchecked")
