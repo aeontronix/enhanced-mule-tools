@@ -65,6 +65,8 @@ public class APIDescriptor {
     private Map<String, List<String>> categories;
     private List<APICustomFieldDescriptor> fields;
     private IconDescriptor icon;
+    private String apiIdProperty;
+    private boolean injectApiId = true;
 
     public APIDescriptor() {
     }
@@ -245,6 +247,15 @@ public class APIDescriptor {
             }
         }
         return exchangeAsset;
+    }
+
+    @JsonProperty(defaultValue = "true")
+    public boolean isInjectApiId() {
+        return injectApiId;
+    }
+
+    public void setInjectApiId(boolean injectApiId) {
+        this.injectApiId = injectApiId;
     }
 
     @JsonProperty
@@ -469,5 +480,13 @@ public class APIDescriptor {
 
     public void setImplementationUrlJson(Map<String, Object> implementationUrlJson) {
         this.implementationUrlJson = implementationUrlJson;
+    }
+
+    public String getApiIdProperty() {
+        return apiIdProperty;
+    }
+
+    public void setApiIdProperty(String apiIdProperty) {
+        this.apiIdProperty = apiIdProperty;
     }
 }

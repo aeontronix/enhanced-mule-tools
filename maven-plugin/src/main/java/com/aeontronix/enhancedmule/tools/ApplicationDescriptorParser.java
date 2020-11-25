@@ -5,9 +5,12 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.IconDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,9 +40,9 @@ public class ApplicationDescriptorParser {
     private static final String[] apiExts = {".raml",".yml",".yaml",".json"};
     private static final Logger logger = getLogger(ApplicationDescriptorParser.class);
 
-    public static ApplicationDescriptor parse(@Nullable String descriptor, @NotNull MavenProject project,
-                                              @Nullable File writeToFile, boolean addWriteToFileToProject,
-                                              boolean inheritNameAndDesc) throws IOException {
+    public static ApplicationDescriptor parseAndProcess(@Nullable String descriptor, @NotNull MavenProject project,
+                                                        @Nullable File writeToFile, boolean addWriteToFileToProject,
+                                                        boolean inheritNameAndDesc) throws IOException {
         ObjectMapper objectMapper = JsonHelper.createMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Map<String, Object> anypointDescriptorJson = null;
@@ -91,6 +94,14 @@ public class ApplicationDescriptorParser {
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
+            if( api.getApiIdProperty() == null ) {
+                api.setApiIdProperty("anypoint.api.id");
+            }
+            final String apiIdProperty = api.getApiIdProperty();
+            final HashMap<String, PropertyDescriptor> properties = applicationDescriptor.getProperties();
+            getOrCreateProperty(properties, apiIdProperty, "Anypoint API identifier", false);
+            getOrCreateProperty(properties, DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(properties, DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             IconDescriptor icon = api.getIcon();
             if( icon == null ) {
                 File iconFile = findIcon(project);
@@ -114,7 +125,7 @@ public class ApplicationDescriptorParser {
                         mimeType = "image/svg+xml";
                     } else if( fpath.endsWith(".gif") ) {
                         mimeType = "image/gif";
-                    } else if( fpath.endsWith(".jpg") || fpath.endsWith(".jepg") ) {
+                    } else if( fpath.endsWith(".jpg") || fpath.endsWith(".jpeg") ) {
                         mimeType = "image/jpg";
                     }
                 }
@@ -177,6 +188,28 @@ public class ApplicationDescriptorParser {
                 }
             }
         }
+        final ClientApplicationDescriptor client = applicationDescriptor.getClient();
+        if( client != null ) {
+            if( client.getClientIdProperty() == null ) {
+                client.setClientIdProperty("anypoint.api.client.id");
+            }
+            if( client.getClientSecretProperty() == null ) {
+                client.setClientSecretProperty("anypoint.api.client.secret");
+            }
+            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientIdProperty(), "API Client Id", false);
+            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientSecretProperty(), "API Client Secret", true);
+        }
+    }
+
+    private static PropertyDescriptor getOrCreateProperty(HashMap<String, PropertyDescriptor> properties, String id, String name, boolean secure) {
+        PropertyDescriptor prop = properties.get(id);
+        if(prop == null ) {
+            prop = new PropertyDescriptor(name, secure);
+            properties.put(id,prop);
+        }
+        return prop;
     }
 
     private static File findIcon(MavenProject project) {

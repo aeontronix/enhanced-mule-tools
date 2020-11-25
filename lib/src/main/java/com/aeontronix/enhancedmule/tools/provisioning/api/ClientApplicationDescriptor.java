@@ -35,6 +35,9 @@ public class ClientApplicationDescriptor {
     private String url;
     private String description;
     private String name;
+    private boolean injectClientIdSec = true;
+    private String clientIdProperty;
+    private String clientSecretProperty;
     private List<APIAccessDescriptor> access;
 
     public ClientApplicationDescriptor() {
@@ -71,6 +74,33 @@ public class ClientApplicationDescriptor {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonProperty(defaultValue = "true")
+    public boolean isInjectClientIdSec() {
+        return injectClientIdSec;
+    }
+
+    public void setInjectClientIdSec(boolean injectClientIdSec) {
+        this.injectClientIdSec = injectClientIdSec;
+    }
+
+    @JsonProperty
+    public String getClientIdProperty() {
+        return clientIdProperty;
+    }
+
+    public void setClientIdProperty(String clientIdProperty) {
+        this.clientIdProperty = clientIdProperty;
+    }
+
+    @JsonProperty
+    public String getClientSecretProperty() {
+        return clientSecretProperty;
+    }
+
+    public void setClientSecretProperty(String clientSecretProperty) {
+        this.clientSecretProperty = clientSecretProperty;
     }
 
     @JsonProperty("access")

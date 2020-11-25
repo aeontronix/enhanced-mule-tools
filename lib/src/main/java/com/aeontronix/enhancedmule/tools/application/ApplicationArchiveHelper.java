@@ -43,13 +43,12 @@ public class ApplicationArchiveHelper {
             newVersion = appId.getVersion() + "-" + buildNumber;
         }
         if (!org.getId().equals(appId.getGroupId()) || newVersion != null) {
-File emteh = new File("target/emteh.zip");
-//            try (final TempFile emteh = new TempFile("emteh")) {
+            try (final TempFile emteh = new TempFile("emteh")) {
                 Unpacker unpacker = new Unpacker(appArchFile, FileType.ZIP, emteh, FileType.ZIP);
                 unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, org.getId(), newVersion, buildNumber));
                 unpacker.unpack();
                 publishArchive(appId, org, emteh);
-//            }
+            }
         } else {
             publishArchive(appId, org, appArchFile);
         }

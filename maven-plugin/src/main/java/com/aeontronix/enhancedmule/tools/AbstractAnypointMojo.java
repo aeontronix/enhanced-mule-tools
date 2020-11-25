@@ -33,16 +33,6 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.password")
     protected String password;
-    /**
-     * Anypoint username
-     */
-    @Parameter(property = "anypoint.client.id")
-    protected String clientId;
-    /**
-     * Anypoint password
-     */
-    @Parameter(property = "anypoint.client.secret")
-    protected String clientSecret;
     @Parameter(property = EMULE_ACCESSTOKEN_ID)
     protected String emAccessTokenId;
     @Parameter(property = EMULE_ACCESSTOKEN_SECRET)
@@ -54,10 +44,6 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String bearerToken;
     @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
-    @Parameter(defaultValue = "true", property = "anypoint.adddistmngmt")
-    private boolean addDistMngmnt;
-    @Parameter(defaultValue = "true", property = "anypoint.updateorgid")
-    private boolean updateOrgId;
     @Parameter(defaultValue = "${settings}", readonly = true)
     protected Settings settings;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)

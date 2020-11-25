@@ -102,11 +102,14 @@ public class ApplicationDescriptor {
         this.id = id;
     }
 
-    public HashMap<String, PropertyDescriptor> getProperties() {
+    public synchronized HashMap<String, PropertyDescriptor> getProperties() {
+        if( properties == null) {
+            properties = new HashMap<>();
+        }
         return properties;
     }
 
-    public void setProperties(HashMap<String, PropertyDescriptor> properties) {
+    public synchronized void setProperties(HashMap<String, PropertyDescriptor> properties) {
         this.properties = properties;
     }
 

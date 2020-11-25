@@ -7,10 +7,12 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentRequest;
+import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -63,15 +65,17 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             getLog().info("Provisioning complete");
             Properties properties = new Properties();
             API api = result.getApi();
-            if (api != null) {
-                getLog().info(apiProvisioningConfig.getInjectApiIdKey()+"="+api.getId());
-                properties.put(apiProvisioningConfig.getInjectApiIdKey(), api.getId());
+            final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
+            if (api != null && apiDescriptor.isInjectApiId()) {
+                getLog().info(apiDescriptor.getApiIdProperty() +"="+api.getId());
+                properties.put(apiDescriptor.getApiIdProperty(), api.getId());
             }
             ClientApplication clientApplication = result.getClientApplication();
-            if (clientApplication != null) {
-                getLog().info(apiProvisioningConfig.getInjectClientIdSecretKey()+"="+clientApplication.getClientId());
-                properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".id", clientApplication.getClientId());
-                properties.put(apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret", clientApplication.getClientSecret());
+            final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
+            if (clientApplication != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec() ) {
+                getLog().info(clientDescriptor.getClientIdProperty()+"="+clientApplication.getClientId());
+                properties.put(clientDescriptor.getClientIdProperty(), clientApplication.getClientId());
+                properties.put(clientDescriptor.getClientSecretProperty(), clientApplication.getClientSecret());
             }
             String envClientId = environment.getClientId();
             if( includePlatformCreds ) {

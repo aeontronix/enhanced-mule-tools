@@ -99,7 +99,7 @@
                     "description": "Consumer URL",
                     "type": "string"
                 },
-                "Icon": {
+                "icon": {
                     "description": "Exchange asset icon",
                     "type": "object",
                     "properties": {
@@ -292,6 +292,16 @@
                     "description": "DEPRECATED: use 'version' instead",
                     "type": "string",
                     "deprecationMessage": "use 'version' instead"
+                },
+                "injectApiId": {
+                    "description": "If set to true, the API id will be injected at deployment using the property specified in the 'apiIdProperty' field",
+                    "type": "boolean",
+                    "default": true
+                },
+                "apiIdProperty": {
+                    "description": "Name of the property where the API id will be injected into at deployment time",
+                    "type": "string",
+                    "default": "anypoint.api.id"
                 }
             },
             "required": [
@@ -314,6 +324,21 @@
                 "url": {
                     "description": "Client application url",
                     "type": "string"
+                },
+                "injectClientIdSec": {
+                    "description": "Indicates if the client id and secret should be injected at deployment time",
+                    "type": "boolean",
+                    "default": true
+                },
+                "clientIdProperty": {
+                    "description": "Name of property where the client application id will be injected",
+                    "type": "string",
+                    "default": "anypoint.api.client.id"
+                },
+                "clientSecretProperty": {
+                    "description": "Name of property where the client application id will be injected",
+                    "type": "string",
+                    "default": "anypoint.api.client.secret"
                 },
                 "access": {
                     "description": "List of APIs that the client application should be granted access to",

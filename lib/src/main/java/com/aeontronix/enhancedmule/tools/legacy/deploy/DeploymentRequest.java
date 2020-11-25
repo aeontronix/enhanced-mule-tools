@@ -74,12 +74,10 @@ public abstract class DeploymentRequest {
                 if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
                     provisioningResult = applicationDescriptor.provision(environment, apiProvisioningConfig, source);
-                    if (provisioningResult.getApi() != null && apiProvisioningConfig.isInjectApiId()) {
-                        deploymentConfig.setOverrideProperty(apiProvisioningConfig.getInjectApiIdKey(), provisioningResult.getApi().getId());
-                        applicationDescriptor.addProperty(apiProvisioningConfig.getInjectApiIdKey(),false);
+                    final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
+                    if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId() ) {
+                        deploymentConfig.setOverrideProperty(apiDescriptor.getApiIdProperty(), provisioningResult.getApi().getId());
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
-                        applicationDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_ID,false);
-                        applicationDescriptor.addProperty(ANYPOINT_PLATFORM_CLIENT_SECRET,true);
                         try {
                             deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
                         } catch (HttpException e) {
@@ -88,14 +86,11 @@ public abstract class DeploymentRequest {
                             }
                         }
                     }
+                    final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
                     ClientApplication clientApp = provisioningResult.getClientApplication();
-                    if (clientApp != null && apiProvisioningConfig.isInjectClientIdSecret()) {
-                        String keyId = apiProvisioningConfig.getInjectClientIdSecretKey() + ".id";
-                        applicationDescriptor.addProperty(keyId,false);
-                        deploymentConfig.setOverrideProperty(keyId, clientApp.getClientId());
-                        String keySecret = apiProvisioningConfig.getInjectClientIdSecretKey() + ".secret";
-                        deploymentConfig.setOverrideProperty(keySecret, clientApp.getClientSecret());
-                        applicationDescriptor.addProperty(keySecret,true);
+                    if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
+                        deploymentConfig.setOverrideProperty(clientApp.getClientId(), clientApp.getClientId());
+                        deploymentConfig.setOverrideProperty(clientApp.getClientSecret(), clientApp.getClientSecret());
                     }
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");

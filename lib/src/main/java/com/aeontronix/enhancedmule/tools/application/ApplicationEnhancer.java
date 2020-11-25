@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.aeontronix.commons.Required.CREATE;
 import static com.aeontronix.commons.Required.REQUIRED;
@@ -77,18 +78,17 @@ public class ApplicationEnhancer {
                 if( !contains(exportedResources,ENHANCED_MULE_TOOLS_FLOW_XML) ) {
                     exportedResources.add(ENHANCED_MULE_TOOLS_FLOW_XML);
                 }
-                final ArrayNode configs = getOrCreateArray(root, "exportedResources");
+                final ArrayNode configs = getOrCreateArray(root, "configs");
                 if( !contains(configs,ENHANCED_MULE_TOOLS_FLOW_XML) ) {
                     configs.add(ENHANCED_MULE_TOOLS_FLOW_XML);
                 }
                 final ArrayNode secureProperties = getOrCreateArray(root, "secureProperties");
                 HashMap<String, PropertyDescriptor> propDesc = applicationDescriptor.getProperties();
                 if (propDesc != null) {
-                    for (PropertyDescriptor propertyDescriptor : propDesc.values()) {
-                        if (propertyDescriptor.isSecure()) {
-                            String name = propertyDescriptor.getName();
-                            if (!contains(secureProperties,name)) {
-                                secureProperties.add(name);
+                    for (Map.Entry<String, PropertyDescriptor> prop : propDesc.entrySet()) {
+                        if( prop.getValue().isSecure() ) {
+                            if (!contains(secureProperties,prop.getKey())) {
+                                secureProperties.add(prop.getKey());
                             }
                         }
                     }
