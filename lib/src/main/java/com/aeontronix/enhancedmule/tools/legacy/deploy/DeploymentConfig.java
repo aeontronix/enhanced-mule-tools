@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
+import com.aeontronix.enhancedmule.tools.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class DeploymentConfig {
+    private RTFDeploymentConfig rtf;
     private boolean customlog4j;
     private boolean mergeExistingProperties = true;
     private boolean mergeExistingPropertiesOverride;
@@ -26,6 +28,14 @@ public class DeploymentConfig {
     private boolean staticIPs;
 
     public DeploymentConfig() {
+    }
+
+    public RTFDeploymentConfig getRtf() {
+        return rtf;
+    }
+
+    public void setRtf(RTFDeploymentConfig rtf) {
+        this.rtf = rtf;
     }
 
     public boolean isMergeExistingProperties() {

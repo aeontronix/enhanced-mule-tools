@@ -10,8 +10,7 @@ import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
 import com.aeontronix.enhancedmule.tools.api.*;
-import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveHelper;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
@@ -30,13 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.ZipFile;
 
 public class Organization extends AnypointObject {
     public static final Pattern MAJORVERSION_REGEX = Pattern.compile("(\\d*)\\..*");
@@ -642,6 +639,20 @@ public class Organization extends AnypointObject {
         req.addBinary("asset", new FileStreamSource(file));
         final String json = req.execute();
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
+    }
+
+    public Fabric findFabricByName(String name) throws NotFoundException, HttpException {
+        for (Fabric fabric : findAllFabric()) {
+            if (fabric.getName().equalsIgnoreCase(name)) {
+                return fabric;
+            }
+        }
+        throw new NotFoundException("Fabric not found: " + name);
+    }
+
+    public List<Fabric> findAllFabric() throws HttpException {
+        final String json = httpHelper.httpGet("/runtimefabric/api/organizations/" + id + "/fabrics");
+        return jsonHelper.readJsonList(Fabric.class, json, parent);
     }
 
     public enum RequestAPIAccessResult {

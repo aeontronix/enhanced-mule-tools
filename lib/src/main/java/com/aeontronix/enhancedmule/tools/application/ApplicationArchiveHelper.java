@@ -31,7 +31,7 @@ public class ApplicationArchiveHelper {
     private static final Logger logger = getLogger(ApplicationArchiveHelper.class);
 
     @SuppressWarnings("unchecked")
-    public static void uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
+    public static ApplicationIdentifier uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
                                      String newVersion, String buildNumber) throws IOException, UnpackException {
         final File appArchFile = applicationSource.getLocalFile();
         if (appId == null) {
@@ -52,6 +52,7 @@ public class ApplicationArchiveHelper {
         } else {
             publishArchive(appId, org, appArchFile);
         }
+        return new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion != null ? newVersion : appId.getVersion());
     }
 
     private static void publishArchive(ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException {
@@ -105,5 +106,4 @@ public class ApplicationArchiveHelper {
                 .path(org.getId(), true).path(appId.getArtifactId(), true)
                 .path(appId.getVersion(), true);
     }
-
 }

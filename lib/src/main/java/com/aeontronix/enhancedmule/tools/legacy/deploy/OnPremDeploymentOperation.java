@@ -13,9 +13,9 @@ import java.io.File;
 
 public class OnPremDeploymentOperation implements DeploymentOperation {
     private static final Logger logger = LoggerFactory.getLogger(OnPremDeploymentOperation.class);
-    private final HDeploymentRequest request;
+    private final HDeployer request;
 
-    public OnPremDeploymentOperation(HDeploymentRequest request) {
+    public OnPremDeploymentOperation(HDeployer request) {
         this.request = request;
     }
 

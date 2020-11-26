@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
@@ -100,8 +100,8 @@ public class ApplicationDescriptorParser {
             final String apiIdProperty = api.getApiIdProperty();
             final HashMap<String, PropertyDescriptor> properties = applicationDescriptor.getProperties();
             getOrCreateProperty(properties, apiIdProperty, "Anypoint API identifier", false);
-            getOrCreateProperty(properties, DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(properties, DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             IconDescriptor icon = api.getIcon();
             if( icon == null ) {
                 File iconFile = findIcon(project);
@@ -196,8 +196,8 @@ public class ApplicationDescriptorParser {
             if( client.getClientSecretProperty() == null ) {
                 client.setClientSecretProperty("anypoint.api.client.secret");
             }
-            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(applicationDescriptor.getProperties(), Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(applicationDescriptor.getProperties(), Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientIdProperty(), "API Client Id", false);
             getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientSecretProperty(), "API Client Secret", true);
         }

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.aeontronix.commons.StringUtils.isBlank;
 
@@ -338,7 +339,16 @@ public class Environment extends AnypointObject<Organization> {
                 return environment;
             }
         }
-        throw new NotFoundException("Environment not found: " + name);
+        try {
+            final List<String> envNames = findEnvironmentsByOrg(client, organization).stream().map(Environment::getName).collect(Collectors.toList());
+            throw new NotFoundException("Environment not found: " + name +" must be one of: "+envNames);
+        } catch (Exception e) {
+            if( e instanceof NotFoundException ) {
+                throw e;
+            } else {
+                throw new NotFoundException("Environment not found: " + name);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

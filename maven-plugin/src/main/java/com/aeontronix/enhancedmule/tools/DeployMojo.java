@@ -10,16 +10,17 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.CHDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentConfig;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.HDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.fabric.Fabric;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.*;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeployer;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
+import com.aeontronix.unpack.UnpackException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -200,17 +201,45 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.buildnumber")
     private String buildNumber;
+    @Parameter(property = "anypoint.deploy.rtf.cpu.reserved",defaultValue = "20m")
+    private String cpuReserved;
+    @Parameter(property = "anypoint.deploy.rtf.cpu.limit",defaultValue = "1700m")
+    private String cpuLimit;
+    @Parameter(property = "anypoint.deploy.rtf.memory.reserved",defaultValue = "700Mi")
+    private String memoryReserved;
+    @Parameter(property = "anypoint.deploy.rtf.memory.limit",defaultValue = "700Mi")
+    private String memoryLimit;
+    @Parameter(property = "anypoint.deploy.rtf.clustered",defaultValue = "false")
+    private boolean clustered;
+    @Parameter(property = "anypoint.deploy.rtf.xnodereplicas",defaultValue = "false")
+    private boolean enforceDeployingReplicasAcrossNodes;
+    @Parameter(property = "anypoint.deploy.rtf.http.inbound.publicUrl")
+    private String httpInboundPublicUrl;
+    @Parameter(property = "anypoint.deploy.rtf.jvm.args")
+    private String jvmArgs;
+    @Parameter(property = "anypoint.deploy.rtf.runtime.version")
+    private String runtimeVersion;
+    @Parameter(property = "anypoint.deploy.rtf.lastmilesecurity")
+    private boolean lastMileSecurity;
+    @Parameter(property = "anypoint.deploy.rtf.forwardSslSession")
+    private boolean forwardSslSession;
+    @Parameter(property = "anypoint.deploy.rtf.updatestrategy",defaultValue = "ROLLING")
+    private RTFDeploymentConfig.DeploymentModel updateStrategy;
+    @Parameter(property = "anypoint.deploy.rtf.replicas",defaultValue = "1")
+    private int replicas;
 
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(Environment environment,
                                       @NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
+        if( buildNumber == null ) {
+            buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
+        }
         if (project != null) {
             findDeployProperties(project.getProperties());
         }
         findDeployProperties(session.getUserProperties());
         findDeployProperties(session.getSystemProperties());
-
         try (ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file)) {
             if (StringUtils.isBlank(target) || target.equalsIgnoreCase("cloudhub")) {
                 if (workerCount == null) {
@@ -223,7 +252,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     deploymentConfig.setObjectStoreV1(objectStoreV1);
                     deploymentConfig.setExtMonitoring(extMonitoring);
                     deploymentConfig.setStaticIPs(staticIPs);
-                    return new CHDeploymentRequest(muleVersionName, region, workerType, workerCount, environment, appName,
+                    return new CHDeployer(muleVersionName, region, workerType, workerCount, environment, appName,
                             applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
@@ -231,19 +260,19 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
             } else {
                 try {
                     if (target.equalsIgnoreCase("exchange")) {
-                        if( buildNumber == null ) {
-                            buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
-                        }
-                        if (project != null) {
-                            ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null, buildNumber);
-                        } else {
-                            ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null, buildNumber);
-                        }
+                        uploadToExchange(applicationSource);
                         return null;
                     } else {
-                        Server server = environment.findServerByName(target);
-                        return new HDeploymentRequest(server, appName, applicationSource, filename,
-                                apiProvisioningConfig, deploymentConfig).deploy();
+                        try {
+                            Server server = environment.findServerByName(target);
+                            return new HDeployer(server, appName, applicationSource, filename,
+                                    apiProvisioningConfig, deploymentConfig).deploy();
+                        } catch (NotFoundException e) {
+                            final Fabric fabric = getOrganization().findFabricByName(target);
+                            final ApplicationIdentifier uploadedAppId = uploadToExchange(applicationSource);
+                            return new RTFDeployer(fabric, appName, applicationSource, filename,
+                                    apiProvisioningConfig, deploymentConfig, uploadedAppId).deploy();
+                        }
                     }
                 } catch (NotFoundException e) {
                     throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
@@ -251,6 +280,14 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
             }
+        }
+    }
+
+    private ApplicationIdentifier uploadToExchange(ApplicationSource applicationSource) throws IOException, UnpackException, NotFoundException {
+        if (project != null) {
+            return ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null, buildNumber);
+        } else {
+            return ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null, buildNumber);
         }
     }
 
@@ -313,6 +350,9 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     apiProvisioningConfig.init(getEnvironment());
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
+                deploymentConfig.setRtf(new RTFDeploymentConfig(cpuReserved, cpuLimit, memoryReserved, memoryLimit,
+                        clustered, enforceDeployingReplicasAcrossNodes, httpInboundPublicUrl, jvmArgs, runtimeVersion,
+                        lastMileSecurity, forwardSslSession, updateStrategy, replicas));
                 if (propertyfile != null) {
                     if (!propertyfile.exists()) {
                         throw new IllegalArgumentException("Property file not found: " + propertyfile);

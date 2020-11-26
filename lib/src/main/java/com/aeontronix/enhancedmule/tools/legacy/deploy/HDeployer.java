@@ -21,15 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class HDeploymentRequest extends DeploymentRequest {
-    private static final Logger logger = LoggerFactory.getLogger(HDeploymentRequest.class);
+public class HDeployer extends Deployer {
+    private static final Logger logger = LoggerFactory.getLogger(HDeployer.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
     private Server target;
     private JsonHelper jsonHelper;
 
-    public HDeploymentRequest(Server target, String appName, ApplicationSource file, String filename,
-                              @NotNull APIProvisioningConfig apiProvisioningConfig,
-                              @NotNull DeploymentConfig deploymentConfig) {
+    public HDeployer(Server target, String appName, ApplicationSource file, String filename,
+                     @NotNull APIProvisioningConfig apiProvisioningConfig,
+                     @NotNull DeploymentConfig deploymentConfig) {
         super(target.getParent(), appName, file, filename, apiProvisioningConfig, deploymentConfig);
         this.target = target;
     }

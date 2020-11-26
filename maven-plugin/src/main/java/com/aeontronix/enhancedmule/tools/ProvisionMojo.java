@@ -11,7 +11,7 @@ import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -79,10 +79,10 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             }
             String envClientId = environment.getClientId();
             if( includePlatformCreds ) {
-                getLog().info(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
-                properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
+                getLog().info(Deployer.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
+                properties.put(Deployer.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
                 try {
-                    properties.put(DeploymentRequest.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
+                    properties.put(Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
                 } catch (HttpException e) {
                     if (e.getStatusCode() != 401) {
                         throw e;

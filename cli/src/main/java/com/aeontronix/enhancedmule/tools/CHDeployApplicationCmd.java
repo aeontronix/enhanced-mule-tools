@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.CHDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.CHDeployer;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -33,7 +33,7 @@ public class CHDeployApplicationCmd extends AbstractDeployApplicationCmd {
     @Override
     protected DeploymentResult deploy(Environment environment) throws ProvisioningException, IOException, HttpException, NotFoundException {
         DeploymentConfig deploymentConfig = new DeploymentConfig();
-        CHDeploymentRequest req = new CHDeploymentRequest(muleVersion, region, workerType, workerCount, environment,
+        CHDeployer req = new CHDeployer(muleVersion, region, workerType, workerCount, environment,
                 appName, source, filename, apiProvisioningConfig, deploymentConfig);
         return req.deploy();
     }

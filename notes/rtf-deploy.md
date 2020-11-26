@@ -68,3 +68,60 @@ POST https://anypoint.mulesoft.com/hybrid/api/v2/organizations/64b57710-2b6e-4bc
   }
 }
 ```
+
+minimal / default
+
+```
+{
+  "name": "deletemenow",
+  "labels": [
+    "beta"
+  ],
+  "target": {
+    "provider": "MC",
+    "targetId": "6ef5ea67-9468-44cb-ad11-82b2be6c6fbd",
+    "deploymentSettings": {
+      "resources": {
+        "cpu": {
+          "reserved": "20m",
+          "limit": "1700m"
+        },
+        "memory": {
+          "reserved": "700Mi",
+          "limit": "700Mi"
+        }
+      },
+      "clustered": false,
+      "enforceDeployingReplicasAcrossNodes": false,
+      "http": {
+        "inbound": {
+          "publicUrl": "ap-rtfv-d.stanford.edu/deletemenow"
+        }
+      },
+      "jvm": {},
+      "runtimeVersion": "4.3.0:20201021",
+      "lastMileSecurity": false,
+      "forwardSslSession": false,
+      "updateStrategy": "rolling"
+    },
+    "replicas": 1
+  },
+  "application": {
+    "ref": {
+      "groupId": "b69aaacc-1d0d-4824-9780-d6c8a44aabd5",
+      "artifactId": "net-tools-api-2.1.0-mule-application",
+      "version": "1.0.13",
+      "packaging": "jar"
+    },
+    "assets": [],
+    "desiredState": "STARTED",
+    "configuration": {
+      "mule.agent.application.properties.service": {
+        "applicationName": "deletemenow",
+        "properties": {},
+        "secureproperties": {}
+      }
+    }
+  }
+}
+```

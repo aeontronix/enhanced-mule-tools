@@ -4,7 +4,6 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.commons.Required;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
@@ -21,7 +20,6 @@ import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.Unpacker;
-import com.aeontronix.unpack.transformer.FileMatcher;
 import com.aeontronix.unpack.transformer.SetPropertyTransformer;
 import com.aeontronix.unpack.transformer.Transformer;
 import org.jetbrains.annotations.NotNull;
@@ -35,8 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.aeontronix.commons.Required.CREATE;
 
-public abstract class DeploymentRequest {
-    private static final Logger logger = LoggerFactory.getLogger(DeploymentRequest.class);
+public abstract class Deployer {
+    private static final Logger logger = LoggerFactory.getLogger(Deployer.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
     public static final String ANYPOINT_PLATFORM_CLIENT_ID = "anypoint.platform.client_id";
     public static final String ANYPOINT_PLATFORM_CLIENT_SECRET = "anypoint.platform.client_secret";
@@ -48,12 +46,12 @@ public abstract class DeploymentRequest {
     protected DeploymentConfig deploymentConfig;
     protected ApplicationDescriptor applicationDescriptor;
 
-    public DeploymentRequest() {
+    public Deployer() {
     }
 
-    public DeploymentRequest(Environment environment, String appName, ApplicationSource source, String filename,
-                             APIProvisioningConfig apiProvisioningConfig,
-                             @NotNull DeploymentConfig deploymentConfig) {
+    public Deployer(Environment environment, String appName, ApplicationSource source, String filename,
+                    APIProvisioningConfig apiProvisioningConfig,
+                    @NotNull DeploymentConfig deploymentConfig) {
         this.environment = environment;
         this.appName = appName;
         this.source = source;

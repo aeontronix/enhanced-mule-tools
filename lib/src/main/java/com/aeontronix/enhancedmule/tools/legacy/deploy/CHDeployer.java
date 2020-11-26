@@ -26,21 +26,21 @@ import java.util.concurrent.TimeUnit;
 
 import static com.aeontronix.commons.StringUtils.isBlank;
 
-public class CHDeploymentRequest extends DeploymentRequest {
-    private static final Logger logger = LoggerFactory.getLogger(CHDeploymentRequest.class);
+public class CHDeployer extends Deployer {
+    private static final Logger logger = LoggerFactory.getLogger(CHDeployer.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
     private int workerCount;
     private CHMuleVersion muleVersion;
     private String region;
     private CHWorkerType workerType;
 
-    public CHDeploymentRequest() {
+    public CHDeployer() {
     }
 
-    public CHDeploymentRequest(String muleVersionName, String regionName, String workerTypeName, int workerCount,
-                               Environment environment, String appName, ApplicationSource file, String filename,
-                               APIProvisioningConfig apiProvisioningConfig,
-                               DeploymentConfig deploymentConfig) throws HttpException, NotFoundException {
+    public CHDeployer(String muleVersionName, String regionName, String workerTypeName, int workerCount,
+                      Environment environment, String appName, ApplicationSource file, String filename,
+                      APIProvisioningConfig apiProvisioningConfig,
+                      DeploymentConfig deploymentConfig) throws HttpException, NotFoundException {
         super(environment, appName, file, filename, apiProvisioningConfig, deploymentConfig);
         this.workerCount = workerCount;
         if (isBlank(muleVersionName)) {
