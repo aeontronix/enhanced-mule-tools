@@ -14,9 +14,7 @@ import com.kloudtek.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 
 public class ExchangeApplicationSource extends ApplicationSource {
@@ -54,11 +52,6 @@ public class ExchangeApplicationSource extends ApplicationSource {
             artifactId = els[2];
             version = els[3];
         }
-        tempFile = new TempFile("anyp-apparch");
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            client.getHttpHelper().httpGetBasicAuth("https://maven.anypoint.mulesoft.com/api/v2/maven/" + groupId +
-                    "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-mule-application.jar", fos );
-        }
     }
 
     public ExchangeApplicationSource(AnypointClient client, String orgId, String groupId, String artifactId, String version) {
@@ -68,6 +61,18 @@ public class ExchangeApplicationSource extends ApplicationSource {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+    }
+
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -81,7 +86,14 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public File getLocalFile() {
+    public File getLocalFile() throws IOException {
+        if( tempFile == null ) {
+            tempFile = new TempFile("anyp-apparch");
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                client.getHttpHelper().httpGetBasicAuth("https://maven.anypoint.mulesoft.com/api/v2/maven/" + groupId +
+                        "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-mule-application.jar", fos );
+            }
+        }
         return tempFile;
     }
 
@@ -93,7 +105,17 @@ public class ExchangeApplicationSource extends ApplicationSource {
     @Override
     public ApplicationDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
-            apiProvisioningDescriptor = readDescriptorFromZip(tempFile, apiProvisioningConfig);
+            final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            try {
+                client.getHttpHelper().httpGetBasicAuth("https://maven.anypoint.mulesoft.com/api/v2/maven/" + groupId +
+                        "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-anypoint.json", buf );
+                buf.close();
+                client.getJsonHelper().readJson(new ApplicationDescriptor(), new String(buf.toByteArray()) );
+            } catch (HttpException e) {
+                if( e.getStatusCode() != 404 ) {
+                    throw e;
+                }
+            }
         }
         return apiProvisioningDescriptor;
     }

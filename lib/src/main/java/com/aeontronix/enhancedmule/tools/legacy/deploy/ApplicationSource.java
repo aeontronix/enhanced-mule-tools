@@ -35,7 +35,7 @@ public abstract class ApplicationSource implements Closeable {
 
     public abstract String getFileName();
 
-    public abstract File getLocalFile();
+    public abstract File getLocalFile() throws IOException;
 
     public abstract boolean exists();
 

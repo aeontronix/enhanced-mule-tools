@@ -13,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
 import com.aeontronix.enhancedmule.tools.role.*;
+import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -443,6 +444,20 @@ public class Organization extends AnypointObject {
             }
         }
         throw new NotFoundException("VPC " + name + " not found");
+    }
+
+    public List<Target> findAllTargets() throws HttpException {
+        String json = httpHelper.httpGet("/runtimefabric/api/organizations/"+id+"/targets");
+        return jsonHelper.readJsonList(Target.class, json, this);
+    }
+
+    public Target findTargetById( String id ) throws NotFoundException, HttpException {
+        for (Target target : findAllTargets()) {
+            if( target.getId().equals(id) ) {
+                return target;
+            }
+        }
+        throw new NotFoundException("Target not found: "+id);
     }
 
     public ReleaseManifest findExchangeReleaseManifest(String uri) {

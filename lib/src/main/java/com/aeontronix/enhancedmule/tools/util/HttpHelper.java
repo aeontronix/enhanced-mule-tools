@@ -123,7 +123,11 @@ public class HttpHelper implements Closeable {
                 IOUtils.copy(response.getEntity().getContent(), outputStream);
             }
         } catch (IOException e) {
-            throw new HttpException(e.getMessage(), e);
+            if( e instanceof HttpException ) {
+                throw (HttpException)e;
+            } else {
+                throw new HttpException(e.getMessage(), e);
+            }
         }
     }
 

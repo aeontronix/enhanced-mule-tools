@@ -27,7 +27,7 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public File getLocalFile() {
+    public File getLocalFile() throws IOException {
         return file;
     }
 

@@ -134,11 +134,16 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(name = "target", property = "anypoint.target")
     private String target;
     /**
-     * Cloudhub only: Mule version name (will default to latest if not set)
+     * Deprecated, use chMuleVersionName
      */
     @Parameter(name = "muleVersionName", property = "anypoint.deploy.ch.muleversion", required = false)
+    @Deprecated
     private String muleVersionName;
-
+    /**
+     *
+     */
+    @Parameter(property = "anypoint.deploy.ch.runtime.version", required = false)
+    private String chMuleVersionName;
     /**
      * Cloudhub only: Deployment region
      */
@@ -218,7 +223,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.rtf.jvm.args")
     private String jvmArgs;
     @Parameter(property = "anypoint.deploy.rtf.runtime.version")
-    private String runtimeVersion;
+    private String rtfRuntimeVersion;
     @Parameter(property = "anypoint.deploy.rtf.lastmilesecurity")
     private boolean lastMileSecurity;
     @Parameter(property = "anypoint.deploy.rtf.forwardSslSession")
@@ -252,7 +257,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     deploymentConfig.setObjectStoreV1(objectStoreV1);
                     deploymentConfig.setExtMonitoring(extMonitoring);
                     deploymentConfig.setStaticIPs(staticIPs);
-                    return new CHDeployer(muleVersionName, region, workerType, workerCount, environment, appName,
+                    return new CHDeployer(chMuleVersionName, region, workerType, workerCount, environment, appName,
                             applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
@@ -269,9 +274,15 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                                     apiProvisioningConfig, deploymentConfig).deploy();
                         } catch (NotFoundException e) {
                             final Fabric fabric = getOrganization().findFabricByName(target);
-                            final ApplicationIdentifier uploadedAppId = uploadToExchange(applicationSource);
-                            return new RTFDeployer(fabric, appName, applicationSource, filename,
-                                    apiProvisioningConfig, deploymentConfig, uploadedAppId).deploy();
+                            final ApplicationIdentifier appId;
+                            if( applicationSource instanceof FileApplicationSource ) {
+                                appId = uploadToExchange(applicationSource);
+                            } else {
+                                ExchangeApplicationSource eApp = (ExchangeApplicationSource) applicationSource;
+                                appId = new ApplicationIdentifier(eApp.getGroupId(),eApp.getArtifactId(),eApp.getVersion());
+                            }
+                            return new RTFDeployer(fabric, environment, appName, applicationSource, filename,
+                                    apiProvisioningConfig, deploymentConfig, appId).deploy();
                         }
                     }
                 } catch (NotFoundException e) {
@@ -310,6 +321,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Override
     protected void doExecute() throws Exception {
         if (!skipDeploy) {
+            // handle deprecated vars
+            if( chMuleVersionName == null && muleVersionName != null ) {
+                logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
+                chMuleVersionName = muleVersionName;
+            }
             if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
                 project = null;
             }
@@ -333,7 +349,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 } else {
                     appName = source.getArtifactId();
                 }
-                if (StringUtils.isBlank(target)) {
+                if (StringUtils.isBlank(target) && target.equalsIgnoreCase("cloudhub")) {
                     appName = appName + "-" + getEnvironment().getLName();
                 }
             }
@@ -351,7 +367,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
                 DeploymentConfig deploymentConfig = new DeploymentConfig();
                 deploymentConfig.setRtf(new RTFDeploymentConfig(cpuReserved, cpuLimit, memoryReserved, memoryLimit,
-                        clustered, enforceDeployingReplicasAcrossNodes, httpInboundPublicUrl, jvmArgs, runtimeVersion,
+                        clustered, enforceDeployingReplicasAcrossNodes, httpInboundPublicUrl, jvmArgs, rtfRuntimeVersion,
                         lastMileSecurity, forwardSslSession, updateStrategy, replicas));
                 if (propertyfile != null) {
                     if (!propertyfile.exists()) {
