@@ -391,7 +391,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
                 if(injectEnvInfo) {
                     properties.put("anypoint.env.name",getEnvironment().getName());
-                    properties.put("anypoint.env.type",getEnvironment().getType());
+                    properties.put("anypoint.env.type",getEnvironment().getType().name());
                     properties.put("anypoint.org.name",getEnvironment().getOrganization().getName());
                 }
                 deploymentConfig.setProperties(properties);
