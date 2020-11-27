@@ -5,20 +5,28 @@
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.commons.BackendAccessException;
+import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
 import com.aeontronix.enhancedmule.tools.api.*;
+import com.aeontronix.enhancedmule.tools.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveVersionTransformer;
+import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
-import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.unpack.FileType;
+import com.aeontronix.unpack.UnpackException;
+import com.aeontronix.unpack.Unpacker;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +48,7 @@ import java.util.stream.Collectors;
 public class Organization extends AnypointObject {
     public static final Pattern MAJORVERSION_REGEX = Pattern.compile("(\\d*)\\..*");
     private static final Logger logger = LoggerFactory.getLogger(Organization.class);
+    private static final EMTLogger eLogger = new EMTLogger(logger);
     @JsonProperty
     protected String id;
     @JsonProperty
@@ -361,12 +371,16 @@ public class Organization extends AnypointObject {
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
         logger.debug("searching exchange asset, groupId=" + groupId + " assetId=" + assetId);
-        for (ExchangeAssetOverview assetOverview : findExchangeAssets()) {
-            if (groupId.equals(assetOverview.getGroupId()) && assetId.equals(assetOverview.getAssetId())) {
-                return assetOverview.getAsset();
+        try {
+            final String json = httpHelper.httpGet("/exchange/api/v2/assets/" + groupId + "/" + assetId);
+            return jsonHelper.readJson(new ExchangeAsset(this), json );
+        } catch (HttpException e) {
+            if( e.getStatusCode() == 404 ) {
+                throw new NotFoundException("Asset not found: " + groupId + ":" + assetId);
+            } else {
+                throw e;
             }
         }
-        throw new NotFoundException("Asset not found: " + groupId + ":" + assetId);
     }
 
     public AssetVersion findExchangeAssetVersion(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
@@ -447,17 +461,17 @@ public class Organization extends AnypointObject {
     }
 
     public List<Target> findAllTargets() throws HttpException {
-        String json = httpHelper.httpGet("/runtimefabric/api/organizations/"+id+"/targets");
+        String json = httpHelper.httpGet("/runtimefabric/api/organizations/" + id + "/targets");
         return jsonHelper.readJsonList(Target.class, json, this);
     }
 
-    public Target findTargetById( String id ) throws NotFoundException, HttpException {
+    public Target findTargetById(String id) throws NotFoundException, HttpException {
         for (Target target : findAllTargets()) {
-            if( target.getId().equals(id) ) {
+            if (target.getId().equals(id)) {
                 return target;
             }
         }
-        throw new NotFoundException("Target not found: "+id);
+        throw new NotFoundException("Target not found: " + id);
     }
 
     public ReleaseManifest findExchangeReleaseManifest(String uri) {
@@ -656,6 +670,10 @@ public class Organization extends AnypointObject {
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
     }
 
+    private void publishExchangeAsset(ApplicationIdentifier applicationIdentifier, TempFile newFile) throws IOException {
+        MavenHelper.publishArchive(applicationIdentifier, this, newFile);
+    }
+
     public Fabric findFabricByName(String name) throws NotFoundException, HttpException {
         for (Fabric fabric : findAllFabric()) {
             if (fabric.getName().equalsIgnoreCase(name)) {
@@ -668,6 +686,63 @@ public class Organization extends AnypointObject {
     public List<Fabric> findAllFabric() throws HttpException {
         final String json = httpHelper.httpGet("/runtimefabric/api/organizations/" + id + "/fabrics");
         return jsonHelper.readJsonList(Fabric.class, json, parent);
+    }
+
+    public void promoteExchangeApplication(EnhancedMuleClient emClient, String groupId, String artifactId, String version, String newVersion) throws IOException, NotFoundException {
+        if( groupId == null ) {
+            groupId = id;
+        }
+        boolean snapshotPromotion = false;
+        if( newVersion == null ) {
+            int idx = version.toLowerCase().indexOf("-snapshot");
+            if(idx != -1 ) {
+                newVersion = version.substring(0,idx);
+                snapshotPromotion = true;
+            } else {
+                throw new IllegalArgumentException("newVersion not set and version isn't a snapshot");
+            }
+        }
+        try (final TempFile file = new TempFile("orig"); final TempFile newFile = new TempFile("new")) {
+            try (final FileOutputStream os = new FileOutputStream(file)) {
+                IOUtils.copy(emClient.getExchangeClient().getAsset(groupId, artifactId, version, "mule-application", "jar"), os);
+            }
+            final ApplicationDescriptor anypointDescriptor = new FileApplicationSource(client, file).getAnypointDescriptor(null);
+            final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
+            String snapshotApiVersion = null;
+            if( apiDescriptor != null && apiDescriptor.isAssetCreate() && apiDescriptor.getAssetVersion().toLowerCase().contains("-snapshot")) {
+                snapshotApiVersion = apiDescriptor.getAssetVersion();
+            }
+            final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
+            unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(new ApplicationIdentifier(groupId, artifactId, version), groupId, newVersion, null));
+            unpacker.unpack();
+//            publishExchangeAsset(new ApplicationIdentifier(groupId,artifactId,newVersion),newFile);
+//            if( snapshotPromotion ) {
+//                String snapshotPrefix = newVersion.toLowerCase()+"-snapshot";
+//                deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);
+//            }
+            if( snapshotApiVersion != null ) {
+                int idx = snapshotApiVersion.toLowerCase().indexOf("-snapshot");
+                snapshotApiVersion = snapshotApiVersion.substring(0,idx+9);
+                deleteSnapshotAssets(groupId, apiDescriptor.getAssetId(), snapshotApiVersion);
+            }
+        } catch (UnpackException e) {
+            throw new IOException(e);
+        }
+    }
+
+    private void deleteSnapshotAssets(String groupId, String artifactId, String snapshotPrefix) throws HttpException, NotFoundException {
+        final ExchangeAsset exchangeAsset = findExchangeAsset(groupId, artifactId);
+        for (AssetVersion exchangeAssetVersion : exchangeAsset.getVersions()) {
+            final String v = exchangeAssetVersion.getVersion();
+            if( v.toLowerCase().startsWith(snapshotPrefix) ) {
+                try {
+                    exchangeAsset.deleteVersion(v);
+                    eLogger.info(EMTLogger.Product.EXCHANGE, "Deleted exchange asset {} version {}",artifactId,v);
+                } catch (Exception e) {
+                    logger.warn("Unable to deleted exchange asset {} version {}: {}",artifactId,v,e.getMessage());
+                }
+            }
+        }
     }
 
     public enum RequestAPIAccessResult {

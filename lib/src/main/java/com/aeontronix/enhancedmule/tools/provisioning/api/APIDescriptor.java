@@ -239,7 +239,7 @@ public class APIDescriptor {
 
     private ExchangeAsset updateExchangeTags(ExchangeAsset exchangeAsset) throws HttpException {
         if (this.exchangeTags != null) {
-            ArrayList<String> current = exchangeAsset.getLabels().stream().map(AssetTag::getValue).collect(Collectors.toCollection(ArrayList::new));
+            List<String> current = exchangeAsset.getLabels();
             List<String> expectedTags = this.exchangeTags;
             if (!current.equals(expectedTags)) {
                 exchangeAsset = exchangeAsset.updateLabels(expectedTags);

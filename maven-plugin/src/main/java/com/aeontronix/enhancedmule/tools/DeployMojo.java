@@ -8,7 +8,7 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveHelper;
+import com.aeontronix.enhancedmule.tools.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
@@ -296,9 +296,9 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
 
     private ApplicationIdentifier uploadToExchange(ApplicationSource applicationSource) throws IOException, UnpackException, NotFoundException {
         if (project != null) {
-            return ApplicationArchiveHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null, buildNumber);
+            return MavenHelper.uploadToMaven(new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), applicationSource, null, buildNumber);
         } else {
-            return ApplicationArchiveHelper.uploadToMaven(null, getOrganization(), applicationSource, null, buildNumber);
+            return MavenHelper.uploadToMaven(null, getOrganization(), applicationSource, null, buildNumber);
         }
     }
 
@@ -349,7 +349,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 } else {
                     appName = source.getArtifactId();
                 }
-                if (StringUtils.isBlank(target) && target.equalsIgnoreCase("cloudhub")) {
+                if (StringUtils.isBlank(target) || "cloudhub".equalsIgnoreCase(target)) {
                     appName = appName + "-" + getEnvironment().getLName();
                 }
             }

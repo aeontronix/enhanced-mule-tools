@@ -19,16 +19,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.zip.ZipFile;
 
 import static com.kloudtek.util.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class ApplicationArchiveHelper {
-    private static final Logger logger = getLogger(ApplicationArchiveHelper.class);
+public class MavenHelper {
+    private static final Logger logger = getLogger(MavenHelper.class);
 
     @SuppressWarnings("unchecked")
     public static ApplicationIdentifier uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
@@ -39,23 +37,28 @@ public class ApplicationArchiveHelper {
                 appId = getApplicationIdentifier(org, zipFile);
             }
         }
+        final ApplicationIdentifier newAppId;
         if (newVersion == null && appId.getVersion().toLowerCase().endsWith("-snapshot")) {
             newVersion = appId.getVersion() + "-" + buildNumber;
+            newAppId = new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion);
+            logger.info("Snapshot version = "+newVersion);
+        } else {
+            newAppId = new ApplicationIdentifier(org.getId(), appId.getArtifactId(), appId.getVersion());
         }
         if (!org.getId().equals(appId.getGroupId()) || newVersion != null) {
             try (final TempFile emteh = new TempFile("emteh")) {
                 Unpacker unpacker = new Unpacker(appArchFile, FileType.ZIP, emteh, FileType.ZIP);
                 unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, org.getId(), newVersion, buildNumber));
                 unpacker.unpack();
-                publishArchive(appId, org, emteh);
+                publishArchive(newAppId, org, emteh);
             }
         } else {
-            publishArchive(appId, org, appArchFile);
+            publishArchive(newAppId, org, appArchFile);
         }
         return new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion != null ? newVersion : appId.getVersion());
     }
 
-    private static void publishArchive(ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException {
+    public static void publishArchive(ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException {
         try (final ZipFile zipFile = new ZipFile(appArchFile)) {
             publishFile(org, appId, zipFile, pomPath(appId, org.getId()), ".pom");
             logger.debug("Uploaded POM");

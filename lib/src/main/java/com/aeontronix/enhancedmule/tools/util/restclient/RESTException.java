@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.util.restclient;
 
+import com.kloudtek.util.StringUtils;
+
 import java.io.IOException;
 
 public class RESTException extends IOException {
@@ -19,7 +21,7 @@ public class RESTException extends IOException {
     }
 
     public RESTException(String message, Throwable cause, int statusCode) {
-        super(message, cause);
+        super(StringUtils.isBlank(message) ? "Received status code: "+statusCode : message, cause);
         this.statusCode = statusCode;
     }
 

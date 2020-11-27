@@ -19,6 +19,9 @@ public class AssetTag {
     @JsonProperty("tagType")
     private String tagType;
 
+    public AssetTag() {
+    }
+
     public String getValue() {
         return value;
     }

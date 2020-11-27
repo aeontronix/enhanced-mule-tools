@@ -298,6 +298,10 @@ public class API extends AnypointObject<Environment> {
         this.endpoint = endpoint;
     }
 
+    public void delete() throws HttpException {
+        httpHelper.httpHardDelete(getUrl());
+    }
+
     public void deletePolicies() throws HttpException {
         for (Policy policy : findPolicies()) {
             policy.delete();

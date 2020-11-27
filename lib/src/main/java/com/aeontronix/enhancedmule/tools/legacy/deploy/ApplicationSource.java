@@ -7,11 +7,13 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.provisioning.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.io.IOUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -47,7 +49,11 @@ public abstract class ApplicationSource implements Closeable {
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return ApplicationDescriptor.read(apiProvisioningConfig, is);
+                if( apiProvisioningConfig != null ) {
+                    return ApplicationDescriptor.read(apiProvisioningConfig, is);
+                } else {
+                    return client.getJsonHelper().readJson(new ApplicationDescriptor(), IOUtils.toString(is) );
+                }
             }
         } else {
             return null;

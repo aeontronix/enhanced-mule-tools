@@ -21,8 +21,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     public static final String EM_CLIENT = "emClient";
-    public static final String EMULE_ACCESSTOKEN_ID = "emule.accesstoken.id";
-    public static final String EMULE_ACCESSTOKEN_SECRET = "emule.accesstoken.secret";
+    public static final String ACCESSTOKEN_ID = "accesstoken.id";
+    public static final String ACCESSTOKEN_SECRET = "accesstoken.secret";
     /**
      * Anypoint username
      */
@@ -33,9 +33,9 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.password")
     protected String password;
-    @Parameter(property = EMULE_ACCESSTOKEN_ID)
+    @Parameter(property = ACCESSTOKEN_ID)
     protected String emAccessTokenId;
-    @Parameter(property = EMULE_ACCESSTOKEN_SECRET)
+    @Parameter(property = ACCESSTOKEN_SECRET)
     protected String emAccessTokenSecret;
     /**
      * Anypoint bearer token

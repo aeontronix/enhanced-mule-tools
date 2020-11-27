@@ -108,9 +108,9 @@ public class ExchangeApplicationSource extends ApplicationSource {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             try {
                 client.getHttpHelper().httpGetBasicAuth("https://maven.anypoint.mulesoft.com/api/v2/maven/" + groupId +
-                        "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-anypoint.json", buf );
+                        "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "-anypoint-descriptor.json", buf );
                 buf.close();
-                client.getJsonHelper().readJson(new ApplicationDescriptor(), new String(buf.toByteArray()) );
+                apiProvisioningDescriptor = client.getJsonHelper().readJson(new ApplicationDescriptor(), new String(buf.toByteArray()) );
             } catch (HttpException e) {
                 if( e.getStatusCode() != 404 ) {
                     throw e;

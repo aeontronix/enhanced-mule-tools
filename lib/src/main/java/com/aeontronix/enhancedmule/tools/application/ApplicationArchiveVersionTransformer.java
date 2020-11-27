@@ -34,8 +34,8 @@ public class ApplicationArchiveVersionTransformer {
     }
 
     public static List<Transformer> getTransformers(ApplicationIdentifier appId, String orgId, String newVersion, String snapshotTimestamp) {
-        final String pomPath = ApplicationArchiveHelper.pomPath(appId, appId.getGroupId());
-        final String pomPropsPath = ApplicationArchiveHelper.mavenMetaPath(appId, appId.getGroupId(), "pom.properties");
+        final String pomPath = MavenHelper.pomPath(appId, appId.getGroupId());
+        final String pomPropsPath = MavenHelper.mavenMetaPath(appId, appId.getGroupId(), "pom.properties");
         HashMap<String, String> pomProps = new HashMap<>();
         pomProps.put("groupId", orgId);
         if (newVersion != null) {
@@ -57,8 +57,8 @@ public class ApplicationArchiveVersionTransformer {
                         "META-INF/maven/" + orgId + "/", true),
                 new RenameTransformer("META-INF/maven/" + appId.getGroupId() + "/" + appId.getArtifactId() + "/",
                         "META-INF/maven/" + orgId + "/" + appId.getArtifactId() + "/", true),
-                new RenameTransformer(pomPath, ApplicationArchiveHelper.mavenMetaPath(appId, orgId, "pom.xml")),
-                new RenameTransformer(pomPropsPath, ApplicationArchiveHelper.mavenMetaPath(appId, orgId, "pom.properties")),
+                new RenameTransformer(pomPath, MavenHelper.mavenMetaPath(appId, orgId, "pom.xml")),
+                new RenameTransformer(pomPropsPath, MavenHelper.mavenMetaPath(appId, orgId, "pom.properties")),
                 new JacksonTransformer<ObjectNode>("anypoint.json", OPTIONAL, ObjectNode.class) {
                     @Override
                     public JsonNode transform(ObjectNode root) throws Exception {
@@ -68,7 +68,7 @@ public class ApplicationArchiveVersionTransformer {
                         final ObjectNode api = (ObjectNode) root.get("api");
                         if (api != null) {
                             final JsonNode assetVersion = api.get("assetVersion");
-                            if (assetVersion != null) {
+                            if (assetVersion != null && assetVersion.textValue().toLowerCase().contains("-snapshot")) {
                                 api.put("assetVersion", assetVersion.textValue() + "-" + snapshotTimestamp);
                             }
                         }

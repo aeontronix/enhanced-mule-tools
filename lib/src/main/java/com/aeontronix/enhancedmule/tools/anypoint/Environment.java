@@ -263,6 +263,16 @@ public class Environment extends AnypointObject<Organization> {
         throw new NotFoundException("API " + name + " with product version " + productAPIVersion + " not found");
     }
 
+    public List<API> findAPIsByExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
+        ArrayList<API> apis = new ArrayList<>();
+        for (APIAsset api : findAllAPIs()) {
+            if( api.getGroupId().equalsIgnoreCase(groupId) && api.getAssetId().equalsIgnoreCase(assetId) ) {
+                apis.addAll(api.getApis());
+            }
+        }
+        return apis;
+    }
+
     public API findAPIByExchangeAsset(@NotNull String groupId, @NotNull String assetId, @NotNull String assetVersion) throws HttpException, NotFoundException {
         return findAPIByExchangeAsset(groupId, assetId, assetVersion, null);
     }

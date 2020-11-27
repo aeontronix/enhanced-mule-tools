@@ -16,7 +16,7 @@ import java.util.Map;
 public class FileApplicationSource extends ApplicationSource {
     private File file;
 
-    FileApplicationSource(AnypointClient client, File file) {
+    public FileApplicationSource(AnypointClient client, File file) {
         super(client);
         this.file = file;
     }

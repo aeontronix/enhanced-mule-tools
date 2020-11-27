@@ -69,7 +69,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     @JsonProperty("version")
     private String version;
     @JsonProperty("labels")
-    private List<AssetTag> labels;
+    private List<String> labels;
     @JsonProperty("tags")
     private List<AssetTag> tags;
     @JsonProperty("dependencies")
@@ -368,11 +368,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.version = version;
     }
 
-    public List<AssetTag> getLabels() {
+    public List<String> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<AssetTag> labels) {
+    public void setLabels(List<String> labels) {
         this.labels = labels;
     }
 
@@ -490,7 +490,15 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     public void updateIcon(byte[] data, String mimeType) throws HttpException {
         Map<String,String> headers = new HashMap<>();
         headers.put("Content-Type",mimeType);
-        httpHelper.httpPut(new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(),true).path(assetId,true).path("icon").toString(),headers, data);
+        httpHelper.httpPut(getExchangeAssetUrl().path("icon").toString(),headers, data);
+    }
+
+    public void deleteVersion( String version) throws HttpException {
+        httpHelper.httpHardDelete(getExchangeAssetUrl().path(version,true).toString());
+    }
+
+    private URLBuilder getExchangeAssetUrl() {
+        return new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(), true).path(assetId, true);
     }
 
     public static class TagValueWrapper {
