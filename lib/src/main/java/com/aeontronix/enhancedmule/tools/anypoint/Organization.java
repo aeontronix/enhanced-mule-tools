@@ -715,11 +715,11 @@ public class Organization extends AnypointObject {
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
             unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(new ApplicationIdentifier(groupId, artifactId, version), groupId, newVersion, null));
             unpacker.unpack();
-//            publishExchangeAsset(new ApplicationIdentifier(groupId,artifactId,newVersion),newFile);
-//            if( snapshotPromotion ) {
-//                String snapshotPrefix = newVersion.toLowerCase()+"-snapshot";
-//                deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);
-//            }
+            publishExchangeAsset(new ApplicationIdentifier(groupId,artifactId,newVersion),newFile);
+            if( snapshotPromotion ) {
+                String snapshotPrefix = newVersion.toLowerCase()+"-snapshot";
+                deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);
+            }
             if( snapshotApiVersion != null ) {
                 int idx = snapshotApiVersion.toLowerCase().indexOf("-snapshot");
                 snapshotApiVersion = snapshotApiVersion.substring(0,idx+9);
