@@ -167,6 +167,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
     private boolean customlog4j;
     /**
+     * Specified if environment info should be injected
+     */
+    @Parameter(property = "anypoint.deploy.injectEnvInfo", defaultValue = "true")
+    private boolean injectEnvInfo;
+    /**
      * Indicates if existing application properties should be merged
      */
     @Parameter(property = "anypoint.deploy.mergeproperties", defaultValue = "true")
@@ -383,6 +388,10 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                             properties.put(key, entry.getValue().toString());
                         }
                     }
+                }
+                if(injectEnvInfo) {
+                    properties.put("anypoint.env.name",getEnvironment().getName());
+                    properties.put("anypoint.org.name",getEnvironment().getOrganization().getName());
                 }
                 deploymentConfig.setProperties(properties);
                 deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
