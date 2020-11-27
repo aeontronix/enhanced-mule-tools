@@ -32,8 +32,92 @@
                             "type": "string"
                         },
                         "secure": {
+                            "description": "Set to true if this contains sensitive information like password. It is generally not recommended to set this to true for usernames and similar credential identifiers",
                             "type": "boolean",
                             "default": false
+                        },
+                        "required": {
+                            "description": "Indicates if this property MUST be assigned for the application to work. Only use if there is no default value",
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "default": {
+                            "description": "Environment-independent default value to be used if not set",
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "description": "Default value",
+                                    "type": "string"
+                                },
+                                "encrypted": {
+                                    "description": "Indicates if the value is encrypted",
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            },
+                            "required": ["value"]
+                        },
+                        "local": {
+                            "description": "Property to be used when a developer runs the application on their workstation",
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "description": "value",
+                                    "type": "string"
+                                },
+                                "encrypted": {
+                                    "description": "Indicates if the value is encrypted",
+                                    "type": "boolean",
+                                    "default": false
+                                }
+                            },
+                            "required": ["value"]
+                        },
+                        "values": {
+                            "description": "Environment-dependent values",
+                            "type": "object",
+                            "properties": {
+                                "envType": {
+                                    "description": "environment type based properties",
+                                    "patternProperties": {
+                                        "DESIGN|SANDBOX|PRODUCTION": {
+                                            "type": "object",
+                                            "properties": {
+                                                "value": {
+                                                    "type": "string",
+                                                    "description": "Property value"
+                                                },
+                                                "encrypted": {
+                                                    "description": "Indicates if the value is encrypted",
+                                                    "type": "boolean",
+                                                    "default": false
+                                                }
+                                            },
+                                            "required": ["value"]
+                                        }
+                                    },
+                                },
+                                "env": {
+                                    "description": "environment-specific properties. Key must be a valid environment name or id",
+                                    "patternProperties": {
+                                        ".*": {
+                                            "type": "object",
+                                            "properties": {
+                                                "value": {
+                                                    "type": "string",
+                                                    "description": "Property value"
+                                                },
+                                                "encrypted": {
+                                                    "description": "Indicates if the value is encrypted",
+                                                    "type": "boolean",
+                                                    "default": false
+                                                }
+                                            },
+                                            "required": ["value"]
+                                        }
+                                    },
+                                }
+                            }
                         }
                     }
                 }
@@ -48,7 +132,10 @@
                     "description": "API type",
                     "type": "string",
                     "default": "rest",
-                    "enum": ["rest","http"]
+                    "enum": [
+                        "rest",
+                        "http"
+                    ]
                 },
                 "assetCreate": {
                     "description": "If the asset should be automatically created in exchange. If not set it will default to true if the project has no API spec dependency and an appropriate api spec file named api.[ext] or [artifactId].[ext] is found (in an api/ folder in any of the project's resource paths)",
@@ -112,7 +199,10 @@
                             "type": "string"
                         }
                     },
-                    "required": ["content","mimeType"]
+                    "required": [
+                        "content",
+                        "mimeType"
+                    ]
                 },
                 "fields": {
                     "description": "Custom fields",
@@ -134,7 +224,10 @@
                                 "description": "Field is required and provisioning will fail if not defined in root org"
                             }
                         },
-                        "required": ["key","value"]
+                        "required": [
+                            "key",
+                            "value"
+                        ]
                     }
                 },
                 "portal": {
