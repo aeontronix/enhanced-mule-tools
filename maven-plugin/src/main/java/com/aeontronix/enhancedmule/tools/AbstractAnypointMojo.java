@@ -34,9 +34,9 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Parameter(property = "anypoint.password")
     protected String password;
     @Parameter(property = ACCESSTOKEN_ID)
-    protected String emAccessTokenId;
+    protected String accessTokenId;
     @Parameter(property = ACCESSTOKEN_SECRET)
-    protected String emAccessTokenSecret;
+    protected String accessTokenSecret;
     /**
      * Anypoint bearer token
      */
@@ -67,7 +67,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret);
+                    accessTokenId, accessTokenSecret);
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {
