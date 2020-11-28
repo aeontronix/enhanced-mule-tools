@@ -36,6 +36,16 @@
                             "type": "boolean",
                             "default": false
                         },
+                        "type": {
+                            "description": "property type. If set to 'file' a file will be created, and the property value will be base64 decode and written to that file, finally the actual property value returned to mule will contain that file path",
+                            "type": "string",
+                            "enum": ["property","file"]
+                        },
+                        "static": {
+                            "description": "If set to true, indicates that the property is used statically and any changes to it will require restarting the application",
+                            "type": "boolean",
+                            "default": false
+                        },
                         "required": {
                             "description": "Indicates if this property MUST be assigned for the application to work. Only use if there is no default value",
                             "type": "boolean",

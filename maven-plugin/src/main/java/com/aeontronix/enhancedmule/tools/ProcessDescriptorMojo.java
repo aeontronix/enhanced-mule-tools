@@ -55,13 +55,20 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 project.addAttachedArtifact(descriptorArtifactor);
             }
             try {
-                final Artifact artifact = findAppArtifact(project);
+                Artifact artifact = findAppArtifact( "mule-application");
+                boolean light = false;
+                if( artifact == null ) {
+                    artifact = findAppArtifact("mule-application-light-package");
+                    if( artifact != null ) {
+                        light = true;
+                    }
+                }
                 if (artifact != null) {
                     final File file = artifact.getFile();
                     if (file == null || !file.exists()) {
                         throw new IllegalStateException("Mule artifact not found");
                     }
-                    ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, applicationDescriptor);
+                    ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, applicationDescriptor, light);
                 } else {
                     logger.warn("No mule application attached, skipping archive enhancement");
                 }
@@ -73,9 +80,11 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         }
     }
 
-    private Artifact findAppArtifact(MavenProject project) {
+    private Artifact findAppArtifact(String classifier) {
         for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
-            if (attachedArtifact.getClassifier().equals("mule-application")) {
+            final String cl = attachedArtifact.getClassifier();
+            logger.info("attached artifact: "+ cl +" / "+attachedArtifact.getType());
+            if (cl.equals(classifier)) {
                 return attachedArtifact;
             }
         }

@@ -39,7 +39,9 @@ public class ApplicationEnhancer {
     public static final String ANYPOINT_JSON = "anypoint.json";
     private static final Logger logger = getLogger(ApplicationEnhancer.class);
 
-    public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor) throws IOException, UnpackException {
+    public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor, boolean deletePreWeave) throws IOException, UnpackException {
+        final String eclipse = System.getProperty("eclipse.product");
+        boolean mulestudio = eclipse.toLowerCase().contains("mulestudio");
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
         if (oldArtifactFile.exists()) {
             FileUtils.delete(oldArtifactFile);
@@ -62,8 +64,12 @@ public class ApplicationEnhancer {
             public byte[] transform(SourceFile sourceFile) throws Exception {
                 StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mule xmlns:api-gateway=\"http://www.mulesoft.org/schema/mule/api-gateway\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd\">\n");
                 if (autoDiscovery) {
-                    logger.info("Added autodiscovery using flow: " + api.getAutoDiscoveryFlow());
-                    xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
+                    if(mulestudio) {
+                        logger.warn("Skipped adding autodiscovery since running on studio");
+                    } else {
+                        logger.info("Added autodiscovery using flow: " + api.getAutoDiscoveryFlow());
+                        xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
+                    }
                 }
                 xml.append("</mule>");
                 return xml.toString().getBytes();
@@ -98,5 +104,8 @@ public class ApplicationEnhancer {
         });
         unpacker.addTransformers(transformers);
         unpacker.unpack();
+        if(deletePreWeave) {
+            oldArtifactFile.delete();
+        }
     }
 }
