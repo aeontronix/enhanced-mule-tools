@@ -41,7 +41,7 @@ public class ApplicationEnhancer {
 
     public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor, boolean deletePreWeave) throws IOException, UnpackException {
         final String eclipse = System.getProperty("eclipse.product");
-        boolean mulestudio = eclipse.toLowerCase().contains("mulestudio");
+        boolean mulestudio = eclipse != null && eclipse.toLowerCase().contains("mulestudio");
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
         if (oldArtifactFile.exists()) {
             FileUtils.delete(oldArtifactFile);
