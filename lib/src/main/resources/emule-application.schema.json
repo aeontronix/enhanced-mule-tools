@@ -1,6 +1,30 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://static.enhanced-mule.com/schemas/emule-application.schema.json",
+    "definitions": {
+        "pValue": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "description": "value",
+                            "type": "string"
+                        },
+                        "encrypted": {
+                            "description": "Indicates if the value is encrypted",
+                            "type": "boolean",
+                            "default": false
+                        }
+                    },
+                    "required": ["value"]
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        }
+    },
     "title": "Application Provisioning",
     "description": "Used to automatically provision all application-related anypoint capabilities",
     "type": "object",
@@ -36,10 +60,10 @@
                             "type": "boolean",
                             "default": false
                         },
-                        "type": {
-                            "description": "property type. If set to 'file' a file will be created, and the property value will be base64 decode and written to that file, finally the actual property value returned to mule will contain that file path",
-                            "type": "string",
-                            "enum": ["property","file"]
+                        "file": {
+                            "description": "If this is set to true, the content of this property will also be made available as a file which will contain the property value Base 64 decoded. The path of that file can be access by a property with the same name is this property with '.file' appended to it",
+                            "type": "boolean",
+                            "default": false
                         },
                         "static": {
                             "description": "If set to true, indicates that the property is used statically and any changes to it will require restarting the application",
@@ -53,79 +77,31 @@
                         },
                         "default": {
                             "description": "Environment-independent default value to be used if not set",
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "description": "Default value",
-                                    "type": "string"
-                                },
-                                "encrypted": {
-                                    "description": "Indicates if the value is encrypted",
-                                    "type": "boolean",
-                                    "default": false
-                                }
-                            },
-                            "required": ["value"]
-                        },
-                        "local": {
-                            "description": "Property to be used when a developer runs the application on their workstation",
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "description": "value",
-                                    "type": "string"
-                                },
-                                "encrypted": {
-                                    "description": "Indicates if the value is encrypted",
-                                    "type": "boolean",
-                                    "default": false
-                                }
-                            },
-                            "required": ["value"]
+                            "$ref": "#/definitions/pValue"
                         },
                         "values": {
                             "description": "Environment-dependent values",
                             "type": "object",
                             "properties": {
+                                "local": {
+                                    "description": "Property to be used when a developer runs the application on their workstation",
+                                    "$ref": "#/definitions/pValue"
+                                },
                                 "envType": {
                                     "description": "environment type based properties",
                                     "patternProperties": {
                                         "DESIGN|SANDBOX|PRODUCTION": {
-                                            "type": "object",
-                                            "properties": {
-                                                "value": {
-                                                    "type": "string",
-                                                    "description": "Property value"
-                                                },
-                                                "encrypted": {
-                                                    "description": "Indicates if the value is encrypted",
-                                                    "type": "boolean",
-                                                    "default": false
-                                                }
-                                            },
-                                            "required": ["value"]
+                                            "$ref": "#/definitions/pValue"
                                         }
-                                    },
+                                    }
                                 },
                                 "env": {
                                     "description": "environment-specific properties. Key must be a valid environment name or id",
                                     "patternProperties": {
                                         ".*": {
-                                            "type": "object",
-                                            "properties": {
-                                                "value": {
-                                                    "type": "string",
-                                                    "description": "Property value"
-                                                },
-                                                "encrypted": {
-                                                    "description": "Indicates if the value is encrypted",
-                                                    "type": "boolean",
-                                                    "default": false
-                                                }
-                                            },
-                                            "required": ["value"]
+                                            "$ref": "#/definitions/pValue"
                                         }
-                                    },
+                                    }
                                 }
                             }
                         }
@@ -144,7 +120,9 @@
                     "default": "rest",
                     "enum": [
                         "rest",
-                        "http"
+                        "http",
+                        "REST",
+                        "HTTP"
                     ]
                 },
                 "assetCreate": {
