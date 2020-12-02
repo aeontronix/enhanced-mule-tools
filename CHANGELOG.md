@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deploy to RTF
 - Deploy to Exchange
 - Promote version in exchange
+- Skip adding autodiscovery when running on studio
 
 ### Fixed
 

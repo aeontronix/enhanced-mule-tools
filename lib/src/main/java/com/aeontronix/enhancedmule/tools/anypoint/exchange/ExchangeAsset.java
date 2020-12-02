@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -188,7 +189,12 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         if( fields != null ) {
             final List<APICustomFieldDescriptor> definedFields = new ArrayList<>(fields);
             final Map<String, Object> presentFields = customFields != null ?
-                    customFields.stream().collect(Collectors.toMap(APICustomField::getKey, APICustomField::getValue)) :
+                    customFields.stream().collect(Collectors.toMap(APICustomField::getKey, new Function<APICustomField, Object>() {
+                        @Override
+                        public Object apply(APICustomField f) {
+                            return f.getValue();
+                        }
+                    })) :
                     new HashMap<>();
             for (APICustomFieldDescriptor f : definedFields) {
                 final String key = f.getKey();

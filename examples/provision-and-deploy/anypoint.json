@@ -3,6 +3,7 @@
     "implementationUrl": "http://myapi.com/imp1",
     "consumerUrl": "http://myapi.com/con1",
     "addAutoDiscovery": true,
+    "version": "v1",
     "portal": {
       "pages": [
         {
@@ -31,13 +32,6 @@
     },
     "label": "${environment.lname}-latest",
     "clientApp": {
-    },
-    "access": [
-      {
-        "assetId": "otherapi",
-        "groupId": "d002eff8-84a5-452f-bce6-145f4a688311",
-        "assetVersion": "1.0.1"
-      }
-    ]
+    }
   }
 }
