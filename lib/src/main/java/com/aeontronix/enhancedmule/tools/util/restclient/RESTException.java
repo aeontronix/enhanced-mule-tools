@@ -4,7 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.util.restclient;
 
-import com.kloudtek.util.StringUtils;
+
+import com.aeontronix.commons.StringUtils;
 
 import java.io.IOException;
 
