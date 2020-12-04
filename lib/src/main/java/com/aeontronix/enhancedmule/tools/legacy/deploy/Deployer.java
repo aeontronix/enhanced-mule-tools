@@ -87,8 +87,8 @@ public abstract class Deployer {
                     final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
-                        deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, clientApp.getClientId());
-                        deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientApp.getClientSecret());
+                        deploymentConfig.setOverrideProperty(clientDescriptor.getClientIdProperty(), clientApp.getClientId());
+                        deploymentConfig.setOverrideProperty(clientDescriptor.getClientSecretProperty(), clientApp.getClientSecret());
                     }
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");
