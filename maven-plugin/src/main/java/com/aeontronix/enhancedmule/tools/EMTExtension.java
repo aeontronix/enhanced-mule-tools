@@ -11,9 +11,6 @@ import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.repository.Authentication;
-import org.apache.maven.eventspy.EventSpy;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.ExecutionListener;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
@@ -27,7 +24,6 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Properties;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -48,13 +44,64 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private String emAccessTokenId;
     private String emAccessTokenSecret;
     private String serverId;
+    private String org;
+
+    static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
+                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret, String org) throws MavenExecutionException {
+        EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
+        try {
+            if (emClient == null) {
+                final ConfigProfile configProfile = ConfigFile.findConfigProfile(org);
+                emClient = new EnhancedMuleClient(enhancedMuleServerUrl,configProfile);
+                final Proxy proxy = session.getSettings().getActiveProxy();
+                if (proxy != null) {
+                    emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword());
+                }
+                session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
+
+                logger.info("Initializing Enhanced Mule Tools");
+                CredentialsProvider credentialsProvider = null;
+                if (isNotBlank(anypointBearerToken)) {
+                    logger.info("Using Bearer Token");
+                    credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
+                } else if (isNotBlank(username) && isNotBlank(password)) {
+                    logger.info("Using Username Password: {}",username);
+                    credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
+                } else if (isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret)) {
+                    logger.info("Using Access Token");
+                    credentialsProvider = new CredentialsProviderAccessTokenImpl(emAccessTokenId, emAccessTokenSecret);
+                } else {
+                    if( configProfile != null ) {
+                        final String accessKeyId = configProfile.getAccessKeyId();
+                        final String accessKeySecret = configProfile.getAccessKeySecret();
+                        if( isNotBlank(accessKeyId) && isNotBlank(accessKeySecret) ) {
+                            logger.info("Using credentials from configuration file: {}",accessKeyId);
+                            if( configProfile.isAnypointUPW() ) {
+                                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(accessKeyId, accessKeySecret);
+                            } else {
+                                credentialsProvider = new CredentialsProviderAccessTokenImpl(accessKeyId, accessKeySecret);
+                            }
+                        }
+                    }
+                    if( credentialsProvider == null ) {
+                        logger.info("No EMT credentials available");
+                        credentialsProvider = new CredentialsProviderEmptyImpl();
+                    }
+                }
+                emClient.setCredentialsLoader(credentialsProvider);
+            }
+        } catch (IOException e) {
+            throw new MavenExecutionException(e.getMessage(),e);
+        }
+        return emClient;
+    }
 
     @Override
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         try {
             loadProperties(session);
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret);
+                    emAccessTokenId, emAccessTokenSecret, org);
             addRepositoriesAuthentication(session);
         } catch (Exception e) {
             throw new MavenExecutionException(e.getMessage(), e);
@@ -91,42 +138,13 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private void loadProperties(MavenSession session) {
         mulePluginCompatibility = Boolean.parseBoolean(getProperty(session, "mulePluginCompatibility", "muleplugin.compat", "false"));
         enhancedMuleServerUrl = getProperty(session, "enhancedMuleServerUrl", "enhancedmule.server.url", AbstractAnypointMojo.DEFAULT_EMSERVER_URL);
+        org = getProperty(session, "org", "anypoint.org", null);
         anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
         username = getProperty(session, "username", "anypoint.username", null);
         password = getProperty(session, "password", "anypoint.password", null);
         emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
         emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
         serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
-    }
-
-    static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
-                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret) throws MavenExecutionException {
-        EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
-        if (emClient == null) {
-            emClient = new EnhancedMuleClient(enhancedMuleServerUrl);
-            final Proxy proxy = session.getSettings().getActiveProxy();
-            if( proxy != null ) {
-                emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword() );;
-            }
-            session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
-            logger.info("Initializing Enhanced Mule Tools");
-            CredentialsProvider credentialsProvider;
-            if (anypointBearerToken != null) {
-                logger.info("Using Bearer Token");
-                credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
-            } else if (isNotBlank(username)) {
-                logger.info("Using Username Password");
-                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
-            } else if( isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret) ) {
-                logger.info("Using Access Token");
-                credentialsProvider = new CredentialsProviderAccessTokenImpl(emAccessTokenId, emAccessTokenSecret);
-            } else {
-                logger.info("No EMT credentials available");
-                credentialsProvider = new CredentialsProviderEmptyImpl();
-            }
-            emClient.setCredentialsLoader(credentialsProvider);
-        }
-        return emClient;
     }
 
     private RemoteRepository findRemoteRepo(List<RemoteRepository> remoteArtifactRepositories, String serverId) {
@@ -159,10 +177,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         if (prop != null) {
             return prop.toString();
         }
-        if (defaultValue != null) {
-            return defaultValue;
-        }
-        return null;
+        return defaultValue;
     }
 
     public class AuthenticationWrapper extends Authentication {

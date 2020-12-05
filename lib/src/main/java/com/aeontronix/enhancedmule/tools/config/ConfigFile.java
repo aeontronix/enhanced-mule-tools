@@ -4,47 +4,113 @@
 
 package com.aeontronix.enhancedmule.tools.config;
 
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.io.IOUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ConfigFile {
-    @JsonProperty("username")
-    private String username;
-    @JsonProperty("password")
-    private String password;
-    @JsonProperty("env")
-    private String environment;
-    @JsonProperty("org")
-    private String organization;
+import java.io.*;
+import java.util.Map;
 
-    public String getUsername() {
-        return username;
+public class ConfigFile extends ConfigProfile {
+    @JsonProperty("default")
+    private String defaultProfile;
+    @JsonProperty("profiles")
+    private Map<String, ConfigProfile> profiles;
+
+    public static ConfigProfile findConfigProfile(String org) throws IOException {
+        final ConfigFile configFile = findConfigFile();
+        if (configFile != null) {
+            return configFile.getMatchingProfile(org);
+        }
+        return null;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public static ConfigFile findConfigFile() throws IOException {
+        return findConfigFile(null);
     }
 
-    public String getPassword() {
-        return password;
+    public static ConfigFile findConfigFile(String filename) throws IOException {
+        if (filename == null) {
+            filename = "enhanced-mule.config.json";
+        }
+        InputStream is = null;
+        try {
+            is = findConfig(filename);
+            if (is != null) {
+                return new ObjectMapper().readValue(is, ConfigFile.class);
+            }
+        } finally {
+            IOUtils.close(is);
+        }
+        return null;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    private static InputStream findConfig(String filename) throws FileNotFoundException {
+        File file = new File(filename);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        final String userHome = System.getProperty("user.home");
+        file = new File(userHome + File.separatorChar + "." + filename);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        file = new File(userHome + File.separatorChar + ".enhanced-mule" + File.separatorChar + filename);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        InputStream is = ConfigFile.class.getClassLoader().getResourceAsStream(filename);
+        if (is != null) {
+            return is;
+        }
+        is = ConfigFile.class.getClassLoader().getResourceAsStream("/" + filename);
+        if (is != null) {
+            return is;
+        }
+        is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
+        if (is != null) {
+            return is;
+        }
+        is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/" + filename);
+        return is;
     }
 
-    public String getEnvironment() {
-        return environment;
+    public ConfigProfile getMatchingProfile(String org) {
+        if (profiles == null) {
+            return this;
+        } else {
+            if (StringUtils.isNotBlank(org)) {
+                for (ConfigProfile p : profiles.values()) {
+                    if (p.getOrgs() != null) {
+                        for (String profileOrg : p.getOrgs()) {
+                            if (org.equalsIgnoreCase(profileOrg)) {
+                                return p;
+                            }
+                        }
+                    }
+                }
+            }
+            if (defaultProfile != null) {
+                return profiles.get(defaultProfile);
+            }
+        }
+        return null;
     }
 
-    public void setEnvironment(String environment) {
-        this.environment = environment;
+    public String getDefaultProfile() {
+        return defaultProfile;
     }
 
-    public String getOrganization() {
-        return organization;
+    public void setDefaultProfile(String defaultProfile) {
+        this.defaultProfile = defaultProfile;
     }
 
-    public void setOrganization(String organization) {
-        this.organization = organization;
+    public Map<String, ConfigProfile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(Map<String, ConfigProfile> profiles) {
+        this.profiles = profiles;
     }
 }

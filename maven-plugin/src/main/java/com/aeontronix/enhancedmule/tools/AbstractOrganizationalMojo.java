@@ -15,11 +15,6 @@ import java.io.IOException;
 public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
     private static final Logger logger = LoggerFactory.getLogger(AbstractOrganizationalMojo.class);
     private Organization organization;
-    /**
-     * Anypoint organization name
-     */
-    @Parameter(property = "anypoint.org")
-    protected String org;
 
     public synchronized Organization getOrganization() throws NotFoundException, IOException {
         if (organization == null) {

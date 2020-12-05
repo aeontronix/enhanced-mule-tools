@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -16,13 +17,19 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     /**
      * Anypoint Environment name
      */
-    @Parameter(property = "anypoint.env", required = true)
+    @Parameter(property = "anypoint.env")
     protected String env;
 
     public synchronized Environment getEnvironment() throws NotFoundException, IOException {
         if (environment == null) {
             if (env == null) {
-                throw new IllegalStateException("environment name (anypoint.env) is missing");
+                final ConfigProfile configProfile = getEmClient().getConfigProfile();
+                if( configProfile != null ) {
+                    env = configProfile.getDefaultEnv();
+                }
+                if( env == null ) {
+                    throw new IllegalStateException("environment name (anypoint.env) is missing");
+                }
             }
             environment = getOrganization().findEnvironmentByName(env);
             getLog().debug("Using environment "+env+" : "+environment.getId());

@@ -50,6 +50,11 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected MavenProject project;
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     protected MavenSession session;
+    /**
+     * Anypoint organization name
+     */
+    @Parameter(property = "anypoint.org")
+    protected String org;
     protected EnhancedMuleClient emClient;
     private AnypointClient client;
 
@@ -63,11 +68,15 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         return client;
     }
 
+    public EnhancedMuleClient getEmClient() {
+        return emClient;
+    }
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    accessTokenId, accessTokenSecret);
+                    accessTokenId, accessTokenSecret, org);
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {

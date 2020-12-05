@@ -10,6 +10,8 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.config.AnypointBearerTokenCredentialsProvider;
+import com.aeontronix.enhancedmule.tools.config.ConfigFile;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.config.CredentialsProvider;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeClient;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
@@ -39,12 +41,14 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     private ExchangeClient exchangeClient;
     private String serverUrl;
     private String publicServerUrl;
+    private ConfigProfile configProfile;
 
-    public EnhancedMuleClient() {
-        this(EMULE_SERVER_URL);
+    public EnhancedMuleClient(ConfigProfile configProfile) {
+        this(EMULE_SERVER_URL, configProfile);
     }
 
-    public EnhancedMuleClient(String serverUrl) {
+    public EnhancedMuleClient(String serverUrl, ConfigProfile configProfile) {
+        this.configProfile = configProfile;
         restClient = new RESTClient(new RESTClientJsonParserJacksonImpl(), null, null, null);
         this.serverUrl = serverUrl;
         restClient.setBaseUrl(this.serverUrl);
@@ -56,6 +60,10 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
 
     public void setProxy(HttpHost proxyHost, String proxyUsername, String proxyPassword) {
         restClient.setProxy(proxyHost, proxyUsername, proxyPassword);
+    }
+
+    public ConfigProfile getConfigProfile() {
+        return configProfile;
     }
 
     public ExchangeClient getExchangeClient() {
