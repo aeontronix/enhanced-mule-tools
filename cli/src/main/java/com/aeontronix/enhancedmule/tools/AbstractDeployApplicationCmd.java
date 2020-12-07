@@ -89,7 +89,7 @@ public abstract class AbstractDeployApplicationCmd extends AbstractEnvironmentCm
             }
             apiProvisioningConfig = skipApiProvisioning ? null : new APIProvisioningConfig();
             if (apiProvisioningConfig != null) {
-                apiProvisioningConfig.init(environment);
+                apiProvisioningConfig.setEnvironment(environment);
                 apiProvisioningConfig.setVariables(provisioningVars);
                 apiProvisioningConfig.setAccessedBy(accessedBy);
             }

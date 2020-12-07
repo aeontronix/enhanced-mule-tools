@@ -57,7 +57,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             apiProvisioningConfig = new APIProvisioningConfig();
             Environment environment = getEnvironment();
             if (vars != null) {
-                apiProvisioningConfig.init(environment);
+                apiProvisioningConfig.setEnvironment(environment);
                 apiProvisioningConfig.setVariables(vars);
             }
             getLog().info("Provisioning started");

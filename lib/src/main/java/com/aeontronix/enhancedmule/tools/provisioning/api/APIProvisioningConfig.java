@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning.api;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;
@@ -114,11 +115,15 @@ public class APIProvisioningConfig {
                 .toString();
     }
 
-    public void init(Environment environment) {
+    public void setEnvironment(Environment environment) {
         setVariable("environment.id", environment.getId());
         setVariable("environment.name", environment.getName());
         setVariable("environment.lname", environment.getLName() );
-        setVariable("organization.name", environment.getOrganization().getName());
-        setVariable("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
+        setOrganization(environment.getOrganization());
+    }
+
+    public void setOrganization(Organization organization) {
+        setVariable("organization.name", organization.getName());
+        setVariable("organization.lname", organization.getName().replace(" ", "_").toLowerCase());
     }
 }

@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
@@ -131,7 +130,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     /**
      * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
      */
-    @Parameter(name = "target", property = "anypoint.target")
+    @Parameter(property = "anypoint.target")
+    private String legacyTarget;
+    /**
+     * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
+     */
+    @Parameter(name = "target", property = "anypoint.deploy.target")
     private String target;
     /**
      * Deprecated, use chMuleVersionName
@@ -238,9 +242,111 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.rtf.replicas",defaultValue = "1")
     private int replicas;
 
+    @Override
+    protected void doExecute() throws Exception {
+        if (!skipDeploy) {
+            if( target == null && legacyTarget != null ) {
+                target = legacyTarget;
+            }
+            logger.debug("Deploy target: {}",target);
+            // handle deprecated vars
+            if( chMuleVersionName == null && muleVersionName != null ) {
+                logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
+                chMuleVersionName = muleVersionName;
+            }
+            if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
+                project = null;
+            }
+            if (MavenUtils.isTemplateOrExample(project) && !force) {
+                logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
+                return;
+            }
+            if (file == null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No deploy file defined");
+                }
+                if (project == null) {
+                    throw new MojoExecutionException("File not specified while running out of project");
+                }
+                file = MavenUtils.getProjectJar(project).getPath();
+            }
+            source = ApplicationSource.create(getOrganization().getId(), getClient(), file);
+            if (appName == null) {
+                if (project != null) {
+                    appName = project.getArtifactId();
+                } else {
+                    appName = source.getArtifactId();
+                }
+                if (StringUtils.isBlank(target) || "cloudhub".equalsIgnoreCase(target)) {
+                    appName = appName + "-" + getEnvironment().getLName();
+                }
+            }
+            try {
+                if (filename == null) {
+                    filename = source.getFileName();
+                }
+                APIProvisioningConfig apiProvisioningConfig = null;
+                if (!skipApiProvisioning) {
+                    apiProvisioningConfig = new APIProvisioningConfig();
+                    if (vars != null) {
+                        apiProvisioningConfig.setVariables(vars);
+                    }
+                    try {
+                        apiProvisioningConfig.setEnvironment(getEnvironment());
+                    } catch (NotFoundException e) {
+                        apiProvisioningConfig.setOrganization(getOrganization());
+                    }
+                }
+                DeploymentConfig deploymentConfig = new DeploymentConfig();
+                deploymentConfig.setRtf(new RTFDeploymentConfig(cpuReserved, cpuLimit, memoryReserved, memoryLimit,
+                        clustered, enforceDeployingReplicasAcrossNodes, httpInboundPublicUrl, jvmArgs, rtfRuntimeVersion,
+                        lastMileSecurity, forwardSslSession, updateStrategy, replicas));
+                if (propertyfile != null) {
+                    if (!propertyfile.exists()) {
+                        throw new IllegalArgumentException("Property file not found: " + propertyfile);
+                    }
+                    Properties fileProps = new Properties();
+                    try (FileInputStream fis = new FileInputStream(propertyfile)) {
+                        fileProps.load(fis);
+                    }
+                    for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
+                        String key = entry.getKey().toString();
+                        if (!properties.containsKey(key)) {
+                            properties.put(key, entry.getValue().toString());
+                        }
+                    }
+                }
+                if(injectEnvInfo) {
+                    try {
+                        properties.put("anypoint.env.name",getEnvironment().getName());
+                        properties.put("anypoint.env.type",getEnvironment().getType().name());
+                    } catch (NotFoundException e) {
+                        logger.debug("No environment, skipping settings properties for env");
+                    }
+                    properties.put("anypoint.org.name",getOrganization().getName());
+                }
+                deploymentConfig.setProperties(properties);
+                deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
+                deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
+                deploymentConfig.setFileProperties(fileProperties);
+                deploymentConfig.setFilePropertiesPath(filePropertiesPath);
+                deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
+                DeploymentResult app = deploy(apiProvisioningConfig, deploymentConfig);
+                if (app != null && !skipWait) {
+                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
+                    app.waitDeployed(deployTimeout, deployRetryDelay);
+                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");
+                }
+                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deployment completed");
+            } finally {
+                IOUtils.close(source);
+            }
+        }
+    }
+
+
     @SuppressWarnings("Duplicates")
-    protected DeploymentResult deploy(Environment environment,
-                                      @NotNull APIProvisioningConfig apiProvisioningConfig,
+    protected DeploymentResult deploy(@NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
         if( buildNumber == null ) {
             buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
@@ -250,7 +356,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
         }
         findDeployProperties(session.getUserProperties());
         findDeployProperties(session.getSystemProperties());
-        try (ApplicationSource applicationSource = ApplicationSource.create(environment.getOrganization().getId(), environment.getClient(), file)) {
+        try (ApplicationSource applicationSource = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
             if (StringUtils.isBlank(target) || target.equalsIgnoreCase("cloudhub")) {
                 if (workerCount == null) {
                     workerCount = 1;
@@ -262,7 +368,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     deploymentConfig.setObjectStoreV1(objectStoreV1);
                     deploymentConfig.setExtMonitoring(extMonitoring);
                     deploymentConfig.setStaticIPs(staticIPs);
-                    return new CHDeployer(chMuleVersionName, region, workerType, workerCount, environment, appName,
+                    return new CHDeployer(chMuleVersionName, region, workerType, workerCount, getEnvironment(), appName,
                             applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
@@ -274,7 +380,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         return null;
                     } else {
                         try {
-                            Server server = environment.findServerByName(target);
+                            Server server = getEnvironment().findServerByName(target);
                             return new HDeployer(server, appName, applicationSource, filename,
                                     apiProvisioningConfig, deploymentConfig).deploy();
                         } catch (NotFoundException e) {
@@ -286,12 +392,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                                 ExchangeApplicationSource eApp = (ExchangeApplicationSource) applicationSource;
                                 appId = new ApplicationIdentifier(eApp.getGroupId(),eApp.getArtifactId(),eApp.getVersion());
                             }
-                            return new RTFDeployer(fabric, environment, appName, applicationSource, filename,
+                            return new RTFDeployer(fabric, getEnvironment(), appName, applicationSource, filename,
                                     apiProvisioningConfig, deploymentConfig, appId).deploy();
                         }
                     }
                 } catch (NotFoundException e) {
-                    throw new MojoExecutionException("Target " + target + " not found in env " + environment + " in business group " + org);
+                    throw new MojoExecutionException("Target " + target + " not found in env " + getEnvironment().getName() + " in business group " + org);
                 } catch (ProvisioningException | IOException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
@@ -323,93 +429,4 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
         }
     }
 
-    @Override
-    protected void doExecute() throws Exception {
-        if (!skipDeploy) {
-            // handle deprecated vars
-            if( chMuleVersionName == null && muleVersionName != null ) {
-                logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
-                chMuleVersionName = muleVersionName;
-            }
-            if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
-                project = null;
-            }
-            if (MavenUtils.isTemplateOrExample(project) && !force) {
-                logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
-                return;
-            }
-            if (file == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("No deploy file defined");
-                }
-                if (project == null) {
-                    throw new MojoExecutionException("File not specified while running out of project");
-                }
-                file = MavenUtils.getProjectJar(project).getPath();
-            }
-            source = ApplicationSource.create(getEnvironment().getOrganization().getId(), getClient(), file);
-            if (appName == null) {
-                if (project != null) {
-                    appName = project.getArtifactId();
-                } else {
-                    appName = source.getArtifactId();
-                }
-                if (StringUtils.isBlank(target) || "cloudhub".equalsIgnoreCase(target)) {
-                    appName = appName + "-" + getEnvironment().getLName();
-                }
-            }
-            try {
-                if (filename == null) {
-                    filename = source.getFileName();
-                }
-                APIProvisioningConfig apiProvisioningConfig = null;
-                if (!skipApiProvisioning) {
-                    apiProvisioningConfig = new APIProvisioningConfig();
-                    if (vars != null) {
-                        apiProvisioningConfig.setVariables(vars);
-                    }
-                    apiProvisioningConfig.init(getEnvironment());
-                }
-                DeploymentConfig deploymentConfig = new DeploymentConfig();
-                deploymentConfig.setRtf(new RTFDeploymentConfig(cpuReserved, cpuLimit, memoryReserved, memoryLimit,
-                        clustered, enforceDeployingReplicasAcrossNodes, httpInboundPublicUrl, jvmArgs, rtfRuntimeVersion,
-                        lastMileSecurity, forwardSslSession, updateStrategy, replicas));
-                if (propertyfile != null) {
-                    if (!propertyfile.exists()) {
-                        throw new IllegalArgumentException("Property file not found: " + propertyfile);
-                    }
-                    Properties fileProps = new Properties();
-                    try (FileInputStream fis = new FileInputStream(propertyfile)) {
-                        fileProps.load(fis);
-                    }
-                    for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
-                        String key = entry.getKey().toString();
-                        if (!properties.containsKey(key)) {
-                            properties.put(key, entry.getValue().toString());
-                        }
-                    }
-                }
-                if(injectEnvInfo) {
-                    properties.put("anypoint.env.name",getEnvironment().getName());
-                    properties.put("anypoint.env.type",getEnvironment().getType().name());
-                    properties.put("anypoint.org.name",getEnvironment().getOrganization().getName());
-                }
-                deploymentConfig.setProperties(properties);
-                deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
-                deploymentConfig.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
-                deploymentConfig.setFileProperties(fileProperties);
-                deploymentConfig.setFilePropertiesPath(filePropertiesPath);
-                deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
-                DeploymentResult app = deploy(getEnvironment(), apiProvisioningConfig, deploymentConfig);
-                if (app != null && !skipWait) {
-                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
-                    app.waitDeployed(deployTimeout, deployRetryDelay);
-                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");
-                }
-                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deployment completed");
-            } finally {
-                IOUtils.close(source);
-            }
-        }
-    }
 }
