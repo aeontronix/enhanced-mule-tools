@@ -313,7 +313,7 @@ public class ApplicationDescriptorParser {
         }
     }
 
-    private static File findAnypointFile(File basedir) {
+    public static File findAnypointFile(File basedir) {
         File file = new File(basedir, "anypoint.yml");
         if (file.exists()) {
             return file;

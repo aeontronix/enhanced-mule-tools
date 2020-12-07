@@ -51,7 +51,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
         try {
             if (emClient == null) {
-                final ConfigProfile configProfile = ConfigFile.findConfigProfile(org);
+                final ConfigProfile configProfile = ConfigFile.findConfigProfile(org,null);
                 emClient = new EnhancedMuleClient(enhancedMuleServerUrl,configProfile);
                 final Proxy proxy = session.getSettings().getActiveProxy();
                 if (proxy != null) {

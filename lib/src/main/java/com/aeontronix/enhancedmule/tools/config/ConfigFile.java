@@ -18,9 +18,17 @@ public class ConfigFile extends ConfigProfile {
     @JsonProperty("profiles")
     private Map<String, ConfigProfile> profiles;
 
-    public static ConfigProfile findConfigProfile(String org) throws IOException {
+    public static ConfigProfile findConfigProfile(String org, String profile) throws IOException {
         final ConfigFile configFile = findConfigFile();
         if (configFile != null) {
+            if (StringUtils.isNotBlank(profile)) {
+                final ConfigProfile p = configFile.getProfile(profile);
+                if (p != null) {
+                    return p;
+                } else {
+                    throw new IOException("Profile not found: " + profile);
+                }
+            }
             return configFile.getMatchingProfile(org);
         }
         return null;
@@ -51,12 +59,11 @@ public class ConfigFile extends ConfigProfile {
         if (file.exists()) {
             return new FileInputStream(file);
         }
-        final String userHome = System.getProperty("user.home");
-        file = new File(userHome + File.separatorChar + "." + filename);
+        file = new File(System.getProperty("user.home") + File.separatorChar + "." + filename);
         if (file.exists()) {
             return new FileInputStream(file);
         }
-        file = new File(userHome + File.separatorChar + ".enhanced-mule" + File.separatorChar + filename);
+        file = new File(System.getProperty("user.home") + File.separatorChar + ".enhanced-mule" + File.separatorChar + filename);
         if (file.exists()) {
             return new FileInputStream(file);
         }
@@ -74,6 +81,10 @@ public class ConfigFile extends ConfigProfile {
         }
         is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/" + filename);
         return is;
+    }
+
+    private ConfigProfile getProfile(String profile) {
+        return profile != null ? profiles.get(profile) : null;
     }
 
     public ConfigProfile getMatchingProfile(String org) {

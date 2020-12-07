@@ -34,6 +34,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private MavenProject project;
     @Parameter(property = "anypoint.descriptor", required = false)
     private String descriptor;
+    @Parameter(property = "anypoint.descriptor.parent", required = false)
+    private String parentDescriptor;
     @Parameter(property = "anypoint.descriptor.inheritNameAndDesc", required = false, defaultValue = "true")
     private boolean inheritNameAndDesc;
     @Parameter(property = "muleplugin.compat")
@@ -46,6 +48,9 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
+            if (parentDescriptor != null) {
+
+            }
             final ApplicationDescriptor applicationDescriptor = ApplicationDescriptorParser.parseAndProcess(descriptor, project,
                     generateDescriptorFile, true, inheritNameAndDesc);
             if (!mulePluginCompatibility) {
@@ -55,11 +60,11 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 project.addAttachedArtifact(descriptorArtifactor);
             }
             try {
-                Artifact artifact = findAppArtifact( "mule-application");
+                Artifact artifact = findAppArtifact("mule-application");
                 boolean light = false;
-                if( artifact == null ) {
+                if (artifact == null) {
                     artifact = findAppArtifact("mule-application-light-package");
-                    if( artifact != null ) {
+                    if (artifact != null) {
                         light = true;
                     }
                 }
@@ -83,7 +88,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private Artifact findAppArtifact(String classifier) {
         for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
             final String cl = attachedArtifact.getClassifier();
-            logger.info("attached artifact: "+ cl +" / "+attachedArtifact.getType());
+            logger.info("attached artifact: " + cl + " / " + attachedArtifact.getType());
             if (cl.equals(classifier)) {
                 return attachedArtifact;
             }

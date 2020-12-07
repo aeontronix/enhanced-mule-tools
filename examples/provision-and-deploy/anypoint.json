@@ -1,37 +1,47 @@
 {
-  "api": {
-    "implementationUrl": "http://myapi.com/imp1",
-    "consumerUrl": "http://myapi.com/con1",
-    "addAutoDiscovery": true,
-    "version": "v1",
-    "portal": {
-      "pages": [
-        {
-          "name": "home",
-          "path": "src/main/pages/home.md"
-        },
-        {
-          "name": "hello",
-          "path": "src/main/pages/hello.md"
-        }
-      ]
+  "api" : {
+    "implementationUrl" : "http://myapi.com/imp1",
+    "consumerUrl" : "http://myapi.com/con1",
+    "addAutoDiscovery" : true,
+    "version" : "v1",
+    "portal" : {
+      "pages" : [ {
+        "name" : "home",
+        "path" : "src/main/pages/home.md"
+      }, {
+        "name" : "hello",
+        "path" : "src/main/pages/hello.md"
+      } ]
     },
-    "fields": [
-      {
-        "key": "author",
-        "value": "Roger Smitherasfd"
-      },
-      {
-        "key": "subType",
-        "value": ["RAML"]
-      }
-    ],
-    "exchangeTags": ["footag","batag"],
-    "categories": {
-      "API Type": ["SYSTEM"]
+    "fields" : [ {
+      "key" : "author",
+      "value" : "Roger Smitherasfd"
+    }, {
+      "key" : "subType",
+      "value" : [ "RAML" ]
+    } ],
+    "exchangeTags" : [ "footag", "batag" ],
+    "categories" : {
+      "API Type" : [ "SYSTEM" ]
     },
-    "label": "${environment.lname}-latest",
+    "label" : "${environment.lname}-latest"
   },
-  "client": {
+  "client" : { },
+  "properties" : {
+    "test1" : {
+      "name" : "Test Key",
+      "secure" : true,
+      "values" : {
+        "local" : "mylocalconfigprop",
+        "envType" : {
+          "SANDBOX" : "mysandboxconfigprop",
+          "PRODUCTION" : "myprodconfigprop"
+        },
+        "env" : {
+          "Dev" : "mydevconfigprop",
+          "Prod" : "myprodconfigprop"
+        }
+      }
+    }
   }
 }
