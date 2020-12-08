@@ -74,7 +74,11 @@ public abstract class Deployer {
                     provisioningResult = applicationDescriptor.provision(environment, apiProvisioningConfig, source);
                     final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
                     if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId() ) {
-                        deploymentConfig.setOverrideProperty(apiDescriptor.getApiIdProperty(), provisioningResult.getApi().getId());
+                        final String apiIdProperty = apiDescriptor.getApiIdProperty();
+                        if( apiIdProperty == null ) {
+                            throw new IllegalArgumentException("apiIdProperty musn't be null");
+                        }
+                        deploymentConfig.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
                         try {
                             deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
@@ -87,8 +91,16 @@ public abstract class Deployer {
                     final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
-                        deploymentConfig.setOverrideProperty(clientDescriptor.getClientIdProperty(), clientApp.getClientId());
-                        deploymentConfig.setOverrideProperty(clientDescriptor.getClientSecretProperty(), clientApp.getClientSecret());
+                        final String clientIdProperty = clientDescriptor.getClientIdProperty();
+                        if( clientIdProperty == null ) {
+                            throw new IllegalStateException("client descriptor id property musn't be null");
+                        }
+                        deploymentConfig.setOverrideProperty(clientIdProperty, clientApp.getClientId());
+                        final String clientSecretProperty = clientDescriptor.getClientSecretProperty();
+                        if( clientSecretProperty == null ) {
+                            throw new IllegalStateException("client descriptor id property musn't be null");
+                        }
+                        deploymentConfig.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
                     }
                 } else {
                     logger.info("no anypoint.json found, skipping provisioning");

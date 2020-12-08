@@ -120,6 +120,9 @@ public class DeploymentConfig {
         if (fileProperties == null) {
             fileProperties = new HashMap<>();
         }
+        if( key == null ) {
+            throw new IllegalArgumentException("Property key musn't be null. value="+value);
+        }
         fileProperties.put(key,value);
     }
 
