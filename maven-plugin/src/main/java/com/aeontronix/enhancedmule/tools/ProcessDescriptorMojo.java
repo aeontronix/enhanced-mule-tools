@@ -48,9 +48,6 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
-            if (parentDescriptor != null) {
-
-            }
             final ApplicationDescriptor applicationDescriptor = ApplicationDescriptorParser.parseAndProcess(descriptor, project,
                     generateDescriptorFile, true, inheritNameAndDesc);
             if (!mulePluginCompatibility) {

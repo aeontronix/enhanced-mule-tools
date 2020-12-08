@@ -46,11 +46,6 @@ public class ApplicationDescriptor {
         }
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
         ApplicationDescriptor descriptor = mapper.readValue(json, ApplicationDescriptor.class);
-        if (descriptor.getProperties() != null) {
-            for (Map.Entry<String, PropertyDescriptor> entry : descriptor.getProperties().entrySet()) {
-                entry.getValue().setName(entry.getKey());
-            }
-        }
         return descriptor;
     }
 
