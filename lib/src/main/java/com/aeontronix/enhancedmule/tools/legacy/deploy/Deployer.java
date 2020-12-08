@@ -115,9 +115,17 @@ public abstract class Deployer {
                     }
                 }
             }
-            if (deploymentConfig.getFileProperties() != null && !deploymentConfig.getFileProperties().isEmpty()) {
+            final Map<String, String> fileProperties = deploymentConfig.getFileProperties();
+            if (fileProperties != null && !fileProperties.isEmpty()) {
+                if( logger.isDebugEnabled() ) {
+                    logger.debug("File properties injected into application: {}",fileProperties);
+                    for (Map.Entry<String, String> entry : fileProperties.entrySet()) {
+                        logger.debug("> {} = {}",entry.getKey(),entry.getValue());
+                    }
+                    logger.debug("filePropertiesPath= {}",deploymentConfig.getFilePropertiesPath());
+                }
                 transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(), CREATE,
-                        new HashMap<>(deploymentConfig.getFileProperties())));
+                        new HashMap<>(fileProperties)));
                 logger.info("Added properties file to application archive");
             }
             if (!transformers.isEmpty()) {
