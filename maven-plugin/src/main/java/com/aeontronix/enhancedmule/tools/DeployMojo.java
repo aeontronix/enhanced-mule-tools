@@ -319,11 +319,13 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 if(injectEnvInfo) {
                     try {
                         properties.put("anypoint.env.name",getEnvironment().getName());
+                        properties.put("anypoint.env.id",getEnvironment().getId());
                         properties.put("anypoint.env.type",getEnvironment().getType().name());
                     } catch (NotFoundException e) {
                         logger.debug("No environment, skipping settings properties for env");
                     }
                     properties.put("anypoint.org.name",getOrganization().getName());
+                    properties.put("anypoint.org.id",getOrganization().getId());
                 }
                 deploymentConfig.setProperties(properties);
                 deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
