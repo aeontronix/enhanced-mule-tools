@@ -112,7 +112,7 @@ public class ApplicationDescriptor {
         if (properties == null) {
             properties = new HashMap<>();
         }
-        properties.put(key, new PropertyDescriptor(key, secure));
+        properties.put(key, new PropertyDescriptor(key, key, secure));
     }
 
     public ClientApplicationDescriptor getClient() {
