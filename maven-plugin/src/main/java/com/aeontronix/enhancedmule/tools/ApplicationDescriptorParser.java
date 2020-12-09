@@ -206,7 +206,7 @@ public class ApplicationDescriptorParser {
     private static PropertyDescriptor getOrCreateProperty(HashMap<String, PropertyDescriptor> properties, String id, String name, boolean secure) {
         PropertyDescriptor prop = properties.get(id);
         if(prop == null ) {
-            prop = new PropertyDescriptor(name, secure);
+            prop = new PropertyDescriptor(id, name, secure);
             properties.put(id,prop);
         }
         return prop;

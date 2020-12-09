@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PropertyDescriptor {
     @JsonProperty
+    private String key;
+    @JsonProperty
     private String name;
     @JsonProperty
     private String description;
@@ -27,9 +29,18 @@ public class PropertyDescriptor {
     public PropertyDescriptor() {
     }
 
-    public PropertyDescriptor(String name, boolean secure) {
+    public PropertyDescriptor(String key, String name, boolean secure) {
+        this.key = key;
         this.name = name;
         this.secure = secure;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getName() {

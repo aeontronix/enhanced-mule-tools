@@ -81,7 +81,10 @@ public abstract class Deployer {
                         deploymentConfig.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
                         try {
-                            deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
+                            final String clientSecret = environment.getClientSecret();
+                            if( clientSecret != null ) {
+                                deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
+                            }
                         } catch (HttpException e) {
                             if (e.getStatusCode() != 401) {
                                 throw e;
@@ -110,8 +113,8 @@ public abstract class Deployer {
                     applicationDescriptor.getProperties() != null) {
                 for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
                     if (propertyDescriptor.isSecure()) {
-                        String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getName());
-                        deploymentConfig.addFileProperty(propertyDescriptor.getName(),pVal);
+                        String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getKey());
+                        deploymentConfig.addFileProperty(propertyDescriptor.getKey(),pVal);
                     }
                 }
             }

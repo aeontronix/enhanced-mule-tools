@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.enhancedmule.tools.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -93,11 +94,16 @@ public class DeploymentConfig {
     }
 
     public Map<String, String> getFileProperties() {
-        return fileProperties;
+        return fileProperties != null ? Collections.unmodifiableMap(fileProperties) : null;
     }
 
     public void setFileProperties(Map<String, String> fileProperties) {
         this.fileProperties = fileProperties;
+        for (String key : fileProperties.keySet()) {
+            if( key == null ) {
+                throw new IllegalArgumentException("file properties contains a null key.");
+            }
+        }
     }
 
     public String getFilePropertiesPath() {
@@ -122,6 +128,9 @@ public class DeploymentConfig {
         }
         if( key == null ) {
             throw new IllegalArgumentException("Property key musn't be null. value="+value);
+        }
+        if( value == null ) {
+            throw new IllegalArgumentException("Property value musn't be null: "+key);
         }
         fileProperties.put(key,value);
     }
