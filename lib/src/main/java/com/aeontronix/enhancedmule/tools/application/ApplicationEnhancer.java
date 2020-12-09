@@ -39,7 +39,8 @@ public class ApplicationEnhancer {
     public static final String ANYPOINT_JSON = "anypoint.json";
     private static final Logger logger = getLogger(ApplicationEnhancer.class);
 
-    public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor, boolean deletePreWeave) throws IOException, UnpackException {
+    public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor,
+                                                 boolean deletePreWeave, boolean excludeIgnoreBasePath) throws IOException, UnpackException {
         final String eclipse = System.getProperty("eclipse.product");
         boolean mulestudio = eclipse != null && eclipse.toLowerCase().contains("mulestudio");
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
@@ -68,7 +69,11 @@ public class ApplicationEnhancer {
                         logger.warn("Skipped adding autodiscovery since running on studio");
                     } else {
                         logger.info("Added autodiscovery using flow: " + api.getAutoDiscoveryFlow());
-                        xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ignoreBasePath=\"true\" flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
+                        xml.append("    <api-gateway:autodiscovery apiId=\"${anypoint.api.id}\" ");
+                        if( ! excludeIgnoreBasePath ) {
+                            xml.append("ignoreBasePath=\"true\" ");
+                        }
+                        xml.append("flowRef=\"").append(api.getAutoDiscoveryFlow()).append("\" />\n");
                     }
                 }
                 xml.append("</mule>");

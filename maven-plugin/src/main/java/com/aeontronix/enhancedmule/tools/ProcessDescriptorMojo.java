@@ -40,6 +40,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     private boolean inheritNameAndDesc;
     @Parameter(property = "muleplugin.compat")
     private boolean mulePluginCompatibility;
+    @Parameter(property = "anypoint.descriptor.autodiscovery.excludeIgnoreBasePath")
+    private boolean excludeIgnoreBasePath;
 
     public ProcessDescriptorMojo() {
     }
@@ -70,7 +72,7 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                     if (file == null || !file.exists()) {
                         throw new IllegalStateException("Mule artifact not found");
                     }
-                    ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, applicationDescriptor, light);
+                    ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, applicationDescriptor, light, excludeIgnoreBasePath);
                 } else {
                     logger.warn("No mule application attached, skipping archive enhancement");
                 }
