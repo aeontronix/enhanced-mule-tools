@@ -186,20 +186,26 @@ public class Organization extends AnypointObject {
 
     public ClientApplication findClientApplicationByName(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
         ClientApplication app = null;
-        try {
-            app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
-            if (app == null) {
-                // #@$@##@$ anypoint filtering sometimes doesn't work
-                app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
-            }
-        } catch (HttpException e) {
-            if( fullData && e.getStatusCode() == 401 ) {
+//        try {
+//            app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
+//            if (app == null) {
+//                // #@$@##@$ anypoint filtering sometimes doesn't work
+//                app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
+//            }
+//        } catch (HttpException e) {
+//            if( fullData && e.getStatusCode() == 401 ) {
                 app = findClientApplicationByName(new ClientApplicationList(this, name), name, false);
-                app = findClientApplicationById(app.getId().toString());
-            } else {
-                throw e;
-            }
-        }
+                if (app == null) {
+                    // #@$@##@$ anypoint filtering sometimes doesn't work
+                    app = findClientApplicationByName(findAllClientApplications(name), name, false);
+                }
+                if( app != null ) {
+                    app = findClientApplicationById(app.getId().toString());
+                }
+//            } else {
+//                throw e;
+//            }
+//        }
         if (app == null) {
             throw new NotFoundException("Client application not found: " + name);
         } else {
