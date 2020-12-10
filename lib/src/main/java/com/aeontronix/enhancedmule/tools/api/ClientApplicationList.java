@@ -25,7 +25,7 @@ public class ClientApplicationList extends PaginatedList<ClientApplication, Orga
     @NotNull
     @Override
     protected URLBuilder buildUrl() {
-        URLBuilder urlBuilder = new URLBuilder(parent.getUriPath() + "/applications").param("targetAdminSite", "true")
+        URLBuilder urlBuilder = new URLBuilder(parent.getUriPath() + "/applications")
                 .param("ascending", "true");
         if (filter != null) {
             urlBuilder.param("query", filter);
