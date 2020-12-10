@@ -11,11 +11,14 @@ import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.alert.Alert;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.api.*;
-import com.aeontronix.enhancedmule.tools.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
+import com.aeontronix.enhancedmule.tools.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
@@ -172,15 +175,30 @@ public class Organization extends AnypointObject {
         return ClientApplication.find(getRootOrganization(), filter);
     }
 
+    public ClientApplication findClientApplicationById(@NotNull String id) throws HttpException, NotFoundException {
+        final String json = httpHelper.httpGet("/exchange/api/v1/organizations/" + this.id + "/applications/" + id);
+        return jsonHelper.readJson(new ClientApplication(this), json);
+    }
+
     public ClientApplication findClientApplicationByName(@NotNull String name) throws HttpException, NotFoundException {
         return findClientApplicationByName(name, true);
     }
 
     public ClientApplication findClientApplicationByName(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
-        ClientApplication app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
-        if (app == null) {
-            // #@$@##@$ anypoint filtering sometimes doesn't work
-            app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
+        ClientApplication app = null;
+        try {
+            app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
+            if (app == null) {
+                // #@$@##@$ anypoint filtering sometimes doesn't work
+                app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
+            }
+        } catch (HttpException e) {
+            if( fullData && e.getStatusCode() == 401 ) {
+                app = findClientApplicationByName(new ClientApplicationList(this, name), name, false);
+                app = findClientApplicationById(app.getId().toString());
+            } else {
+                throw e;
+            }
         }
         if (app == null) {
             throw new NotFoundException("Client application not found: " + name);
@@ -373,9 +391,9 @@ public class Organization extends AnypointObject {
         logger.debug("searching exchange asset, groupId=" + groupId + " assetId=" + assetId);
         try {
             final String json = httpHelper.httpGet("/exchange/api/v2/assets/" + groupId + "/" + assetId);
-            return jsonHelper.readJson(new ExchangeAsset(this), json );
+            return jsonHelper.readJson(new ExchangeAsset(this), json);
         } catch (HttpException e) {
-            if( e.getStatusCode() == 404 ) {
+            if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Asset not found: " + groupId + ":" + assetId);
             } else {
                 throw e;
@@ -689,14 +707,14 @@ public class Organization extends AnypointObject {
     }
 
     public void promoteExchangeApplication(EnhancedMuleClient emClient, String groupId, String artifactId, String version, String newVersion) throws IOException, NotFoundException {
-        if( groupId == null ) {
+        if (groupId == null) {
             groupId = id;
         }
         boolean snapshotPromotion = false;
-        if( newVersion == null ) {
+        if (newVersion == null) {
             int idx = version.toLowerCase().indexOf("-snapshot");
-            if(idx != -1 ) {
-                newVersion = version.substring(0,idx);
+            if (idx != -1) {
+                newVersion = version.substring(0, idx);
                 snapshotPromotion = true;
             } else {
                 throw new IllegalArgumentException("newVersion not set and version isn't a snapshot");
@@ -709,20 +727,20 @@ public class Organization extends AnypointObject {
             final ApplicationDescriptor anypointDescriptor = new FileApplicationSource(client, file).getAnypointDescriptor(null);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
-            if( apiDescriptor != null && apiDescriptor.isAssetCreate() && apiDescriptor.getAssetVersion().toLowerCase().contains("-snapshot")) {
+            if (apiDescriptor != null && apiDescriptor.isAssetCreate() && apiDescriptor.getAssetVersion().toLowerCase().contains("-snapshot")) {
                 snapshotApiVersion = apiDescriptor.getAssetVersion();
             }
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
             unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(new ApplicationIdentifier(groupId, artifactId, version), groupId, newVersion, null));
             unpacker.unpack();
-            publishExchangeAsset(new ApplicationIdentifier(groupId,artifactId,newVersion),newFile);
-            if( snapshotPromotion ) {
-                String snapshotPrefix = newVersion.toLowerCase()+"-snapshot";
+            publishExchangeAsset(new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
+            if (snapshotPromotion) {
+                String snapshotPrefix = newVersion.toLowerCase() + "-snapshot";
                 deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);
             }
-            if( snapshotApiVersion != null ) {
+            if (snapshotApiVersion != null) {
                 int idx = snapshotApiVersion.toLowerCase().indexOf("-snapshot");
-                snapshotApiVersion = snapshotApiVersion.substring(0,idx+9);
+                snapshotApiVersion = snapshotApiVersion.substring(0, idx + 9);
                 deleteSnapshotAssets(groupId, apiDescriptor.getAssetId(), snapshotApiVersion);
             }
         } catch (UnpackException e) {
@@ -734,12 +752,12 @@ public class Organization extends AnypointObject {
         final ExchangeAsset exchangeAsset = findExchangeAsset(groupId, artifactId);
         for (AssetVersion exchangeAssetVersion : exchangeAsset.getVersions()) {
             final String v = exchangeAssetVersion.getVersion();
-            if( v.toLowerCase().startsWith(snapshotPrefix) ) {
+            if (v.toLowerCase().startsWith(snapshotPrefix)) {
                 try {
                     exchangeAsset.deleteVersion(v);
-                    eLogger.info(EMTLogger.Product.EXCHANGE, "Deleted exchange asset {} version {}",artifactId,v);
+                    eLogger.info(EMTLogger.Product.EXCHANGE, "Deleted exchange asset {} version {}", artifactId, v);
                 } catch (Exception e) {
-                    logger.warn("Unable to deleted exchange asset {} version {}: {}",artifactId,v,e.getMessage());
+                    logger.warn("Unable to deleted exchange asset {} version {}: {}", artifactId, v, e.getMessage());
                 }
             }
         }
