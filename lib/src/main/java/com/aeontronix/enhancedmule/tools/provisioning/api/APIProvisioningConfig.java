@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;
 
+import static com.aeontronix.enhancedmule.tools.anypoint.Environment.Type.PRODUCTION;
+
 public class APIProvisioningConfig {
     @JsonProperty(defaultValue = "anypoint.json")
     private String descriptorLocation = "anypoint.json";
@@ -119,6 +121,9 @@ public class APIProvisioningConfig {
         setVariable("environment.id", environment.getId());
         setVariable("environment.name", environment.getName());
         setVariable("environment.lname", environment.getLName() );
+        setVariable("environment.suffix", environment.getSuffix() );
+        setVariable("environment.npsuffix", environment.getNPSuffix() );
+        setVariable("environment.type", environment.getType() != null ? environment.getType().name() : null);
         setOrganization(environment.getOrganization());
     }
 

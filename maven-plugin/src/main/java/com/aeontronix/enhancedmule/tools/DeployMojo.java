@@ -321,14 +321,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
                 if(injectEnvInfo) {
                     try {
-                        final String envName = getEnvironment().getName();
-                        final Environment.Type envType = getEnvironment().getType();
-                        final String suffix = "-" + envName.toLowerCase();
-                        properties.put("anypoint.env.name", envName);
-                        properties.put("anypoint.env.suffix", suffix);
-                        properties.put("anypoint.env.npsuffix", PRODUCTION.equals(envType) ? "" : suffix);
-                        properties.put("anypoint.env.id",getEnvironment().getId());
-                        properties.put("anypoint.env.type", envType.name());
+                        final Environment environment = getEnvironment();
+                        properties.put("anypoint.env.name", environment.getName());
+                        properties.put("anypoint.env.suffix", environment.getSuffix());
+                        properties.put("anypoint.env.npsuffix", environment.getNPSuffix());
+                        properties.put("anypoint.env.id", environment.getId());
+                        properties.put("anypoint.env.type", environment.getType().name());
                     } catch (NotFoundException e) {
                         logger.debug("No environment, skipping settings properties for env");
                     }

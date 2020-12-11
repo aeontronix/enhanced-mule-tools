@@ -319,8 +319,19 @@ public class Environment extends AnypointObject<Organization> {
         return Environment.findEnvironmentById(id, client, parent);
     }
 
+    @JsonIgnore
     public String getLName() {
         return getName().replace(" ", "_").toLowerCase();
+    }
+
+    @JsonIgnore
+    public String getSuffix() {
+        return "-"+getLName();
+    }
+
+    @JsonIgnore
+    public String getNPSuffix() {
+        return Type.PRODUCTION.equals(type) ? "" : getSuffix();
     }
 
     public API createAPI(@NotNull APISpec apiSpec, @Nullable String label,
