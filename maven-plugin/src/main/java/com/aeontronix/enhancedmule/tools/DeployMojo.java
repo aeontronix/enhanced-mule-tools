@@ -76,6 +76,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.name")
     protected String appName;
     /**
+     * Application name
+     */
+    @Parameter(property = "anypoint.deploy.name.chsuffix")
+    protected String appNameCHSuffix;
+    /**
      * If true, will force deployment even if same already application was already deployed.
      */
     @Parameter(property = "anypoint.deploy.force")
@@ -281,7 +286,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     appName = source.getArtifactId();
                 }
                 if (StringUtils.isBlank(target) || "cloudhub".equalsIgnoreCase(target)) {
-                    appName = appName + "-" + getEnvironment().getLName();
+                    if( appNameCHSuffix != null ) {
+                        appName = appName + appNameCHSuffix;
+                    } else {
+                        final Environment environment = getEnvironment();
+                        appName = appName + environment.getSuffix();
+                    }
                 }
             }
             try {
