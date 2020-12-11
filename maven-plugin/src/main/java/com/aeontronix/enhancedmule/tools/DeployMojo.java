@@ -81,6 +81,11 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.name.chsuffix")
     protected String appNameCHSuffix;
     /**
+     * Application name
+     */
+    @Parameter(property = "anypoint.deploy.name.chsuffixnponly", defaultValue = "false")
+    protected boolean appNameCHSuffixNPOnly;
+    /**
      * Application name cloudhub prefix
      */
     @Parameter(property = "anypoint.deploy.name.chprefix")
@@ -295,7 +300,9 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         appName = appName + appNameCHSuffix;
                     } else {
                         final Environment environment = getEnvironment();
-                        appName = appName + environment.getSuffix();
+                        if( !appNameCHSuffixNPOnly || !PRODUCTION.equals(environment.getType()) ) {
+                            appName = appName + "-"+environment.getSuffix();
+                        }
                     }
                     if(appNameCHPrefix != null) {
                         appName = appNameCHPrefix + appName;
@@ -342,7 +349,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         final Environment environment = getEnvironment();
                         properties.put("anypoint.env.name", environment.getName());
                         properties.put("anypoint.env.suffix", environment.getSuffix());
-                        properties.put("anypoint.env.npsuffix", environment.getNPSuffix());
                         properties.put("anypoint.env.id", environment.getId());
                         properties.put("anypoint.env.type", environment.getType().name());
                     } catch (NotFoundException e) {

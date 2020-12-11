@@ -122,7 +122,6 @@ public class APIProvisioningConfig {
         setVariable("environment.name", environment.getName());
         setVariable("environment.lname", environment.getLName() );
         setVariable("environment.suffix", environment.getSuffix() );
-        setVariable("environment.npsuffix", environment.getNPSuffix() );
         setVariable("environment.type", environment.getType() != null ? environment.getType().name() : null);
         setOrganization(environment.getOrganization());
     }

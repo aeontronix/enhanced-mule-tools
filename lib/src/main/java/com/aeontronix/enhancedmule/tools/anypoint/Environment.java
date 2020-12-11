@@ -329,11 +329,6 @@ public class Environment extends AnypointObject<Organization> {
         return "-"+getLName();
     }
 
-    @JsonIgnore
-    public String getNPSuffix() {
-        return Type.PRODUCTION.equals(type) ? "" : getSuffix();
-    }
-
     public API createAPI(@NotNull APISpec apiSpec, @Nullable String label,
                          Map<String, Object> implementationUrlJson, String consumerUrl) throws HttpException {
         return API.create(this, apiSpec, label, implementationUrlJson, consumerUrl);
