@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
@@ -37,6 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import static com.aeontronix.enhancedmule.tools.anypoint.Environment.Type.PRODUCTION;
 
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
@@ -318,9 +321,14 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 }
                 if(injectEnvInfo) {
                     try {
-                        properties.put("anypoint.env.name",getEnvironment().getName());
+                        final String envName = getEnvironment().getName();
+                        final Environment.Type envType = getEnvironment().getType();
+                        final String suffix = "-" + envName.toLowerCase();
+                        properties.put("anypoint.env.name", envName);
+                        properties.put("anypoint.env.suffix", suffix);
+                        properties.put("anypoint.env.npsuffix", PRODUCTION.equals(envType) ? "" : suffix);
                         properties.put("anypoint.env.id",getEnvironment().getId());
-                        properties.put("anypoint.env.type",getEnvironment().getType().name());
+                        properties.put("anypoint.env.type", envType.name());
                     } catch (NotFoundException e) {
                         logger.debug("No environment, skipping settings properties for env");
                     }
