@@ -118,7 +118,7 @@ public class CHDeployer extends Deployer {
             });
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to Cloudhub");
             deploymentJson = req.execute();
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting");
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: "+appName);
         } else {
             Map<String, Object> deployJson = new HashMap<>();
             deployJson.put("applicationInfo", appInfo);
@@ -129,7 +129,7 @@ public class CHDeployer extends Deployer {
                 deployJson.put("autoStart", true);
                 deploymentJson = httpHelper.anypointHttpPost("/cloudhub/api/v2/applications/", deployJson, environment);
             }
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Requested application start from exchange asset");
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Requested application start from exchange asset: "+appName);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
@@ -157,5 +157,4 @@ public class CHDeployer extends Deployer {
             return null;
         }
     }
-
 }
