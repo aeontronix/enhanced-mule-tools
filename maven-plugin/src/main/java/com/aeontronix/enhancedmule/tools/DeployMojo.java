@@ -298,7 +298,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         appName = appName + environment.getSuffix();
                     }
                     if(appNameCHPrefix != null) {
-                        appName = appNameCHPrefix + "-" + appName;
+                        appName = appNameCHPrefix + appName;
                     }
                 }
             }
