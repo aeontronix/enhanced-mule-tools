@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.7](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.7)
 
 - added appNameCHPrefix
+- added publish-rest-asset goal
 
 ## [1.2.6](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.6)
 
