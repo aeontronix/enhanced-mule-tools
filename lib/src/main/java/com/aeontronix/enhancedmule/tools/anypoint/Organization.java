@@ -19,6 +19,7 @@ import com.aeontronix.enhancedmule.tools.api.*;
 import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.*;
@@ -733,8 +734,10 @@ public class Organization extends AnypointObject {
             final ApplicationDescriptor anypointDescriptor = new FileApplicationSource(client, file).getAnypointDescriptor(null);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
-            if (apiDescriptor != null && apiDescriptor.isAssetCreate() && apiDescriptor.getAssetVersion().toLowerCase().contains("-snapshot")) {
-                snapshotApiVersion = apiDescriptor.getAssetVersion();
+            if (apiDescriptor != null && apiDescriptor.getAsset() != null && apiDescriptor.getAsset().getCreate() &&
+                    apiDescriptor.getAsset().getVersion() != null &&
+                    apiDescriptor.getAsset().getVersion().toLowerCase().contains("-snapshot")) {
+                snapshotApiVersion = apiDescriptor.getAsset().getVersion();
             }
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
             unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(new ApplicationIdentifier(groupId, artifactId, version), groupId, newVersion, null));
@@ -747,7 +750,7 @@ public class Organization extends AnypointObject {
             if (snapshotApiVersion != null) {
                 int idx = snapshotApiVersion.toLowerCase().indexOf("-snapshot");
                 snapshotApiVersion = snapshotApiVersion.substring(0, idx + 9);
-                deleteSnapshotAssets(groupId, apiDescriptor.getAssetId(), snapshotApiVersion);
+                deleteSnapshotAssets(groupId, apiDescriptor.getAsset().getId(), snapshotApiVersion);
             }
         } catch (UnpackException e) {
             throw new IOException(e);

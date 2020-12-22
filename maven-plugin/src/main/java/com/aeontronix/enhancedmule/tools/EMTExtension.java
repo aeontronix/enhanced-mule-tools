@@ -122,17 +122,19 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         });
         final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
         RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
-        final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
-                .setUrl(prep.getUrl())
-                .setSnapshotPolicy(prep.getPolicy(true))
-                .setReleasePolicy(prep.getPolicy(false))
-                .setRepositoryManager(prep.isRepositoryManager())
-                .setProxy(prep.getProxy())
-                .setMirroredRepositories(prep.getMirroredRepositories())
-                .setContentType(prep.getContentType())
-                .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
-        remoteProjectRepositories.remove(prep);
-        remoteProjectRepositories.add(newRepo);
+        if( prep != null) {
+            final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
+                    .setUrl(prep.getUrl())
+                    .setSnapshotPolicy(prep.getPolicy(true))
+                    .setReleasePolicy(prep.getPolicy(false))
+                    .setRepositoryManager(prep.isRepositoryManager())
+                    .setProxy(prep.getProxy())
+                    .setMirroredRepositories(prep.getMirroredRepositories())
+                    .setContentType(prep.getContentType())
+                    .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
+            remoteProjectRepositories.remove(prep);
+            remoteProjectRepositories.add(newRepo);
+        }
     }
 
     private void loadProperties(MavenSession session) {
@@ -153,7 +155,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 return remoteArtifactRepository;
             }
         }
-        throw new IllegalStateException("serverId not found: " + serverId);
+        return null;
     }
 
     private String getProperty(MavenSession session, String field, String property, String defaultValue) {

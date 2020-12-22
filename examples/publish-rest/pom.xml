@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) Aeontronix 2019
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mycompany</groupId>
+    <artifactId>emtdemo-standalone-apispec</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>Enhanced Mule Tools Demo</name>
+    <description>Demo Application for Enhanced Mule Tools</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <app.runtime>4.1.4</app.runtime>
+        <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <emt.version>1.2.7-beta2-SNAPSHOT</emt.version>
+        <maven.compiler.release>8</maven.compiler.release>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.aeontronix.enhanced-mule</groupId>
+                <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
+                <version>${emt.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>publish-rest-asset</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

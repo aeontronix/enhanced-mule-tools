@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.provisioning;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -31,10 +32,6 @@ public class ApplicationDescriptor {
     private ClientApplicationDescriptor client;
 
     public ApplicationDescriptor() {
-    }
-
-    public ApplicationDescriptor(String name, String version) {
-        api = new APIDescriptor(name, version);
     }
 
     public static ApplicationDescriptor read(APIProvisioningConfig apiProvisioningConfig, InputStream is) throws IOException {

@@ -16,3 +16,4 @@ upd provision-and-deploy
 upd provision-and-deploy-inprojectraml
 upd provision-and-deploy-to-exchange
 upd provision-and-deploy-compat
+upd publish-rest

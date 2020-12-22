@@ -4,7 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
@@ -17,8 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.aeontronix.commons.FileUtils;
-import com.aeontronix.commons.io.IOUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
@@ -29,8 +30,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 import static java.io.File.separator;
@@ -94,6 +93,10 @@ public class ApplicationDescriptorParser {
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
+            final ExchangeAssetDescriptor asset = api.getAsset();
+            if( asset == null ) {
+                throw new IllegalStateException("api missing asset descriptor");
+            }
             if( api.getApiIdProperty() == null ) {
                 api.setApiIdProperty("anypoint.api.id");
             }
@@ -102,47 +105,21 @@ public class ApplicationDescriptorParser {
             getOrCreateProperty(properties, apiIdProperty, "Anypoint API identifier", false);
             getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
             getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
-            IconDescriptor icon = api.getIcon();
+            IconDescriptor icon = asset.getIcon();
             if( icon == null ) {
                 File iconFile = findIcon(project);
                 if( iconFile != null ) {
                     icon = new IconDescriptor(iconFile.getPath());
-                    api.setIcon(icon);
+                    asset.setIcon(icon);
                 }
             }
-            if( icon != null && icon.getPath() != null ) {
-                File iconFile = new File(icon.getPath());
-                if( ! iconFile.exists() ) {
-                    throw new IOException("Unable to find icon file: "+iconFile.getPath());
-                }
-                final Path path = iconFile.toPath();
-                String mimeType = Files.probeContentType(path);
-                if( StringUtils.isBlank(mimeType) ) {
-                    String fpath = path.toString().toLowerCase();
-                    if( fpath.endsWith(".png") ) {
-                        mimeType = "image/png";
-                    } else if( fpath.endsWith(".svg") ) {
-                        mimeType = "image/svg+xml";
-                    } else if( fpath.endsWith(".gif") ) {
-                        mimeType = "image/gif";
-                    } else if( fpath.endsWith(".jpg") || fpath.endsWith(".jpeg") ) {
-                        mimeType = "image/jpg";
-                    }
-                }
-                if( StringUtils.isNotBlank(mimeType) ) {
-                    icon.setMimeType(mimeType);
-                } else {
-                    throw new IOException("Unable to identity mime-Type of icon image, please specify mimeType in descriptor: "+icon.getPath());
-                }
-                icon.setContent(StringUtils.base64Encode(FileUtils.toByteArray(iconFile)));
-                icon.setPath(null);
-            }
+
             Dependency dep = findRAMLDependency(project);
             if (api.getAssetId() == null) {
                 api.setAssetId(dep != null ? dep.getArtifactId() : apiArtifactId + "-spec");
             }
-            if( api.getDescription() == null && inheritNameAndDesc ) {
-                api.setDescription(applicationDescriptor.getDescription());
+            if( asset.getDescription() == null && inheritNameAndDesc ) {
+                asset.setDescription(applicationDescriptor.getDescription());
             }
             if( api.getAssetVersion() == null ) {
                 if( dep != null ) {
@@ -151,20 +128,20 @@ public class ApplicationDescriptorParser {
                     api.setAssetVersion(version);
                 }
             }
-            if( api.isAssetCreate() == null || api.getAssetMainFile() == null ) {
+            if( asset.getCreate() == null || asset.getAssetMainFile() == null ) {
                 String apiSpecFile = findAPISpecFile(project,api.getAssetId());
-                if( api.isAssetCreate() == null ) {
-                    api.setAssetCreate(apiSpecFile != null);
+                if( asset.getCreate() == null ) {
+                    asset.setCreate(apiSpecFile != null);
                 }
-                if( api.getAssetMainFile() == null ) {
-                    api.setAssetMainFile(apiSpecFile);
+                if( asset.getAssetMainFile() == null ) {
+                    asset.setAssetMainFile(apiSpecFile);
                 }
             }
-            if( api.getName() == null && inheritNameAndDesc ) {
-                api.setName(applicationDescriptor.getName());
+            if( asset.getName() == null && inheritNameAndDesc ) {
+                asset.setName(applicationDescriptor.getName());
             }
-            if (api.getPortal() != null && api.getPortal().getPages() != null) {
-                for (PortalPageDescriptor page : api.getPortal().getPages()) {
+            if (asset.getPortal() != null && asset.getPortal().getPages() != null) {
+                for (PortalPageDescriptor page : asset.getPortal().getPages()) {
                     if (page.getContent() == null) {
                         try (FileInputStream fis = new FileInputStream(project.getBasedir() + separator + page.getPath().replace("/", separator))) {
                             page.setPath(null);
@@ -173,18 +150,19 @@ public class ApplicationDescriptorParser {
                     }
                 }
             }
-            if (api.getAssetVersion() == null) {
-                api.setAssetVersion("1.0.0");
+            if (asset.getVersion() == null) {
+                asset.setVersion("1.0.0");
             }
-            if (api.getVersion() == null) {
+            if (asset.getApiVersion() == null) {
                 if (dep != null) {
+                    final String majorVersion = ExchangeAssetDescriptor.getMajorVersion(dep.getVersion());
                     if (dep.getClassifier().equalsIgnoreCase("oas")) {
-                        api.setVersion(api.getAssetVersion().replaceFirst("\\.\\d\\.\\d", ".0.0"));
+                        asset.setApiVersion(majorVersion+".0.0");
                     } else {
-                        api.setVersion("v1");
+                        asset.setApiVersion("v"+majorVersion);
                     }
                 } else {
-                    api.setVersion("v1");
+                    asset.setApiVersion("v"+asset.getMajorVersion());
                 }
             }
         }
@@ -263,6 +241,63 @@ public class ApplicationDescriptorParser {
     private static void legacyConvert(Map<String, Object> anypointDescriptor) {
         Map<String, Object> api = (Map<String, Object>) anypointDescriptor.get("api");
         if (api != null) {
+            final Object assetId = api.remove("assetId");
+            final Object assetVersion = api.remove("assetVersion");
+            Map<String,Object> asset = (Map<String, Object>) api.get("asset");
+            if( asset == null ) {
+                asset = new HashMap<>();
+                api.put("asset",asset);
+            }
+            if( assetId != null || assetVersion != null ) {
+                logger.warn("api->assetId and api->assetVersion are deprecated, use api->asset->id and api->asset->version instead");
+                asset.put("id",assetId);
+                asset.put("version",assetVersion);
+            }
+            final Object exchangeTags = api.remove("exchangeTags");
+            if( exchangeTags != null ) {
+                asset.put("tags",exchangeTags);
+                logger.warn("api->exchangeTags is deprecated, use api->asset->tags instead");
+            }
+            final Object name = api.remove("name");
+            if( name != null ) {
+                asset.put("name",name);
+                logger.warn("api->name deprecated, use api->asset->name instead");
+            }
+            final Object create = api.remove("create");
+            if( create != null ) {
+                asset.put("create",name);
+                logger.warn("api->create deprecated, use api->asset->create instead");
+            }
+            final Object type = api.remove("type");
+            if( type != null ) {
+                asset.put("type",name);
+                logger.warn("api->type deprecated, use api->asset->type instead");
+            }
+            final Object apiVersion = api.remove("apiVersion");
+            if( apiVersion != null && api.get("version") == null ) {
+                logger.warn("'api->apiVersion' is deprecated, use api->asset->apiVersion instead");
+                asset.put("apiVersion",apiVersion);
+            }
+            final Object version = api.remove("version");
+            if( version != null ) {
+                asset.put("apiVersion",name);
+                logger.warn("api->version deprecated, use api->asset->apiVersion instead");
+            }
+            final Object description = api.remove("description");
+            if( description != null ) {
+                asset.put("description",description);
+                logger.warn("api->description deprecated, use api->asset->description instead");
+            }
+            final Object assetMainFile = api.remove("assetMainFile");
+            if( assetMainFile != null ) {
+                asset.put("assetMainFile",description);
+                logger.warn("api->assetMainFile deprecated, use api->asset->assetMainFile instead");
+            }
+            final Object assetCreate = api.remove("assetCreate");
+            if( assetCreate != null ) {
+                asset.put("create",assetCreate);
+                logger.warn("api->assetCreate deprecated, use api->asset->create instead");
+            }
             final Object endpoint = api.remove("endpoint");
             if( endpoint != null ) {
                 logger.warn("'endpoint' is deprecated, please use implementationUrl and/or consumerUrl instead");

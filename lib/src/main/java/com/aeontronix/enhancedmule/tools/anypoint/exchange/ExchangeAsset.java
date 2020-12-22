@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomField;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomFieldDescriptor;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -133,7 +134,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name,true).toString(), Collections.singletonMap("Accept", "text/markdown"));
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name, true).toString(), Collections.singletonMap("Accept", "text/markdown"));
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Page not found: " + name);
@@ -158,7 +159,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updatePage(String name, String content) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name,true).toString(),
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name, true).toString(),
                 Collections.singletonMap("Content-Type", "text/markdown"), content);
         httpHelper.httpPatch(getUrl(), null);
     }
@@ -168,15 +169,15 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updateName(String name) throws HttpException {
-        HashMap<String,String> req = new HashMap<>();
-        req.put("name",name);
-        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+assetId,req);
+        HashMap<String, String> req = new HashMap<>();
+        req.put("name", name);
+        httpHelper.httpPatch("/exchange/api/v2/assets/" + getParent().getId() + "/" + assetId, req);
     }
 
     public void updateDescription(String description) throws HttpException {
-        HashMap<String,String> req = new HashMap<>();
-        req.put("description",description);
-        httpHelper.httpPatch("/exchange/api/v2/assets/"+getParent().getId()+"/"+assetId,req);
+        HashMap<String, String> req = new HashMap<>();
+        req.put("description", description);
+        httpHelper.httpPatch("/exchange/api/v2/assets/" + getParent().getId() + "/" + assetId, req);
     }
 
     public void updateCategory(String key, List<String> catValues) throws HttpException {
@@ -186,7 +187,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public CustomFieldUpdateResults updateCustomFields(List<APICustomFieldDescriptor> fields) throws HttpException {
         CustomFieldUpdateResults results = new CustomFieldUpdateResults();
-        if( fields != null ) {
+        if (fields != null) {
             final List<APICustomFieldDescriptor> definedFields = new ArrayList<>(fields);
             final Map<String, Object> presentFields = customFields != null ?
                     customFields.stream().collect(Collectors.toMap(APICustomField::getKey, new Function<APICustomField, Object>() {
@@ -201,21 +202,21 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 final Object v = presentFields.remove(key);
                 if (v == null || !v.equals(f.getValue())) {
                     try {
-                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key,true).toString(),
+                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key, true).toString(),
                                 new TagValueWrapper(f.getValue()));
                         results.modified.add(key);
-                        logger.debug("Updated field {} to {}",key,f.getValue().toString());
+                        logger.debug("Updated field {} to {}", key, f.getValue().toString());
                     } catch (HttpException e) {
-                        if( e.getStatusCode() == 404 && !f.isRequired() ) {
+                        if (e.getStatusCode() == 404 && !f.isRequired()) {
                             results.notDefined.add(key);
-                            logger.debug("Unable to set custom field as it's not defined: "+key);
+                            logger.debug("Unable to set custom field as it's not defined: " + key);
                         } else {
                             throw e;
                         }
                     }
                 }
             }
-            if( ! presentFields.isEmpty() ) {
+            if (!presentFields.isEmpty()) {
                 for (String key : presentFields.keySet()) {
                     httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/fields").path(key).toString());
                     results.modified.add(key);
@@ -486,7 +487,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     @JsonIgnore
     public byte[] getIconImage() throws HttpException {
-        if( icon != null ) {
+        if (icon != null) {
             return httpHelper.httpGetBinary(icon);
         } else {
             return null;
@@ -494,13 +495,13 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updateIcon(byte[] data, String mimeType) throws HttpException {
-        Map<String,String> headers = new HashMap<>();
-        headers.put("Content-Type",mimeType);
-        httpHelper.httpPut(getExchangeAssetUrl().path("icon").toString(),headers, data);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", mimeType);
+        httpHelper.httpPut(getExchangeAssetUrl().path("icon").toString(), headers, data);
     }
 
-    public void deleteVersion( String version) throws HttpException {
-        httpHelper.httpHardDelete(getExchangeAssetUrl().path(version,true).toString());
+    public void deleteVersion(String version) throws HttpException {
+        httpHelper.httpHardDelete(getExchangeAssetUrl().path(version, true).toString());
     }
 
     private URLBuilder getExchangeAssetUrl() {

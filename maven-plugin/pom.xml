@@ -31,14 +31,12 @@
             <artifactId>enhanced-mule-tools-lib</artifactId>
             <version>1.2.7-beta2-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-provider-api</artifactId>
             <version>3.4.1</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
