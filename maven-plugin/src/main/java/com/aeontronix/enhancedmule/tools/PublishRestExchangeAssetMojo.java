@@ -70,12 +70,15 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
         if(asset.getDescription() == null) {
             asset.setDescription(project.getDescription());
         }
+        if( asset.getAssetMainFile() == null ) {
+            asset.setAssetMainFile(ApplicationDescriptorParser.findAPISpecFile(asset.getId(),apiSpecDir));
+        }
         if( asset.getApiVersion() == null ) {
             final String majorVersion = asset.getMajorVersion();
             if( "raml".equalsIgnoreCase(asset.getClassifier()) ) {
                 asset.setApiVersion("v"+majorVersion);
             } else {
-                asset.setApiVersion(majorVersion+"0.0");
+                asset.setApiVersion(majorVersion+".0.0");
             }
         }
         if( asset.getIcon() == null ) {

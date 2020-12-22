@@ -194,14 +194,21 @@ public class ApplicationDescriptorParser {
     private static String findAPISpecFile(MavenProject project, String assetId) {
         for (Resource resource : project.getResources()) {
             final File dir = new File(resource.getDirectory(),"api");
-            if( dir.exists() ) {
-                final List<String> filenames = Arrays.asList("api", assetId);
-                for (String apiExt : apiExts) {
-                    for (String filename : filenames) {
-                        String apiFile = filename+apiExt;
-                        if( new File(dir,apiFile).exists() ) {
-                            return apiFile;
-                        }
+            String apiFile = findAPISpecFile(assetId, dir);
+            if (apiFile != null) return apiFile;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String findAPISpecFile(String assetId, File dir) {
+        if( dir.exists() ) {
+            final List<String> filenames = Arrays.asList("api", assetId);
+            for (String apiExt : apiExts) {
+                for (String filename : filenames) {
+                    String apiFile = filename+apiExt;
+                    if( new File(dir,apiFile).exists() ) {
+                        return apiFile;
                     }
                 }
             }
