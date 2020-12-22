@@ -144,7 +144,7 @@ public class APIDescriptor {
             }
             // exchange
             if(asset != null) {
-                asset.provision(environment);
+                asset.provision(environment.getOrganization());
             }
         } catch (AssetCreationException | NotFoundException | IOException e) {
             throw new ProvisioningException(e);

@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.exchange;
 import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.TempFile;
-import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
@@ -17,6 +17,7 @@ import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APICustomFieldDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.slf4j.Logger;
@@ -28,10 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -71,6 +69,16 @@ public class ExchangeAssetDescriptor {
         } else {
             return null;
         }
+    }
+
+    public static File findIcon(File basedir) {
+        for (String fn : Arrays.asList("icon.svg", "icon.png", "icon.jpeg", "icon.jpg", "icon.gif")) {
+            final File f = new File(basedir, fn);
+            if( f.exists() ) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public String getId() {
@@ -232,8 +240,8 @@ public class ExchangeAssetDescriptor {
         return assetMainFile != null ? (assetMainFile.toLowerCase().endsWith(".raml") ? "raml" : "oas") : null;
     }
 
-    public void provision(Environment environment) throws IOException, NotFoundException {
-        ExchangeAsset exchangeAsset = environment.getOrganization().findExchangeAsset(groupId != null ? groupId : environment.getOrganization().getId(), id);
+    public void provision(Organization organization) throws IOException, NotFoundException {
+        ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
         if (icon != null && icon.getPath() != null) {
             File iconFile = new File(icon.getPath());
             if (!iconFile.exists()) {
@@ -312,5 +320,33 @@ public class ExchangeAssetDescriptor {
 
     public String getMajorVersion() {
         return getMajorVersion(version);
+    }
+
+    public void findPages(File assetPagesDir) throws IOException {
+        if (assetPagesDir.exists() && assetPagesDir.isDirectory() ) {
+            final File[] files = assetPagesDir.listFiles();
+            if( files != null && files.length > 0 ) {
+                if( portal == null ) {
+                    portal = new PortalDescriptor();
+                }
+                List<PortalPageDescriptor> pages = portal.getPages();
+                if( pages == null ) {
+                    pages = new ArrayList<>();
+                    portal.setPages(pages);
+                }
+                for (File file : files) {
+                    if(file.isFile()) {
+                        final String fileName = file.getName();
+                        int idx = fileName.indexOf(".");
+                        if( idx != -1 ) {
+                            final PortalPageDescriptor p = new PortalPageDescriptor();
+                            p.setContent(IOUtils.toString(file));
+                            p.setName(fileName.substring(0,idx));
+                            pages.add(p);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

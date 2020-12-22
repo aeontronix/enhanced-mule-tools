@@ -8,6 +8,7 @@ import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.InvalidAnypointDescriptorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -31,12 +32,19 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
     private File assetDescriptorFile;
     @Parameter(property = "emt.buildNumber")
     private String buildNumber;
+    @Parameter(property = "emt.asset.pages", defaultValue = "src${file.separator}main${file.separator}pages")
+    private File assetPagesDir;
+    @Parameter(property = "publishrestasset.skip", defaultValue = "false")
+    private boolean skip;
 
     public PublishRestExchangeAssetMojo() {
     }
 
     @Override
     protected void doExecute() throws Exception {
+        if( skip ) {
+            return;
+        }
         if( ! apiSpecDir.exists() ) {
             throw new IOException(apiSpecDir+" doesn't exist");
         } else if( ! apiSpecDir.isDirectory() ) {
@@ -70,7 +78,14 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
                 asset.setApiVersion(majorVersion+"0.0");
             }
         }
+        if( asset.getIcon() == null ) {
+            final File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
+            if( iconFile != null ) {
+                asset.setIcon(new IconDescriptor(iconFile.getPath()));
+            }
+        }
         asset.setCreate(true);
+        asset.findPages(assetPagesDir);
         ValidationUtils.validate(asset, InvalidAnypointDescriptorException.class);
         final HashMap<String, File> specFiles = new HashMap<>();
         addFile(specFiles,null,apiSpecDir);
@@ -87,6 +102,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
                 }
             }
         });
+        asset.provision(getOrganization());
     }
 
     private void addFile(HashMap<String, File> specFiles, String path, File file) {

@@ -107,7 +107,7 @@ public class ApplicationDescriptorParser {
             getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             IconDescriptor icon = asset.getIcon();
             if( icon == null ) {
-                File iconFile = findIcon(project);
+                File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
                 if( iconFile != null ) {
                     icon = new IconDescriptor(iconFile.getPath());
                     asset.setIcon(icon);
@@ -188,16 +188,6 @@ public class ApplicationDescriptorParser {
             properties.put(id,prop);
         }
         return prop;
-    }
-
-    private static File findIcon(MavenProject project) {
-        for (String fn : Arrays.asList("icon.svg", "icon.png", "icon.jpeg", "icon.jpg", "icon.gif")) {
-            final File f = new File(project.getBasedir(), fn);
-            if( f.exists() ) {
-                return f;
-            }
-        }
-        return null;
     }
 
     @Nullable

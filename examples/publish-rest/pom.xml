@@ -11,7 +11,7 @@
     <artifactId>emtdemo-standalone-apispec</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-    <name>Enhanced Mule Tools Demo</name>
+    <name>Enhanced Mule Standalone API Spec Demo</name>
     <description>Demo Application for Enhanced Mule Tools</description>
 
     <properties>
