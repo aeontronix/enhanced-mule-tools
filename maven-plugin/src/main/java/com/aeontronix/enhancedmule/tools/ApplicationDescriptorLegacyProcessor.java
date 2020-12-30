@@ -19,6 +19,7 @@ import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Resource;
@@ -35,16 +36,22 @@ import java.util.*;
 import static java.io.File.separator;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class ApplicationDescriptorParser {
+public class ApplicationDescriptorLegacyProcessor implements ApplicationDescriptorProcessor {
     private static final String[] apiExts = {".raml",".yml",".yaml",".json"};
-    private static final Logger logger = getLogger(ApplicationDescriptorParser.class);
+    private static final Logger logger = getLogger(ApplicationDescriptorLegacyProcessor.class);
+    private final MavenProject project;
+    private File assetPagesDir;
+    private boolean inheritNameAndDesc;
+    private Map<String, Object> anypointDescriptorJson;
+    private final ObjectMapper objectMapper;
+    private ApplicationDescriptor applicationDescriptor;
 
-    public static ApplicationDescriptor parseAndProcess(@Nullable String descriptor, @NotNull MavenProject project,
-                                                        @Nullable File writeToFile, boolean addWriteToFileToProject,
-                                                        boolean inheritNameAndDesc) throws IOException {
-        ObjectMapper objectMapper = JsonHelper.createMapper();
+    public ApplicationDescriptorLegacyProcessor(@Nullable String descriptor, @NotNull MavenProject project, File assetPagesDir) throws IOException {
+        this.project = project;
+        this.assetPagesDir = assetPagesDir;
+        objectMapper = JsonHelper.createMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        Map<String, Object> anypointDescriptorJson = null;
+        anypointDescriptorJson = null;
         if (StringUtils.isNotBlank(descriptor)) {
             File descriptorFile = new File(descriptor);
             anypointDescriptorJson = readFile(descriptorFile);
@@ -54,29 +61,33 @@ public class ApplicationDescriptorParser {
                 anypointDescriptorJson = readFile(descriptorFile);
             }
         }
-        if (anypointDescriptorJson == null) {
+        if (anypointDescriptorJson == null ) {
             anypointDescriptorJson = new HashMap<>();
         }
-        legacyConvert(anypointDescriptorJson);
-        ApplicationDescriptor applicationDescriptor = objectMapper.convertValue(anypointDescriptorJson, ApplicationDescriptor.class);
-        setDefaultValues(applicationDescriptor, project, inheritNameAndDesc);
-        if (writeToFile != null) {
-            final File parentFile = writeToFile.getParentFile();
-            if (!parentFile.exists()) {
-                FileUtils.mkdir(parentFile);
-            }
-            objectMapper.writeValue(writeToFile, applicationDescriptor);
-            if (addWriteToFileToProject) {
-                Resource resource = new Resource();
-                resource.setDirectory(parentFile.getPath());
-                resource.setIncludes(Collections.singletonList(writeToFile.getName()));
-                project.addResource(resource);
-            }
-        }
-        return applicationDescriptor;
     }
 
-    private static void setDefaultValues(ApplicationDescriptor applicationDescriptor, MavenProject project, boolean inheritNameAndDesc) throws IOException {
+    public Map<String, Object> getAnypointDescriptorJson() {
+        return anypointDescriptorJson;
+    }
+
+    @Override
+    public void writeToFile(File file, boolean addToProject) throws IOException {
+        final File parentFile = file.getParentFile();
+        if (!parentFile.exists()) {
+            FileUtils.mkdir(parentFile);
+        }
+        objectMapper.writeValue(file, anypointDescriptorJson);
+        if (addToProject) {
+            Resource resource = new Resource();
+            resource.setDirectory(parentFile.getPath());
+            resource.setIncludes(Collections.singletonList(file.getName()));
+            project.addResource(resource);
+        }
+    }
+
+    @Override
+    public void setDefaultValues(boolean inheritNameAndDesc) throws IOException {
+        applicationDescriptor = objectMapper.convertValue(anypointDescriptorJson, ApplicationDescriptor.class);
         String apiArtifactId = project.getArtifactId();
         String version = project.getVersion();
         if (applicationDescriptor.getId() == null) {
@@ -93,9 +104,10 @@ public class ApplicationDescriptorParser {
         }
         APIDescriptor api = applicationDescriptor.getApi();
         if (api != null) {
-            final ExchangeAssetDescriptor asset = api.getAsset();
+            ExchangeAssetDescriptor asset = api.getAsset();
             if( asset == null ) {
-                throw new IllegalStateException("api missing asset descriptor");
+                asset = new ExchangeAssetDescriptor();
+                api.setAsset(asset);
             }
             if( api.getApiIdProperty() == null ) {
                 api.setApiIdProperty("anypoint.api.id");
@@ -115,8 +127,8 @@ public class ApplicationDescriptorParser {
             }
 
             Dependency dep = findRAMLDependency(project);
-            if (api.getAssetId() == null) {
-                api.setAssetId(dep != null ? dep.getArtifactId() : apiArtifactId + "-spec");
+            if (asset.getId() == null) {
+                asset.setId(dep != null ? dep.getArtifactId() : apiArtifactId + "-spec");
             }
             if( asset.getDescription() == null && inheritNameAndDesc ) {
                 asset.setDescription(applicationDescriptor.getDescription());
@@ -129,7 +141,7 @@ public class ApplicationDescriptorParser {
                 }
             }
             if( asset.getCreate() == null || asset.getAssetMainFile() == null ) {
-                String apiSpecFile = findAPISpecFile(project,api.getAssetId());
+                String apiSpecFile = findAPISpecFile(project,asset.getId());
                 if( asset.getCreate() == null ) {
                     asset.setCreate(apiSpecFile != null);
                 }
@@ -181,7 +193,17 @@ public class ApplicationDescriptorParser {
         }
     }
 
-    private static PropertyDescriptor getOrCreateProperty(HashMap<String, PropertyDescriptor> properties, String id, String name, boolean secure) {
+    @Override
+    public ApplicationDescriptor getAnypointDescriptor() {
+        return applicationDescriptor;
+    }
+
+    @Override
+    public ObjectNode getApplicationDescriptorJson() {
+        return objectMapper.valueToTree(applicationDescriptor);
+    }
+
+    private PropertyDescriptor getOrCreateProperty(HashMap<String, PropertyDescriptor> properties, String id, String name, boolean secure) {
         PropertyDescriptor prop = properties.get(id);
         if(prop == null ) {
             prop = new PropertyDescriptor(id, name, secure);
@@ -191,7 +213,7 @@ public class ApplicationDescriptorParser {
     }
 
     @Nullable
-    private static String findAPISpecFile(MavenProject project, String assetId) {
+    private String findAPISpecFile(MavenProject project, String assetId) {
         for (Resource resource : project.getResources()) {
             final File dir = new File(resource.getDirectory(),"api");
             String apiFile = findAPISpecFile(assetId, dir);
@@ -235,8 +257,9 @@ public class ApplicationDescriptorParser {
     }
 
     @SuppressWarnings("unchecked")
-    private static void legacyConvert(Map<String, Object> anypointDescriptor) {
-        Map<String, Object> api = (Map<String, Object>) anypointDescriptor.get("api");
+    @Override
+    public void legacyConvert() {
+        Map<String, Object> api = (Map<String, Object>) anypointDescriptorJson.get("api");
         if (api != null) {
             final Object assetId = api.remove("assetId");
             final Object assetVersion = api.remove("assetVersion");
@@ -314,14 +337,14 @@ public class ApplicationDescriptorParser {
             Map<String, Object> client = (Map<String, Object>) api.remove("clientApp");
             if (client != null) {
                 logger.warn("'clientApp' under 'api' is deprecated, please use 'client' at application descriptor level instead.");
-                anypointDescriptor.put("client", client);
+                anypointDescriptorJson.put("client", client);
             }
             Object access = api.remove("access");
             if (access != null) {
                 logger.warn("'access' under 'api' is deprecated, please move it inside 'client' instead.");
                 if (client == null) {
                     client = new HashMap<>();
-                    anypointDescriptor.put("client", client);
+                    anypointDescriptorJson.put("client", client);
                 }
                 client.put("access", access);
             }

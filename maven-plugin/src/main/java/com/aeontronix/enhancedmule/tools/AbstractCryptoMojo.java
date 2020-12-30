@@ -9,7 +9,6 @@ import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.key.AESKey;
-import com.aeontronix.kryptotek.key.EncryptionKey;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -52,7 +51,7 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
                     throw new MojoExecutionException("Descriptor not found found: " + descriptor);
                 }
             } else {
-                anypointFile = ApplicationDescriptorParser.findAnypointFile(new File("."));
+                anypointFile = ApplicationDescriptorProcessorImpl.findAnypointFile(new File("."));
                 if (anypointFile == null) {
                     throw new MojoExecutionException("Descriptor not found found: anypoint.json, anypoint.yml or anypoint.yaml");
                 }

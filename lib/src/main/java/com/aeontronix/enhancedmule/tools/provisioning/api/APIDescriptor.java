@@ -4,15 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.provisioning.api;
 
-import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.APISpec;
 import com.aeontronix.enhancedmule.tools.api.SLATier;
@@ -21,8 +17,6 @@ import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
-
-import static java.util.stream.Collectors.toMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
@@ -40,7 +34,7 @@ public class APIDescriptor {
     private ExchangeAssetDescriptor asset;
     private String implementationUrl;
     private String consumerUrl;
-    private Map<String,Object> implementationUrlJson;
+    private Map<String, Object> implementationUrlJson;
     private List<String> tags;
     private boolean addAutoDiscovery = false;
     private String autoDiscoveryFlow = "api-main";
@@ -77,7 +71,7 @@ public class APIDescriptor {
                         if (applicationSource == null) {
                             throw new AssetCreationException("Cannot create asset due to missing application source (standalone provisioning doesn't support REST asset creation)");
                         }
-                        if(asset.getCreate()) {
+                        if (asset.getCreate()) {
                             asset.create(environment.getOrganization(), applicationSource);
                         }
                     } else {
@@ -93,27 +87,27 @@ public class APIDescriptor {
                     final String currentAssetVersion = api.getAssetVersion();
                     if (!currentAssetVersion.equalsIgnoreCase(asset.getVersion())) {
                         api = api.updateVersion(asset.getVersion());
-                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated asset {} version to {}",api.getAssetId(),asset.getVersion());
+                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated asset {} version to {}", api.getAssetId(), asset.getVersion());
                     }
                 } catch (NotFoundException ex) {
                     logger.debug("Creating API");
                     if (implementationUrlJson != null) {
-                        api = environment.createAPI(apiSpec, label, implementationUrlJson, consumerUrl );
+                        api = environment.createAPI(apiSpec, label, implementationUrlJson, consumerUrl);
                     } else {
-                        api = environment.createAPI(apiSpec, !m3, implementationUrl, consumerUrl , label, asset.getType());
+                        api = environment.createAPI(apiSpec, !m3, implementationUrl, consumerUrl, label, asset.getType());
                     }
-                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}",api.getAssetId(),asset.getVersion());
+                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}", api.getAssetId(), asset.getVersion());
                 }
             }
             if (policies != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}",api.getAssetId());
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}", api.getAssetId());
                 api.deletePolicies();
                 for (PolicyDescriptor policyDescriptor : policies) {
                     api.createPolicy(policyDescriptor);
                 }
             }
             if (slaTiers != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting SLA Tiers for {}",api.getAssetId());
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting SLA Tiers for {}", api.getAssetId());
                 for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                     try {
                         SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
@@ -126,16 +120,16 @@ public class APIDescriptor {
                     }
                 }
             }
-            if( consumerUrl != null ) {
+            if (consumerUrl != null) {
                 api.updateConsumerUrl(consumerUrl);
-                plogger.info(EMTLogger.Product.API_MANAGER, "Updated consumer url to {}",consumerUrl);
+                plogger.info(EMTLogger.Product.API_MANAGER, "Updated consumer url to {}", consumerUrl);
             }
-            if( implementationUrlJson !=null ) {
+            if (implementationUrlJson != null) {
                 api.updateImplementationUrl(implementationUrlJson);
                 plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrlJson.toString());
-            } else if( implementationUrl != null ) {
-                api.updateImplementationUrl(implementationUrl, !m3, asset.getType() );
-                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}",implementationUrl);
+            } else if (implementationUrl != null) {
+                api.updateImplementationUrl(implementationUrl, !m3, asset.getType());
+                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrl);
             }
             api = api.refresh();
             result.setApi(api);
@@ -143,7 +137,7 @@ public class APIDescriptor {
                 logger.debug("api: {}", api.toString());
             }
             // exchange
-            if(asset != null) {
+            if (asset != null) {
                 asset.provision(environment.getOrganization());
             }
         } catch (AssetCreationException | NotFoundException | IOException e) {
@@ -284,31 +278,17 @@ public class APIDescriptor {
 
     @JsonIgnore
     public synchronized void setAssetVersion(String version) {
-        if( asset == null ) {
+        if (asset == null) {
             asset = new ExchangeAssetDescriptor();
         }
         asset.setVersion(version);
-    }
-
-    @JsonIgnore
-    public String getAssetId() {
-        return asset != null ? asset.getId() : null;
-    }
-
-    public synchronized void setAssetId(String id) {
-        if( asset == null ) {
-            asset = new ExchangeAssetDescriptor();
-        }
-        asset.setId(id);
-    }
-    @JsonIgnore
-    public boolean isAssetCreate() {
-        return asset != null ? asset.getCreate() : null;
     }
 
     public ExchangeAssetDescriptor getAsset() {
         return asset;
     }
 
-
+    public void setAsset(ExchangeAssetDescriptor asset) {
+        this.asset = asset;
+    }
 }

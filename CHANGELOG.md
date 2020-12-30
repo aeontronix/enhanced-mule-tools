@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.7](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.7)
 
-- added appNameCHPrefix
-- added publish-rest-asset goal
+### Added
+
+- appNameCHPrefix
+- publish-rest-asset goal
+- Refactored anypoint.json default values
+- apiVersion with spec dependency will now use dependency apiVersion for default
+- apiVersion with spec file in project now uses version in spec if specified
+- application description will create api entry if not set and apikit router is used in project
+
+### Fixed
+
+- cloudhub appName was being generated with two dashes between artifactId and env name
 
 ## [1.2.6](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.6)
 

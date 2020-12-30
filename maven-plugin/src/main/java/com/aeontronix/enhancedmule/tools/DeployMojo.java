@@ -301,7 +301,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     } else {
                         final Environment environment = getEnvironment();
                         if( !appNameCHSuffixNPOnly || !PRODUCTION.equals(environment.getType()) ) {
-                            appName = appName + "-"+environment.getSuffix();
+                            appName = appName + environment.getSuffix();
                         }
                     }
                     if(appNameCHPrefix != null) {

@@ -32,7 +32,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
     private File assetDescriptorFile;
     @Parameter(property = "emt.buildNumber")
     private String buildNumber;
-    @Parameter(property = "emt.asset.pages", defaultValue = "src${file.separator}main${file.separator}pages")
+    @Parameter(property = "emt.asset.pages", defaultValue = "${project.basedir}${file.separator}src${file.separator}main${file.separator}pages")
     private File assetPagesDir;
     @Parameter(property = "publishrestasset.skip", defaultValue = "false")
     private boolean skip;
@@ -71,7 +71,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
             asset.setDescription(project.getDescription());
         }
         if( asset.getAssetMainFile() == null ) {
-            asset.setAssetMainFile(ApplicationDescriptorParser.findAPISpecFile(asset.getId(),apiSpecDir));
+            asset.setAssetMainFile(ApplicationDescriptorProcessorImpl.findAPISpecFile(asset.getId(),apiSpecDir));
         }
         if( asset.getApiVersion() == null ) {
             final String majorVersion = asset.getMajorVersion();

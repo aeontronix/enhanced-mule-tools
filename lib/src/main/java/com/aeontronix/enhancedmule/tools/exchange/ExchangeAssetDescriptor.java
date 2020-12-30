@@ -4,7 +4,6 @@
 
 package com.aeontronix.enhancedmule.tools.exchange;
 
-import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.io.IOUtils;
@@ -20,6 +19,7 @@ import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 
 import javax.validation.constraints.NotBlank;
@@ -27,8 +27,6 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,7 +72,7 @@ public class ExchangeAssetDescriptor {
     public static File findIcon(File basedir) {
         for (String fn : Arrays.asList("icon.svg", "icon.png", "icon.jpeg", "icon.jpg", "icon.gif")) {
             final File f = new File(basedir, fn);
-            if( f.exists() ) {
+            if (f.exists()) {
                 return f;
             }
         }
@@ -242,33 +240,6 @@ public class ExchangeAssetDescriptor {
 
     public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
-        if (icon != null && icon.getPath() != null) {
-            File iconFile = new File(icon.getPath());
-            if (!iconFile.exists()) {
-                throw new IOException("Unable to find icon file: " + iconFile.getPath());
-            }
-            final Path path = iconFile.toPath();
-            String mimeType = Files.probeContentType(path);
-            if (StringUtils.isBlank(mimeType)) {
-                String fpath = path.toString().toLowerCase();
-                if (fpath.endsWith(".png")) {
-                    mimeType = "image/png";
-                } else if (fpath.endsWith(".svg")) {
-                    mimeType = "image/svg+xml";
-                } else if (fpath.endsWith(".gif")) {
-                    mimeType = "image/gif";
-                } else if (fpath.endsWith(".jpg") || fpath.endsWith(".jpeg")) {
-                    mimeType = "image/jpg";
-                }
-            }
-            if (StringUtils.isNotBlank(mimeType)) {
-                icon.setMimeType(mimeType);
-            } else {
-                throw new IOException("Unable to identity mime-Type of icon image, please specify mimeType in descriptor: " + icon.getPath());
-            }
-            icon.setContent(StringUtils.base64Encode(FileUtils.toByteArray(iconFile)));
-            icon.setPath(null);
-        }
         if (name != null && !name.equals(exchangeAsset.getName())) {
             exchangeAsset.updateName(name);
             plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());
@@ -318,30 +289,31 @@ public class ExchangeAssetDescriptor {
         }
     }
 
+    @JsonIgnore
     public String getMajorVersion() {
         return getMajorVersion(version);
     }
 
     public void findPages(File assetPagesDir) throws IOException {
-        if (assetPagesDir.exists() && assetPagesDir.isDirectory() ) {
+        if (assetPagesDir.exists() && assetPagesDir.isDirectory()) {
             final File[] files = assetPagesDir.listFiles();
-            if( files != null && files.length > 0 ) {
-                if( portal == null ) {
+            if (files != null && files.length > 0) {
+                if (portal == null) {
                     portal = new PortalDescriptor();
                 }
                 List<PortalPageDescriptor> pages = portal.getPages();
-                if( pages == null ) {
+                if (pages == null) {
                     pages = new ArrayList<>();
                     portal.setPages(pages);
                 }
                 for (File file : files) {
-                    if(file.isFile()) {
+                    if (file.isFile()) {
                         final String fileName = file.getName();
                         int idx = fileName.indexOf(".");
-                        if( idx != -1 ) {
+                        if (idx != -1) {
                             final PortalPageDescriptor p = new PortalPageDescriptor();
                             p.setContent(IOUtils.toString(file));
-                            p.setName(fileName.substring(0,idx));
+                            p.setName(fileName.substring(0, idx));
                             pages.add(p);
                         }
                     }
