@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.ReflectionUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
@@ -123,17 +124,41 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
         RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
         if( prep != null) {
-            final RemoteRepository newRepo = new RemoteRepository.Builder(prep).setId(prep.getId())
-                    .setUrl(prep.getUrl())
-                    .setSnapshotPolicy(prep.getPolicy(true))
-                    .setReleasePolicy(prep.getPolicy(false))
-                    .setRepositoryManager(prep.isRepositoryManager())
-                    .setProxy(prep.getProxy())
-                    .setMirroredRepositories(prep.getMirroredRepositories())
-                    .setContentType(prep.getContentType())
-                    .setAuthentication(authenticationSelector.getAuthentication(prep)).build();
-            remoteProjectRepositories.remove(prep);
-            remoteProjectRepositories.add(newRepo);
+            try {
+                logger.debug("Creating new authentication object from selector");
+                final org.eclipse.aether.repository.Authentication authentication = authenticationSelector.getAuthentication(prep);
+                logger.debug("Creating RemoteRepository builder");
+                RemoteRepository.Builder builder = new RemoteRepository.Builder(prep)
+                        .setId(prep.getId())
+                        .setUrl(prep.getUrl())
+                        .setSnapshotPolicy(prep.getPolicy(true))
+                        .setReleasePolicy(prep.getPolicy(false))
+                        .setRepositoryManager(prep.isRepositoryManager())
+                        .setProxy(prep.getProxy())
+                        .setMirroredRepositories(prep.getMirroredRepositories())
+                        .setContentType(prep.getContentType());
+                logger.debug("Setting authentication object");
+                try {
+                    builder = builder.setAuthentication(authentication);
+                } catch (NullPointerException e) {
+                    logger.debug("Weird issue with NPE in builder.setAuthentication() occurred, trying to brute force fix issue");
+                    try {
+                        logger.debug("Prototype={}",ReflectionUtils.get(builder, "prototype"));
+                    } catch (Throwable exception) {
+                        logger.debug("Unable to log prototype :(",exception);
+                    }
+                    ReflectionUtils.set(builder,"prototype",null);
+                    builder = builder.setAuthentication(authentication);
+                }
+                logger.debug("Building RemoteRepository");
+                final RemoteRepository newRepo = builder.build();
+                logger.debug("Removing old remote repository");
+                remoteProjectRepositories.remove(prep);
+                logger.debug("Adding new remote repository");
+                remoteProjectRepositories.add(newRepo);
+            } catch (Exception e) {
+                logger.warn("Unable to add credentials to anypoint exchange maven repository: "+e.getMessage(),e);
+            }
         }
     }
 

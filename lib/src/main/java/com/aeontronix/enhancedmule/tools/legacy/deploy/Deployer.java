@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
@@ -71,7 +72,8 @@ public abstract class Deployer {
                 applicationDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
                 if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
-                    provisioningResult = applicationDescriptor.provision(environment, apiProvisioningConfig, source);
+                    final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService();
+                    provisioningResult = applicationProvisioningService.provision(applicationDescriptor,environment, apiProvisioningConfig, source);
                     final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
                     if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId() ) {
                         final String apiIdProperty = apiDescriptor.getApiIdProperty();

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - cloudhub appName was being generated with two dashes between artifactId and env name
+- Weird unreproducible NPE in EMTExtension->builder.setAuthentication(). Added logic to attempt to work around the issue
 
 ## [1.2.6](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.6)
 

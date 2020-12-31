@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.*;
+import com.aeontronix.enhancedmule.tools.APIProvisioningITCase;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -14,8 +14,12 @@ import com.aeontronix.enhancedmule.tools.api.DesignCenterProject;
 import com.aeontronix.enhancedmule.tools.api.DesignCenterProjectExchange;
 import com.aeontronix.enhancedmule.tools.api.policy.Policy;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.provisioning.api.*;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.provisioning.api.PolicyDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +76,7 @@ public class AbstractAnypointTest {
             env = org.findEnvironmentByName(orgName);
         } else {
             client = new AnypointClient();
-            HttpHelperReplayer httpHelper = new HttpHelperReplayer(client.getJsonHelper(),testRecordingFile);
+            HttpHelperReplayer httpHelper = new HttpHelperReplayer(client.getJsonHelper(), testRecordingFile);
             orgName = httpHelper.getOrgName();
             client.setHttpHelper(httpHelper);
             org = client.findOrganizationByNameOrId(orgName);
@@ -147,7 +151,8 @@ public class AbstractAnypointTest {
     }
 
     protected APIProvisioningResult provision(APIProvisioningConfig config, ApplicationDescriptor apd2) throws ProvisioningException {
-        APIProvisioningResult provision = apd2.provision(env, config, null);
+        final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService();
+        APIProvisioningResult provision = applicationProvisioningService.provision(apd2, env, config, null);
         // todo register client and delete them after tests
         return provision;
     }

@@ -7,11 +7,12 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.api.API;
 import com.aeontronix.enhancedmule.tools.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -41,9 +42,9 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
     protected boolean skipApiProvisioning;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
-    @Parameter(property = "provision.propsfile",required = false)
+    @Parameter(property = "provision.propsfile", required = false)
     private File propFile;
-    @Parameter(property = "provision.includeplatcreds",required = false, defaultValue = "true")
+    @Parameter(property = "provision.includeplatcreds", required = false, defaultValue = "true")
     private boolean includePlatformCreds = true;
 
     @Override
@@ -61,25 +62,27 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 apiProvisioningConfig.setVariables(vars);
             }
             getLog().info("Provisioning started");
-            APIProvisioningResult result = applicationDescriptor.provision(environment, apiProvisioningConfig, null);
+            final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService();
+            APIProvisioningResult result = applicationProvisioningService.provision(applicationDescriptor,
+                    environment, apiProvisioningConfig, null);
             getLog().info("Provisioning complete");
             Properties properties = new Properties();
             API api = result.getApi();
             final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
             if (api != null && apiDescriptor.isInjectApiId()) {
-                getLog().info(apiDescriptor.getApiIdProperty() +"="+api.getId());
+                getLog().info(apiDescriptor.getApiIdProperty() + "=" + api.getId());
                 properties.put(apiDescriptor.getApiIdProperty(), api.getId());
             }
             ClientApplication clientApplication = result.getClientApplication();
             final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
-            if (clientApplication != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec() ) {
-                getLog().info(clientDescriptor.getClientIdProperty()+"="+clientApplication.getClientId());
+            if (clientApplication != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
+                getLog().info(clientDescriptor.getClientIdProperty() + "=" + clientApplication.getClientId());
                 properties.put(clientDescriptor.getClientIdProperty(), clientApplication.getClientId());
                 properties.put(clientDescriptor.getClientSecretProperty(), clientApplication.getClientSecret());
             }
             String envClientId = environment.getClientId();
-            if( includePlatformCreds ) {
-                getLog().info(Deployer.ANYPOINT_PLATFORM_CLIENT_ID+"="+envClientId);
+            if (includePlatformCreds) {
+                getLog().info(Deployer.ANYPOINT_PLATFORM_CLIENT_ID + "=" + envClientId);
                 properties.put(Deployer.ANYPOINT_PLATFORM_CLIENT_ID, envClientId);
                 try {
                     properties.put(Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, environment.getClientSecret());
@@ -90,15 +93,15 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
                 }
             }
             project.getProperties().putAll(properties);
-            if( propFile != null ) {
+            if (propFile != null) {
                 Properties props = new Properties();
-                if( propFile.exists() ) {
-                    try(FileReader in = new FileReader(propFile)) {
+                if (propFile.exists()) {
+                    try (FileReader in = new FileReader(propFile)) {
                         props.load(in);
                     }
                 }
                 props.putAll(properties);
-                try(FileWriter out = new FileWriter(propFile)) {
+                try (FileWriter out = new FileWriter(propFile)) {
                     props.store(out, "");
                 }
             }

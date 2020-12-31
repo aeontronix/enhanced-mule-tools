@@ -46,22 +46,6 @@ public class ApplicationDescriptor {
         return descriptor;
     }
 
-    public APIProvisioningResult provision(Environment environment, APIProvisioningConfig config, ApplicationSource source) throws ProvisioningException {
-        try {
-            APIProvisioningResult result = new APIProvisioningResult();
-            if (api != null) {
-                logger.debug("API descriptor found, provisioning");
-                api.provision(this, environment, config, source, result);
-            }
-            if (client != null) {
-                client.provision(this, environment, config, result);
-            }
-            return result;
-        } catch (Exception e) {
-            throw new ProvisioningException(e);
-        }
-    }
-
     public String getName() {
         return name;
     }
