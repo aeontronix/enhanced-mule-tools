@@ -30,7 +30,6 @@ import java.util.Map;
 
 public class APIDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(APIDescriptor.class);
-    private static final EMTLogger plogger = new EMTLogger(logger);
     private ExchangeAssetDescriptor asset;
     private String implementationUrl;
     private String consumerUrl;
@@ -47,104 +46,6 @@ public class APIDescriptor {
 
     public APIDescriptor() {
     }
-
-    public void provision(ApplicationDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
-        try {
-            ValidationUtils.notNull(IllegalStateException.class, "API Descriptor missing value: asset", asset);
-            final Organization organization = environment.getParent();
-            logger.info("Provisioning " + asset.getId() + " within org " + organization.getName() + " env " + environment.getName());
-            Boolean m3 = cfg.getMule3();
-            if (m3 == null) {
-                m3 = false;
-            }
-            API api;
-            try {
-                api = environment.findAPIByExchangeAssetIdOrNameAndVersion(asset.getId(), asset.getVersion(), label);
-                logger.debug("API " + asset.getId() + " " + asset.getVersion() + " exists: " + api);
-            } catch (NotFoundException e) {
-                logger.debug("API " + asset.getId() + " " + asset.getVersion() + " not found, creating");
-                APISpec apiSpec;
-                try {
-                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
-                } catch (NotFoundException ex) {
-                    if (asset != null) {
-                        if (applicationSource == null) {
-                            throw new AssetCreationException("Cannot create asset due to missing application source (standalone provisioning doesn't support REST asset creation)");
-                        }
-                        if (asset.getCreate()) {
-                            asset.create(environment.getOrganization(), applicationSource);
-                        }
-                    } else {
-                        throw ex;
-                    }
-                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
-                }
-                // now we need to check if there's an existing API with the same productAPIVersion
-                String productAPIVersion = apiSpec.getProductAPIVersion();
-                try {
-                    logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", asset.getId(), productAPIVersion, label);
-                    api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(asset.getId(), productAPIVersion, label);
-                    final String currentAssetVersion = api.getAssetVersion();
-                    if (!currentAssetVersion.equalsIgnoreCase(asset.getVersion())) {
-                        api = api.updateVersion(asset.getVersion());
-                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated asset {} version to {}", api.getAssetId(), asset.getVersion());
-                    }
-                } catch (NotFoundException ex) {
-                    logger.debug("Creating API");
-                    if (implementationUrlJson != null) {
-                        api = environment.createAPI(apiSpec, label, implementationUrlJson, consumerUrl);
-                    } else {
-                        api = environment.createAPI(apiSpec, !m3, implementationUrl, consumerUrl, label, asset.getType());
-                    }
-                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}", api.getAssetId(), asset.getVersion());
-                }
-            }
-            if (policies != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}", api.getAssetId());
-                api.deletePolicies();
-                for (PolicyDescriptor policyDescriptor : policies) {
-                    api.createPolicy(policyDescriptor);
-                }
-            }
-            if (slaTiers != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting SLA Tiers for {}", api.getAssetId());
-                for (SLATierDescriptor slaTierDescriptor : slaTiers) {
-                    try {
-                        SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
-                        slaTier.setAutoApprove(slaTierDescriptor.isAutoApprove());
-                        slaTier.setDescription(slaTierDescriptor.getDescription());
-                        slaTier.setLimits(slaTierDescriptor.getLimits());
-                        slaTier = slaTier.update();
-                    } catch (NotFoundException e) {
-                        api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
-                    }
-                }
-            }
-            if (consumerUrl != null) {
-                api.updateConsumerUrl(consumerUrl);
-                plogger.info(EMTLogger.Product.API_MANAGER, "Updated consumer url to {}", consumerUrl);
-            }
-            if (implementationUrlJson != null) {
-                api.updateImplementationUrl(implementationUrlJson);
-                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrlJson.toString());
-            } else if (implementationUrl != null) {
-                api.updateImplementationUrl(implementationUrl, !m3, asset.getType());
-                plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrl);
-            }
-            api = api.refresh();
-            result.setApi(api);
-            if (logger.isDebugEnabled()) {
-                logger.debug("api: {}", api.toString());
-            }
-            // exchange
-            if (asset != null) {
-                asset.provision(environment.getOrganization());
-            }
-        } catch (AssetCreationException | NotFoundException | IOException e) {
-            throw new ProvisioningException(e);
-        }
-    }
-
 
     @JsonProperty(defaultValue = "true")
     public boolean isInjectApiId() {

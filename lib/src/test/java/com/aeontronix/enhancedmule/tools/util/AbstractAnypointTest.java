@@ -16,10 +16,7 @@ import com.aeontronix.enhancedmule.tools.api.policy.Policy;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.provisioning.api.PolicyDescriptor;
+import com.aeontronix.enhancedmule.tools.provisioning.api.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -151,7 +148,7 @@ public class AbstractAnypointTest {
     }
 
     protected APIProvisioningResult provision(APIProvisioningConfig config, ApplicationDescriptor apd2) throws ProvisioningException {
-        final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService();
+        final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
         APIProvisioningResult provision = applicationProvisioningService.provision(apd2, env, config, null);
         // todo register client and delete them after tests
         return provision;

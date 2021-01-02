@@ -109,12 +109,6 @@ public class API extends AnypointObject<Environment> {
         return jsonHelper.readJson(new SLATier(this), json);
     }
 
-    public void updateConsumerUrl(String consumerUrl) throws HttpException {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("endpointUri", consumerUrl);
-        parent.getClient().getHttpHelper().httpPatch(getUrl(), data);
-    }
-
     public void updateImplementationUrl(String implementationUrl, boolean mule4, Type type) throws HttpException {
         updateImplementationUrl(createImplementationUrlJson(mule4, implementationUrl, type));
     }
@@ -175,7 +169,7 @@ public class API extends AnypointObject<Environment> {
     }
 
     @NotNull
-    private String getUrl() {
+    public String getUrl() {
         return "/apimanager/api/v1/organizations/" + getParent().getParent().getId() + "/environments/" + getParent().getId() + "/apis/" + id;
     }
 

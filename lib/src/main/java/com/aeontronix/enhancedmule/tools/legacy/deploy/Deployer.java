@@ -72,7 +72,7 @@ public abstract class Deployer {
                 applicationDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
                 if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
-                    final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService();
+                    final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
                     provisioningResult = applicationProvisioningService.provision(applicationDescriptor,environment, apiProvisioningConfig, source);
                     final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
                     if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId() ) {

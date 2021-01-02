@@ -42,6 +42,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static com.aeontronix.enhancedmule.tools.util.JsonUtils.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonUtils.isNull;
 import static java.io.File.separator;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -133,21 +135,21 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
     public void setDefaultValues(boolean inheritNameAndDesc) throws IOException {
         String artifactId = project.getArtifactId();
         String version = project.getVersion();
-        if (applicationDescriptor.get(ID) == null) {
+        if (isNull(applicationDescriptor.get(ID))) {
             applicationDescriptor.set(ID, new TextNode(artifactId));
         }
-        if (applicationDescriptor.get(DESCRIPTION) == null && inheritNameAndDesc && StringUtils.isNotBlank(project.getDescription())) {
+        if (isNull(applicationDescriptor.get(DESCRIPTION)) && inheritNameAndDesc && StringUtils.isNotBlank(project.getDescription())) {
             applicationDescriptor.set(DESCRIPTION, new TextNode(project.getDescription()));
         }
-        if (applicationDescriptor.get(NAME) == null && inheritNameAndDesc) {
+        if (isNull(applicationDescriptor.get(NAME)) && inheritNameAndDesc) {
             applicationDescriptor.set(NAME, new TextNode(project.getName()));
         }
-        if (applicationDescriptor.get(VERSION) == null) {
+        if (isNull(applicationDescriptor.get(VERSION))) {
             applicationDescriptor.set(VERSION, new TextNode(version));
         }
         // properties
         ObjectNode properties = (ObjectNode) applicationDescriptor.get(PROPERTIES);
-        if (properties == null) {
+        if (isNull(properties)) {
             properties = objectMapper.createObjectNode();
             applicationDescriptor.set(PROPERTIES, properties);
         }
@@ -155,27 +157,27 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         getOrCreateProperty(objectMapper, properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
         // api
         ObjectNode api = (ObjectNode) applicationDescriptor.get(API);
-        if (api == null && apikit ) {
+        if (isNull(api) && apikit) {
             api = objectMapper.createObjectNode();
-            applicationDescriptor.set(API,api);
+            applicationDescriptor.set(API, api);
         }
-        if (api != null) {
+        if (isNotNull(api)) {
             TextNode apiIdProperty = (TextNode) api.get(API_ID_PROPERTY);
-            if (apiIdProperty == null) {
+            if (isNull(apiIdProperty)) {
                 apiIdProperty = new TextNode("anypoint.api.id");
                 api.set(API_ID_PROPERTY, apiIdProperty);
             }
             getOrCreateProperty(objectMapper, properties, apiIdProperty.textValue(), "Anypoint API identifier", false);
             // asset
             ObjectNode asset = (ObjectNode) api.get(ASSET);
-            if (asset == null) {
+            if (isNull(asset)) {
                 asset = objectMapper.createObjectNode();
                 api.set(ASSET, asset);
             }
             ObjectNode icon = (ObjectNode) asset.get(ICON);
-            if (icon == null) {
+            if (isNull(icon)) {
                 File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
-                if (iconFile != null) {
+                if (iconFile != null && iconFile.exists()) {
                     icon = objectMapper.createObjectNode();
                     if (!iconFile.exists()) {
                         throw new IOException("Unable to find icon file: " + iconFile.getPath());
@@ -205,34 +207,34 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             }
             Dependency dep = findRAMLDependency(project);
             TextNode assetId = (TextNode) asset.get(ID);
-            if (assetId == null) {
+            if (isNull(assetId)) {
                 assetId = new TextNode(dep != null ? dep.getArtifactId() : artifactId + "-spec");
                 asset.set(ID, assetId);
             }
-            if (asset.get(DESCRIPTION) == null && inheritNameAndDesc && applicationDescriptor.get(DESCRIPTION) != null) {
+            if (isNull(asset.get(DESCRIPTION)) && inheritNameAndDesc && applicationDescriptor.get(DESCRIPTION) != null) {
                 asset.set(DESCRIPTION, applicationDescriptor.get(DESCRIPTION));
             }
             BooleanNode assetCreate = (BooleanNode) asset.get(CREATE);
             JsonNode assetMainFile = asset.get(ASSET_MAIN_FILE);
-            if (assetCreate == null || assetMainFile == null) {
+            if (isNull(assetCreate) || isNull(assetMainFile)) {
                 String apiSpecFile = findAPISpecFile(assetId.textValue());
-                if (assetCreate == null) {
+                if (isNull(assetCreate)) {
                     assetCreate = BooleanNode.valueOf(apiSpecFile != null);
                     asset.set(CREATE, assetCreate);
                 }
-                if (assetCreate.asBoolean() && assetMainFile == null && apiSpecFile != null) {
+                if (assetCreate.asBoolean() && isNull(assetMainFile) && apiSpecFile != null) {
                     assetMainFile = new TextNode(apiSpecFile);
                     asset.set(ASSET_MAIN_FILE, assetMainFile);
                 }
             }
-            boolean restAPI = assetMainFile != null || dep != null;
-            boolean raml = assetMainFile != null && assetMainFile.textValue().toLowerCase().endsWith(".raml");
-            if (asset.get(NAME) == null && inheritNameAndDesc) {
+            boolean restAPI = isNotNull(assetMainFile) || dep != null;
+            boolean raml = isNotNull(assetMainFile) && assetMainFile.textValue().toLowerCase().endsWith(".raml");
+            if (isNull(asset.get(NAME)) && inheritNameAndDesc) {
                 asset.set(NAME, applicationDescriptor.get(NAME));
             }
             ObjectNode portal = (ObjectNode) asset.get(PORTAL);
             ArrayNode pages = portal != null ? (ArrayNode) portal.get(PAGES) : null;
-            if (pages != null) {
+            if (isNotNull(pages)) {
                 for (JsonNode page : pages) {
                     if (page.get(CONTENT) == null) {
                         final JsonNode pagePath = page.get(PATH);
@@ -315,7 +317,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                 asset.set(API_VERSION, apiVersion);
             }
             JsonNode assetVersion = asset.get(VERSION);
-            if (assetVersion == null) {
+            if (isNull(assetVersion)) {
                 if (dep != null) {
                     assetVersion = new TextNode(dep.getVersion());
                 } else {
@@ -324,20 +326,20 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                 asset.set(VERSION, assetVersion);
             }
             JsonNode assetType = asset.get(TYPE);
-            if (assetType == null && restAPI) {
+            if (isNull(assetType) && restAPI) {
                 assetType = new TextNode("rest");
                 asset.set(TYPE, assetType);
             }
         }
         final ObjectNode client = (ObjectNode) applicationDescriptor.get(CLIENT);
-        if (client != null) {
+        if (isNotNull(client)) {
             JsonNode clientIdProperty = client.get(CLIENT_ID_PROPERTY);
-            if (clientIdProperty == null) {
+            if (isNull(clientIdProperty)) {
                 clientIdProperty = new TextNode("anypoint.api.client.id");
                 client.set(CLIENT_ID_PROPERTY, clientIdProperty);
             }
             JsonNode clientSecretProperty = client.get(CLIENT_SECRET_PROPERTY);
-            if (clientSecretProperty == null) {
+            if (isNull(clientSecretProperty)) {
                 clientSecretProperty = new TextNode("anypoint.api.client.secret");
                 client.set(CLIENT_SECRET_PROPERTY, clientSecretProperty);
             }
@@ -360,10 +362,6 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             }
         }
         return null;
-    }
-
-    private boolean isNull(JsonNode node) {
-        return node == null || node.isNull();
     }
 
     private static ObjectNode getOrCreateProperty(ObjectMapper objectMapper, ObjectNode properties, String id, String name, boolean secure) {
