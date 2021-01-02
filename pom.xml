@@ -68,7 +68,6 @@
 
     <modules>
         <module>lib</module>
-        <module>cli</module>
         <module>maven-plugin</module>
     </modules>
 

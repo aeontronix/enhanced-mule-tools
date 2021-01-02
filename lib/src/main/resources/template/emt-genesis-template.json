@@ -1,0 +1,25 @@
+{
+  "steps": [
+    {
+      "type": "input",
+      "var": "groupId",
+      "message": "Maven Group Id"
+    },
+    {
+      "type": "input",
+      "var": "artifactId",
+      "message": "Maven Artifact Id"
+    },
+    {
+      "type": "input",
+      "var": "projectName",
+      "message": "Project Name",
+      "default": "${artifactId}"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md"
+    }
+  ]
+}

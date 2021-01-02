@@ -18,12 +18,13 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/anypoint-mockserver/pom.xml" />
+        <option value="$PROJECT_DIR$/cli/pom.xml" />
         <option value="$PROJECT_DIR$/exchange-wagon/pom.xml" />
         <option value="$PROJECT_DIR$/lib-desktop/pom.xml" />
       </set>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="12" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="12" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="TaskProjectConfiguration">

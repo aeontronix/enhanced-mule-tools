@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.HApplication;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;

@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.xml.XmlUtils;
-import com.aeontronix.enhancedmule.tools.application.ApplicationEnhancer;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationEnhancer;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;

@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.enhancedmule.tools.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 
 import java.util.Collections;

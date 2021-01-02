@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.anypoint.exchange;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
-import com.aeontronix.enhancedmule.tools.api.SLATier;
-import com.aeontronix.enhancedmule.tools.api.SLATierNotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
+import com.aeontronix.enhancedmule.tools.anypoint.api.SLATierNotFoundException;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;

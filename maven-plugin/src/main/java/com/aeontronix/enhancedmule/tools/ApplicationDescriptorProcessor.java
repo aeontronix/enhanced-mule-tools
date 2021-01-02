@@ -4,11 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;

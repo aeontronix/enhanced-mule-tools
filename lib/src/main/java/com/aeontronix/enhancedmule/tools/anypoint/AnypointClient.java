@@ -4,21 +4,20 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
-import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
-import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
+import com.aeontronix.commons.FileUtils;
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentService;
-import com.aeontronix.enhancedmule.tools.ocli.OCliClient;
+import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.aeontronix.commons.FileUtils;
-import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.UnexpectedException;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -42,7 +41,6 @@ public class AnypointClient implements Closeable, Serializable {
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
     private DeploymentService deploymentService;
-    private OCliClient cliClient;
     private ModelMapper modelMapper;
 
     /**
@@ -67,11 +65,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     private void init() {
         jsonHelper.setClient(this);
-        try {
-            cliClient = new OCliClient();
-        } catch (IllegalStateException e) {
-            logger.debug("Anypoint cli not available", e);
-        }
         deploymentService = loadService(DeploymentService.class);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
         modelMapper = new ModelMapper();
@@ -98,10 +91,6 @@ public class AnypointClient implements Closeable, Serializable {
             logger.warn("Unable to load anypoint cli configuration", e);
         }
         return false;
-    }
-
-    public OCliClient getCliClient() {
-        return cliClient;
     }
 
     private <X> X loadService(Class<X> serviceClass) {

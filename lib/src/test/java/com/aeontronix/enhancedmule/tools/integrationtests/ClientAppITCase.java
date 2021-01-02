@@ -8,7 +8,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.api.*;
+import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.commons.DataUtils;
 import com.aeontronix.commons.UnexpectedException;

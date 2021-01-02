@@ -5,15 +5,15 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.api.API;
-import com.aeontronix.enhancedmule.tools.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.anypoint.api.API;
+import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
-import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.ApplicationProvisioningService;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningResult;
-import com.aeontronix.enhancedmule.tools.provisioning.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;

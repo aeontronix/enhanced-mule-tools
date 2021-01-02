@@ -4,12 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
-import com.aeontronix.enhancedmule.tools.alert.Alert;
-import com.aeontronix.enhancedmule.tools.alert.AlertUpdate;
-import com.aeontronix.enhancedmule.tools.api.API;
-import com.aeontronix.enhancedmule.tools.api.APIAsset;
-import com.aeontronix.enhancedmule.tools.api.APIList;
-import com.aeontronix.enhancedmule.tools.api.APISpec;
+import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
+import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
+import com.aeontronix.enhancedmule.tools.anypoint.api.API;
+import com.aeontronix.enhancedmule.tools.anypoint.api.APIAsset;
+import com.aeontronix.enhancedmule.tools.anypoint.api.APIList;
+import com.aeontronix.enhancedmule.tools.anypoint.api.APISpec;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHRegion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;

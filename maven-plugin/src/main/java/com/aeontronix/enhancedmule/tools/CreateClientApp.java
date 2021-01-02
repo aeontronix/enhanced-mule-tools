@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;

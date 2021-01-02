@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;

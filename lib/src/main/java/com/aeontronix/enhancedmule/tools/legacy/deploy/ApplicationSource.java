@@ -5,12 +5,11 @@
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
-import com.aeontronix.enhancedmule.tools.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 

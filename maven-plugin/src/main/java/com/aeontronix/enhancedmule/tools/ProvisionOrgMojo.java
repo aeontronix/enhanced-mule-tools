@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.provisioning.OrganizationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.OrganizationDescriptor;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
