@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [[ "${GITHUB_TOKEN}" == "" ]]; then
-  echo GITHUB_TOKEN missing
-  exit 1
-fi
-
 FILE=test.txt
 
 RELVERSION=${POM_VERSION}
