@@ -4,7 +4,8 @@ include:
 
 update-tap:
   dependencies:
-    - build-maven-release-candidates
+#    - build-maven-release-candidates
+    - publish-release
   allow_failure: false
   script:
     - source /usr/bin/prepare-build

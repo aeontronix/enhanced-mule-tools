@@ -2,7 +2,7 @@
 
 FILE=test.txt
 
-RELVERSION=${POM_VERSION}
+RELVERSION=${POM_REL_VERSION}
 DIST_SHA=($(shasum -a 256 cli/target/enhanced-mule-tools-cli-${RELVERSION}.jar))
 
 sed -e "s/@version@/${RELVERSION}/g" -e "s/@checksum@/${DIST_SHA}/" cli/src/main/assembly/emt.tap.rb >cli/target/emt.rb
@@ -15,7 +15,7 @@ SHA=$(curl -s -X GET ${URL} | jq -r .sha)
 
 JSON="{\"path\": \"${FILE}\", \"message\": \"update\", \"content\": \"${CONTENT}\", \"branch\": \"master\", \"sha\": \"${SHA}\" }"
 
-curl --request PUT \
+curl -s --request PUT \
   --url ${URL} \
   --header 'Accept: application/vnd.github.v3+json' \
   --header "Authorization: token ${GITHUB_TOKEN}" \
