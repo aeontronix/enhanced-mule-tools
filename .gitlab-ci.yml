@@ -1,3 +1,8 @@
-include:
-  - project: 'aeontronix/templates/gitlab-pipelines'
-    file: 'maven-oss-lib.yml'
+#include:
+#  - project: 'aeontronix/templates/gitlab-pipelines'
+#    file: 'maven-oss-lib.yml'
+
+update-tap:
+  allow_failure: false
+  script:
+    - git clone
