@@ -15,11 +15,220 @@
       "var": "projectName",
       "message": "Project Name",
       "default": "${artifactId}"
+    },
+    {
+      "type": "input",
+      "var": "emtVersion",
+      "message": "Enhanced Mule Tools Version",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "muleRuntimeVersion",
+      "message": "Mule Runtime Version",
+      "default": "4.3.0",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "muleRuntimeSubVersion",
+      "message": "Mule Runtime Sub Version",
+      "default": "20201013",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "muleMavenPluginVersion",
+      "message": "Mule maven plugin version",
+      "default": "3.3.5",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "projectType",
+      "message": "Project Type",
+      "default": "rest",
+      "options": [
+        {
+          "id": "minimal",
+          "text": "Minimal Application"
+        },
+        {
+          "id": "rest",
+          "text": "REST API (Using APIKit)"
+        }
+      ]
+    },
+    {
+      "type": "conditional",
+      "condition": "${projectType}",
+      "value": "rest",
+      "steps": [
+        {
+          "type": "input",
+          "var": "apiSpecType",
+          "message": "API Spec type",
+          "default": "raml",
+          "options": [
+            {
+              "id": "raml",
+              "text": "RAML"
+            },
+            {
+              "id": "oas2json",
+              "text": "OpenApi 2.0 (JSON)"
+            },
+            {
+              "id": "oas2yaml",
+              "text": "OpenApi 2.0 (YAML)"
+            },
+            {
+              "id": "oas3json",
+              "text": "OpenApi 3.0 (JSON)"
+            },
+            {
+              "id": "oas3yaml",
+              "text": "OpenApi 3.0 (YAML)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "input",
+      "var": "emProperties",
+      "message": "Use enhanced mule property placeholder",
+      "default": "true",
+      "options": [
+        {
+          "id": "true",
+          "text": "Yes"
+        },
+        {
+          "id": "false",
+          "text": "No"
+        }
+      ],
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "emPropertiesVersion",
+      "message": "Enhanced mule property placeholder version",
+      "default": "1.0.0-beta4",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "domain",
+      "message": "Use a domain?",
+      "default": "false",
+      "options": [
+        {
+          "id": "false",
+          "text": "No"
+        },
+        {
+          "id": "true",
+          "text": "Yes"
+        }
+      ]
+    },
+    {
+      "type": "conditional",
+      "condition": "${domain}",
+      "value": "true",
+      "steps": [
+        {
+          "type": "input",
+          "var": "domainGroupId",
+          "message": "Domain Group Id",
+          "default": "${groupId}"
+        },
+        {
+          "type": "input",
+          "var": "domainArtifactId",
+          "message": "Domain Artifact Id"
+        },
+        {
+          "type": "input",
+          "var": "domainVersion",
+          "message": "Domain Version"
+        }
+      ]
+    },
+    {
+      "type": "input",
+      "var": "mavenWrapperDistUrl",
+      "message": "Maven wrapper distribution URL",
+      "default": "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.zip",
+      "advanced": true
+    },
+    {
+      "type": "input",
+      "var": "mavenWrapperUrl",
+      "message": "Maven wrapper jar URL",
+      "default": "https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar",
+      "advanced": true
     }
   ],
   "files": [
     {
       "path": "README.md"
+    },
+    {
+      "path": ".gitignore",
+      "resource": "gitignore.txt"
+    },
+    {
+      "path": "mule-artifact.json"
+    },
+    {
+      "path": "pom.xml",
+      "resource": "pom.xml.ftl"
+    },
+    {
+      "path": "src/main/mule/commons.xml",
+      "resource": "flow-commons.xml"
+    },
+    {
+      "path": "src/main/mule/http-router.xml",
+      "resource": "flow-http-router.xml.ftl",
+      "ignore": "<#if projectType == 'rest'>false<#else>true</#if>"
+    },
+    {
+      "path": "anypoint.json",
+      "resource": "anypoint.json.ftl"
+    },
+    {
+      "path": "src/main/resources/config.yaml",
+      "resource": "config.yaml",
+      "ignore": "${emProperties}"
+    },
+    {
+      "path": "src/main/resources/log4j2.xml",
+      "resource": "log4j2.xml.ftl"
+    },
+    {
+      "path": "src/test/resources/log4j2-test.xml",
+      "resource": "log4j2-test.xml.ftl"
+    },
+    {
+      "path": "mvnw",
+      "process": false
+    },
+    {
+      "path": "mvnw.cmd",
+      "process": false
+    },
+    {
+      "path": ".mvn/wrapper/MavenWrapperDownloader.java",
+      "resource": "MavenWrapperDownloader.java.txt",
+      "process": false
+    },
+    {
+      "path": ".mvn/wrapper/maven-wrapper.properties",
+      "resource": "maven-wrapper.properties.ftl"
     }
   ]
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<#if emProperties == 'true'>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:enhanced-mule-properties="http://www.mulesoft.org/schema/mule/enhanced-mule-properties"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/enhanced-mule-properties http://www.mulesoft.org/schema/mule/enhanced-mule-properties/current/mule-enhanced-mule-properties.xsd">
+    <enhanced-mule-properties:config name="Enhanced_Mule_Properties_Config" doc:name="Enhanced Mule Properties Config" doc:id="${uuid()} "/>
+</mule>
+<#else>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <configuration-properties doc:name="Configuration properties" doc:id="${uuid()} " file="config.yaml" />
+</mule>
+</#if>

@@ -1,0 +1,2 @@
+distributionUrl=${mavenWrapperDistUrl}
+wrapperUrl=${mavenWrapperUrl}
