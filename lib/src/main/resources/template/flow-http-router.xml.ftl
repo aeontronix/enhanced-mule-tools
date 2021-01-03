@@ -3,17 +3,27 @@
   ~ Copyright (c) Aeontronix 2021
   -->
 
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+        http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
 <#if domain != 'yes'>
-    <http:listener-connection host="${r"${listener.http.host}"}" port="${r"${listener.http.port}"}" protocol="HTTPS">
-        <tls:context >
-            <tls:key-store type="jks" path="${r"${listener.http.ks.file}"}" alias="${r"${listener.http.ks.alias}"}" keyPassword="${r"${listener.http.ks.keypw}"}" password="${r"${listener.http.ks.storepw}"}" />
-        </tls:context>
-    </http:listener-connection>
-    <http:listener-config name="http-listener">
-        <http:listener-connection host="${r"${listener.http.host}"}" port="${r"${listener.http.port}"}" />
+    <http:listener-config name="http-listener" doc:name="HTTP Listener config" doc:id="${uuid()}" >
+        <http:listener-connection host="${r"${listener.http.host}"}" port="${r"${listener.http.port}"}" protocol="HTTPS" doc:id="${uuid()}">
+            <tls:context>
+                <tls:key-store type="jks" path="${r"${listener.http.ks.file}"}" alias="${r"${listener.http.ks.alias}"}" keyPassword="${r"${listener.http.ks.keypw}"}" password="${r"${listener.http.ks.storepw}"}" doc:id="${uuid()}" />
+            </tls:context>
+        </http:listener-connection>
     </http:listener-config>
 </#if>
 

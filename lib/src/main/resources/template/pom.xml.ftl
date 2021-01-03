@@ -8,7 +8,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>mule-application</packaging>
 
-	<name>${projectName}</name>
+	<name>${artifactId}</name>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -77,6 +77,12 @@
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-sockets-connector</artifactId>
             <version>1.2.0</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-apikit-module</artifactId>
+            <version>1.3.12</version>
             <classifier>mule-plugin</classifier>
         </dependency>
 </#if>

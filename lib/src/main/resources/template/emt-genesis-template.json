@@ -201,6 +201,11 @@
       "resource": "anypoint.json.ftl"
     },
     {
+      "path": "src/main/resources/api/${artifactId}.<#if apiSpecType == 'raml'>raml<#elseif apiSpecType?ends_with('json')>json<#else>yml</#if>",
+      "resource": "apispec.ftl",
+      "ignore": "<#if projectType == 'rest'>false<#else>true</#if>"
+    },
+    {
       "path": "src/main/resources/config.yaml",
       "resource": "config.yaml",
       "ignore": "${emProperties}"

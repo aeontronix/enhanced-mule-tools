@@ -17,16 +17,16 @@ import static picocli.CommandLine.Help.Visibility.ALWAYS;
 
 @Command(name = "create", aliases = "cr", mixinStandardHelpOptions = true)
 public class ApplicationCreateCmd implements Callable<Integer> {
-    @Parameters(arity = "1", description = "Project artifactId")
+    @Option(names = {"--project-artifact-id", "-i"}, description = "Project Artifact Id")
     private String artifactId;
+    @Option(names = {"--project-name", "-n"}, description = "Project Name")
+    private String projectName;
     @Option(names = {"--dir", "-d"}, description = "directory where the project directory will be created")
     private File parentDir;
     @Option(names = {"--filename", "-f"}, description = "Name of the project directory")
     private String name;
     @Option(names = {"--groupId", "-g"}, description = "Maven group id", defaultValue = "com.company", showDefaultValue = ALWAYS)
     private String groupId;
-    @Option(names = {"--project-name", "-n"}, description = "Project name")
-    private String projectName;
     @Option(names = {"--runtime-version"}, description = "Mule runtime version", defaultValue = "4.3.0", showDefaultValue = ALWAYS)
     private String muleRuntimeVersion;
     @Option(names = {"--runtime-subversion"}, description = "Mule runtime sub-version", defaultValue = "20201013", showDefaultValue = ALWAYS)

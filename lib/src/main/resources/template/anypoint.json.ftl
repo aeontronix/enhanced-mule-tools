@@ -2,6 +2,7 @@
 <#assign restProject = projectType == 'rest'>
 <#assign d = domain == 'true'>
 {
+  "name": "${projectName}"<#if restProject || emp>,</#if>
 <#if restProject>
   "api": {
   }<#if emp>,</#if>
