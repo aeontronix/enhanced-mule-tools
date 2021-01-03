@@ -12,9 +12,6 @@ DIST_SHA=($(shasum -a 256 cli/target/enhanced-mule-tools-cli-1.3.0-alpha3-SNAPSH
 
 sed -e "s/@version@/${RELVERSION}/g" -e "s/@checksum@/${DIST_SHA}/" cli/src/main/assembly/emt.tap.rb
 
-exit 0
-
-
 URL=https://api.github.com/repos/enhanced-mule/homebrew-tools/contents/${FILE}
 
 SHA=$(curl -s -X GET ${URL} | jq -r .sha)
