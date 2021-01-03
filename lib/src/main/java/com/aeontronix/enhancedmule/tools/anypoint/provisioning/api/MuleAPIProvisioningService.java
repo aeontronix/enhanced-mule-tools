@@ -9,10 +9,11 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.APISpec;
 import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
@@ -36,7 +37,7 @@ public class MuleAPIProvisioningService {
         this.client = client;
     }
 
-    public void provisionAPI(APIDescriptor apiDescriptor, ApplicationDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result) throws ProvisioningException {
+    public void provisionAPI(APIDescriptor apiDescriptor, ApplicationDescriptor cfg, Environment environment, APIProvisioningConfig config, ApplicationSource applicationSource, APIProvisioningResult result, ProvisioningRequest provisioningRequest) throws ProvisioningException {
         try {
             final ExchangeAssetDescriptor asset = apiDescriptor.getAsset();
             ValidationUtils.notNull(IllegalStateException.class, "API Descriptor missing value: asset", asset);
@@ -56,18 +57,7 @@ public class MuleAPIProvisioningService {
                 logger.debug("API " + asset.getId() + " " + asset.getVersion() + " exists: " + api);
             } catch (NotFoundException e) {
                 logger.debug("API " + asset.getId() + " " + asset.getVersion() + " not found, creating");
-                APISpec apiSpec;
-                try {
-                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
-                } catch (NotFoundException ex) {
-                    if (applicationSource == null) {
-                        throw new AssetCreationException("Cannot create asset due to missing application source (standalone provisioning doesn't support REST asset creation)");
-                    }
-                    if (asset.getCreate()) {
-                        asset.create(environment.getOrganization(), applicationSource);
-                    }
-                    apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
-                }
+                APISpec apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
                 // now we need to check if there's an existing API with the same productAPIVersion
                 String productAPIVersion = apiSpec.getProductAPIVersion();
                 try {
@@ -128,8 +118,8 @@ public class MuleAPIProvisioningService {
                 logger.debug("api: {}", api.toString());
             }
             // exchange
-            asset.provision(environment.getOrganization());
-        } catch (AssetCreationException | NotFoundException | IOException e) {
+            asset.provision(environment.getOrganization(), provisioningRequest);
+        } catch (NotFoundException | IOException e) {
             throw new ProvisioningException(e);
         }
     }

@@ -1,3 +1,11 @@
 include:
   - project: 'aeontronix/templates/gitlab-pipelines'
     file: 'maven-oss-lib.yml'
+
+update-tap:
+  dependencies:
+    - build-maven-release-candidates
+  allow_failure: false
+  script:
+    - source /usr/bin/prepare-build
+    - sh cli/release.sh

@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.api.policy.Policy;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Contract;
@@ -27,10 +28,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -149,7 +147,7 @@ public class AbstractAnypointTest {
 
     protected APIProvisioningResult provision(APIProvisioningConfig config, ApplicationDescriptor apd2) throws ProvisioningException {
         final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
-        APIProvisioningResult provision = applicationProvisioningService.provision(apd2, env, config, null);
+        APIProvisioningResult provision = applicationProvisioningService.provision(apd2, env, config, null, new ProvisioningRequest("1", false));
         // todo register client and delete them after tests
         return provision;
     }

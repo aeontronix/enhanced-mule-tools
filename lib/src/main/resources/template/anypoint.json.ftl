@@ -5,6 +5,7 @@
   "name": "${projectName}"<#if restProject || emp>,</#if>
 <#if restProject>
   "api": {
+    "addAutoDiscovery": true
   }<#if emp>,</#if>
 </#if>
 <#if emp>

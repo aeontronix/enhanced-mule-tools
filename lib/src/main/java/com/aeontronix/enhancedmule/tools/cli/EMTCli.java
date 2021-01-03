@@ -13,6 +13,14 @@ import picocli.CommandLine.Command;
 public class EMTCli {
     private LineReader reader;
 
+    public boolean isShell() {
+        return reader != null;
+    }
+
+    public LineReader getReader() {
+        return reader;
+    }
+
     public void setReader(LineReader reader) {
         this.reader = reader;
     }

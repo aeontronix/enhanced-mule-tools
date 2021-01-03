@@ -91,6 +91,13 @@
               "text": "OpenApi 3.0 (YAML)"
             }
           ]
+        },
+        {
+          "type": "input",
+          "var": "apiSpecVersion",
+          "message": "API Spec version",
+          "default": "1.0.0-SNAPSHOT",
+          "advanced": true
         }
       ]
     },

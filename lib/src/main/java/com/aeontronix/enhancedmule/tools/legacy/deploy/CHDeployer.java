@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
@@ -40,8 +41,8 @@ public class CHDeployer extends Deployer {
     public CHDeployer(String muleVersionName, String regionName, String workerTypeName, int workerCount,
                       Environment environment, String appName, ApplicationSource file, String filename,
                       APIProvisioningConfig apiProvisioningConfig,
-                      DeploymentConfig deploymentConfig) throws HttpException, NotFoundException {
-        super(environment, appName, file, filename, apiProvisioningConfig, deploymentConfig);
+                      DeploymentConfig deploymentConfig, ProvisioningRequest provisioningRequest) throws HttpException, NotFoundException {
+        super(environment, appName, file, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest);
         this.workerCount = workerCount;
         if (isBlank(muleVersionName)) {
             muleVersion = environment.findDefaultCHMuleVersion();

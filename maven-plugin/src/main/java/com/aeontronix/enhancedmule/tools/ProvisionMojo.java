@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
@@ -25,7 +26,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.UUID;
 
+@Deprecated
 @Mojo(name = "provision", requiresProject = false, defaultPhase = LifecyclePhase.INSTALL)
 public class ProvisionMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.descriptor", required = false, defaultValue = "${project.build.directory}/anypoint.json")
@@ -64,7 +67,7 @@ public class ProvisionMojo extends AbstractEnvironmentalMojo {
             getLog().info("Provisioning started");
             final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(getClient());
             APIProvisioningResult result = applicationProvisioningService.provision(applicationDescriptor,
-                    environment, apiProvisioningConfig, null);
+                    environment, apiProvisioningConfig, null, new ProvisioningRequest(UUID.randomUUID().toString(), true));
             getLog().info("Provisioning complete");
             Properties properties = new Properties();
             API api = result.getApi();

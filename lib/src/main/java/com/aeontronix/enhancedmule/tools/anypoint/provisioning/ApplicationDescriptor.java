@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.*;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
@@ -115,5 +116,14 @@ public class ApplicationDescriptor {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @JsonIgnore
+    public boolean isAssetPublish() {
+        if( api != null && api.getAsset() != null ) {
+            final Boolean create = api.getAsset().getCreate();
+            return create != null && create;
+        }
+        return false;
     }
 }

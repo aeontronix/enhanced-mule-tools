@@ -11,7 +11,7 @@ import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
@@ -573,7 +573,7 @@ public class Organization extends AnypointObject {
         throw new NotFoundException("Rolegroup named " + name + " not found");
     }
 
-    public void createExchangeHTTPAPIAsset(String groupId, String name, String assetId, String version, String apiVersion) throws AssetCreationException {
+    public void createExchangeHTTPAPIAsset(String groupId, String name, String assetId, String version, String apiVersion) throws AssetProvisioningException {
         HttpHelper.MultiPartRequest req = httpHelper.createAnypointMultiPartPostRequest("/exchange/api/v1/assets", null);
         req.addText("organizationId", id);
         req.addText("groupId", groupId == null ? id : groupId);
@@ -586,7 +586,7 @@ public class Organization extends AnypointObject {
         try {
             req.execute();
         } catch (IOException e) {
-            throw new AssetCreationException(e);
+            throw new AssetProvisioningException(e);
         }
     }
 

@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
@@ -29,8 +30,8 @@ public class HDeployer extends Deployer {
 
     public HDeployer(Server target, String appName, ApplicationSource file, String filename,
                      @NotNull APIProvisioningConfig apiProvisioningConfig,
-                     @NotNull DeploymentConfig deploymentConfig) {
-        super(target.getParent(), appName, file, filename, apiProvisioningConfig, deploymentConfig);
+                     @NotNull DeploymentConfig deploymentConfig, ProvisioningRequest provisioningRequest) {
+        super(target.getParent(), appName, file, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest);
         this.target = target;
     }
 

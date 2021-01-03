@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.validation.ValidationUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.IconDescriptor;
@@ -36,6 +37,8 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
     private File assetPagesDir;
     @Parameter(property = "publishrestasset.skip", defaultValue = "false")
     private boolean skip;
+    @Parameter(property = "emt.provisioning.deletesnapshots", defaultValue = "true")
+    private boolean deleteSnapshots;
 
     public PublishRestExchangeAssetMojo() {
     }
@@ -92,7 +95,8 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
         ValidationUtils.validate(asset, InvalidAnypointDescriptorException.class);
         final HashMap<String, File> specFiles = new HashMap<>();
         addFile(specFiles,null,apiSpecDir);
-        asset.create(getOrganization(), new APISpecSource() {
+        final ProvisioningRequest provisioningRequest = new ProvisioningRequest(buildNumber,deleteSnapshots);
+        asset.publish(getOrganization(), new APISpecSource() {
             @Override
             public Set<String> listAPISpecFiles() throws IOException {
                 return specFiles.keySet();
@@ -104,8 +108,8 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
                     IOUtils.copy(fis,os);
                 }
             }
-        });
-        asset.provision(getOrganization());
+        }, provisioningRequest);
+        asset.provision(getOrganization(), provisioningRequest);
     }
 
     private void addFile(HashMap<String, File> specFiles, String path, File file) {

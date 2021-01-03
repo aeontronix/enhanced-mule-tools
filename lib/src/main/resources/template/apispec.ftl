@@ -1,13 +1,13 @@
 <#-- @formatter:off -->
 <#if apiSpecType == 'raml'>
 #%RAML 1.0
-title: foo-raml
-version: 1.0.0
+title: ${artifactId}
+version: ${apiSpecVersion}
 <#elseif apiSpecType == 'oas2json'>
 {
     "swagger": "2.0",
     "info": {
-        "version": "1.0.0",
+        "version": "${apiSpecVersion}",
         "title": "${artifactId}"
     },
     "paths": {}
@@ -15,14 +15,14 @@ version: 1.0.0
 <#elseif apiSpecType == 'oas2yaml'>
 swagger: "2.0"
 info:
-    version: 1.0.0
-    title: foo-yml
+    version: ${apiSpecVersion}
+    title: ${artifactId}
 paths: {}
 <#elseif apiSpecType == 'oas3json'>
 {
     "openapi": "3.0.0",
     "info": {
-        "version": "1.0.0",
+        "version": "${apiSpecVersion}",
         "title": "oas3json"
     },
     "paths": {}
@@ -30,8 +30,8 @@ paths: {}
 <#elseif apiSpecType == 'oas3yaml'>
 openapi: "3.0.0"
 info:
-    version: 1.0.0
-    title: foo-yml
+    version: ${apiSpecVersion}
+    title: ${artifactId}
 paths: {}
 </#if>
 <#-- @formatter:on -->

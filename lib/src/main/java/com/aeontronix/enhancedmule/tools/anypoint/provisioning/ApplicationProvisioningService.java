@@ -26,13 +26,13 @@ public class ApplicationProvisioningService {
     }
 
     public APIProvisioningResult provision(ApplicationDescriptor applicationDescriptor, Environment environment,
-                                           APIProvisioningConfig config, ApplicationSource source) throws ProvisioningException {
+                                           APIProvisioningConfig config, ApplicationSource source, ProvisioningRequest provisioningRequest) throws ProvisioningException {
         try {
             APIProvisioningResult result = new APIProvisioningResult();
             final APIDescriptor api = applicationDescriptor.getApi();
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
-                muleAPIProvisioningService.provisionAPI(api, applicationDescriptor, environment, config, source, result);
+                muleAPIProvisioningService.provisionAPI(api, applicationDescriptor, environment, config, source, result, provisioningRequest);
             }
             final ClientApplicationDescriptor client = applicationDescriptor.getClient();
             if (client != null) {

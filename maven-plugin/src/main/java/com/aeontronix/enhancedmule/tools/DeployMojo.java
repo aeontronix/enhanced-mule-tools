@@ -8,14 +8,15 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
+import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.*;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeployer;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
@@ -233,17 +234,17 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.buildnumber")
     private String buildNumber;
-    @Parameter(property = "anypoint.deploy.rtf.cpu.reserved",defaultValue = "20m")
+    @Parameter(property = "anypoint.deploy.rtf.cpu.reserved", defaultValue = "20m")
     private String cpuReserved;
-    @Parameter(property = "anypoint.deploy.rtf.cpu.limit",defaultValue = "1700m")
+    @Parameter(property = "anypoint.deploy.rtf.cpu.limit", defaultValue = "1700m")
     private String cpuLimit;
-    @Parameter(property = "anypoint.deploy.rtf.memory.reserved",defaultValue = "700Mi")
+    @Parameter(property = "anypoint.deploy.rtf.memory.reserved", defaultValue = "700Mi")
     private String memoryReserved;
-    @Parameter(property = "anypoint.deploy.rtf.memory.limit",defaultValue = "700Mi")
+    @Parameter(property = "anypoint.deploy.rtf.memory.limit", defaultValue = "700Mi")
     private String memoryLimit;
-    @Parameter(property = "anypoint.deploy.rtf.clustered",defaultValue = "false")
+    @Parameter(property = "anypoint.deploy.rtf.clustered", defaultValue = "false")
     private boolean clustered;
-    @Parameter(property = "anypoint.deploy.rtf.xnodereplicas",defaultValue = "false")
+    @Parameter(property = "anypoint.deploy.rtf.xnodereplicas", defaultValue = "false")
     private boolean enforceDeployingReplicasAcrossNodes;
     @Parameter(property = "anypoint.deploy.rtf.http.inbound.publicUrl")
     private String httpInboundPublicUrl;
@@ -255,20 +256,23 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     private boolean lastMileSecurity;
     @Parameter(property = "anypoint.deploy.rtf.forwardSslSession")
     private boolean forwardSslSession;
-    @Parameter(property = "anypoint.deploy.rtf.updatestrategy",defaultValue = "ROLLING")
+    @Parameter(property = "anypoint.deploy.rtf.updatestrategy", defaultValue = "ROLLING")
     private RTFDeploymentConfig.DeploymentModel updateStrategy;
-    @Parameter(property = "anypoint.deploy.rtf.replicas",defaultValue = "1")
+    @Parameter(property = "anypoint.deploy.rtf.replicas", defaultValue = "1")
     private int replicas;
+    @Parameter(property = "emt.provisioning.deletesnapshots", defaultValue = "true")
+    private boolean deleteSnapshots;
+    private ProvisioningRequest provisioningRequest;
 
     @Override
     protected void doExecute() throws Exception {
         if (!skipDeploy) {
-            if( target == null && legacyTarget != null ) {
+            if (target == null && legacyTarget != null) {
                 target = legacyTarget;
             }
-            logger.debug("Deploy target: {}",target);
+            logger.debug("Deploy target: {}", target);
             // handle deprecated vars
-            if( chMuleVersionName == null && muleVersionName != null ) {
+            if (chMuleVersionName == null && muleVersionName != null) {
                 logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
                 chMuleVersionName = muleVersionName;
             }
@@ -296,15 +300,15 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     appName = source.getArtifactId();
                 }
                 if (StringUtils.isBlank(target) || "cloudhub".equalsIgnoreCase(target)) {
-                    if( appNameCHSuffix != null ) {
+                    if (appNameCHSuffix != null) {
                         appName = appName + appNameCHSuffix;
                     } else {
                         final Environment environment = getEnvironment();
-                        if( !appNameCHSuffixNPOnly || !PRODUCTION.equals(environment.getType()) ) {
+                        if (!appNameCHSuffixNPOnly || !PRODUCTION.equals(environment.getType())) {
                             appName = appName + environment.getSuffix();
                         }
                     }
-                    if(appNameCHPrefix != null) {
+                    if (appNameCHPrefix != null) {
                         appName = appNameCHPrefix + appName;
                     }
                 }
@@ -344,7 +348,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         }
                     }
                 }
-                if(injectEnvInfo) {
+                if (injectEnvInfo) {
                     try {
                         final Environment environment = getEnvironment();
                         properties.put("anypoint.env.name", environment.getName());
@@ -354,8 +358,8 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     } catch (NotFoundException e) {
                         logger.debug("No environment, skipping settings properties for env");
                     }
-                    properties.put("anypoint.org.name",getOrganization().getName());
-                    properties.put("anypoint.org.id",getOrganization().getId());
+                    properties.put("anypoint.org.name", getOrganization().getName());
+                    properties.put("anypoint.org.id", getOrganization().getId());
                 }
                 deploymentConfig.setProperties(properties);
                 deploymentConfig.setMergeExistingProperties(mergeExistingProperties);
@@ -380,9 +384,10 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @SuppressWarnings("Duplicates")
     protected DeploymentResult deploy(@NotNull APIProvisioningConfig apiProvisioningConfig,
                                       @NotNull DeploymentConfig deploymentConfig) throws Exception {
-        if( buildNumber == null ) {
+        if (buildNumber == null) {
             buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
         }
+        provisioningRequest = new ProvisioningRequest(buildNumber,deleteSnapshots);
         if (project != null) {
             findDeployProperties(project.getProperties());
         }
@@ -401,7 +406,7 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     deploymentConfig.setExtMonitoring(extMonitoring);
                     deploymentConfig.setStaticIPs(staticIPs);
                     return new CHDeployer(chMuleVersionName, region, workerType, workerCount, getEnvironment(), appName,
-                            applicationSource, filename, apiProvisioningConfig, deploymentConfig).deploy();
+                            applicationSource, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest).deploy();
                 } catch (ProvisioningException | IOException | NotFoundException e) {
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
@@ -414,18 +419,18 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                         try {
                             Server server = getEnvironment().findServerByName(target);
                             return new HDeployer(server, appName, applicationSource, filename,
-                                    apiProvisioningConfig, deploymentConfig).deploy();
+                                    apiProvisioningConfig, deploymentConfig, provisioningRequest).deploy();
                         } catch (NotFoundException e) {
                             final Fabric fabric = getOrganization().findFabricByName(target);
                             final ApplicationIdentifier appId;
-                            if( applicationSource instanceof FileApplicationSource ) {
+                            if (applicationSource instanceof FileApplicationSource) {
                                 appId = uploadToExchange(applicationSource);
                             } else {
                                 ExchangeApplicationSource eApp = (ExchangeApplicationSource) applicationSource;
-                                appId = new ApplicationIdentifier(eApp.getGroupId(),eApp.getArtifactId(),eApp.getVersion());
+                                appId = new ApplicationIdentifier(eApp.getGroupId(), eApp.getArtifactId(), eApp.getVersion());
                             }
                             return new RTFDeployer(fabric, getEnvironment(), appName, applicationSource, filename,
-                                    apiProvisioningConfig, deploymentConfig, appId).deploy();
+                                    apiProvisioningConfig, deploymentConfig, appId, provisioningRequest).deploy();
                         }
                     }
                 } catch (NotFoundException e) {

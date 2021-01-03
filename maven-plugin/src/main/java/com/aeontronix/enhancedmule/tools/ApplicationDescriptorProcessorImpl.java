@@ -10,6 +10,7 @@ import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.util.APISpecHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -218,6 +219,9 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             JsonNode assetMainFile = asset.get(ASSET_MAIN_FILE);
             if (isNull(assetCreate) || isNull(assetMainFile)) {
                 String apiSpecFile = findAPISpecFile(assetId.textValue());
+                if( apiSpecFile == null ) {
+                    apiSpecFile = findAPISpecFile(artifactId);
+                }
                 if (isNull(assetCreate)) {
                     assetCreate = BooleanNode.valueOf(apiSpecFile != null);
                     asset.set(CREATE, assetCreate);
@@ -229,6 +233,11 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             }
             boolean restAPI = isNotNull(assetMainFile) || dep != null;
             boolean raml = isNotNull(assetMainFile) && assetMainFile.textValue().toLowerCase().endsWith(".raml");
+            APISpecHelper.APISpecVersion apiSpecVersion = null;
+            if( isNotNull(assetMainFile) ) {
+                final File apiSpecFile = new File(apiSpecDir, assetMainFile.textValue());
+                apiSpecVersion = APISpecHelper.findVersion(apiSpecFile);
+            }
             if (isNull(asset.get(NAME)) && inheritNameAndDesc) {
                 asset.set(NAME, applicationDescriptor.get(NAME));
             }
@@ -294,21 +303,8 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                     if (assetAPIVersion == null) {
                         assetAPIVersion = dep.getVersion();
                     }
-                } else if (assetMainFile != null) {
-                    final File f = new File(apiSpecDir, assetMainFile.textValue());
-                    if (f.exists()) {
-                        ObjectMapper om;
-                        if (f.getName().toLowerCase().endsWith("json")) {
-                            om = new ObjectMapper();
-                        } else {
-                            om = new YAMLMapper();
-                        }
-                        final JsonNode specNode = om.readTree(f);
-                        final JsonNode specVersionNode = specNode.get(VERSION);
-                        if (specVersionNode != null) {
-                            assetAPIVersion = specVersionNode.textValue();
-                        }
-                    }
+                } else if( apiSpecVersion != null ) {
+                    assetAPIVersion = apiSpecVersion.getNonSnapshotVersion();
                 }
                 if (assetAPIVersion == null) {
                     assetAPIVersion = version != null ? version : "1.0.0";
@@ -320,6 +316,8 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             if (isNull(assetVersion)) {
                 if (dep != null) {
                     assetVersion = new TextNode(dep.getVersion());
+                } else if( apiSpecVersion != null ) {
+                    assetVersion = new TextNode(apiSpecVersion.getVersion());
                 } else {
                     assetVersion = new TextNode(version);
                 }

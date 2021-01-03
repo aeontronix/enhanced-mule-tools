@@ -39,6 +39,12 @@ class ApplicationDescriptorProcessorTest {
         helper.testDefaultValues();
     }
 
+    @Test
+    public void testWithAPISpecSnapshot() throws Exception {
+        final Helper helper = new Helper("withramlspecSnapshot", true);
+        helper.testDefaultValues();
+    }
+
     public class Helper {
         private final File baseDir;
         MavenProject project;

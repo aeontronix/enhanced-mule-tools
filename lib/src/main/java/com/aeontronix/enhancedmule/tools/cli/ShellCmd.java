@@ -1,11 +1,15 @@
 package com.aeontronix.enhancedmule.tools.cli;
 
+import com.aeontronix.enhancedmule.tools.util.MavenExecutor;
+import org.jline.console.CmdDesc;
+import org.jline.console.CommandRegistry;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
+import org.jline.reader.impl.completer.SystemCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.TailTipWidgets;
@@ -15,10 +19,11 @@ import picocli.shell.jline3.PicocliCommands;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-@Command(name = "shell")
+@Command(name = "shell",aliases = "sh")
 public class ShellCmd implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
@@ -27,8 +32,6 @@ public class ShellCmd implements Callable<Integer> {
             // set up JLine built-in commands
             Builtins builtins = new Builtins(workDir, null, null);
             builtins.rename(Builtins.Command.TTOP, "top");
-            builtins.alias("zle", "widget");
-            builtins.alias("bindkey", "keymap");
             // set up picocli commands
             EMTCli commands = new EMTCli();
 
@@ -47,7 +50,7 @@ public class ShellCmd implements Callable<Integer> {
                     .jna(true).jansi(false)
                     .build()) {
                 SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, workDir, null);
-                systemRegistry.setCommandRegistries(builtins, picocliCommands);
+                systemRegistry.setCommandRegistries(builtins, picocliCommands, new MavenExecutor());
                 systemRegistry.register("help", picocliCommands);
 
                 LineReader reader = LineReaderBuilder.builder()

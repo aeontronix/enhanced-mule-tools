@@ -9,10 +9,11 @@ import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCreationException;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APICustomFieldDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.portal.PortalDescriptor;
@@ -202,43 +203,55 @@ public class ExchangeAssetDescriptor {
         }
     }
 
-    public void create(Organization organization, APISpecSource apiSpecSource) throws AssetCreationException {
+    public boolean publish(Organization organization, APISpecSource apiSpecSource, @NotNull ProvisioningRequest provisioningRequest) throws AssetProvisioningException {
         try {
-            if (type == API.Type.HTTP) {
-                organization.createExchangeHTTPAPIAsset(null, name, id, version, apiVersion);
-                plogger.info(EMTLogger.Product.EXCHANGE, "Created HTTP asset : {} : {} : {}", id, version, apiVersion);
-            } else {
-                if (StringUtils.isBlank(assetMainFile)) {
-                    throw new AssetCreationException("assetMainFile is required for API asset creation");
-                }
-                String assetClassifier = getClassifier();
-                try (TempFile apiSpecFile = new TempFile(id + "-" + version, ".zip")) {
-                    final Set<String> files = apiSpecSource.listAPISpecFiles();
-                    if (!files.contains(assetMainFile)) {
-                        throw new IOException("asset main file not found: " + assetMainFile);
+            if (version.toLowerCase().endsWith("-snapshot")) {
+                final String oldVersion = this.version;
+                this.version = oldVersion + "-" + provisioningRequest.getId();
+                plogger.info(EMTLogger.Product.EXCHANGE, "Snapshot version: {} => {}", oldVersion, this.version);
+            }
+            try {
+                organization.findExchangeAssetVersion(groupId, id, version);
+            } catch (NotFoundException e) {
+                plogger.info(EMTLogger.Product.EXCHANGE, "Exchange asset {} : {} not found, publishing", id, version);
+                if (type == API.Type.HTTP) {
+                    organization.createExchangeHTTPAPIAsset(null, name, id, version, apiVersion);
+                    plogger.info(EMTLogger.Product.EXCHANGE, "Created HTTP asset : {} : {} : {}", id, version, apiVersion);
+                } else {
+                    if (StringUtils.isBlank(assetMainFile)) {
+                        throw new AssetProvisioningException("assetMainFile is required for API asset creation");
                     }
-                    try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(apiSpecFile))) {
-                        for (String file : files) {
-                            os.putNextEntry(new ZipEntry(file));
-                            apiSpecSource.writeAPISpecFile(file, os);
-                            os.closeEntry();
+                    String assetClassifier = getClassifier();
+                    try (TempFile apiSpecFile = new TempFile(id + "-" + version, ".zip")) {
+                        final Set<String> files = apiSpecSource.listAPISpecFiles();
+                        if (!files.contains(assetMainFile)) {
+                            throw new IOException("asset main file not found: " + assetMainFile);
                         }
+                        try (ZipOutputStream os = new ZipOutputStream(new FileOutputStream(apiSpecFile))) {
+                            for (String file : files) {
+                                os.putNextEntry(new ZipEntry(file));
+                                apiSpecSource.writeAPISpecFile(file, os);
+                                os.closeEntry();
+                            }
+                        }
+                        organization.publishExchangeAPIAsset(name, id,
+                                version, apiVersion, assetClassifier, assetMainFile, apiSpecFile);
+                        plogger.info(EMTLogger.Product.EXCHANGE, "Created API asset : {} : {} : {}", id, version, apiVersion);
                     }
-                    organization.publishExchangeAPIAsset(name, id,
-                            version, apiVersion, assetClassifier, assetMainFile, apiSpecFile);
-                    plogger.info(EMTLogger.Product.EXCHANGE, "Created API asset : {} : {} : {}", id, version, apiVersion);
                 }
+                return true;
             }
         } catch (IOException e) {
-            throw new AssetCreationException(e);
+            throw new AssetProvisioningException(e);
         }
+        return false;
     }
 
     public String getClassifier() {
         return assetMainFile != null ? (assetMainFile.toLowerCase().endsWith(".raml") ? "raml" : "oas") : null;
     }
 
-    public void provision(Organization organization) throws IOException, NotFoundException {
+    public void provision(Organization organization, ProvisioningRequest provisioningRequest) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
         if (name != null && !name.equals(exchangeAsset.getName())) {
             exchangeAsset.updateName(name);

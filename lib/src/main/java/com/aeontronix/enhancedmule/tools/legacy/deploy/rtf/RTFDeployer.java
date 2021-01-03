@@ -11,6 +11,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
@@ -33,8 +34,8 @@ public class RTFDeployer extends Deployer {
 
     public RTFDeployer(Fabric fabric, Environment environment, String appName, ApplicationSource applicationSource, String filename,
                        APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig,
-                       ApplicationIdentifier appId) {
-        super(environment, appName, applicationSource, filename, apiProvisioningConfig, deploymentConfig);
+                       ApplicationIdentifier appId, ProvisioningRequest provisioningRequest) {
+        super(environment, appName, applicationSource, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest);
         this.fabric = fabric;
         this.appId = appId;
     }

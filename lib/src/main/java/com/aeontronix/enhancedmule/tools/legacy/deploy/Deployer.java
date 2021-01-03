@@ -4,21 +4,21 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.*;
-import com.aeontronix.enhancedmule.tools.util.EMTLogger;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
-import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.*;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
+import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.Unpacker;
 import com.aeontronix.unpack.transformer.SetPropertyTransformer;
@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.aeontronix.commons.Required.CREATE;
@@ -46,19 +49,21 @@ public abstract class Deployer {
     protected APIProvisioningConfig apiProvisioningConfig;
     protected DeploymentConfig deploymentConfig;
     protected ApplicationDescriptor applicationDescriptor;
+    protected ProvisioningRequest provisioningRequest;
 
     public Deployer() {
     }
 
     public Deployer(Environment environment, String appName, ApplicationSource source, String filename,
                     APIProvisioningConfig apiProvisioningConfig,
-                    @NotNull DeploymentConfig deploymentConfig) {
+                    @NotNull DeploymentConfig deploymentConfig, @NotNull ProvisioningRequest provisioningRequest) {
         this.environment = environment;
         this.appName = appName;
         this.source = source;
         this.filename = filename;
         this.apiProvisioningConfig = apiProvisioningConfig;
         this.deploymentConfig = deploymentConfig;
+        this.provisioningRequest = provisioningRequest;
     }
 
     public DeploymentResult deploy() throws ProvisioningException, IOException, HttpException {
@@ -72,19 +77,26 @@ public abstract class Deployer {
                 applicationDescriptor = source.getAnypointDescriptor(apiProvisioningConfig);
                 if (applicationDescriptor != null) {
                     logger.debug("Found anypoint provisioning file, provisioning");
+                    final Organization organization = environment.getOrganization();
                     final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
-                    provisioningResult = applicationProvisioningService.provision(applicationDescriptor,environment, apiProvisioningConfig, source);
+                    boolean assetPublished = false;
+                    final ExchangeManagementClient exchangeManagementClient = new ExchangeManagementClient();
+                    if (applicationDescriptor.isAssetPublish()) {
+                        final ExchangeAssetDescriptor asset = applicationDescriptor.getApi().getAsset();
+                        assetPublished = exchangeManagementClient.publish(asset, organization, source, provisioningRequest);
+                    }
+                    provisioningResult = applicationProvisioningService.provision(applicationDescriptor, environment, apiProvisioningConfig, source, provisioningRequest);
                     final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
-                    if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId() ) {
+                    if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId()) {
                         final String apiIdProperty = apiDescriptor.getApiIdProperty();
-                        if( apiIdProperty == null ) {
+                        if (apiIdProperty == null) {
                             throw new IllegalArgumentException("apiIdProperty musn't be null");
                         }
                         deploymentConfig.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
                         deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
                         try {
                             final String clientSecret = environment.getClientSecret();
-                            if( clientSecret != null ) {
+                            if (clientSecret != null) {
                                 deploymentConfig.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
                             }
                         } catch (HttpException e) {
@@ -93,16 +105,19 @@ public abstract class Deployer {
                             }
                         }
                     }
+                    if (assetPublished && provisioningRequest.isDeleteSnapshots()) {
+                        exchangeManagementClient.deleteSnapshots(organization, applicationDescriptor.getApi().getAsset());
+                    }
                     final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
                     ClientApplication clientApp = provisioningResult.getClientApplication();
                     if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
                         final String clientIdProperty = clientDescriptor.getClientIdProperty();
-                        if( clientIdProperty == null ) {
+                        if (clientIdProperty == null) {
                             throw new IllegalStateException("client descriptor id property musn't be null");
                         }
                         deploymentConfig.setOverrideProperty(clientIdProperty, clientApp.getClientId());
                         final String clientSecretProperty = clientDescriptor.getClientSecretProperty();
-                        if( clientSecretProperty == null ) {
+                        if (clientSecretProperty == null) {
                             throw new IllegalStateException("client descriptor id property musn't be null");
                         }
                         deploymentConfig.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
@@ -116,18 +131,18 @@ public abstract class Deployer {
                 for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
                     if (propertyDescriptor.isSecure()) {
                         String pVal = deploymentConfig.getProperties().remove(propertyDescriptor.getKey());
-                        deploymentConfig.addFileProperty(propertyDescriptor.getKey(),pVal);
+                        deploymentConfig.addFileProperty(propertyDescriptor.getKey(), pVal);
                     }
                 }
             }
             final Map<String, String> fileProperties = deploymentConfig.getFileProperties();
             if (fileProperties != null && !fileProperties.isEmpty()) {
-                if( logger.isDebugEnabled() ) {
-                    logger.debug("File properties injected into application: {}",fileProperties);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("File properties injected into application: {}", fileProperties);
                     for (Map.Entry<String, String> entry : fileProperties.entrySet()) {
-                        logger.debug("> {} = {}",entry.getKey(),entry.getValue());
+                        logger.debug("> {} = {}", entry.getKey(), entry.getValue());
                     }
-                    logger.debug("filePropertiesPath= {}",deploymentConfig.getFilePropertiesPath());
+                    logger.debug("filePropertiesPath= {}", deploymentConfig.getFilePropertiesPath());
                 }
                 transformers.add(new SetPropertyTransformer(deploymentConfig.getFilePropertiesPath(), CREATE,
                         new HashMap<>(fileProperties)));
