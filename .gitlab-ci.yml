@@ -8,4 +8,4 @@ update-tap:
   allow_failure: false
   script:
     - source /usr/bin/prepare-build
-    - sh cli/release.sh
+    - source cli/release.sh
