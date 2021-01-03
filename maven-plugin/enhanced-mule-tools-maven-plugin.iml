@@ -27,7 +27,7 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: info.picocli:picocli:4.5.2" level="project" />
     <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.genesis:genesis-templating:1.0.0-beta3-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.genesis:genesis-templating:1.0.0-beta3" level="project" />
     <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.30" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.kryptotek:kryptotek-core:1.1.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.jr:jackson-jr-objects:2.11.3" level="project" />
