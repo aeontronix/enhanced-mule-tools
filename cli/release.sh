@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+source /usr/bin/prepare-build
+
 FILE=formula/emt.rb
 
 RELVERSION=${POM_REL_VERSION}
@@ -22,3 +26,13 @@ curl -s --request PUT \
   --header 'Content-Type: application/json' \
   --data "${JSON}"
 
+#echo Creating gitlab release
+#
+#if [[ "${POM_REL_VERSION}" =~ .*"beta".* ]] || [[ "${POM_REL_VERSION}" =~ .*"alpha".* ]]; then
+#  echo "Skipping GL release for beta/alpha release version: ${POM_REL_VERSION}"
+#else
+#  echo "Creating gitlab release"
+#  curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${GL_TOKEN}" \
+#     --data "{ \"name\": \"v${POM_REL_VERSION}\", \"tag_name\": \"v${POM_REL_VERSION}\", \"description\": \"Release v${POM_REL_VERSION}\", \"assets\": { \"links\": [{ \"name\": \"CLI Distribution (ZIP)\", \"url\": \"https://repo1.maven.org/maven2/com/aeontronix/enhanced-mule/enhanced-mule-tools-cli/${POM_REL_VERSION}/enhanced-mule-tools-cli-${POM_REL_VERSION}dist.zip\" }] } }" \
+#     --request POST "https://gitlab.com/api/v4/projects/14801271/releases"
+#fi
