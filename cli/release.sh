@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILE=test.txt
+FILE=formula/emt.rb
 
 RELVERSION=${POM_REL_VERSION}
 DIST_SHA=($(shasum -a 256 cli/target/enhanced-mule-tools-cli-${RELVERSION}.jar))

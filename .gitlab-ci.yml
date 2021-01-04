@@ -68,7 +68,6 @@ publish-release:
     - mvn $MAVEN_CLI_OPTS versions:set ${MAVEN_FULL_OPTS} -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DoldVersion='*' -DnewVersion=${POM_REL_VERSION}
     - git commit -a -m "release ${POM_REL_VERSION}"
     - mvn ${MAVEN_FULLCLI_OPTS} deploy ${MAVEN_FULL_OPTS} ${MAVEN_RELEASES_OPTS} ${MAVEN_RREPO_OPTS}
-    - source /usr/bin/prepare-build
     - source cli/release.sh
     - git tag v${POM_REL_VERSION}
     - git checkout ${CI_COMMIT_REF_NAME}
