@@ -6,6 +6,12 @@ update-tap:
   dependencies:
     - publish-release
   allow_failure: false
+  stage: Release
+  except:
+    refs:
+      - tags
+    variables:
+      - $SKIP_REL
   script:
     - source /usr/bin/prepare-build
     - source cli/release.sh
