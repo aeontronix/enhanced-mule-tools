@@ -50,7 +50,7 @@ public class ShellCmd implements Callable<Integer> {
                     .jna(true).jansi(false)
                     .build()) {
                 SystemRegistry systemRegistry = new SystemRegistryImpl(parser, terminal, workDir, null);
-                systemRegistry.setCommandRegistries(builtins, picocliCommands, new MavenExecutor());
+                systemRegistry.setCommandRegistries(builtins, picocliCommands, new MavenExecutor(commands));
                 systemRegistry.register("help", picocliCommands);
 
                 LineReader reader = LineReaderBuilder.builder()

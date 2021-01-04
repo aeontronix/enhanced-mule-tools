@@ -4,8 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.cli.application;
 
+import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import com.aeontronix.enhancedmule.tools.template.EMTProjectTemplate;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
+import org.slf4j.Logger;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -13,10 +16,12 @@ import picocli.CommandLine.Parameters;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static picocli.CommandLine.Help.Visibility.ALWAYS;
 
 @Command(name = "create", aliases = "cr", mixinStandardHelpOptions = true)
 public class ApplicationCreateCmd implements Callable<Integer> {
+    private static final Logger logger = getLogger(ApplicationCreateCmd.class);
     @Option(names = {"--project-artifact-id", "-i"}, description = "Project Artifact Id")
     private String artifactId;
     @Option(names = {"--project-name", "-n"}, description = "Project Name")
@@ -45,16 +50,30 @@ public class ApplicationCreateCmd implements Callable<Integer> {
     private String domainVersion;
     @Option(names = {"--api-spec-type"}, description = "REST API Specification Type")
     private EMTProjectTemplate.RestAPISpecType apiSpecType;
+    @CommandLine.ParentCommand
+    private ApplicationCmd applicationCmd;
 
     public ApplicationCreateCmd() {
         emtVersion = VersionHelper.EMT_VERSION;
     }
 
+    public ApplicationCmd getApplicationCmd() {
+        return applicationCmd;
+    }
+
     @Override
     public Integer call() throws Exception {
+        if( parentDir == null ) {
+            parentDir = new File(".");
+        }
         final EMTProjectTemplate template = new EMTProjectTemplate(parentDir, name, groupId, artifactId, projectName,
                 muleRuntimeVersion, emtVersion, projectType, apiSpecType, domain, domainArtifactId, domainVersion);
         template.generateProject();
+        final EMTCli cli = applicationCmd.getCli();
+        if( cli.isShell() ) {
+            System.out.println("Changing work directory to project directory: "+template.getProjectDir().getAbsolutePath());
+            cli.setWorkDir(template.getProjectDir());
+        }
         return 0;
     }
 }

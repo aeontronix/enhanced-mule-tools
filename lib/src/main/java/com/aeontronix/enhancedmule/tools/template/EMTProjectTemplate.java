@@ -24,6 +24,7 @@ public class EMTProjectTemplate {
     private String domainArtifactId;
     private String domainVersion;
     private final RestAPISpecType apiSpecType;
+    private File projectDir;
 
     public EMTProjectTemplate(File dir,
                               String filename,
@@ -51,9 +52,6 @@ public class EMTProjectTemplate {
     }
 
     public void generateProject() throws IOException, TemplateNotFoundException, InvalidTemplateException, TemplateExecutionException {
-        if (dir == null) {
-            dir = new File(".");
-        }
         final Template template = Template.createFromClasspath("/template", "emt-genesis-template.json");
         final TemplateExecutor templateExecutor = new TemplateExecutor(template);
         setVar(templateExecutor, "groupId", groupId);
@@ -77,7 +75,12 @@ public class EMTProjectTemplate {
         if (filename == null) {
             filename = templateExecutor.getVariable("artifactId");
         }
-        templateExecutor.generate(new File(dir, filename));
+        projectDir = new File(dir, filename);
+        templateExecutor.generate(projectDir);
+    }
+
+    public File getProjectDir() {
+        return projectDir;
     }
 
     private void setVar(TemplateExecutor templateExecutor, String key, String value) {

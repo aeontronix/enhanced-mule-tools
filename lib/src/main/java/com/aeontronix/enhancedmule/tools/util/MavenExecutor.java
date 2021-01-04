@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.SystemUtils;
+import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import org.apache.commons.exec.DefaultExecutor;
 import org.jline.console.CmdDesc;
 import org.jline.console.CommandRegistry;
@@ -21,8 +22,10 @@ public class MavenExecutor implements CommandRegistry {
     private static final Logger logger = getLogger(MavenExecutor.class);
     public static final String MVN = "mvn";
     private final Set<String> cmdNames;
+    private EMTCli cli;
 
-    public MavenExecutor() {
+    public MavenExecutor(EMTCli cli) {
+        this.cli = cli;
         cmdNames = new HashSet<>();
         cmdNames.add(MVN);
     }
@@ -70,12 +73,12 @@ public class MavenExecutor implements CommandRegistry {
                     argsList.add(arg.toString());
                 }
             }
-            execute(argsList);
+            execute(cli.getWorkDir(),argsList);
         }
         return null;
     }
 
-    public static int execute(List<String> args) throws IOException {
+    public static int execute(File workDir, List<String> args) throws IOException {
         File mvnw = new File("mvnw");
         if (mvnw.exists()) {
             org.apache.commons.exec.CommandLine cmd;
@@ -89,6 +92,7 @@ public class MavenExecutor implements CommandRegistry {
                 cmd.addArgument(arg);
             }
             final DefaultExecutor defaultExecutor = new DefaultExecutor();
+            defaultExecutor.setWorkingDirectory(workDir);
             defaultExecutor.setExitValues(null);
             return defaultExecutor.execute(cmd);
         } else {
