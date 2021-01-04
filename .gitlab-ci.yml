@@ -4,4 +4,4 @@ include:
 
 publish-release:
   after_script:
-    - source cli/release.sh
+    - source release.sh

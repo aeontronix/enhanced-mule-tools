@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Copyright (c) Aeontronix 2021
+#
+
 set -e
 
 source /usr/bin/prepare-build
@@ -7,7 +11,8 @@ source /usr/bin/prepare-build
 FILE=formula/emt.rb
 
 RELVERSION=${POM_REL_VERSION}
-DIST_SHA=($(shasum -a 256 cli/target/enhanced-mule-tools-cli-${RELVERSION}.jar))
+
+DIST_SHA=($(shasum -a 256 cli/target/enhanced-mule-tools-cli-${RELVERSION}-dist.tbz2))
 
 sed -e "s/@version@/${RELVERSION}/g" -e "s/@checksum@/${DIST_SHA}/" cli/src/main/assembly/emt.tap.rb >cli/target/emt.rb
 
@@ -28,11 +33,13 @@ curl -s --request PUT \
 
 echo Creating gitlab release
 
+curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${GL_TOKEN}" \
+   --data "{ \"name\": \"v${POM_REL_VERSION}\", \"tag_name\": \"v${POM_REL_VERSION}\", \"description\": \"Release v${POM_REL_VERSION}\", \"assets\": { \"links\": [{ \"name\": \"CLI Distribution (ZIP)\", \"url\": \"https://repo1.maven.org/maven2/com/aeontronix/enhanced-mule/enhanced-mule-tools-cli/${POM_REL_VERSION}/enhanced-mule-tools-cli-${POM_REL_VERSION}dist.zip\" }] } }" \
+   --request POST "https://gitlab.com/api/v4/projects/14801271/releases"
+
+
 if [[ "${POM_REL_VERSION}" =~ .*"beta".* ]] || [[ "${POM_REL_VERSION}" =~ .*"alpha".* ]]; then
   echo "Skipping GL release for beta/alpha release version: ${POM_REL_VERSION}"
 else
   echo "Creating gitlab release"
-#  curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${GL_TOKEN}" \
-#     --data "{ \"name\": \"v${POM_REL_VERSION}\", \"tag_name\": \"v${POM_REL_VERSION}\", \"description\": \"Release v${POM_REL_VERSION}\", \"assets\": { \"links\": [{ \"name\": \"CLI Distribution (ZIP)\", \"url\": \"https://repo1.maven.org/maven2/com/aeontronix/enhanced-mule/enhanced-mule-tools-cli/${POM_REL_VERSION}/enhanced-mule-tools-cli-${POM_REL_VERSION}dist.zip\" }] } }" \
-#     --request POST "https://gitlab.com/api/v4/projects/14801271/releases"
 fi
