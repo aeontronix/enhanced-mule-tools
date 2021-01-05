@@ -10,6 +10,7 @@
         <module name="enhanced-mule-tools-maven-plugin" />
         <module name="enhanced-mule-tools-lib" />
         <module name="enhanced-mule-application-demo" />
+        <module name="enhanced-mule-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -18,6 +19,7 @@
       <module name="anypoint-maven-plugin" target="1.7" />
       <module name="anypoint-tools" target="1.8" />
       <module name="anypointtools-maven-plugin" target="1.7" />
+      <module name="enhanced-mule-api" target="8" />
       <module name="enhanced-mule-application-demo" target="1.5" />
       <module name="enhanced-mule-tools" target="8" />
       <module name="enhanced-mule-tools-cli" target="8" />

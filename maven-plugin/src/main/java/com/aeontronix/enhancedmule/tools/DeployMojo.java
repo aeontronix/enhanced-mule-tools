@@ -26,6 +26,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -317,6 +318,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 if (filename == null) {
                     filename = source.getFileName();
                 }
+                logger.info(Ansi.ansi().fgBrightYellow().a("Deploying application").toString());
+                logger.info(Ansi.ansi().fgBrightYellow().a("Organization: ").reset().a(getOrganization().getName()).toString());
+                logger.info(Ansi.ansi().fgBrightYellow().a("Environment: ").reset().a(getEnvironment().getName()).toString());
+                logger.info(Ansi.ansi().fgBrightYellow().a("Target: ").reset().a(target).toString());
+                logger.info(Ansi.ansi().fgBrightYellow().a("App Name: ").reset().a(appName).toString());
+
                 APIProvisioningConfig apiProvisioningConfig = null;
                 if (!skipApiProvisioning) {
                     apiProvisioningConfig = new APIProvisioningConfig();

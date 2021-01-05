@@ -18,6 +18,12 @@
     },
     {
       "type": "input",
+      "var": "description",
+      "blankAllowed": true,
+      "message": "Project description"
+    },
+    {
+      "type": "input",
       "var": "emtVersion",
       "message": "Enhanced Mule Tools Version",
       "advanced": true

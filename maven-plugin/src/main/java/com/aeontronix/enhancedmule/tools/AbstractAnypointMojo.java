@@ -56,6 +56,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.org")
     protected String org;
+    @Parameter(property = "profile")
+    protected String profile;
     protected EnhancedMuleClient emClient;
     private AnypointClient client;
 
@@ -77,7 +79,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    accessTokenId, accessTokenSecret, org);
+                    accessTokenId, accessTokenSecret, profile, org, project.getGroupId());
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {

@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.config.ConfigFile;
-import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.ConfigFile;
+import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.key.AESKey;
@@ -36,10 +36,9 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             if (key == null) {
-                final ConfigProfile configProfile = ConfigFile.findConfigProfile(org, profile);
-                if (configProfile != null) {
-                    key = configProfile.getCryptoKey();
-                }
+                final ConfigFile configFile = ConfigFile.findConfigFile();
+                final ConfigProfile configProfile = configFile.getProfileByProfileName(profile);
+                key = configProfile.getCryptoKey();
                 if (key == null) {
                     throw new MojoExecutionException("Key must be set or exist in configuration profile");
                 }

@@ -12,6 +12,7 @@ import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
 import com.aeontronix.commons.TempFile;
+import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -41,7 +42,7 @@ public class MavenHelper {
         if (newVersion == null && appId.getVersion().toLowerCase().endsWith("-snapshot")) {
             newVersion = appId.getVersion() + "-" + buildNumber;
             newAppId = new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion);
-            logger.info("Snapshot version = "+newVersion);
+            logger.info(Ansi.ansi().fgBrightYellow().a("Snapshot version: ").reset().a(newVersion).toString());
         } else {
             newAppId = new ApplicationIdentifier(org.getId(), appId.getArtifactId(), appId.getVersion());
         }

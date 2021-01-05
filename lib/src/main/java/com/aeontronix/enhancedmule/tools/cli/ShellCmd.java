@@ -23,11 +23,15 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-@Command(name = "shell",aliases = "sh")
+@Command(name = "shell")
 public class ShellCmd implements Callable<Integer> {
+    public ShellCmd() {
+    }
+
     @Override
     public Integer call() throws Exception {
         try {
+            System.out.println("Shell started");
             Supplier<Path> workDir = () -> Paths.get(System.getProperty("user.dir"));
             // set up JLine built-in commands
             Builtins builtins = new Builtins(workDir, null, null);
@@ -41,6 +45,10 @@ public class ShellCmd implements Callable<Integer> {
             // PicocliCommandsFactory factory = new PicocliCommandsFactory(customFactory); // chain the factories
 
             CommandLine cmd = new CommandLine(commands, factory);
+            cmd.setCaseInsensitiveEnumValuesAllowed(true);
+            cmd.setOptionsCaseInsensitive(true);
+            cmd.setPosixClusteredShortOptionsAllowed(false);
+            cmd.addSubcommand(new ActiveProfileCmd(commands));
             PicocliCommands picocliCommands = new PicocliCommands(cmd);
 
             Parser parser = new DefaultParser();

@@ -4,15 +4,20 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.anypoint.User;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.fusesource.jansi.Ansi;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMojo {
+    private static final Logger logger = getLogger(AbstractEnvironmentalMojo.class);
     private Environment environment;
     /**
      * Anypoint Environment name
@@ -28,11 +33,10 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
                     env = configProfile.getDefaultEnv();
                 }
                 if( env == null ) {
-                    throw new IllegalStateException("environment name (anypoint.env) is missing");
+                    throw new IllegalStateException("Environment not set, using configuration element 'env', or maven property 'anypoint.env' to set");
                 }
             }
             environment = getOrganization().findEnvironmentByName(env);
-            getLog().debug("Using environment "+env+" : "+environment.getId());
         }
         return environment;
     }

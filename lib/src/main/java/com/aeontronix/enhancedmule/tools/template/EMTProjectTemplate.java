@@ -16,6 +16,7 @@ public class EMTProjectTemplate {
     private final String groupId;
     private final String artifactId;
     private final String projectName;
+    private final String description;
     private final String muleRuntimeVersion;
     private String emtVersion;
     private final ProjectType projectType;
@@ -31,6 +32,7 @@ public class EMTProjectTemplate {
                               String groupId,
                               String artifactId,
                               String projectName,
+                              String description,
                               String muleRuntimeVersion, String emtVersion,
                               ProjectType projectType, RestAPISpecType apiSpecType,
                               Boolean domain, String domainArtifactId, String domainVersion) {
@@ -39,6 +41,7 @@ public class EMTProjectTemplate {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.projectName = projectName;
+        this.description = description;
         this.muleRuntimeVersion = muleRuntimeVersion;
         this.emtVersion = emtVersion;
         this.projectType = projectType;
@@ -57,6 +60,7 @@ public class EMTProjectTemplate {
         setVar(templateExecutor, "groupId", groupId);
         setVar(templateExecutor, "artifactId", artifactId);
         setVar(templateExecutor, "projectName", projectName);
+        setVar(templateExecutor, "description", description);
         setVar(templateExecutor, "muleRuntimeVersion", muleRuntimeVersion);
         setVar(templateExecutor, "emtVersion", emtVersion);
         if( projectType != null ) {

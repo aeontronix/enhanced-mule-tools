@@ -23,6 +23,7 @@ public class Main {
             commandLine.setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.ON));
             commandLine.setUsageHelpAutoWidth(true);
             commandLine.setCaseInsensitiveEnumValuesAllowed(true);
+            commandLine.setPosixClusteredShortOptionsAllowed(false);
             System.exit(commandLine.execute(args));
         }
     }

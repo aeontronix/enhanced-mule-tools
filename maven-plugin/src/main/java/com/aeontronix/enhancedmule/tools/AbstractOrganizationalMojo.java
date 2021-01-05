@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
             } else {
                 organization = getClient().getUser().getOrganization();
                 if( organization == null ) {
-                    throw new IllegalArgumentException("Organization must be specified");
+                    throw new IllegalArgumentException("Organization not set, use configuration element 'org' or maven property 'anypoint.org' to set");
                 }
             }
         }

@@ -26,6 +26,8 @@ public class ApplicationCreateCmd implements Callable<Integer> {
     private String artifactId;
     @Option(names = {"--project-name", "-n"}, description = "Project Name")
     private String projectName;
+    @Option(names = {"--description", "-dc"}, description = "Project Description")
+    private String description;
     @Option(names = {"--dir", "-d"}, description = "directory where the project directory will be created")
     private File parentDir;
     @Option(names = {"--filename", "-f"}, description = "Name of the project directory")
@@ -67,7 +69,7 @@ public class ApplicationCreateCmd implements Callable<Integer> {
             parentDir = new File(".");
         }
         final EMTProjectTemplate template = new EMTProjectTemplate(parentDir, name, groupId, artifactId, projectName,
-                muleRuntimeVersion, emtVersion, projectType, apiSpecType, domain, domainArtifactId, domainVersion);
+                description, muleRuntimeVersion, emtVersion, projectType, apiSpecType, domain, domainArtifactId, domainVersion);
         template.generateProject();
         final EMTCli cli = applicationCmd.getCli();
         if( cli.isShell() ) {

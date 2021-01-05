@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../enhanced-mule-api/enhanced-mule-api.iml" filepath="$PROJECT_DIR$/../enhanced-mule-api/enhanced-mule-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/../oss/enhanced-mule-application-demo/enhanced-mule-application-demo.iml" filepath="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/enhanced-mule-application-demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/enhanced-mule-tools.iml" filepath="$PROJECT_DIR$/enhanced-mule-tools.iml" />
       <module fileurl="file://$PROJECT_DIR$/cli/enhanced-mule-tools-cli.iml" filepath="$PROJECT_DIR$/cli/enhanced-mule-tools-cli.iml" />

@@ -126,7 +126,7 @@ public class API extends AnypointObject<Environment> {
     }
 
     @NotNull
-    private static HashMap<String, Object> createImplementationUrlJson(boolean mule4, @Nullable String endpointUrl, @NotNull API.@NotNull Type type) {
+    private static HashMap<String, Object> createImplementationUrlJson(boolean mule4, @Nullable String endpointUrl, @NotNull API.Type type) {
         HashMap<String, Object> endpointJson = new HashMap<>();
         endpointJson.put("type", type.name().toLowerCase());
         endpointJson.put("uri", endpointUrl);

@@ -6,10 +6,10 @@ package com.aeontronix.enhancedmule.tools.emclient;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
-import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProvider;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeClient;

@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.ReflectionUtils;
-import com.aeontronix.enhancedmule.tools.config.*;
-import com.aeontronix.enhancedmule.tools.emclient.*;
+import com.aeontronix.enhancedmule.config.*;
+import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import org.apache.http.HttpHost;
@@ -47,14 +47,20 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private String emAccessTokenSecret;
     private String serverId;
     private String org;
+    private String profile;
 
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
-                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret, String org) throws MavenExecutionException {
+                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret,
+                                           String profile, String org, String groupId) throws MavenExecutionException {
         EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
         try {
             if (emClient == null) {
-                final ConfigProfile configProfile = ConfigFile.findConfigProfile(org,null);
-                emClient = new EnhancedMuleClient(enhancedMuleServerUrl,configProfile);
+                final ConfigFile configFile = ConfigFile.findConfigFile();
+                ConfigProfile configProfile = null;
+                if( configFile != null ) {
+                    configProfile = configFile.getProfile(profile, org, groupId);
+                }
+                emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile);
                 final Proxy proxy = session.getSettings().getActiveProxy();
                 if (proxy != null) {
                     emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword());
@@ -67,33 +73,34 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                     logger.info("Using Bearer Token");
                     credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
                 } else if (isNotBlank(username) && isNotBlank(password)) {
-                    logger.info("Using Username Password: {}",username);
+                    logger.info("Using Username Password: {}", username);
                     credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
                 } else if (isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret)) {
                     logger.info("Using Access Token");
                     credentialsProvider = new CredentialsProviderAccessTokenImpl(emAccessTokenId, emAccessTokenSecret);
                 } else {
-                    if( configProfile != null ) {
-                        final String accessKeyId = configProfile.getAccessKeyId();
-                        final String accessKeySecret = configProfile.getAccessKeySecret();
-                        if( isNotBlank(accessKeyId) && isNotBlank(accessKeySecret) ) {
-                            logger.info("Using credentials from configuration file: {}",accessKeyId);
-                            if( configProfile.isAnypointUPW() ) {
+                    if (configProfile != null && configProfile.getCredential() != null) {
+                        final Credential credential = configProfile.getCredential();
+                        final String accessKeyId = credential.getId();
+                        final String accessKeySecret = credential.getSecret();
+                        if (isNotBlank(accessKeyId) && isNotBlank(accessKeySecret)) {
+                            logger.info("Using credentials from configuration file: {}", accessKeyId);
+                            if (credential.getType() == CredentialType.PASSWORD) {
                                 credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(accessKeyId, accessKeySecret);
                             } else {
                                 credentialsProvider = new CredentialsProviderAccessTokenImpl(accessKeyId, accessKeySecret);
                             }
                         }
                     }
-                    if( credentialsProvider == null ) {
+                    if (credentialsProvider == null) {
                         logger.info("No EMT credentials available");
                         credentialsProvider = new CredentialsProviderEmptyImpl();
                     }
                 }
                 emClient.setCredentialsLoader(credentialsProvider);
             }
-        } catch (IOException e) {
-            throw new MavenExecutionException(e.getMessage(),e);
+        } catch (IOException | ProfileNotFoundException e) {
+            throw new MavenExecutionException(e.getMessage(), e);
         }
         return emClient;
     }
@@ -103,7 +110,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         try {
             loadProperties(session);
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret, org);
+                    emAccessTokenId, emAccessTokenSecret, profile, org, session.getCurrentProject().getGroupId());
             addRepositoriesAuthentication(session);
         } catch (Exception e) {
             throw new MavenExecutionException(e.getMessage(), e);
@@ -124,7 +131,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         });
         final List<RemoteRepository> remoteProjectRepositories = currentProject.getRemoteProjectRepositories();
         RemoteRepository prep = findRemoteRepo(remoteProjectRepositories, serverId);
-        if( prep != null) {
+        if (prep != null) {
             try {
                 logger.debug("Creating new authentication object from selector");
                 final org.eclipse.aether.repository.Authentication authentication = authenticationSelector.getAuthentication(prep);
@@ -144,11 +151,11 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 } catch (NullPointerException e) {
                     logger.debug("Weird issue with NPE in builder.setAuthentication() occurred, trying to brute force fix issue");
                     try {
-                        logger.debug("Prototype={}",ReflectionUtils.get(builder, "prototype"));
+                        logger.debug("Prototype={}", ReflectionUtils.get(builder, "prototype"));
                     } catch (Throwable exception) {
-                        logger.debug("Unable to log prototype :(",exception);
+                        logger.debug("Unable to log prototype :(", exception);
                     }
-                    ReflectionUtils.set(builder,"prototype",null);
+                    ReflectionUtils.set(builder, "prototype", null);
                     builder = builder.setAuthentication(authentication);
                 }
                 logger.debug("Building RemoteRepository");
@@ -158,7 +165,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 logger.debug("Adding new remote repository");
                 remoteProjectRepositories.add(newRepo);
             } catch (Exception e) {
-                logger.warn("Unable to add credentials to anypoint exchange maven repository: "+e.getMessage(),e);
+                logger.warn("Unable to add credentials to anypoint exchange maven repository: " + e.getMessage(), e);
             }
         }
     }
@@ -173,6 +180,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
         emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
         serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
+        profile = getProperty(session, "profile", "profile", null);
     }
 
     private RemoteRepository findRemoteRepo(List<RemoteRepository> remoteArtifactRepositories, String serverId) {

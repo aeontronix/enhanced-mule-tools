@@ -9,6 +9,7 @@
     <packaging>mule-application</packaging>
 
 	<name>${artifactId}</name>
+    <#if description?has_content><description>${description}</description></#if>
 
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
