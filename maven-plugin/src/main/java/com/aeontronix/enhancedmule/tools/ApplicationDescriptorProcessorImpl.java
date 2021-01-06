@@ -43,8 +43,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static com.aeontronix.enhancedmule.tools.util.JsonUtils.isNotNull;
-import static com.aeontronix.enhancedmule.tools.util.JsonUtils.isNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
 import static java.io.File.separator;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -90,7 +90,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         if (StringUtils.isNotBlank(descriptor)) {
             descriptorFile = new File(descriptor);
         } else {
-            descriptorFile = findAnypointFile(project.getBasedir());
+            descriptorFile = ApplicationDescriptor.findAnypointFile(project.getBasedir());
         }
         if (descriptorFile == null) {
             applicationDescriptor = objectMapper.createObjectNode();
@@ -523,19 +523,4 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         }
     }
 
-    public static File findAnypointFile(File basedir) {
-        File file = new File(basedir, "anypoint.yml");
-        if (file.exists()) {
-            return file;
-        }
-        file = new File(basedir, "anypoint.yaml");
-        if (file.exists()) {
-            return file;
-        }
-        file = new File(basedir, "anypoint.json");
-        if (file.exists()) {
-            return file;
-        }
-        return null;
-    }
 }

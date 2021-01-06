@@ -15,6 +15,7 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 @Command(name = "creds", description = "Set credentials in selected profile", mixinStandardHelpOptions = true)
@@ -31,8 +32,8 @@ public class ConfigSetCredentials implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = configCmd.getCli();
-        final ConfigProfile prof = cli.getProfile(true);
-        prof.setCredential(new Credential(credentialId, credentialSecret, type));
+        final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
+        profile.setCredential(new Credential(credentialId, credentialSecret, type));
         cli.saveConfig();
         return null;
     }

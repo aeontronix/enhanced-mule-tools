@@ -20,6 +20,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescri
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -46,27 +47,31 @@ public class MuleAPIProvisioningService {
             final Organization organization = environment.getParent();
             final Map<String, Object> implementationUrlJson = apiDescriptor.getImplementationUrlJson();
             final String implementationUrl = apiDescriptor.getImplementationUrl();
-            logger.info("Provisioning " + asset.getId() + " within org " + organization.getName() + " env " + environment.getName());
+            final String assetId = asset.getId();
+            final String assetVersion = asset.getVersion();
+            logger.info(Ansi.ansi().a("Provisioning ").fgGreen().a(assetId).reset().a(":").fgGreen().a(assetVersion)
+                    .reset().a(" within org ").fgGreen().a(organization.getName()).reset().a(", env ").fgGreen()
+                    .a(environment.getName()).toString());
             Boolean m3 = cfg.getMule3();
             if (m3 == null) {
                 m3 = false;
             }
             API api;
             try {
-                api = environment.findAPIByExchangeAssetIdOrNameAndVersion(asset.getId(), asset.getVersion(), label);
-                logger.debug("API " + asset.getId() + " " + asset.getVersion() + " exists: " + api);
+                api = environment.findAPIByExchangeAssetIdOrNameAndVersion(assetId, assetVersion, label);
+                logger.debug("API " + assetId + " " + assetVersion + " exists: " + api);
             } catch (NotFoundException e) {
-                logger.debug("API " + asset.getId() + " " + asset.getVersion() + " not found, creating");
-                APISpec apiSpec = organization.findAPISpecsByIdOrNameAndVersion(asset.getId(), asset.getVersion());
+                logger.debug("API " + assetId + " " + assetVersion + " not found, creating");
+                APISpec apiSpec = organization.findAPISpecsByIdOrNameAndVersion(assetId, assetVersion);
                 // now we need to check if there's an existing API with the same productAPIVersion
                 String productAPIVersion = apiSpec.getProductAPIVersion();
                 try {
-                    logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", asset.getId(), productAPIVersion, label);
-                    api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(asset.getId(), productAPIVersion, label);
+                    logger.debug("findAPIByExchangeAssetIdOrNameAndProductAPIVersion: {} , {} , {}", assetId, productAPIVersion, label);
+                    api = environment.findAPIByExchangeAssetIdOrNameAndProductAPIVersion(assetId, productAPIVersion, label);
                     final String currentAssetVersion = api.getAssetVersion();
-                    if (!currentAssetVersion.equalsIgnoreCase(asset.getVersion())) {
-                        api = api.updateVersion(asset.getVersion());
-                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated asset {} version to {}", api.getAssetId(), asset.getVersion());
+                    if (!currentAssetVersion.equalsIgnoreCase(assetVersion)) {
+                        api.updateVersion(assetVersion);
+                        plogger.info(EMTLogger.Product.API_MANAGER, "Updated api {} version to {}", assetId, assetVersion);
                     }
                 } catch (NotFoundException ex) {
                     logger.debug("Creating API");
@@ -77,7 +82,7 @@ public class MuleAPIProvisioningService {
                         api = environment.createAPI(apiSpec, !m3, implementationUrl,
                                 consumerUrl, label, asset.getType());
                     }
-                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}", api.getAssetId(), asset.getVersion());
+                    plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}", api.getAssetId(), assetVersion);
                 }
             }
             if (apiDescriptor.getPolicies() != null) {

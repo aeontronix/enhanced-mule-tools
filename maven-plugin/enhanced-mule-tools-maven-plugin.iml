@@ -21,7 +21,7 @@
     <orderEntry type="library" name="wagon-http-3.4.1" level="project" />
     <orderEntry type="library" name="aopalliance-1.0" level="project" />
     <orderEntry type="module" module-name="enhanced-mule-tools-lib" />
-    <orderEntry type="library" name="Maven: com.aeontronix.enhancedmule:enhanced-mule-config:1.0.0-beta1" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-config:1.0.0-beta2" level="project" />
     <orderEntry type="library" name="Maven: com.intellij:annotations:12.0" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:2.0.1.Final" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.unpack:unpack:1.0.3" level="project" />

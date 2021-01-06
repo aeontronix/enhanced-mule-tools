@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
+import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.util.MavenExecutor;
 import picocli.CommandLine;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ProfileNotFoundException {
         if (args.length > 0 && args[0].equalsIgnoreCase("mvn")) {
             System.exit(MavenExecutor.execute(new File("."),Arrays.asList(Arrays.copyOfRange(args, 1, args.length))));
         } else {

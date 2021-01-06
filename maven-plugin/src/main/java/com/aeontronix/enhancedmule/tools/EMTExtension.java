@@ -21,6 +21,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.repository.AuthenticationSelector;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     public static final String TOKEN = "~~~Token~~~";
     public static final String ENHANCED_MULE_CLIENT = "enhancedMuleClient";
     private static final Logger logger = getLogger(EMTExtension.class);
+    private static ConfigProfile configProfile;
     private EnhancedMuleClient emClient;
     private AnypointBearerTokenCredentialsProvider credentialsProvider;
     private boolean mulePluginCompatibility;
@@ -48,6 +50,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private String serverId;
     private String org;
     private String profile;
+    private static EMConfig emConfig;
 
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
                                            String username, String password, String emAccessTokenId, String emAccessTokenSecret,
@@ -55,11 +58,9 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
         try {
             if (emClient == null) {
-                final ConfigFile configFile = ConfigFile.findConfigFile();
-                ConfigProfile configProfile = null;
-                if( configFile != null ) {
-                    configProfile = configFile.getProfile(profile, org, groupId);
-                }
+                emConfig = EMConfig.findConfigFile();
+                emConfig.setActive(profile);
+                configProfile = emConfig.getProfile(null, org, groupId);
                 emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile);
                 final Proxy proxy = session.getSettings().getActiveProxy();
                 if (proxy != null) {
@@ -109,6 +110,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         try {
             loadProperties(session);
+            logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(profile != null ? profile : "*default*").toString());
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
                     emAccessTokenId, emAccessTokenSecret, profile, org, session.getCurrentProject().getGroupId());
             addRepositoriesAuthentication(session);

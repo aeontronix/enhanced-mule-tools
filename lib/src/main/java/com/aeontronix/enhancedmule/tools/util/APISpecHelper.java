@@ -7,12 +7,18 @@ package com.aeontronix.enhancedmule.tools.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
+
 public class APISpecHelper {
-    public static APISpecVersion findVersion(File file) throws IOException {
+    @Nullable
+    public static APISpecVersion findVersion(@NotNull File file) throws IOException {
         String version = null;
         if (file.exists()) {
             ObjectMapper om;
@@ -22,15 +28,22 @@ public class APISpecHelper {
                 om = new YAMLMapper();
             }
             final JsonNode specNode = om.readTree(file);
-            final JsonNode specVersionNode = specNode.get("version");
+            JsonNode specVersionNode = specNode.get("version");
+            if (isNull(specVersionNode)) {
+                final JsonNode info = specNode.get("info");
+                if (isNotNull(info)) {
+                    specVersionNode = info.get("version");
+                }
+            }
             if (specVersionNode != null) {
                 version = specVersionNode.textValue();
             }
         }
-        if( version == null ) {
-            version = "1.0.0";
+        if (version == null) {
+            return null;
+        } else {
+            return new APISpecVersion(version);
         }
-        return new APISpecVersion(version);
     }
 
     public static class APISpecVersion {
@@ -40,8 +53,8 @@ public class APISpecHelper {
         public APISpecVersion(String version) {
             this.version = version;
             final int snapshotIdx = this.version.toLowerCase().indexOf("-snapshot");
-            if(snapshotIdx != -1) {
-                nonSnapshotVersion = version.substring(0,snapshotIdx);
+            if (snapshotIdx != -1) {
+                nonSnapshotVersion = version.substring(0, snapshotIdx);
             } else {
                 nonSnapshotVersion = version;
             }

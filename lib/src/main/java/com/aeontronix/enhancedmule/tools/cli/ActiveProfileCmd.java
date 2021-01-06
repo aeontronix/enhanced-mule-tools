@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
+import com.aeontronix.enhancedmule.config.EMConfig;
 import org.fusesource.jansi.Ansi;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
@@ -22,10 +23,11 @@ public class ActiveProfileCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        final EMConfig config = cli.getConfig();
         if( profile != null ) {
-            cli.setActiveProfile(profile);
+            config.setActive(profile);
         }
-        System.out.println(Ansi.ansi().a("Active profile: "+cli.getActiveProfile()));
+        System.out.println(Ansi.ansi().a("Active profile: "+config.getActive()));
         return 0;
     }
 }

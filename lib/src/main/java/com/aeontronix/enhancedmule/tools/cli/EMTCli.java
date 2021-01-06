@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.enhancedmule.config.ConfigFile;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
@@ -21,13 +21,18 @@ import java.io.IOException;
 public class EMTCli {
     @CommandLine.Option(names = "-p", description = "Profile")
     private String profileName;
-    private String activeProfile;
     private ConfigProfile configProfile;
     private File workDir = new File(".");
     private LineReader reader;
-    private ConfigFile configFile;
+    private EMConfig config;
 
-    public EMTCli() {
+    public EMTCli() throws IOException, ProfileNotFoundException {
+        config = EMConfig.findConfigFile();
+        config.setActive(profileName);
+    }
+
+    public EMConfig getConfig() {
+        return config;
     }
 
     public boolean isShell() {
@@ -59,50 +64,14 @@ public class EMTCli {
     }
 
     public ConfigProfile getProfile() throws IOException, ProfileNotFoundException {
-        return getProfile(false);
-    }
-
-    public ConfigProfile getProfile(boolean create) throws IOException, ProfileNotFoundException {
-        return getProfile(create, null, null);
+        return getProfile(null, null);
     }
 
     public ConfigProfile getProfile(String org, String groupId) throws IOException, ProfileNotFoundException {
-        return getProfile(false, org, groupId);
-    }
-
-    public ConfigProfile getProfile(boolean create, String org, String groupId) throws IOException, ProfileNotFoundException {
-        if (configFile == null) {
-            configFile = ConfigFile.findConfigFile();
-            if (configFile == null) {
-                configFile = ConfigFile.createNew();
-            }
-        }
-        final String p = activeProfile != null ? activeProfile : profileName;
-        try {
-            return configFile.getProfile(p, org, groupId);
-        } catch (ProfileNotFoundException e) {
-            if( create ) {
-                final ConfigProfile configProfile = new ConfigProfile();
-                configFile.getProfiles().put(p,configProfile);
-                return configProfile;
-            } else {
-                throw e;
-            }
-        }
+        return config.getProfile(null,org,groupId);
     }
 
     public void saveConfig() throws IOException {
-        if (configFile == null) {
-            configFile = ConfigFile.createNew();
-        }
-        configFile.save();
-    }
-
-    public String getActiveProfile() {
-        return activeProfile != null ? activeProfile : "default";
-    }
-
-    public void setActiveProfile(String activeProfile) {
-        this.activeProfile = activeProfile;
+        config.save();
     }
 }

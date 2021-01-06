@@ -4,8 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.config.ConfigFile;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.EMConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.key.AESKey;
@@ -36,7 +37,7 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             if (key == null) {
-                final ConfigFile configFile = ConfigFile.findConfigFile();
+                final EMConfig configFile = EMConfig.findConfigFile();
                 final ConfigProfile configProfile = configFile.getProfileByProfileName(profile);
                 key = configProfile.getCryptoKey();
                 if (key == null) {
@@ -50,7 +51,7 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
                     throw new MojoExecutionException("Descriptor not found found: " + descriptor);
                 }
             } else {
-                anypointFile = ApplicationDescriptorProcessorImpl.findAnypointFile(new File("."));
+                anypointFile = ApplicationDescriptor.findAnypointFile(new File("."));
                 if (anypointFile == null) {
                     throw new MojoExecutionException("Descriptor not found found: anypoint.json, anypoint.yml or anypoint.yaml");
                 }
@@ -60,9 +61,9 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
             JsonNode properties = json.get("properties");
             if (properties != null) {
                 for (JsonNode property : properties) {
-                    if( isProcessingRequired(property) ) {
+                    if (isProcessingRequired(property)) {
                         final ObjectNode values = (ObjectNode) property.get("values");
-                        if( values != null ) {
+                        if (values != null) {
                             processAndUpdate(key, values, "local");
                             processSubtype(key, values, "envType");
                             processSubtype(key, values, "env");
@@ -70,7 +71,7 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
                     }
                 }
             }
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(anypointFile,json);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(anypointFile, json);
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
@@ -89,14 +90,14 @@ public abstract class AbstractCryptoMojo extends AbstractMojo {
 
     private void processAndUpdate(AESKey key, ObjectNode values, String fieldName) throws Exception {
         final JsonNode local = processValueIfNotNull(key, values.get(fieldName));
-        if( local != null ) {
-            values.set(fieldName,local);
+        if (local != null) {
+            values.set(fieldName, local);
         }
     }
 
     private JsonNode processValueIfNotNull(AESKey key, JsonNode value) throws Exception {
-        if( value != null ) {
-            return processValue(key,value);
+        if (value != null) {
+            return processValue(key, value);
         } else {
             return null;
         }

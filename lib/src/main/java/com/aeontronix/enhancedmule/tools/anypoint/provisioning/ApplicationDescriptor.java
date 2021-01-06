@@ -13,6 +13,7 @@ import com.aeontronix.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -42,6 +43,22 @@ public class ApplicationDescriptor {
         json = StringUtils.substituteVariables(json, apiProvisioningConfig.getVariables());
         ApplicationDescriptor descriptor = mapper.readValue(json, ApplicationDescriptor.class);
         return descriptor;
+    }
+
+    public static File findAnypointFile(File basedir) {
+        File file = new File(basedir, "anypoint.yml");
+        if (file.exists()) {
+            return file;
+        }
+        file = new File(basedir, "anypoint.yaml");
+        if (file.exists()) {
+            return file;
+        }
+        file = new File(basedir, "anypoint.json");
+        if (file.exists()) {
+            return file;
+        }
+        return null;
     }
 
     public String getName() {

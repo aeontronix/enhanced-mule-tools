@@ -8,7 +8,7 @@ import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import picocli.CommandLine;
 import picocli.CommandLine.ParentCommand;
 
-@CommandLine.Command(name = "application", aliases = "ap", mixinStandardHelpOptions = true,subcommands = {
+@CommandLine.Command(name = "application", aliases = "app", mixinStandardHelpOptions = true,subcommands = {
         ApplicationCreateCmd.class
 })
 public class ApplicationCmd {

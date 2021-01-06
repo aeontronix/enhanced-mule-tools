@@ -227,4 +227,12 @@ public class JsonHelper implements Serializable {
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
+
+    public static boolean isNull(JsonNode node) {
+        return node == null || node.isNull();
+    }
+
+    public static boolean isNotNull(JsonNode node) {
+        return ! isNull(node);
+    }
 }
