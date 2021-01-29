@@ -23,7 +23,8 @@ public class ExchangeManagementClient {
     public static final String SNAPSHOT_SUFFIX = "-snapshot";
     public static final int SNAPSHOT_SUFFIX_LEN = SNAPSHOT_SUFFIX.length();
 
-    public boolean publish(ExchangeAssetDescriptor asset, Organization organization, ApplicationSource source, ProvisioningRequest provisioningRequest) throws AssetProvisioningException {
+    public boolean publish(ExchangeAssetDescriptor asset, Organization organization, ApplicationSource source,
+                           ProvisioningRequest provisioningRequest) throws AssetProvisioningException {
         return asset.publish(organization, source, provisioningRequest);
     }
 

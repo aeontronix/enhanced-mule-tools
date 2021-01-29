@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.InvalidJsonException;
@@ -13,15 +14,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JsonHelper implements Serializable {
     private ObjectMapper jsonMapper = createMapper();
@@ -32,6 +34,47 @@ public class JsonHelper implements Serializable {
 
     public JsonHelper(AnypointClient client) {
         this.client = client;
+    }
+
+    public static void processVariables(ObjectNode json, HashMap<String, String> vars) {
+        LinkedList<JsonNode> nodes = new LinkedList<>();
+        nodes.add(json);
+        while (!nodes.isEmpty()) {
+            final JsonNode node = nodes.removeFirst();
+            if (node != null && !node.isNull()) {
+                if (node instanceof ObjectNode) {
+                    final Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+                    while (fields.hasNext()) {
+                        Map.Entry<String, JsonNode> field = fields.next();
+                        final JsonNode n = field.getValue();
+                        if (n instanceof TextNode) {
+                            ((ObjectNode) node).replace(field.getKey(), new TextNode(StringUtils.substituteVariables(n.textValue(), vars)));
+                        } else if (n instanceof ArrayNode) {
+                            for (JsonNode children : node) {
+                                nodes.addLast(children);
+                            }
+                        } else if (n instanceof ObjectNode) {
+                            nodes.addLast(n);
+                        }
+                    }
+                } else if (node instanceof ArrayNode) {
+                    final int size = node.size();
+                    for (int i = 0; i < size; i++) {
+                        JsonNode child = node.get(i);
+                        if( child instanceof TextNode ) {
+                            final TextNode replacement = new TextNode(StringUtils.substituteVariables(child.textValue(), vars));
+                            ((ArrayNode) node).remove(i);
+                            ((ArrayNode) node).insert(i,replacement);
+                        } else {
+                            nodes.addLast(child);
+                        }
+                    }
+                    for (JsonNode children : node) {
+                        nodes.addLast(children);
+                    }
+                }
+            }
+        }
     }
 
     public AnypointClient getClient() {
@@ -233,6 +276,6 @@ public class JsonHelper implements Serializable {
     }
 
     public static boolean isNotNull(JsonNode node) {
-        return ! isNull(node);
+        return !isNull(node);
     }
 }

@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
+import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,13 +37,17 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public ApplicationDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException {
-        return readDescriptorFromZip(file, apiProvisioningConfig);
+    public ObjectNode getAnypointDescriptor() throws IOException {
+        return readDescriptorFromZip(file);
     }
 
     @Override
     public String getArtifactId() {
-        return file.getName();
+        try {
+            return getAnypointDescriptor().get("id").textValue();
+        } catch (IOException e) {
+            throw new UnexpectedException(e);
+        }
     }
 
     @Override

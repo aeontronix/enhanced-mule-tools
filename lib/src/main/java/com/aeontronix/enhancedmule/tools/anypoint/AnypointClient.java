@@ -15,6 +15,9 @@ import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.restclient.RESTClient;
+import com.aeontronix.restclient.RESTClientHost;
+import com.aeontronix.restclient.RESTException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -27,6 +30,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,6 +46,8 @@ public class AnypointClient implements Closeable, Serializable {
     private transient ExecutorService deploymentThreadPool;
     private DeploymentService deploymentService;
     private ModelMapper modelMapper;
+    private RESTClient restClient;
+    private RESTClientHost anypointRestClient;
 
     /**
      * Contructor used for serialization only
@@ -61,6 +67,7 @@ public class AnypointClient implements Closeable, Serializable {
         this.maxParallelDeployments = maxParallelDeployments;
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
         init();
+        anypointRestClient.setCredential(authenticationProvider);
     }
 
     private void init() {
@@ -69,6 +76,8 @@ public class AnypointClient implements Closeable, Serializable {
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
         modelMapper = new ModelMapper();
         modelMapper.validate();
+        restClient = RESTClient.builder().build();
+        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com"));
     }
 
     private boolean loadAnypointCliConfig() {
@@ -193,8 +202,11 @@ public class AnypointClient implements Closeable, Serializable {
      * @throws HttpException if an http exception occurs
      */
     public User getUser() throws HttpException {
-        String json = httpHelper.httpGet("/accounts/api/me");
-        return jsonHelper.readJson(new User(), json, "/user");
+        try {
+            return anypointRestClient.get("/accounts/api/me").execute(User.class);
+        } catch (RESTException e) {
+            throw new HttpException(e.getStatusCode());
+        }
     }
 
     public Organization createOrganization(String name) throws HttpException {
@@ -358,5 +370,13 @@ public class AnypointClient implements Closeable, Serializable {
 
     public AnypointAccessToken getBearerToken() throws HttpException {
         return getHttpHelper().getAuthToken();
+    }
+
+    public RESTClient getRestClient() {
+        return restClient;
+    }
+
+    public RESTClientHost getAnypointRestClient() {
+        return anypointRestClient;
     }
 }

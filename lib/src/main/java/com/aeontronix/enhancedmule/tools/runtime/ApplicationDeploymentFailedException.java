@@ -4,10 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
+import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApplicationDeploymentFailedException extends Exception {
+public class ApplicationDeploymentFailedException extends DeploymentException {
     private int failed;
     private int successful;
     private int other;

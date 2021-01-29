@@ -7,10 +7,11 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequestImpl;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.IconDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.InvalidAnypointDescriptorException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.IconDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.InvalidAnypointDescriptorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -95,7 +96,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
         ValidationUtils.validate(asset, InvalidAnypointDescriptorException.class);
         final HashMap<String, File> specFiles = new HashMap<>();
         addFile(specFiles,null,apiSpecDir);
-        final ProvisioningRequest provisioningRequest = new ProvisioningRequest(buildNumber,deleteSnapshots);
+        final ProvisioningRequest provisioningRequest = new ProvisioningRequestImpl(buildNumber,deleteSnapshots,true);
         asset.publish(getOrganization(), new APISpecSource() {
             @Override
             public Set<String> listAPISpecFiles() throws IOException {
@@ -109,7 +110,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
                 }
             }
         }, provisioningRequest);
-        asset.provision(getOrganization(), provisioningRequest);
+        asset.provision(getOrganization());
     }
 
     private void addFile(HashMap<String, File> specFiles, String path, File file) {

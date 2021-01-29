@@ -1,0 +1,13 @@
+{
+  "blabla": {
+    "foo": "${foo}",
+    "afsd": {
+      "fsiaodfu": [
+        "${foo}","fdsafsd",{
+          "xoxo": "${foo}"
+        },
+        [[["${foo}","${foo}"]]]
+      ]
+    }
+  }
+}

@@ -6,8 +6,8 @@ package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.*;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.*;
 import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -26,17 +26,17 @@ public class ApplicationProvisioningService {
     }
 
     public APIProvisioningResult provision(ApplicationDescriptor applicationDescriptor, Environment environment,
-                                           APIProvisioningConfig config, ApplicationSource source, ProvisioningRequest provisioningRequest) throws ProvisioningException {
+                                           ProvisioningRequest request) throws ProvisioningException {
         try {
             APIProvisioningResult result = new APIProvisioningResult();
             final APIDescriptor api = applicationDescriptor.getApi();
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
-                muleAPIProvisioningService.provisionAPI(api, applicationDescriptor, environment, config, source, result, provisioningRequest);
+                muleAPIProvisioningService.provisionAPI(api, applicationDescriptor, environment, result);
             }
             final ClientApplicationDescriptor client = applicationDescriptor.getClient();
             if (client != null) {
-                client.provision(applicationDescriptor, environment, config, result);
+                client.provision(applicationDescriptor, environment, request, result);
             }
             return result;
         } catch (Exception e) {

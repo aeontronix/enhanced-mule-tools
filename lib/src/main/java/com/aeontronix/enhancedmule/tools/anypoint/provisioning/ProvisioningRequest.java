@@ -4,31 +4,14 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
-public class ProvisioningRequest {
-    private String id;
-    private boolean deleteSnapshots = true;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 
-    public ProvisioningRequest() {
-    }
+public interface ProvisioningRequest {
+    ApplicationDescriptor getApplicationDescriptor();
 
-    public ProvisioningRequest(String id, boolean deleteSnapshots) {
-        this.id = id;
-        this.deleteSnapshots = deleteSnapshots;
-    }
+    String getBuildNumber();
 
-    public String getId() {
-        return id;
-    }
+    boolean isDeleteSnapshots();
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public boolean isDeleteSnapshots() {
-        return deleteSnapshots;
-    }
-
-    public void setDeleteSnapshots(boolean deleteSnapshots) {
-        this.deleteSnapshots = deleteSnapshots;
-    }
+    boolean isAutoApproveAPIAccessRequest();
 }

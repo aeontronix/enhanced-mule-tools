@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application;
 
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.unpack.transformer.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

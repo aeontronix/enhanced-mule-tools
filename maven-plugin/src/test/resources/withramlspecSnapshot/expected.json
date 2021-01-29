@@ -1,4 +1,5 @@
 {
+  "version": "2.0.1-SNAPSHOT",
   "api": {
     "apiIdProperty": "anypoint.api.id",
     "asset": {
@@ -18,8 +19,8 @@
           }
         ]
       },
-      "apiVersion": "1.0.5",
-      "version": "1.0.5-SNAPSHOT",
+      "apiVersion": "v1",
+      "version": "2.0.1-SNAPSHOT",
       "type": "rest"
     }
   },
@@ -29,7 +30,6 @@
   },
   "id": "myproject",
   "name": "My Project",
-  "version": "2.0.1",
   "properties": {
     "anypoint.platform.client_id": {
       "id": "anypoint.platform.client_id",

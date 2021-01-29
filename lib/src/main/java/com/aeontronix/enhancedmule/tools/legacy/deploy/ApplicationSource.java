@@ -8,10 +8,9 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -48,19 +47,15 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
 
     public abstract boolean exists();
 
-    public abstract ApplicationDescriptor getAnypointDescriptor(APIProvisioningConfig apiProvisioningConfig) throws IOException, HttpException;
+    public abstract ObjectNode getAnypointDescriptor() throws IOException, HttpException;
 
     @Nullable
-    protected ApplicationDescriptor readDescriptorFromZip(File file, APIProvisioningConfig apiProvisioningConfig) throws IOException {
+    protected ObjectNode readDescriptorFromZip(File file) throws IOException {
         ZipFile zipFile = new ZipFile(file);
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                if (apiProvisioningConfig != null) {
-                    return ApplicationDescriptor.read(apiProvisioningConfig, is);
-                } else {
-                    return client.getJsonHelper().readJson(new ApplicationDescriptor(), IOUtils.toString(is));
-                }
+                return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(is);
             }
         } else {
             return null;
@@ -91,7 +86,7 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
     public void writeAPISpecFile(String name, OutputStream os) throws IOException {
         try (final ZipFile zipFile = new ZipFile(getLocalFile())) {
             final ZipEntry entry = zipFile.getEntry("api/" + name);
-            IOUtils.copy(zipFile.getInputStream(entry),os);
+            IOUtils.copy(zipFile.getInputStream(entry), os);
         }
     }
 }

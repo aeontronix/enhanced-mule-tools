@@ -9,6 +9,7 @@ import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
@@ -22,7 +23,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
@@ -32,6 +33,7 @@ import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.modelmapper.ModelMapper;
@@ -730,7 +732,8 @@ public class Organization extends AnypointObject {
             try (final FileOutputStream os = new FileOutputStream(file)) {
                 IOUtils.copy(emClient.getExchangeClient().getAsset(groupId, artifactId, version, "mule-application", "jar"), os);
             }
-            final ApplicationDescriptor anypointDescriptor = new FileApplicationSource(client, file).getAnypointDescriptor(null);
+            final ObjectNode descriptorJson = new FileApplicationSource(client, file).getAnypointDescriptor();
+            final ApplicationDescriptor anypointDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(descriptorJson);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
             if (apiDescriptor != null && apiDescriptor.getAsset() != null && apiDescriptor.getAsset().getCreate() &&

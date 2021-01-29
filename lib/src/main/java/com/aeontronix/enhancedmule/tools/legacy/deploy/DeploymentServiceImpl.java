@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.enhancedmule.tools.AbstractService;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIProvisioningConfig;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.runtime.HDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;

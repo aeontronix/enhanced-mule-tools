@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="aeon-rest-client" />
         <module name="enhanced-mule-tools-cli" />
         <module name="enhanced-mule-tools-maven-plugin" />
         <module name="enhanced-mule-tools-lib" />
@@ -14,6 +15,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="aeon-rest-client" target="8" />
       <module name="anypoint-cli" target="1.8" />
       <module name="anypoint-lib" target="1.8" />
       <module name="anypoint-maven-plugin" target="1.7" />

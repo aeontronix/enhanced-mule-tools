@@ -8,13 +8,13 @@ import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.ClientApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.IconDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.PropertyDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.portal.PortalPageDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.IconDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.PropertyDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -115,8 +115,8 @@ public class ApplicationDescriptorLegacyProcessor implements ApplicationDescript
             final String apiIdProperty = api.getApiIdProperty();
             final HashMap<String, PropertyDescriptor> properties = applicationDescriptor.getProperties();
             getOrCreateProperty(properties, apiIdProperty, "Anypoint API identifier", false);
-            getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             IconDescriptor icon = asset.getIcon();
             if( icon == null ) {
                 File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
@@ -186,8 +186,8 @@ public class ApplicationDescriptorLegacyProcessor implements ApplicationDescript
             if( client.getClientSecretProperty() == null ) {
                 client.setClientSecretProperty("anypoint.api.client.secret");
             }
-            getOrCreateProperty(applicationDescriptor.getProperties(), Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(applicationDescriptor.getProperties(), Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientIdProperty(), "API Client Id", false);
             getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientSecretProperty(), "API Client Secret", true);
         }

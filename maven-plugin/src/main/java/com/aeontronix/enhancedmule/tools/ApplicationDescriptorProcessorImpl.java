@@ -8,8 +8,8 @@ import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.Deployer;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.APISpecHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -147,6 +147,12 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         }
         if (isNull(applicationDescriptor.get(VERSION))) {
             applicationDescriptor.set(VERSION, new TextNode(version));
+        } else {
+            version = applicationDescriptor.get(VERSION).textValue();
+        }
+        // deployment params
+        if (isNull(applicationDescriptor.get(""))) {
+            applicationDescriptor.set(ID, new TextNode(artifactId));
         }
         // properties
         ObjectNode properties = (ObjectNode) applicationDescriptor.get(PROPERTIES);
@@ -154,8 +160,8 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             properties = objectMapper.createObjectNode();
             applicationDescriptor.set(PROPERTIES, properties);
         }
-        getOrCreateProperty(objectMapper, properties, Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-        getOrCreateProperty(objectMapper, properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+        getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+        getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
         // api
         ObjectNode api = (ObjectNode) applicationDescriptor.get(API);
         if (isNull(api) && apikit) {
@@ -316,8 +322,6 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             if (isNull(assetVersion)) {
                 if (dep != null) {
                     assetVersion = new TextNode(dep.getVersion());
-                } else if( apiSpecVersion != null ) {
-                    assetVersion = new TextNode(apiSpecVersion.getVersion());
                 } else {
                     assetVersion = new TextNode(version);
                 }
@@ -341,8 +345,8 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                 clientSecretProperty = new TextNode("anypoint.api.client.secret");
                 client.set(CLIENT_SECRET_PROPERTY, clientSecretProperty);
             }
-            getOrCreateProperty(objectMapper, properties, Deployer.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(objectMapper, properties, Deployer.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+            getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+            getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
             getOrCreateProperty(objectMapper, properties, clientIdProperty.textValue(), "API Client Id", false);
             getOrCreateProperty(objectMapper, properties, clientSecretProperty.textValue(), "API Client Secret", true);
         }

@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.tools.util.EMHttpClientDefaultImpl;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.restclient.Credentials;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -19,7 +20,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 
-public abstract class AuthenticationProvider {
+public abstract class AuthenticationProvider implements Credentials {
     public abstract AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException;
 
     public EMHttpClient createHttpClient() {

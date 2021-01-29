@@ -14,10 +14,10 @@ import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.APICustomFieldDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.api.IconDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.portal.PortalDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.portal.PortalPageDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APICustomFieldDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.IconDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.portal.PortalDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.portal.PortalPageDescriptor;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -203,11 +203,11 @@ public class ExchangeAssetDescriptor {
         }
     }
 
-    public boolean publish(Organization organization, APISpecSource apiSpecSource, @NotNull ProvisioningRequest provisioningRequest) throws AssetProvisioningException {
+    public boolean publish(Organization organization, APISpecSource apiSpecSource, @NotNull ProvisioningRequest request) throws AssetProvisioningException {
         try {
             if (version.toLowerCase().endsWith("-snapshot")) {
                 final String oldVersion = this.version;
-                this.version = oldVersion + "-" + provisioningRequest.getId();
+                this.version = oldVersion + "-" + request.getBuildNumber();
                 plogger.info(EMTLogger.Product.EXCHANGE, "Snapshot version: {} => {}", oldVersion, this.version);
             }
             try {
@@ -251,7 +251,7 @@ public class ExchangeAssetDescriptor {
         return assetMainFile != null ? (assetMainFile.toLowerCase().endsWith(".raml") ? "raml" : "oas") : null;
     }
 
-    public void provision(Organization organization, ProvisioningRequest provisioningRequest) throws IOException, NotFoundException {
+    public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
         if (name != null && !name.equals(exchangeAsset.getName())) {
             exchangeAsset.updateName(name);

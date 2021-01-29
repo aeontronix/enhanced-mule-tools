@@ -4,8 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,85 +15,49 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class DeploymentConfig {
-    private RTFDeploymentConfig rtf;
-    private boolean customlog4j;
-    private boolean mergeExistingProperties = true;
-    private boolean mergeExistingPropertiesOverride;
-    private Map<String, String> properties = new HashMap<>();
     private HashSet<String> overrideProperties = new HashSet<>();
     protected Map<String, String> fileProperties;
     protected String filePropertiesPath = "config.properties";
     protected boolean filePropertiesSecure;
-    private boolean persistentQueues;
-    private boolean persistentQueuesEncrypted;
-    private boolean objectStoreV1;
-    private boolean extMonitoring = true;
-    private boolean staticIPs;
+    private DeploymentParameters deploymentParameters;
 
     public DeploymentConfig() {
     }
 
-    public RTFDeploymentConfig getRtf() {
-        return rtf;
-    }
-
-    public void setRtf(RTFDeploymentConfig rtf) {
-        this.rtf = rtf;
-    }
-
-    public boolean isMergeExistingProperties() {
-        return mergeExistingProperties;
-    }
-
-    public void setMergeExistingProperties(boolean mergeExistingProperties) {
-        this.mergeExistingProperties = mergeExistingProperties;
-    }
-
-    public boolean isMergeExistingPropertiesOverride() {
-        return mergeExistingPropertiesOverride;
-    }
-
-    public void setMergeExistingPropertiesOverride(boolean mergeExistingPropertiesOverride) {
-        this.mergeExistingPropertiesOverride = mergeExistingPropertiesOverride;
-    }
-
-    public boolean isCustomlog4j() {
-        return customlog4j;
-    }
-
-    public void setCustomlog4j(boolean customlog4j) {
-        this.customlog4j = customlog4j;
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
-
-    public void mergeExistingProperties(CHApplication existingApp) {
-        if (existingApp != null) {
-            Map<String, String> props = existingApp.getProperties();
-            if (mergeExistingProperties && props != null) {
-                for (Map.Entry<String, String> entry : props.entrySet()) {
-                    String key = entry.getKey();
-                    if ((!properties.containsKey(key) || mergeExistingPropertiesOverride) && !overrideProperties.contains(key)) {
-                        properties.put(key, entry.getValue());
-                    }
-                }
-            }
+    @NotNull
+    public DeploymentParameters getDeploymentParameters() {
+        if (deploymentParameters == null) {
+            deploymentParameters = new DeploymentParameters();
         }
+        return deploymentParameters;
     }
 
-    public void setOverrideProperty(String key, String value) {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        properties.put(key, value);
-        overrideProperties.add(key);
+    public void setDeploymentParameters(@NotNull DeploymentParameters deploymentParameters) {
+        this.deploymentParameters = deploymentParameters;
     }
+
+//    public void mergeExistingProperties(CHApplication existingApp, @NotNull ApplicationDescriptor applicationDescriptor) {
+//        if (existingApp != null) {
+//            Map<String, String> props = existingApp.getProperties();
+//            final DeploymentParameters dp = getDeploymentParameters();
+//            if (dp.isMergeExistingProperties() && props != null) {
+//                for (Map.Entry<String, String> entry : props.entrySet()) {
+//                    String key = entry.getKey();
+//                    if ((!properties.containsKey(key) || dp.isMergeExistingPropertiesOverride()) && !overrideProperties.contains(key)) {
+//                        properties.put(key, entry.getValue());
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    public void setOverrideProperty(String key, String value) {
+//        if (properties == null) {
+//            properties = new HashMap<>();
+//        }
+//        properties.put(key, value);
+//        overrideProperties.add(key);
+//    }
 
     public Map<String, String> getFileProperties() {
         return fileProperties != null ? Collections.unmodifiableMap(fileProperties) : null;
@@ -100,7 +66,7 @@ public class DeploymentConfig {
     public void setFileProperties(Map<String, String> fileProperties) {
         this.fileProperties = fileProperties;
         for (String key : fileProperties.keySet()) {
-            if( key == null ) {
+            if (key == null) {
                 throw new IllegalArgumentException("file properties contains a null key.");
             }
         }
@@ -126,59 +92,19 @@ public class DeploymentConfig {
         if (fileProperties == null) {
             fileProperties = new HashMap<>();
         }
-        if( key == null ) {
-            throw new IllegalArgumentException("Property key musn't be null. value="+value);
+        if (key == null) {
+            throw new IllegalArgumentException("Property key musn't be null. value=" + value);
         }
-        if( value == null ) {
-            throw new IllegalArgumentException("Property value musn't be null: "+key);
+        if (value == null) {
+            throw new IllegalArgumentException("Property value musn't be null: " + key);
         }
-        fileProperties.put(key,value);
+        fileProperties.put(key, value);
     }
-
-    public boolean isPersistentQueues() {
-        return persistentQueues;
-    }
-
-    public void setPersistentQueues(boolean persistentQueues) {
-        this.persistentQueues = persistentQueues;
-    }
-
-    public boolean isPersistentQueuesEncrypted() {
-        return persistentQueuesEncrypted;
-    }
-
-    public void setPersistentQueuesEncrypted(boolean persistentQueuesEncrypted) {
-        this.persistentQueuesEncrypted = persistentQueuesEncrypted;
-    }
-
-    public boolean isObjectStoreV1() {
-        return objectStoreV1;
-    }
-
-    public void setObjectStoreV1(boolean objectStoreV1) {
-        this.objectStoreV1 = objectStoreV1;
-    }
-
-    public boolean isExtMonitoring() {
-        return extMonitoring;
-    }
-
-    public void setExtMonitoring(boolean extMonitoring) {
-        this.extMonitoring = extMonitoring;
-    }
-
-    public boolean isStaticIPs() {
-        return staticIPs;
-    }
-
-    public void setStaticIPs(boolean staticIPs) {
-        this.staticIPs = staticIPs;
-    }
-
-    public void setProperty(String key, String value) {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        properties.put(key,value);
-    }
+//
+//    public void setProperty(String key, String value) {
+//        if (properties == null) {
+//            properties = new HashMap<>();
+//        }
+//        properties.put(key, value);
+//    }
 }

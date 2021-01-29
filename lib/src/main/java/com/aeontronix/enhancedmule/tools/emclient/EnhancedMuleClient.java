@@ -91,20 +91,7 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
             final String anypointBearerToken = ((AnypointBearerTokenCredentialsProvider) credentialsProvider).getAnypointBearerToken(this);
             return new AnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken));
         } else {
-            if (true) {
-                throw new RuntimeException("not implemented");
-            }
-            return new AnypointClient(new AuthenticationProvider() {
-                @Override
-                public AnypointAccessToken getBearerToken(HttpHelper httpHelper) throws HttpException {
-                    return null;
-                }
-
-                @Override
-                public String filterSecret(String resStr) {
-                    return null;
-                }
-            });
+            throw new RuntimeException("not implemented");
         }
     }
 
