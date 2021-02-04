@@ -84,8 +84,8 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         Map<String, Object> memory = subMap(resources, "memory");
         memory.put("reserved", rtf.getMemoryReserved());
         memory.put("limit", rtf.getMemoryLimit());
-        deploymentSettings.put("clustered", rtf.isClustered());
-        deploymentSettings.put("enforceDeployingReplicasAcrossNodes", rtf.isEnforceDeployingReplicasAcrossNodes());
+        deploymentSettings.put("clustered", rtf.getClustered());
+        deploymentSettings.put("enforceDeployingReplicasAcrossNodes", rtf.getEnforceDeployingReplicasAcrossNodes());
         final Map<String, Object> http = subMap(deploymentSettings, "http");
         final Map<String, Object> inbound = subMap(http, "inbound");
         inbound.put("publicUrl", rtf.getHttpInboundPublicUrl());
@@ -94,10 +94,14 @@ public class RTFDeploymentOperation extends DeploymentOperation {
             jvm.put("args", rtf.getJvmArgs());
         }
         deploymentSettings.put("runtimeVersion", rtf.getRuntimeVersion());
-        deploymentSettings.put("lastMileSecurity", rtf.isLastMileSecurity());
-        deploymentSettings.put("forwardSslSession", rtf.isForwardSslSession());
+        deploymentSettings.put("lastMileSecurity", rtf.getLastMileSecurity());
+        deploymentSettings.put("forwardSslSession", rtf.getForwardSslSession());
         deploymentSettings.put("updateStrategy", rtf.getUpdateStrategy() != null ? rtf.getUpdateStrategy().name().toLowerCase() : "rolling");
-        target.put("replicas", rtf.getReplicas());
+        Integer replicas = rtf.getReplicas();
+        if( replicas == null ) {
+            replicas = 1;
+        }
+        target.put("replicas", replicas);
         final Map<String, Object> application = subMap(req, "application");
         final Map<String, Object> ref = subMap(application, "ref");
         ref.put("groupId", appId.getGroupId());

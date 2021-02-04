@@ -5,21 +5,22 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment;
 
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 
 public class RTFDeploymentParameters {
     private String cpuReserved;
     private String cpuLimit;
     private String memoryReserved;
     private String memoryLimit;
-    private boolean clustered;
-    private boolean enforceDeployingReplicasAcrossNodes;
+    private Boolean clustered;
+    private Boolean enforceDeployingReplicasAcrossNodes;
     private String httpInboundPublicUrl;
     private String jvmArgs;
     private String runtimeVersion;
-    private boolean lastMileSecurity;
-    private boolean forwardSslSession;
+    private Boolean lastMileSecurity;
+    private Boolean forwardSslSession;
     private RTFDeploymentConfig.DeploymentModel updateStrategy;
-    private int replicas;
+    private Integer replicas;
 
     public String getCpuReserved() {
         return cpuReserved;
@@ -53,19 +54,19 @@ public class RTFDeploymentParameters {
         this.memoryLimit = memoryLimit;
     }
 
-    public boolean isClustered() {
+    public Boolean getClustered() {
         return clustered;
     }
 
-    public void setClustered(boolean clustered) {
+    public void setClustered(Boolean clustered) {
         this.clustered = clustered;
     }
 
-    public boolean isEnforceDeployingReplicasAcrossNodes() {
+    public Boolean getEnforceDeployingReplicasAcrossNodes() {
         return enforceDeployingReplicasAcrossNodes;
     }
 
-    public void setEnforceDeployingReplicasAcrossNodes(boolean enforceDeployingReplicasAcrossNodes) {
+    public void setEnforceDeployingReplicasAcrossNodes(Boolean enforceDeployingReplicasAcrossNodes) {
         this.enforceDeployingReplicasAcrossNodes = enforceDeployingReplicasAcrossNodes;
     }
 
@@ -93,19 +94,19 @@ public class RTFDeploymentParameters {
         this.runtimeVersion = runtimeVersion;
     }
 
-    public boolean isLastMileSecurity() {
+    public Boolean getLastMileSecurity() {
         return lastMileSecurity;
     }
 
-    public void setLastMileSecurity(boolean lastMileSecurity) {
+    public void setLastMileSecurity(Boolean lastMileSecurity) {
         this.lastMileSecurity = lastMileSecurity;
     }
 
-    public boolean isForwardSslSession() {
+    public Boolean getForwardSslSession() {
         return forwardSslSession;
     }
 
-    public void setForwardSslSession(boolean forwardSslSession) {
+    public void setForwardSslSession(Boolean forwardSslSession) {
         this.forwardSslSession = forwardSslSession;
     }
 
@@ -117,11 +118,11 @@ public class RTFDeploymentParameters {
         this.updateStrategy = updateStrategy;
     }
 
-    public int getReplicas() {
+    public Integer getReplicas() {
         return replicas;
     }
 
-    public void setReplicas(int replicas) {
+    public void setReplicas(Integer replicas) {
         this.replicas = replicas;
     }
 }

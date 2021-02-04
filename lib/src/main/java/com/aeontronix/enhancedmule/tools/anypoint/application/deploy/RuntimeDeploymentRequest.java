@@ -239,4 +239,8 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         final Boolean autoApproveAccess = deploymentParameters.getAutoApproveAccess();
         return autoApproveAccess == null || autoApproveAccess;
     }
+
+    public void setDeploymentParameters(DeploymentParameters deploymentParameters) {
+        this.deploymentParameters = deploymentParameters;
+    }
 }

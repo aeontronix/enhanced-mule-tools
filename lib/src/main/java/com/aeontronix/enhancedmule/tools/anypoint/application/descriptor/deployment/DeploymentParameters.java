@@ -4,15 +4,19 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment;
 
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
+import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 
 public class DeploymentParameters {
+    private String target;
     private CloudhubDeploymentParameters cloudhub;
     private RTFDeploymentParameters rtf;
-    private Duration deployTimeout = Duration.ofMinutes(15);
-    private Duration deployRetryDelay = Duration.ofSeconds(3);
+    private Duration deployTimeout;
+    private Duration deployRetryDelay;
     private Boolean mergeExistingProperties;
     private Boolean mergeExistingPropertiesOverride;
     private Boolean extMonitoring;
@@ -21,21 +25,17 @@ public class DeploymentParameters {
     public DeploymentParameters() {
     }
 
-    public DeploymentParameters(CloudhubDeploymentParameters cloudhub, RTFDeploymentParameters rtf, Duration deployTimeout,
-                                Duration deployRetryDelay, Boolean mergeExistingProperties, Boolean mergeExistingPropertiesOverride,
-                                Boolean extMonitoring) {
-        this.cloudhub = cloudhub;
-        this.rtf = rtf;
-        this.deployTimeout = deployTimeout;
-        this.deployRetryDelay = deployRetryDelay;
-        this.mergeExistingProperties = mergeExistingProperties;
-        this.mergeExistingPropertiesOverride = mergeExistingPropertiesOverride;
-        this.extMonitoring = extMonitoring;
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     @NotNull
     public CloudhubDeploymentParameters getCloudhub() {
-        if( cloudhub == null ) {
+        if (cloudhub == null) {
             cloudhub = new CloudhubDeploymentParameters();
         }
         return cloudhub;
@@ -47,7 +47,7 @@ public class DeploymentParameters {
 
     @NotNull
     public RTFDeploymentParameters getRtf() {
-        if( rtf == null ) {
+        if (rtf == null) {
             rtf = new RTFDeploymentParameters();
         }
         return rtf;
@@ -57,6 +57,7 @@ public class DeploymentParameters {
         this.rtf = rtf;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     public Duration getDeployTimeout() {
         return deployTimeout;
     }
@@ -65,6 +66,7 @@ public class DeploymentParameters {
         this.deployTimeout = deployTimeout;
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     public Duration getDeployRetryDelay() {
         return deployRetryDelay;
     }
@@ -103,5 +105,39 @@ public class DeploymentParameters {
 
     public void setAutoApproveAccess(Boolean autoApproveAccess) {
         this.autoApproveAccess = autoApproveAccess;
+    }
+
+    public void merge(DeploymentParameters ov) {
+//        DescriptorHelper.overrideAll(this, ov, "cloudhub", "rtf");
+//        DescriptorHelper.overrideAll(getCloudhub(), ov.getCloudhub());
+//        DescriptorHelper.overrideAll(getRtf(), ov.getRtf());
+    }
+
+    public static DeploymentParameters createDefault() {
+        final DeploymentParameters dp = new DeploymentParameters();
+        dp.setDeployTimeout(Duration.ofMinutes(15));
+        dp.setDeployRetryDelay(Duration.ofSeconds(3));
+        dp.setMergeExistingProperties(false);
+        dp.setMergeExistingPropertiesOverride(false);
+        dp.setExtMonitoring(false);
+        dp.setAutoApproveAccess(false);
+        final CloudhubDeploymentParameters ch = dp.getCloudhub();
+        ch.setAppNameSuffixNPOnly(false);
+        ch.setPersistentQueues(false);
+        ch.setPersistentQueuesEncrypted(false);
+        ch.setCustomlog4j(false);
+        ch.setStaticIPs(false);
+        ch.setWorkerCount(1);
+        final RTFDeploymentParameters rtf = dp.getRtf();
+        rtf.setCpuReserved("20m");
+        rtf.setCpuLimit("1700m");
+        rtf.setCpuLimit("1700m");
+        rtf.setMemoryReserved("700Mi");
+        rtf.setMemoryLimit("700Mi");
+        rtf.setClustered(false);
+        rtf.setEnforceDeployingReplicasAcrossNodes(false);
+        rtf.setUpdateStrategy(RTFDeploymentConfig.DeploymentModel.ROLLING);
+        rtf.setReplicas(1);
+        return dp;
     }
 }

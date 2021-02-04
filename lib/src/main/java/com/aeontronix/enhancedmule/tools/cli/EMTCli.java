@@ -4,11 +4,15 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.EMConfig;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
+import com.aeontronix.enhancedmule.config.*;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
+import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
+import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAccessTokenImpl;
+import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import org.jline.reader.LineReader;
 import picocli.CommandLine;
@@ -17,13 +21,16 @@ import picocli.CommandLine.Command;
 import java.io.File;
 import java.io.IOException;
 
+import static picocli.CommandLine.*;
+
 @Command(name = "emt", mixinStandardHelpOptions = true, versionProvider = VersionHelper.class, subcommands = {ApplicationCmd.class, ConfigCmd.class})
 public class EMTCli {
-    @CommandLine.Option(names = "-p", description = "Profile")
+    @Option(names = "-p", description = "Profile")
     private String profileName;
-    private ConfigProfile configProfile;
     private File workDir = new File(".");
     private LineReader reader;
+    @ArgGroup(exclusive = false)
+    private CredentialsArgs credentialsArgs;
     private EMConfig config;
 
     public EMTCli() throws IOException, ProfileNotFoundException {
@@ -73,5 +80,54 @@ public class EMTCli {
 
     public void saveConfig() throws IOException {
         config.save();
+    }
+
+    public Environment getEnvironment(String organizationName, String environmentName) throws IOException, ProfileNotFoundException, NotFoundException {
+        if( organizationName == null ) {
+            organizationName = getProfile().getDefaultOrg();
+        }
+        if( environmentName == null ) {
+            environmentName = getProfile().getDefaultEnv();
+        }
+        if( organizationName == null ) {
+            throw new IllegalArgumentException("Organization not set and no default is assigned in profile");
+        }
+        if( environmentName == null ) {
+            throw new IllegalArgumentException("Environment not set and no default is assigned in profile");
+        }
+        final EnhancedMuleClient client = getClient(organizationName, environmentName);
+        client.getAnypointClient().findEnvironment(organizationName,environmentName,false,false,null);
+        return null;
+    }
+
+    private EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
+        Credential credential;
+        if( credentialsArgs != null ) {
+            if( credentialsArgs.type == CredentialType.REFRESH ) {
+                throw new IllegalArgumentException("Refresh credentials can only be used in configuration profile");
+            }
+            credential = new Credential(credentialsArgs.id, credentialsArgs.secret, credentialsArgs.type);
+        } else {
+            credential = getProfile(organizationName,environmentName).getCredential();
+        }
+        if( credential == null ) {
+            throw new IllegalArgumentException("No credentials available");
+        }
+        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getProfile());
+        if( credential.getType() == CredentialType.PASSWORD ) {
+            enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAnypointUsernamePasswordImpl(credential.getId(), credential.getSecret()));
+        } else if( credential.getType() == CredentialType.ACCESS ) {
+            enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAccessTokenImpl(credential.getId(), credential.getSecret()));
+        }
+        return enhancedMuleClient;
+    }
+
+    static class CredentialsArgs {
+        @Option(names = {"--ci","--credential-id"}, description = "Credential Identifier")
+        private String id;
+        @Option(names = {"--cs","--credential-secret"}, description = "Credential Secret")
+        private String secret;
+        @Option(names = {"--ct","--credential-type"}, description = "Credential Secret")
+        private CredentialType type;
     }
 }

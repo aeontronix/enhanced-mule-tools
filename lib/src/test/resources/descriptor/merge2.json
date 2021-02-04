@@ -1,0 +1,10 @@
+{
+  "id": "my-id",
+  "api": {
+    "slaTiers": [
+      {
+        "name": "grob"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "myApp",
+  "api": {
+    "slaTiers": [
+      {
+        "name": "foo"
+      }
+    ]
+  }
+}

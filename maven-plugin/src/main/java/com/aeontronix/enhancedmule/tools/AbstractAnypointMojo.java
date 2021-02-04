@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
@@ -17,6 +18,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
@@ -101,4 +105,37 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     }
 
     protected abstract void doExecute() throws Exception;
+
+    protected String getProperty(String name) {
+        String property = session.getUserProperties().getProperty(name);
+        if( property == null ) {
+            property = project.getProperties().getProperty(name);
+        }
+        return property;
+    }
+
+    protected Map<String, String> findPrefixProperties(Map<String, String> target, String prefix) {
+        if (project != null) {
+            target = findPrefixProperties(project.getProperties(), target, prefix);
+        }
+        target = findPrefixProperties(session.getUserProperties(), target, prefix);
+        return target;
+    }
+
+    protected static Map<String, String> findPrefixProperties(Properties source, Map<String, String> target, String prefix) {
+        for (Map.Entry<Object, Object> entry : source.entrySet()) {
+            String key = entry.getKey().toString();
+            if (key.startsWith(prefix)) {
+                key = key.substring(prefix.length() + 1);
+                if (StringUtils.isNotBlank(key)) {
+                    String value = entry.getValue().toString();
+                    if (target == null) {
+                        target = new HashMap<>();
+                    }
+                    target.put(key, value);
+                }
+            }
+        }
+        return target;
+    }
 }

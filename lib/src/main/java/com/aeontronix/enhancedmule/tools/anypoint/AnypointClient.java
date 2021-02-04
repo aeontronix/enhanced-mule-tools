@@ -10,7 +10,6 @@ import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.legacy.deploy.DeploymentService;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
@@ -44,7 +43,6 @@ public class AnypointClient implements Closeable, Serializable {
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
-    private DeploymentService deploymentService;
     private ModelMapper modelMapper;
     private RESTClient restClient;
     private RESTClientHost anypointRestClient;
@@ -72,7 +70,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     private void init() {
         jsonHelper.setClient(this);
-        deploymentService = loadService(DeploymentService.class);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
         modelMapper = new ModelMapper();
         modelMapper.validate();
@@ -354,10 +351,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     public ModelMapper getModelMapper() {
         return modelMapper;
-    }
-
-    public DeploymentService getDeploymentService() {
-        return deploymentService;
     }
 
     public void setProxy(String scheme, String host, int port, String username, String password) {

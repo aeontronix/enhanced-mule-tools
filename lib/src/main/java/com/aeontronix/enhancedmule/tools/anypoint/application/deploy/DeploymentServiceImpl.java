@@ -23,6 +23,7 @@ import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.unpack.UnpackException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,7 @@ import java.io.IOException;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class DeploymentServiceImpl {
+public class DeploymentServiceImpl implements DeploymentService {
     private static final Logger logger = getLogger(DeploymentServiceImpl.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
     private AnypointClient client;
@@ -41,10 +42,12 @@ public class DeploymentServiceImpl {
         this.client = client;
     }
 
+    @Override
     public void deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException {
         MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
     }
 
+    @Override
     public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
         final String target = request.getTarget();
         final Environment environment = request.getEnvironment();
@@ -52,6 +55,10 @@ public class DeploymentServiceImpl {
         try {
             DeploymentOperation op = createDeploymentOperation(request, source, target, environment, organization);
             request.setAppName(op.processAppName(request.getAppName()));
+            final JsonNode appId = appDescJson.get("id");
+            if (appId != null && !appId.isNull()) {
+                request.getVars().put("app.id", appId.textValue());
+            }
             JsonHelper.processVariables(appDescJson, request.getVars());
             ApplicationDescriptor applicationDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(appDescJson);
             request.setApplicationDescriptor(applicationDescriptor);
@@ -69,116 +76,6 @@ public class DeploymentServiceImpl {
             throw new DeploymentException(e);
         }
     }
-
-    //    public DeploymentResult deploy(ApplicationDescriptor applicationDescriptor, RuntimeDeploymentRequest deploymentRequest,
-//                                   DeploymentOperation op, ApplicationSource source) throws ProvisioningException, IOException, HttpException, DeploymentException {
-//        final Environment environment = deploymentRequest.getEnvironment();
-//        AnypointClient client = environment.getClient();
-//        boolean tmpFile = false;
-//        try {
-//            environment = environment.refresh();
-//            APIProvisioningResult provisioningResult = null;
-//            List<Transformer> transformers = new ArrayList<>();
-//            if (applicationDescriptor != null && !deploymentRequest.isSkipProvisioning() ) {
-//                logger.debug("Found anypoint provisioning file, provisioning");
-//                final Organization organization = environment.getOrganization();
-//                final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
-//                boolean assetPublished = false;
-//                final ExchangeManagementClient exchangeManagementClient = new ExchangeManagementClient();
-//                if (applicationDescriptor.isAssetPublish()) {
-//                    final ExchangeAssetDescriptor asset = applicationDescriptor.getApi().getAsset();
-//                    assetPublished = exchangeManagementClient.publish(asset, organization, source,  );
-//                }
-//                provisioningResult = applicationProvisioningService.provision(applicationDescriptor, environment, apiProvisioningConfig);
-//                final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
-//                if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId()) {
-//                    final String apiIdProperty = apiDescriptor.getApiIdProperty();
-//                    if (apiIdProperty == null) {
-//                        throw new IllegalArgumentException("apiIdProperty musn't be null");
-//                    }
-//                    deploymentRequest.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
-//                    deploymentRequest.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
-//                    try {
-//                        final String clientSecret = environment.getClientSecret();
-//                        if (clientSecret != null) {
-//                            deploymentRequest.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
-//                        }
-//                    } catch (HttpException e) {
-//                        if (e.getStatusCode() != 401) {
-//                            throw e;
-//                        }
-//                    }
-//                }
-//                if (assetPublished && provisioningRequest.isDeleteSnapshots()) {
-//                    exchangeManagementClient.deleteSnapshots(organization, applicationDescriptor.getApi().getAsset());
-//                }
-//                final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
-//                ClientApplication clientApp = provisioningResult.getClientApplication();
-//                if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
-//                    final String clientIdProperty = clientDescriptor.getClientIdProperty();
-//                    if (clientIdProperty == null) {
-//                        throw new IllegalStateException("client descriptor id property musn't be null");
-//                    }
-//                    deploymentRequest.setOverrideProperty(clientIdProperty, clientApp.getClientId());
-//                    final String clientSecretProperty = clientDescriptor.getClientSecretProperty();
-//                    if (clientSecretProperty == null) {
-//                        throw new IllegalStateException("client descriptor id property musn't be null");
-//                    }
-//                    deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
-//                }
-//            } else {
-//                logger.info("no anypoint.json found, skipping provisioning");
-//            }
-//            if (deploymentRequest.isFilePropertiesSecure() &&
-//                    applicationDescriptor.getProperties() != null) {
-//                for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
-//                    if (propertyDescriptor.isSecure()) {
-//                        String pVal = deploymentRequest.getProperties().remove(propertyDescriptor.getKey());
-//                        deploymentRequest.addFileProperty(propertyDescriptor.getKey(), pVal);
-//                    }
-//                }
-//            }
-//            final Map<String, String> fileProperties = deploymentRequest.getFileProperties();
-//            if (fileProperties != null && !fileProperties.isEmpty()) {
-//                if (logger.isDebugEnabled()) {
-//                    logger.debug("File properties injected into application: {}", fileProperties);
-//                    for (Map.Entry<String, String> entry : fileProperties.entrySet()) {
-//                        logger.debug("> {} = {}", entry.getKey(), entry.getValue());
-//                    }
-//                    logger.debug("filePropertiesPath= {}", deploymentRequest.getFilePropertiesPath());
-//                }
-//                transformers.add(new SetPropertyTransformer(deploymentRequest.getFilePropertiesPath(), CREATE,
-//                        new HashMap<>(fileProperties)));
-//                logger.info("Added properties file to application archive");
-//            }
-//            if (!transformers.isEmpty()) {
-//                try {
-//                    if (source instanceof FileApplicationSource || source.getLocalFile() != null) {
-//                        File oldFile = source.getLocalFile();
-//                        File newFile = new TempFile("transformed", filename);
-//                        source = new FileApplicationSource(client, newFile);
-//                        Unpacker unpacker = new Unpacker(oldFile, FileType.ZIP, newFile, FileType.ZIP);
-//                        unpacker.addTransformers(transformers);
-//                        unpacker.unpack();
-//                        logger.info("Enhanced application archive");
-//                    } else if (source instanceof ExchangeApplicationSource) {
-//                        throw new ProvisioningException("Transformations on exchange sources not supported at this (so OnPrem provisioned deployments won't work with exchange sources until this feature is added)");
-//                    }
-//                } catch (Exception e) {
-//                    throw new ProvisioningException("An error occurred while applying application " + appName + " transformations: " + e.getMessage(), e);
-//                }
-//                tmpFile = true;
-//            }
-//            return doDeploy(deploymentRequest);
-//        } catch (NotFoundException e) {
-//            throw new DeploymentException(e);
-//        } finally {
-//            if (tmpFile) {
-//                IOUtils.close((TempFile) source.getLocalFile());
-//            }
-//        }
-//    }
-
 
     private void waitForApplicationStart(RuntimeDeploymentRequest request, DeploymentResult result) throws HttpException, ApplicationDeploymentFailedException {
         if (result != null && !request.isSkipWait()) {

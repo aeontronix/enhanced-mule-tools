@@ -100,11 +100,11 @@ public class CHDeploymentOperation extends DeploymentOperation {
                     .set("monitoringEnabled", true)
                     .set("monitoringAutoRestart", true)
                     .set("loggingNgEnabled", true)
-                    .set("objectStoreV1", cloudhub.isObjectStoreV1())
-                    .set("persistentQueues", cloudhub.isPersistentQueues())
-                    .set("persistentQueuesEncrypted", cloudhub.isPersistentQueuesEncrypted())
-                    .set("staticIPsEnabled", cloudhub.isStaticIPs())
-                    .set("loggingCustomLog4JEnabled", cloudhub.isCustomlog4j());
+                    .set("objectStoreV1", cloudhub.getObjectStoreV1())
+                    .set("persistentQueues", cloudhub.getPersistentQueues())
+                    .set("persistentQueuesEncrypted", cloudhub.getPersistentQueuesEncrypted())
+                    .set("staticIPsEnabled", cloudhub.getStaticIPs())
+                    .set("loggingCustomLog4JEnabled", cloudhub.getCustomlog4j());
             appInfoBuilder.addMap("muleVersion").set("version", muleVersion.getVersion()).set("updateId", muleVersion.getLatestUpdate().getId());
             appInfoBuilder.addMap("workers")
                     .set("amount", workerCount)
@@ -193,7 +193,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
                 appName = deploymentRequest.getArtifactId() + cloudhub.getAppNameSuffix();
             } else {
                 final Environment environment = getEnvironment();
-                if (!cloudhub.isAppNameSuffixNPOnly() || !PRODUCTION.equals(environment.getType())) {
+                if (!cloudhub.getAppNameSuffixNPOnly() || !PRODUCTION.equals(environment.getType())) {
                     appName = deploymentRequest.getArtifactId() + environment.getSuffix();
                 }
             }

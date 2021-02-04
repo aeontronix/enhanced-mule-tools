@@ -10,6 +10,9 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentS
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.CloudhubDeploymentParameters;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.RTFDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
@@ -23,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -31,8 +35,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
-public class DeployMojo extends AbstractEnvironmentalMojo {
+public class DeployMojo extends LegacyDeployMojo {
     public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
     public static final String VAR = "var";
@@ -58,46 +63,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.filename")
     protected String filename;
-    /**
-     * Application name
-     */
-    @Parameter(property = "anypoint.deploy.name")
-    protected String appName;
-    /**
-     * Application name
-     */
-    @Parameter(property = "anypoint.deploy.name.chsuffix")
-    protected String appNameCHSuffix;
-    /**
-     * Application name
-     */
-    @Parameter(property = "anypoint.deploy.name.chsuffixnponly", defaultValue = "false")
-    protected boolean appNameCHSuffixNPOnly;
-    /**
-     * Application name cloudhub prefix
-     */
-    @Parameter(property = "anypoint.deploy.name.chprefix")
-    protected String appNameCHPrefix;
-    /**
-     * If true, will force deployment even if same already application was already deployed.
-     */
-    @Parameter(property = "anypoint.deploy.force")
-    protected boolean force;
-    /**
-     * If true will skip wait for application to start (successfully or not)
-     */
-    @Parameter(property = "anypoint.deploy.skipwait")
-    protected boolean skipWait;
-    /**
-     * Deployment timeout
-     */
-    @Parameter(property = "anypoint.deploy.timeout")
-    protected long deployTimeout = TimeUnit.MINUTES.toMillis(10);
-    /**
-     * Delay (in milliseconds) in retrying a deployment
-     */
-    @Parameter(property = "anypoint.deploy.retrydelay")
-    protected long deployRetryDelay = 2500L;
     /**
      * Application properties
      */
@@ -133,116 +98,12 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
     @Parameter
     protected Map<String, String> vars;
     /**
-     * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
-     */
-    @Parameter(name = "target", property = "anypoint.deploy.target")
-    private String target;
-    /**
-     * Deprecated, use chMuleVersionName
-     */
-    @Parameter(name = "muleVersionName", property = "anypoint.deploy.ch.muleversion", required = false)
-    @Deprecated
-    private String muleVersionName;
-    /**
-     *
-     */
-    @Parameter(property = "anypoint.deploy.ch.runtime.version", required = false)
-    private String chMuleVersionName;
-    /**
-     * Cloudhub only: Deployment region
-     */
-    @Parameter(name = "region", property = "anypoint.deploy.ch.region", required = false)
-    private String region;
-
-    /**
-     * Cloudhub only: Worker type (will default to smallest if not specified)
-     */
-    @Parameter(name = "workerType", property = "anypoint.deploy.ch.worker.type", required = false)
-    private String workerType;
-
-    /**
-     * Cloudhub only: Worker count (will default to one if not specified).
-     */
-    @Parameter(name = "workerCount", property = "anypoint.deploy.ch.worker.count")
-    private Integer workerCount;
-    /**
-     * Cloudhub only: If true custom log4j will be used (and cloudhub logging disabled)
-     */
-    @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
-    private boolean customlog4j;
-    /**
-     * Specified if environment info should be injected
-     */
-    @Parameter(property = "anypoint.deploy.injectEnvInfo", defaultValue = "true")
-    private boolean injectEnvInfo;
-    /**
-     * Indicates if existing application properties should be merged
-     */
-    @Parameter(property = "anypoint.deploy.mergeproperties", defaultValue = "true")
-    private boolean mergeExistingProperties;
-    /**
-     * Indicates the behavior to use when merging conflicting properties. If true it will override the existing property, or if false it will override it.
-     */
-    @Parameter(property = "anypoint.deploy.mergeproperties.override")
-    private boolean mergeExistingPropertiesOverride;
-    /**
-     * Enable persistent queues
-     */
-    @Parameter(property = "anypoint.deploy.persistentqueue", defaultValue = "false")
-    private boolean persistentQueues;
-    /**
-     * Enable encryption for persistent queues
-     */
-    @Parameter(property = "anypoint.deploy.persistentqueue.encrypted", defaultValue = "false")
-    private boolean persistentQueuesEncrypted;
-    /**
-     * Set object store v1 instead of v2
-     */
-    @Parameter(property = "anypoint.deploy.objectstorev1", defaultValue = "false")
-    private boolean objectStoreV1;
-    /**
-     * Enable monitoring and visualizer
-     */
-    @Parameter(property = "anypoint.deploy.extMonitoring", defaultValue = "true")
-    private boolean extMonitoring = true;
-    /**
-     * Enable static ips
-     */
-    @Parameter(property = "anypoint.deploy.staticips", defaultValue = "false")
-    private boolean staticIPs;
-    /**
      * Build number
      */
     @Parameter(property = "anypoint.deploy.buildnumber")
     private String buildNumber;
-    @Parameter(property = "anypoint.deploy.rtf.cpu.reserved", defaultValue = "20m")
-    private String cpuReserved;
-    @Parameter(property = "anypoint.deploy.rtf.cpu.limit", defaultValue = "1700m")
-    private String cpuLimit;
-    @Parameter(property = "anypoint.deploy.rtf.memory.reserved", defaultValue = "700Mi")
-    private String memoryReserved;
-    @Parameter(property = "anypoint.deploy.rtf.memory.limit", defaultValue = "700Mi")
-    private String memoryLimit;
-    @Parameter(property = "anypoint.deploy.rtf.clustered", defaultValue = "false")
-    private boolean clustered;
-    @Parameter(property = "anypoint.deploy.rtf.xnodereplicas", defaultValue = "false")
-    private boolean enforceDeployingReplicasAcrossNodes;
-    @Parameter(property = "anypoint.deploy.rtf.http.inbound.publicUrl")
-    private String httpInboundPublicUrl;
-    @Parameter(property = "anypoint.deploy.rtf.jvm.args")
-    private String jvmArgs;
-    @Parameter(property = "anypoint.deploy.rtf.runtime.version")
-    private String rtfRuntimeVersion;
-    @Parameter(property = "anypoint.deploy.rtf.lastmilesecurity")
-    private boolean lastMileSecurity;
-    @Parameter(property = "anypoint.deploy.rtf.forwardSslSession")
-    private boolean forwardSslSession;
-    @Parameter(property = "anypoint.deploy.rtf.updatestrategy", defaultValue = "ROLLING")
-    private RTFDeploymentConfig.DeploymentModel updateStrategy;
-    @Parameter(property = "anypoint.deploy.rtf.replicas", defaultValue = "1")
-    private int replicas;
-    @Parameter(property = "emt.provisioning.deletesnapshots", defaultValue = "false")
-    private boolean deleteSnapshots;
+    @Parameter(property = "emt.provisioning.deletesnapshots")
+    private Boolean deleteSnapshots;
     @Parameter(property = "anypoint.target")
     private String legacyTarget;
     /**
@@ -263,10 +124,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                 logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
                 return;
             }
-            if (target == null) {
-                target = CLOUDHUB;
-            }
-            logger.debug("Deploy target: {}", target);
             if (file == null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No deploy file defined");
@@ -299,69 +156,6 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
                     final ObjectNode appDescJson = source.getAnypointDescriptor();
                     deploymentService.deploy(request, appDescJson, source);
                 }
-
-
-//                if (appName == null) {
-//                    if (project != null) {
-//                        appName = project.getArtifactId();
-//                    } else {
-//                        appName = source.getArtifactId();
-//                    }
-//                    if (StringUtils.isBlank(target) || CLOUDHUB.equalsIgnoreCase(target)) {
-//                        if (appNameCHSuffix != null) {
-//                            appName = appName + appNameCHSuffix;
-//                        } else {
-//                            final Environment environment = getEnvironment();
-//                            if (!appNameCHSuffixNPOnly || !PRODUCTION.equals(environment.getType())) {
-//                                appName = appName + environment.getSuffix();
-//                            }
-//                        }
-//                        if (appNameCHPrefix != null) {
-//                            appName = appNameCHPrefix + appName;
-//                        }
-//                    }
-//                }
-//                if (filename == null) {
-//                    filename = source.getFileName();
-//                }
-//                logger.info(Ansi.ansi().fgBrightYellow().a("Deploying application").toString());
-//                logger.info(Ansi.ansi().fgBrightYellow().a("Organization: ").reset().a(getOrganization().getName()).toString());
-//                logger.info(Ansi.ansi().fgBrightYellow().a("Environment: ").reset().a(getEnvironment().getName()).toString());
-//                logger.info(Ansi.ansi().fgBrightYellow().a("Target: ").reset().a(target).toString());
-//                logger.info(Ansi.ansi().fgBrightYellow().a("App Name: ").reset().a(appName).toString());
-//                APIProvisioningConfig apiProvisioningConfig = null;
-//                if (vars != null) {
-//                    vars = new HashMap<>();
-//                }
-//                if (!skipApiProvisioning) {
-//                    apiProvisioningConfig = new APIProvisioningConfig();
-//                }
-//                DeploymentConfig deploymentConfig = new DeploymentConfig();
-//                if (injectEnvInfo) {
-//                    try {
-//                        final Environment environment = getEnvironment();
-//                        properties.put("anypoint.env.name", environment.getName());
-//                        properties.put("anypoint.env.suffix", environment.getSuffix());
-//                        properties.put("anypoint.env.id", environment.getId());
-//                        properties.put("anypoint.env.type", environment.getType().name());
-//                    } catch (NotFoundException e) {
-//                        logger.debug("No environment, skipping settings properties for env");
-//                    }
-//                    properties.put("anypoint.org.name", getOrganization().getName());
-//                    properties.put("anypoint.org.id", getOrganization().getId());
-//                }
-//                deploymentConfig.setProperties(properties);
-//                deploymentConfig.setFileProperties(fileProperties);
-//                deploymentConfig.setFilePropertiesPath(filePropertiesPath);
-//                deploymentConfig.setFilePropertiesSecure(filePropertiesSecure);
-                // TODO MERGE OVERRIDES (including environments)
-//                DeploymentResult app = deploy(apiProvisioningConfig, deploymentConfig);
-//                if (app != null && !skipWait) {
-//                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
-//                    app.waitDeployed(deployTimeout, deployRetryDelay);
-//                    elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");
-//                }
-//                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deployment completed");
             }
         }
     }
@@ -377,79 +171,5 @@ public class DeployMojo extends AbstractEnvironmentalMojo {
         if( skipApiProvisioning && ! skipProvisioning ) {
             skipProvisioning = true;
         }
-    }
-
-    @SuppressWarnings("Duplicates")
-//    protected DeploymentResult deploy(@NotNull APIProvisioningConfig apiProvisioningConfig,
-//                                      @NotNull DeploymentConfig deploymentConfig) throws Exception {
-////        provisioningRequest = new ProvisioningRequest(buildNumber, deleteSnapshots);
-////        properties = findPrefixProperties(properties, ANYPOINT_DEPLOY_PROPERTIES);
-//        try (ApplicationSource applicationSource = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
-//            if (StringUtils.isBlank(target) || target.equalsIgnoreCase(CLOUDHUB)) {
-//                if (workerCount == null) {
-//                    workerCount = 1;
-//                }
-//                try {
-//                    return new CHDeploymentOperation(chMuleVersionName, region, workerType, workerCount, getEnvironment(), appName,
-//                            applicationSource, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest).deploy(request);
-//                } catch (ProvisioningException | IOException | NotFoundException e) {
-//                    throw new MojoExecutionException(e.getMessage(), e);
-//                }
-//            } else {
-//                try {
-//                    if (target.equalsIgnoreCase("exchange")) {
-//                        uploadToExchange(applicationSource);
-//                        return null;
-//                    } else {
-//                        try {
-//                            Server server = getEnvironment().findServerByName(target);
-//                            return new HDeploymentOperation(server, appName, applicationSource, filename,
-//                                    apiProvisioningConfig, deploymentConfig, provisioningRequest).deploy(request.getDeploymentParameters());
-//                        } catch (NotFoundException e) {
-//                            final Fabric fabric = getOrganization().findFabricByName(target);
-//                            final ApplicationIdentifier appId;
-//                            if (applicationSource instanceof FileApplicationSource) {
-//                                appId = uploadToExchange(applicationSource);
-//                            } else {
-//                                ExchangeApplicationSource eApp = (ExchangeApplicationSource) applicationSource;
-//                                appId = new ApplicationIdentifier(eApp.getGroupId(), eApp.getArtifactId(), eApp.getVersion());
-//                            }
-//                            return new RTFDeploymentOperation(fabric, getEnvironment(), appName, applicationSource, filename,
-//                                    apiProvisioningConfig, deploymentConfig, appId, provisioningRequest).deploy(request.getDeploymentParameters());
-//                        }
-//                    }
-//                } catch (NotFoundException e) {
-//                    throw new MojoExecutionException("Target " + target + " not found in env " + getEnvironment().getName() + " in business group " + org);
-//                } catch (ProvisioningException | IOException e) {
-//                    throw new MojoExecutionException(e.getMessage(), e);
-//                }
-//            }
-//        }
-//    }
-
-    private Map<String, String> findPrefixProperties(Map<String, String> target, String prefix) {
-        if (project != null) {
-            target = findPrefixProperties(project.getProperties(), target, prefix);
-        }
-        target = findPrefixProperties(session.getUserProperties(), target, prefix);
-        target = findPrefixProperties(session.getSystemProperties(), target, prefix);
-        return target;
-    }
-
-    private static Map<String, String> findPrefixProperties(Properties source, Map<String, String> target, String prefix) {
-        for (Map.Entry<Object, Object> entry : source.entrySet()) {
-            String key = entry.getKey().toString();
-            if (key.startsWith(prefix)) {
-                key = key.substring(prefix.length() + 1);
-                if (StringUtils.isNotBlank(key)) {
-                    String value = entry.getValue().toString();
-                    if (target == null) {
-                        target = new HashMap<>();
-                    }
-                    target.put(key, value);
-                }
-            }
-        }
-        return target;
     }
 }

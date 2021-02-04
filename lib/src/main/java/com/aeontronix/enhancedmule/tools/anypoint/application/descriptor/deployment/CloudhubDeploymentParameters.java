@@ -4,16 +4,18 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment;
 
+import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
+
 public class CloudhubDeploymentParameters {
     private String appNameSuffix;
-    private boolean appNameSuffixNPOnly;
+    private Boolean appNameSuffixNPOnly;
     private String appNamePrefix;
     private String muleVersion;
-    private boolean persistentQueues;
-    private boolean persistentQueuesEncrypted;
-    private boolean objectStoreV1 = false;
-    private boolean customlog4j;
-    private boolean staticIPs;
+    private Boolean persistentQueues;
+    private Boolean persistentQueuesEncrypted;
+    private Boolean objectStoreV1;
+    private Boolean customlog4j;
+    private Boolean staticIPs;
     private String region;
     private String workerType;
     private Integer workerCount;
@@ -26,11 +28,11 @@ public class CloudhubDeploymentParameters {
         this.appNameSuffix = appNameSuffix;
     }
 
-    public boolean isAppNameSuffixNPOnly() {
+    public Boolean getAppNameSuffixNPOnly() {
         return appNameSuffixNPOnly;
     }
 
-    public void setAppNameSuffixNPOnly(boolean appNameSuffixNPOnly) {
+    public void setAppNameSuffixNPOnly(Boolean appNameSuffixNPOnly) {
         this.appNameSuffixNPOnly = appNameSuffixNPOnly;
     }
 
@@ -50,44 +52,44 @@ public class CloudhubDeploymentParameters {
         this.muleVersion = muleVersion;
     }
 
-    public boolean isPersistentQueues() {
+    public Boolean getPersistentQueues() {
         return persistentQueues;
     }
 
-    public void setPersistentQueues(boolean persistentQueues) {
+    public void setPersistentQueues(Boolean persistentQueues) {
         this.persistentQueues = persistentQueues;
     }
 
-    public boolean isPersistentQueuesEncrypted() {
+    public Boolean getPersistentQueuesEncrypted() {
         return persistentQueuesEncrypted;
     }
 
-    public void setPersistentQueuesEncrypted(boolean persistentQueuesEncrypted) {
+    public void setPersistentQueuesEncrypted(Boolean persistentQueuesEncrypted) {
         this.persistentQueuesEncrypted = persistentQueuesEncrypted;
     }
 
-    public boolean isObjectStoreV1() {
+    public Boolean getObjectStoreV1() {
         return objectStoreV1;
     }
 
-    public void setObjectStoreV1(boolean objectStoreV1) {
+    public void setObjectStoreV1(Boolean objectStoreV1) {
         this.objectStoreV1 = objectStoreV1;
     }
 
-    public boolean isStaticIPs() {
-        return staticIPs;
-    }
-
-    public void setStaticIPs(boolean staticIPs) {
-        this.staticIPs = staticIPs;
-    }
-
-    public boolean isCustomlog4j() {
+    public Boolean getCustomlog4j() {
         return customlog4j;
     }
 
-    public void setCustomlog4j(boolean customlog4j) {
+    public void setCustomlog4j(Boolean customlog4j) {
         this.customlog4j = customlog4j;
+    }
+
+    public Boolean getStaticIPs() {
+        return staticIPs;
+    }
+
+    public void setStaticIPs(Boolean staticIPs) {
+        this.staticIPs = staticIPs;
     }
 
     public String getRegion() {

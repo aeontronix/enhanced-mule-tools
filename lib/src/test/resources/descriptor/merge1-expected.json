@@ -1,0 +1,41 @@
+{
+  "properties": {},
+  "deploymentParams": {
+    "cloudhub": {
+      "appNameSuffixNPOnly": false,
+      "persistentQueues": false,
+      "persistentQueuesEncrypted": false,
+      "customlog4j": false,
+      "staticIPs": false,
+      "workerCount": 1
+    },
+    "rtf": {
+      "cpuReserved": "20m",
+      "cpuLimit": "1700m",
+      "memoryReserved": "700Mi",
+      "memoryLimit": "700Mi",
+      "clustered": false,
+      "enforceDeployingReplicasAcrossNodes": false,
+      "updateStrategy": "ROLLING",
+      "replicas": 1
+    },
+    "deployTimeout": "PT15M",
+    "deployRetryDelay": "PT3S",
+    "mergeExistingProperties": false,
+    "mergeExistingPropertiesOverride": false,
+    "extMonitoring": false,
+    "autoApproveAccess": false
+  },
+  "name": "myApp",
+  "api": {
+    "slaTiers": [
+      {
+        "name": "foo"
+      },
+      {
+        "name": "grob"
+      }
+    ]
+  },
+  "id": "my-id"
+}

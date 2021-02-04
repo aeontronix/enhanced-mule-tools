@@ -4,17 +4,18 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.descriptor;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.*;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.annotation.JsonMerge;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class ApplicationDescriptor {
@@ -31,17 +32,6 @@ public class ApplicationDescriptor {
 
     public ApplicationDescriptor() {
     }
-//
-//    public static ApplicationDescriptor read(InputStream is, Variables variables) throws IOException {
-//        ObjectMapper mapper = JsonHelper.createMapper();
-//        String json = IOUtils.toString(is);
-//        String appId = (String) mapper.readValue(json, Map.class).get("id");
-//        if (appId != null) {
-//            variables.put("app.id", appId);
-//        }
-//        json = StringUtils.substituteVariables(json, variables.getVars());
-//        return mapper.readValue(json, ApplicationDescriptor.class);
-//    }
 
     public static File findAnypointFile(File basedir) {
         File file = new File(basedir, "anypoint.yml");
@@ -57,6 +47,12 @@ public class ApplicationDescriptor {
             return file;
         }
         return null;
+    }
+
+    public static ApplicationDescriptor createDefault() {
+        final ApplicationDescriptor applicationDescriptor = new ApplicationDescriptor();
+        applicationDescriptor.setDeploymentParams(DeploymentParameters.createDefault());
+        return applicationDescriptor;
     }
 
     public String getName() {
@@ -92,7 +88,7 @@ public class ApplicationDescriptor {
     }
 
     public synchronized HashMap<String, PropertyDescriptor> getProperties() {
-        if( properties == null) {
+        if (properties == null) {
             properties = new HashMap<>();
         }
         return properties;
@@ -133,7 +129,11 @@ public class ApplicationDescriptor {
         this.description = description;
     }
 
+    @NotNull
     public DeploymentParameters getDeploymentParams() {
+        if (deploymentParams == null) {
+            deploymentParams = new DeploymentParameters();
+        }
         return deploymentParams;
     }
 
@@ -143,7 +143,7 @@ public class ApplicationDescriptor {
 
     @JsonIgnore
     public boolean isAssetPublish() {
-        if( api != null && api.getAsset() != null ) {
+        if (api != null && api.getAsset() != null) {
             final Boolean create = api.getAsset().getCreate();
             return create != null && create;
         }
