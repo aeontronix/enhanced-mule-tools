@@ -5,6 +5,7 @@
       "appNameSuffixNPOnly": false,
       "persistentQueues": false,
       "persistentQueuesEncrypted": false,
+      "objectStoreV1": false,
       "customlog4j": false,
       "staticIPs": false,
       "workerCount": 1

@@ -25,7 +25,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implements ProvisioningRequest {
     private static final Logger logger = getLogger(RuntimeDeploymentRequest.class);
     private ApplicationDescriptor applicationDescriptor;
-    private DeploymentParameters deploymentParameters;
     private String appName;
     private String artifactId;
     private Environment environment;
@@ -101,7 +100,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     public void mergeExistingProperties(CHApplication existingApp) {
         if (existingApp != null) {
             Map<String, String> props = existingApp.getProperties();
-            final DeploymentParameters dp = getDeploymentParameters();
+            final DeploymentParameters dp = getApplicationDescriptor().getDeploymentParams();
             final Boolean mergeExistingProperties = dp.getMergeExistingProperties();
             if ((mergeExistingProperties == null || mergeExistingProperties) && props != null) {
                 for (Map.Entry<String, String> entry : props.entrySet()) {
@@ -119,19 +118,16 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return vars;
     }
 
-    public DeploymentParameters getDeploymentParameters() {
-        if (deploymentParameters == null) {
-            deploymentParameters = new DeploymentParameters();
-        }
-        return deploymentParameters;
-    }
-
     public String getArtifactId() {
         return artifactId;
     }
 
     public String getTarget() {
         return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
     public Environment getEnvironment() {
@@ -236,11 +232,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     @Override
     public boolean isAutoApproveAPIAccessRequest() {
-        final Boolean autoApproveAccess = deploymentParameters.getAutoApproveAccess();
+        final Boolean autoApproveAccess = applicationDescriptor.getDeploymentParams().getAutoApproveAccess();
         return autoApproveAccess == null || autoApproveAccess;
-    }
-
-    public void setDeploymentParameters(DeploymentParameters deploymentParameters) {
-        this.deploymentParameters = deploymentParameters;
     }
 }

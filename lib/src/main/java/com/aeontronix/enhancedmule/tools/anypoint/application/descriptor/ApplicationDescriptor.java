@@ -8,9 +8,9 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.API
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.ClientApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonMerge;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +53,10 @@ public class ApplicationDescriptor {
         final ApplicationDescriptor applicationDescriptor = new ApplicationDescriptor();
         applicationDescriptor.setDeploymentParams(DeploymentParameters.createDefault());
         return applicationDescriptor;
+    }
+
+    public static JsonNode createDefault(ObjectMapper objectMapper) {
+        return objectMapper.valueToTree(createDefault());
     }
 
     public String getName() {

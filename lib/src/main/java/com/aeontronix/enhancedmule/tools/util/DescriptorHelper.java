@@ -25,11 +25,11 @@ public class DescriptorHelper {
                     obj.replace(fieldEntry.getKey(), fieldEntry.getValue());
                 }
             } else if( fieldEntry.getValue() instanceof ObjectNode ) {
-                final ObjectNode fobj = (ObjectNode) obj.get(fieldEntry.getKey());
+                final JsonNode fobj = obj.get(fieldEntry.getKey());
                 if(fobj == null || fobj.isNull() ) {
                     obj.replace(fieldEntry.getKey(),fieldEntry.getValue());
                 } else {
-                    override(fobj,(ObjectNode) fieldEntry.getValue());
+                    override((ObjectNode) fobj,(ObjectNode) fieldEntry.getValue());
                 }
             } else {
                 obj.replace(fieldEntry.getKey(),fieldEntry.getValue());

@@ -52,7 +52,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
 
     @Override
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException {
-        final RTFDeploymentParameters rtf = request.getDeploymentParameters().getRtf();
+        final RTFDeploymentParameters rtf = request.getApplicationDescriptor().getDeploymentParams().getRtf();
         if (StringUtils.isBlank(rtf.getRuntimeVersion())) {
             try {
                 final Target target = environment.getOrganization().findTargetById(fabric.getId());

@@ -19,11 +19,13 @@ import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperatio
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
+import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
@@ -49,19 +51,30 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     @Override
     public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
-        final String target = request.getTarget();
+        String target = request.getTarget();
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {
-            DeploymentOperation op = createDeploymentOperation(request, source, target, environment, organization);
+            JsonHelper.processVariables(appDescJson, request.getVars());
+            final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
+            final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
+            DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
+            ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
+                    .readValue(jsonDesc);
+            request.setApplicationDescriptor(applicationDescriptor);
+            if (target == null) {
+                target = applicationDescriptor.getDeploymentParams().getTarget();
+                if(target == null) {
+                    target = "cloudhub";
+                }
+                request.setTarget(target);
+            }
+            DeploymentOperation op = createDeploymentOperation(request, source, environment, organization);
             request.setAppName(op.processAppName(request.getAppName()));
             final JsonNode appId = appDescJson.get("id");
             if (appId != null && !appId.isNull()) {
                 request.getVars().put("app.id", appId.textValue());
             }
-            JsonHelper.processVariables(appDescJson, request.getVars());
-            ApplicationDescriptor applicationDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(appDescJson);
-            request.setApplicationDescriptor(applicationDescriptor);
             logger.info(Ansi.ansi().fgBrightYellow().a("Deploying application").toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Organization: ").reset().a(organization.getName()).toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Environment: ").reset().a(environment.getName()).toString());
@@ -80,15 +93,16 @@ public class DeploymentServiceImpl implements DeploymentService {
     private void waitForApplicationStart(RuntimeDeploymentRequest request, DeploymentResult result) throws HttpException, ApplicationDeploymentFailedException {
         if (result != null && !request.isSkipWait()) {
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
-            final DeploymentParameters deploymentParameters = request.getDeploymentParameters();
+            final DeploymentParameters deploymentParameters = request.getApplicationDescriptor().getDeploymentParams();
             result.waitDeployed(deploymentParameters.getDeployTimeout().toMillis(), deploymentParameters.getDeployRetryDelay().toMillis());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application started successfully");
         }
     }
 
     @NotNull
-    private DeploymentOperation createDeploymentOperation(RuntimeDeploymentRequest request, ApplicationSource source, String target, Environment environment, Organization organization) throws HttpException, NotFoundException {
+    private DeploymentOperation createDeploymentOperation(RuntimeDeploymentRequest request, ApplicationSource source, Environment environment, Organization organization) throws HttpException, NotFoundException {
         DeploymentOperation op;
+        final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {
             op = new CHDeploymentOperation(request, environment, source);
         } else {

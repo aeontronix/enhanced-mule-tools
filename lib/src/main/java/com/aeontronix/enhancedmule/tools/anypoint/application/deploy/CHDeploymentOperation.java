@@ -61,8 +61,8 @@ public class CHDeploymentOperation extends DeploymentOperation {
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException {
         try {
             long start = System.currentTimeMillis();
-            final DeploymentParameters deploymentParameters = request.getDeploymentParameters();
-            final CloudhubDeploymentParameters cloudhub = request.getDeploymentParameters().getCloudhub();
+            final DeploymentParameters deploymentParameters = request.getApplicationDescriptor().getDeploymentParams();
+            final CloudhubDeploymentParameters cloudhub = request.getApplicationDescriptor().getDeploymentParams().getCloudhub();
             try {
                 if (isBlank(cloudhub.getMuleVersion())) {
                     muleVersion = environment.findDefaultCHMuleVersion();
@@ -188,7 +188,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
     @Override
     public String processAppName(String appName) {
         if (appName == null) {
-            final CloudhubDeploymentParameters cloudhub = deploymentRequest.getDeploymentParameters().getCloudhub();
+            final CloudhubDeploymentParameters cloudhub = deploymentRequest.getApplicationDescriptor().getDeploymentParams().getCloudhub();
             if (cloudhub.getAppNameSuffix() != null) {
                 appName = deploymentRequest.getArtifactId() + cloudhub.getAppNameSuffix();
             } else {

@@ -8,7 +8,6 @@ import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApplicationDescriptorTest {
     @Test
@@ -25,7 +24,7 @@ class ApplicationDescriptorTest {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        final JsonNode json = objectMapper.valueToTree(ApplicationDescriptor.createDefault());
+        final JsonNode json = ApplicationDescriptor.createDefault(objectMapper);
         ObjectNode ov1 = (ObjectNode) objectMapper.readTree(ApplicationDescriptorTest.class.getResource("/descriptor/merge1.json"));
         DescriptorHelper.override((ObjectNode) json, ov1);
         ObjectNode ov2 = (ObjectNode) objectMapper.readTree(ApplicationDescriptorTest.class.getResource("/descriptor/merge2.json"));

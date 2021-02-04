@@ -123,6 +123,7 @@ public class DeploymentParameters {
         dp.setAutoApproveAccess(false);
         final CloudhubDeploymentParameters ch = dp.getCloudhub();
         ch.setAppNameSuffixNPOnly(false);
+        ch.setObjectStoreV1(false);
         ch.setPersistentQueues(false);
         ch.setPersistentQueuesEncrypted(false);
         ch.setCustomlog4j(false);

@@ -135,7 +135,7 @@ public class DeployMojo extends LegacyDeployMojo {
             }
             final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient());
             try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
-                if (target.equalsIgnoreCase("exchange")) {
+                if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
                     if (project != null) {
                         req = new ExchangeDeploymentRequest(buildNumber, new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), source, null);
@@ -152,7 +152,7 @@ public class DeployMojo extends LegacyDeployMojo {
                     request.setFileProperties(fileProperties);
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
-                    request.setDeleteSnapshots(deleteSnapshots);
+                    request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
                     final ObjectNode appDescJson = source.getAnypointDescriptor();
                     deploymentService.deploy(request, appDescJson, source);
                 }
