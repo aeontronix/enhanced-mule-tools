@@ -9,21 +9,21 @@ import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
+import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
@@ -196,14 +196,14 @@ public class Organization extends AnypointObject {
 //            }
 //        } catch (HttpException e) {
 //            if( fullData && e.getStatusCode() == 401 ) {
-                app = findClientApplicationByName(new ClientApplicationList(this, name), name, false);
-                if (app == null) {
-                    // #@$@##@$ anypoint filtering sometimes doesn't work
-                    app = findClientApplicationByName(findAllClientApplications(name), name, false);
-                }
-                if( app != null ) {
-                    app = findClientApplicationById(app.getId().toString());
-                }
+        app = findClientApplicationByName(new ClientApplicationList(this, name), name, false);
+        if (app == null) {
+            // #@$@##@$ anypoint filtering sometimes doesn't work
+            app = findClientApplicationByName(findAllClientApplications(name), name, false);
+        }
+        if (app != null) {
+            app = findClientApplicationById(app.getId().toString());
+        }
 //            } else {
 //                throw e;
 //            }
@@ -533,7 +533,8 @@ public class Organization extends AnypointObject {
         return null;
     }
 
-    public @NotNull RoleGroupList findAllRoleGroups() throws HttpException {
+    public @NotNull
+    RoleGroupList findAllRoleGroups() throws HttpException {
         return new RoleGroupList(this);
     }
 
@@ -729,10 +730,11 @@ public class Organization extends AnypointObject {
             }
         }
         try (final TempFile file = new TempFile("orig"); final TempFile newFile = new TempFile("new")) {
+            final ApplicationIdentifier appId = new ApplicationIdentifier(groupId, artifactId, version);
             try (final FileOutputStream os = new FileOutputStream(file)) {
                 IOUtils.copy(emClient.getExchangeClient().getAsset(groupId, artifactId, version, "mule-application", "jar"), os);
             }
-            final ObjectNode descriptorJson = new FileApplicationSource(client, file).getAnypointDescriptor();
+            final ObjectNode descriptorJson = new FileApplicationSource(client, file, appId).getAnypointDescriptor();
             final ApplicationDescriptor anypointDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(descriptorJson);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
@@ -742,7 +744,7 @@ public class Organization extends AnypointObject {
                 snapshotApiVersion = apiDescriptor.getAsset().getVersion();
             }
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
-            unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(new ApplicationIdentifier(groupId, artifactId, version), groupId, newVersion, null));
+            unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, groupId, newVersion, null));
             unpacker.unpack();
             publishExchangeAsset(new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
             if (snapshotPromotion) {

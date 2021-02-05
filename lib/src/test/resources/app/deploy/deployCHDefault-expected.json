@@ -1,0 +1,38 @@
+{
+  "applicationInfo": {
+    "loggingNgEnabled": true,
+    "fileName": "testapp-1.0.0.jar",
+    "loggingCustomLog4JEnabled": false,
+    "muleVersion": {
+      "updateId": "3434",
+      "version": "4.3.55"
+    },
+    "monitoringEnabled": true,
+    "staticIPsEnabled": false,
+    "monitoringAutoRestart": true,
+    "domain": "appartid-prod",
+    "persistentQueues": false,
+    "objectStoreV1": false,
+    "persistentQueuesEncrypted": false,
+    "workers": {
+      "amount": 1,
+      "type": {
+        "memory": null,
+        "name": "micro",
+        "weight": null,
+        "cpu": null
+      }
+    },
+    "properties": {
+      "anypoint.org.id": "428536327643427636",
+      "anypoint.platform.config.analytics.agent.enabled": "true",
+      "anypoint.org.name": "MyOrg",
+      "anypoint.env.suffix": "-prod",
+      "anypoint.env.id": "42798472398234-243432243-243432234",
+      "anypoint.env.name": null,
+      "anypoint.env.type": "PRODUCTION"
+    }
+  },
+  "applicationSource": {},
+  "autoStart": true
+}

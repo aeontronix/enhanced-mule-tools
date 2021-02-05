@@ -15,6 +15,13 @@ public class CHWorkerType {
     private String cpu;
     private String memory;
 
+    public CHWorkerType() {
+    }
+
+    public CHWorkerType(String name) {
+        this.name = name;
+    }
+
     @JsonProperty
     public String getName() {
         return name;

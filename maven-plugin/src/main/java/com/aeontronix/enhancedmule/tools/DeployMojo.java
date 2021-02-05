@@ -4,18 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentServiceImpl;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.CloudhubDeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.RTFDeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
-import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,11 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
@@ -133,15 +122,12 @@ public class DeployMojo extends LegacyDeployMojo {
                 }
                 file = MavenUtils.getProjectJar(project).getPath();
             }
+            ApplicationIdentifier applicationIdentifier = project != null ? new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()) : null;
             final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient());
             try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
-                    if (project != null) {
-                        req = new ExchangeDeploymentRequest(buildNumber, new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()), getOrganization(), source, null);
-                    } else {
-                        req = new ExchangeDeploymentRequest(buildNumber, null, getOrganization(), source, null);
-                    }
+                    req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);
                     deploymentService.deployToExchange(req);
                 } else {
                     vars = findPrefixProperties(vars, VAR);
@@ -168,7 +154,7 @@ public class DeployMojo extends LegacyDeployMojo {
             logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
             chMuleVersionName = muleVersionName;
         }
-        if( skipApiProvisioning && ! skipProvisioning ) {
+        if (skipApiProvisioning && !skipProvisioning) {
             skipProvisioning = true;
         }
     }

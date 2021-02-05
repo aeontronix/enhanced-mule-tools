@@ -52,6 +52,9 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Override
     public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
         String target = request.getTarget();
+        if( request.getFilename() == null ) {
+            request.setFilename(source.getFileName());
+        }
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {

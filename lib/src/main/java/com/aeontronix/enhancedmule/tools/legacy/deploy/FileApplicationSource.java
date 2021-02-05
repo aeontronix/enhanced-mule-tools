@@ -6,12 +6,17 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class FileApplicationSource extends ApplicationSource {
     private File file;
@@ -19,6 +24,11 @@ public class FileApplicationSource extends ApplicationSource {
     public FileApplicationSource(AnypointClient client, File file) {
         super(client);
         this.file = file;
+    }
+
+    public FileApplicationSource(AnypointClient client, File file, ApplicationIdentifier applicationIdentifier) {
+        this(client, file);
+        this.applicationIdentifier = applicationIdentifier;
     }
 
     @Override
@@ -42,12 +52,28 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public String getArtifactId() {
-        try {
-            return getAnypointDescriptor().get("id").textValue();
-        } catch (IOException e) {
-            throw new UnexpectedException(e);
+    public ApplicationIdentifier getApplicationIdentifier() {
+        if (applicationIdentifier == null) {
+            try {
+                ZipFile zipFile = new ZipFile(file);
+                ZipEntry artJson = zipFile.getEntry("META-INF/mule-artifact/mule-artifact.json");
+                if (artJson != null) {
+                    try (InputStream is = zipFile.getInputStream(artJson)) {
+                        final ObjectNode jsonNode = (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(is);
+                        final JsonNode nameJson = jsonNode.get("name");
+                        if (nameJson != null && !nameJson.isNull()) {
+                            final String[] name = nameJson.textValue().split(":");
+                            if (name.length == 3) {
+                                applicationIdentifier = new ApplicationIdentifier(name[0], name[1], name[2]);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                throw new UnexpectedException(e);
+            }
         }
+        return null;
     }
 
     @Override

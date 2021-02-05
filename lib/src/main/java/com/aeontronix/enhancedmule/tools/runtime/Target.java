@@ -59,6 +59,14 @@ public class Target {
         private String type;
         private List<RuntimeVersion> versions;
 
+        public Runtime() {
+        }
+
+        public Runtime(String type, List<RuntimeVersion> versions) {
+            this.type = type;
+            this.versions = versions;
+        }
+
         public String getType() {
             return type;
         }
@@ -79,6 +87,13 @@ public class Target {
     public static class RuntimeVersion {
         private String baseVersion;
         private String tag;
+
+        public RuntimeVersion() {
+        }
+
+        public RuntimeVersion(String baseVersion) {
+            this.baseVersion = baseVersion;
+        }
 
         public String getBaseVersion() {
             return baseVersion;

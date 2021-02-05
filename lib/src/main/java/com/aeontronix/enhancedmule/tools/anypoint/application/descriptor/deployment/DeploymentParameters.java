@@ -119,8 +119,8 @@ public class DeploymentParameters {
         dp.setDeployRetryDelay(Duration.ofSeconds(3));
         dp.setMergeExistingProperties(false);
         dp.setMergeExistingPropertiesOverride(false);
-        dp.setExtMonitoring(false);
-        dp.setAutoApproveAccess(false);
+        dp.setExtMonitoring(true);
+        dp.setAutoApproveAccess(true);
         final CloudhubDeploymentParameters ch = dp.getCloudhub();
         ch.setAppNameSuffixNPOnly(false);
         ch.setObjectStoreV1(false);

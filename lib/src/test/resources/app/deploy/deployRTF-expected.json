@@ -1,0 +1,58 @@
+{
+  "application": {
+    "desiredState": "STARTED",
+    "ref": {
+      "groupId": "com.mycompany",
+      "artifactId": "testapp",
+      "packaging": "jar",
+      "version": "1.0.0"
+    },
+    "configuration": {
+      "mule.agent.application.properties.service": {
+        "secureproperties": {},
+        "applicationName": "appartid",
+        "properties": {
+          "anypoint.org.id": "428536327643427636",
+          "anypoint.org.name": "MyOrg",
+          "anypoint.env.suffix": "-prod",
+          "anypoint.env.id": "42798472398234-243432243-243432234",
+          "anypoint.env.name": null,
+          "anypoint.env.type": "PRODUCTION"
+        }
+      }
+    }
+  },
+  "name": "appartid",
+  "labels": [
+    "beta"
+  ],
+  "target": {
+    "targetId": null,
+    "provider": "MC",
+    "replicas": 1,
+    "deploymentSettings": {
+      "jvm": {},
+      "updateStrategy": "rolling",
+      "runtimeVersion": "1.2.3:null",
+      "clustered": false,
+      "forwardSslSession": null,
+      "resources": {
+        "memory": {
+          "reserved": "700Mi",
+          "limit": "700Mi"
+        },
+        "cpu": {
+          "reserved": "20m",
+          "limit": "1700m"
+        }
+      },
+      "http": {
+        "inbound": {
+          "publicUrl": null
+        }
+      },
+      "lastMileSecurity": null,
+      "enforceDeployingReplicasAcrossNodes": false
+    }
+  }
+}

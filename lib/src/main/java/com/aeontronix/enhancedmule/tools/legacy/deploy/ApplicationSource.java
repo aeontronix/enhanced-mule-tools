@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -26,8 +27,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class ApplicationSource implements APISpecSource, Closeable {
     private static final Logger logger = getLogger(ApplicationSource.class);
-
     protected AnypointClient client;
+    protected ApplicationIdentifier applicationIdentifier;
 
     public ApplicationSource(AnypointClient client) {
         this.client = client;
@@ -62,7 +63,11 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
         }
     }
 
-    public abstract String getArtifactId();
+    public String getArtifactId() {
+        return getApplicationIdentifier().getArtifactId();
+    }
+
+    public abstract ApplicationIdentifier getApplicationIdentifier();
 
     public abstract Map<String, Object> getSourceJson(JsonHelper jsonHelper);
 

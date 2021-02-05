@@ -1,0 +1,7 @@
+{
+  "deploymentParams": {
+    "cloudhub": {
+      "customlog4j": true
+    }
+  }
+}

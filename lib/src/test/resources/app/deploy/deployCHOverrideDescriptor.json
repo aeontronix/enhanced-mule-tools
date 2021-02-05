@@ -1,0 +1,19 @@
+{
+  "deploymentParams": {
+    "target": "cloudhub",
+    "extMonitoring": false,
+    "cloudhub": {
+      "appNameSuffix": "-myprod",
+      "appNamePrefix": "pref-",
+      "muleVersion": "1.2.3",
+      "persistentQueues": true,
+      "persistentQueuesEncrypted": true,
+      "objectStoreV1": true,
+      "customlog4j": true,
+      "staticIPs": true,
+      "region": "moon-1",
+      "workerType": "huge",
+      "workerCount": 7
+    }
+  }
+}

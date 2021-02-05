@@ -59,14 +59,6 @@ public abstract class DeploymentOperation {
         this.source = source;
     }
 
-    public DeploymentOperation(Environment environment, String appName, ApplicationSource source, String filename,
-                               APIProvisioningConfig apiProvisioningConfig,
-                               @NotNull ProvisioningRequest provisioningRequest,
-                               ApplicationDescriptor applicationDescriptor) {
-        this.environment = environment;
-        this.source = source;
-    }
-
     public DeploymentResult deploy() throws ProvisioningException, IOException, HttpException, DeploymentException {
         AnypointClient client = environment.getClient();
         boolean tmpFile = false;
@@ -126,7 +118,7 @@ public abstract class DeploymentOperation {
                     deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
                 }
             }
-            if (deploymentRequest.isFilePropertiesSecure() &&
+            if (deploymentRequest.isFilePropertiesSecure() && applicationDescriptor != null &&
                     applicationDescriptor.getProperties() != null) {
                 for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
                     if (propertyDescriptor.isSecure()) {

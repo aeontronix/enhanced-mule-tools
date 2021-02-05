@@ -142,6 +142,10 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return filename;
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public void setAppName(String appName) {
         this.appName = appName;
     }

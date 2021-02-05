@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class RTFDeploymentOperation extends DeploymentOperation {
     private final Fabric fabric;
-    private ApplicationIdentifier appId;
 
     public RTFDeploymentOperation(Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
         super(req, environment, applicationSource);
@@ -37,7 +36,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
 
 //    public RTFDeploymentOperation(Fabric fabric, Environment environment, String appName, ApplicationSource applicationSource, String filename,
 //                                  APIProvisioningConfig apiProvisioningConfig, DeploymentConfig deploymentConfig,
-//                                  ApplicationIdentifier appId, ProvisioningRequest provisioningRequest) {
+//                                  , ProvisioningRequest provisioningRequest) {
 //        super(environment, appName, applicationSource, filename, apiProvisioningConfig, deploymentConfig, provisioningRequest);
 //        this.fabric = fabric;
 //        this.appId = appId;
@@ -104,6 +103,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         target.put("replicas", replicas);
         final Map<String, Object> application = subMap(req, "application");
         final Map<String, Object> ref = subMap(application, "ref");
+        final ApplicationIdentifier appId = source.getApplicationIdentifier();
         ref.put("groupId", appId.getGroupId());
         ref.put("artifactId", appId.getArtifactId());
         ref.put("version", appId.getVersion());
@@ -115,7 +115,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         properties.put("properties", deploymentRequest.getProperties());
         properties.put("secureproperties", Collections.emptyMap());
         final String json = environment.getClient().getHttpHelper().httpPost(new URLBuilder("/hybrid/api/v2/organizations")
-                .path(environment.getParent().getId()).path("environments").path(environment.getId())
+                .path(environment.getOrganization().getId()).path("environments").path(environment.getId())
                 .path("deployments")
                 .toString(), req);
         return null;

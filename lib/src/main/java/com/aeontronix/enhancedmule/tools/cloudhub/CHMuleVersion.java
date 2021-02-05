@@ -20,6 +20,14 @@ public class CHMuleVersion {
     @JsonProperty(value = "default")
     private boolean defaultVersion;
 
+    public CHMuleVersion() {
+    }
+
+    public CHMuleVersion(String version, MuleVersionUpdate latestUpdate) {
+        this.version = version;
+        this.latestUpdate = latestUpdate;
+    }
+
     public String getVersion() {
         return version;
     }
