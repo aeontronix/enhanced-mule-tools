@@ -64,7 +64,12 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
     }
 
     public String getArtifactId() {
-        return getApplicationIdentifier().getArtifactId();
+        final ApplicationIdentifier applicationIdentifier = getApplicationIdentifier();
+        if( applicationIdentifier != null ) {
+            return applicationIdentifier.getArtifactId();
+        } else {
+            return null;
+        }
     }
 
     public abstract ApplicationIdentifier getApplicationIdentifier();

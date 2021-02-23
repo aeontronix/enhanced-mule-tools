@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentif
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,10 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class FileApplicationSource extends ApplicationSource {
+    private static final Logger logger = getLogger(FileApplicationSource.class);
     private File file;
 
     public FileApplicationSource(AnypointClient client, File file) {
@@ -54,6 +58,7 @@ public class FileApplicationSource extends ApplicationSource {
     @Override
     public ApplicationIdentifier getApplicationIdentifier() {
         if (applicationIdentifier == null) {
+            logger.debug("no application identifier found, reading from pom");
             try {
                 ZipFile zipFile = new ZipFile(file);
                 ZipEntry artJson = zipFile.getEntry("META-INF/mule-artifact/mule-artifact.json");
@@ -65,6 +70,7 @@ public class FileApplicationSource extends ApplicationSource {
                             final String[] name = nameJson.textValue().split(":");
                             if (name.length == 3) {
                                 applicationIdentifier = new ApplicationIdentifier(name[0], name[1], name[2]);
+                                logger.debug("Loaded ApplicationIdentifier from archive: "+applicationIdentifier);
                             }
                         }
                     }
@@ -73,7 +79,7 @@ public class FileApplicationSource extends ApplicationSource {
                 throw new UnexpectedException(e);
             }
         }
-        return null;
+        return applicationIdentifier;
     }
 
     @Override

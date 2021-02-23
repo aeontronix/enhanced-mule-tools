@@ -41,4 +41,13 @@ public class ApplicationIdentifier {
     public void setVersion(String version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "ApplicationIdentifier{" +
+                "groupId='" + groupId + '\'' +
+                ", artifactId='" + artifactId + '\'' +
+                ", version='" + version + '\'' +
+                '}';
+    }
 }
