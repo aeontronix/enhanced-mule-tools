@@ -24,8 +24,8 @@
     "deployRetryDelay": "PT3S",
     "mergeExistingProperties": false,
     "mergeExistingPropertiesOverride": false,
-    "extMonitoring": false,
-    "autoApproveAccess": false
+    "extMonitoring": true,
+    "autoApproveAccess": true
   },
   "name": "myApp",
   "api": {
