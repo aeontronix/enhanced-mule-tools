@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.getCaseInsensitive;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DeploymentServiceImpl implements DeploymentService {
@@ -52,7 +54,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Override
     public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
         String target = request.getTarget();
-        if( request.getFilename() == null ) {
+        if (request.getFilename() == null) {
             request.setFilename(source.getFileName());
         }
         final Environment environment = request.getEnvironment();
@@ -60,14 +62,34 @@ public class DeploymentServiceImpl implements DeploymentService {
         try {
             JsonHelper.processVariables(appDescJson, request.getVars());
             final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
+            // default layer
             final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
+            // Descriptor layer
             DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
+            // Descriptor override layers
+            final JsonNode overrides = appDescJson.get("override");
+            if (isNotNull(overrides)) {
+                final ObjectNode byEnvType = (ObjectNode) overrides.get("byEnvType");
+                if (isNotNull(byEnvType)) {
+                    final ObjectNode envTypeOverride = (ObjectNode) getCaseInsensitive(byEnvType,environment.getType().name());
+                    if (isNotNull(envTypeOverride)) {
+                        DescriptorHelper.override((ObjectNode) jsonDesc, envTypeOverride);
+                    }
+                }
+                final ObjectNode byEnvName = (ObjectNode) overrides.get("byEnv");
+                if (isNotNull(byEnvName)) {
+                    final ObjectNode envNameOverride = (ObjectNode) getCaseInsensitive(byEnvType,environment.getName());
+                    if (isNotNull(envNameOverride)) {
+                        DescriptorHelper.override((ObjectNode) jsonDesc, envNameOverride);
+                    }
+                }
+            }
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
                     .readValue(jsonDesc);
             request.setApplicationDescriptor(applicationDescriptor);
             if (target == null) {
                 target = applicationDescriptor.getDeploymentParams().getTarget();
-                if(target == null) {
+                if (target == null) {
                     target = "cloudhub";
                 }
                 request.setTarget(target);

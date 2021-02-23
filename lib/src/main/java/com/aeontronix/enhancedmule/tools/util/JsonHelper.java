@@ -10,12 +10,14 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.InvalidJsonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,10 +60,10 @@ public class JsonHelper implements Serializable {
                     final int size = node.size();
                     for (int i = 0; i < size; i++) {
                         JsonNode child = node.get(i);
-                        if( child instanceof TextNode ) {
+                        if (child instanceof TextNode) {
                             final TextNode replacement = new TextNode(StringUtils.substituteVariables(child.textValue(), vars));
                             ((ArrayNode) node).remove(i);
-                            ((ArrayNode) node).insert(i,replacement);
+                            ((ArrayNode) node).insert(i, replacement);
                         } else {
                             nodes.addLast(child);
                         }
@@ -72,6 +74,17 @@ public class JsonHelper implements Serializable {
                 }
             }
         }
+    }
+
+    public static Object getCaseInsensitive(ObjectNode node, String name) {
+        final Iterator<String> names = node.fieldNames();
+        while (names.hasNext()) {
+            String n = names.next();
+            if(n.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public AnypointClient getClient() {
