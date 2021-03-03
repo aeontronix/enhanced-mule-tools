@@ -30,7 +30,7 @@
       "anypoint.org.name": "MyOrg",
       "anypoint.env.suffix": "-prod",
       "anypoint.env.id": "42798472398234-243432243-243432234",
-      "anypoint.env.name": null,
+      "anypoint.env.name": "ProdEnv",
       "anypoint.env.type": "PRODUCTION"
     }
   },
