@@ -14,7 +14,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
-import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ExchangeApplicationSource;
@@ -27,7 +27,6 @@ import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.Unpacker;
 import com.aeontronix.unpack.transformer.SetPropertyTransformer;
 import com.aeontronix.unpack.transformer.Transformer;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

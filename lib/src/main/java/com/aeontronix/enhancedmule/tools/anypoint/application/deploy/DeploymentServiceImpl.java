@@ -13,7 +13,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperation;

@@ -9,7 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.CloudhubDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;

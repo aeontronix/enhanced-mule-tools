@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2021
  */
 
-package com.aeontronix.enhancedmule.tools.application;
+package com.aeontronix.enhancedmule.tools.anypoint.application;
 
 public class DeploymentException extends Exception {
     public DeploymentException() {

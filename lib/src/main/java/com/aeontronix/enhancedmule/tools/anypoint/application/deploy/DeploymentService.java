@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -2,7 +2,7 @@
  * Copyright (c) Aeontronix 2021
  */
 
-package com.aeontronix.enhancedmule.tools.template;
+package com.aeontronix.enhancedmule.tools.application.template;
 
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import com.aeontronix.genesis.*;

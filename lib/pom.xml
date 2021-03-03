@@ -86,7 +86,7 @@
         <dependency>
             <groupId>com.aeontronix.genesis</groupId>
             <artifactId>genesis-templating</artifactId>
-            <version>1.0.0-beta3</version>
+            <version>1.0.0-beta4</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>

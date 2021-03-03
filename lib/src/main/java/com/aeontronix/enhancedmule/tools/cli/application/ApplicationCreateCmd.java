@@ -5,13 +5,12 @@
 package com.aeontronix.enhancedmule.tools.cli.application;
 
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
-import com.aeontronix.enhancedmule.tools.template.EMTProjectTemplate;
+import com.aeontronix.enhancedmule.tools.application.template.EMTProjectTemplate;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -41,7 +40,7 @@ public class ApplicationCreateCmd implements Callable<Integer> {
     @Option(names = {"--emt-version"}, description = "Enhance Mule Tools version", showDefaultValue = ALWAYS)
     private String emtVersion;
     @Option(names = {"--project-type","-t"}, description = "Project type", showDefaultValue = ALWAYS)
-    private EMTProjectTemplate.ProjectType projectType = EMTProjectTemplate.ProjectType.REST;
+    private EMTProjectTemplate.ProjectType projectType;
     @Option(names = {"--domain","-m"}, description = "Use domain", negatable = true)
     private Boolean domain;
     @Option(names = {"--domain-group-id"}, description = "Use domain", showDefaultValue = ALWAYS)

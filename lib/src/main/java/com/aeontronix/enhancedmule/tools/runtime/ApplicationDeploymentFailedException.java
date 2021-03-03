@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
-import com.aeontronix.enhancedmule.tools.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 
 import java.util.ArrayList;
 import java.util.List;

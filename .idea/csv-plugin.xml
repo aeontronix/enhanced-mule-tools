@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/lib/src/main/java/com/aeontronix/enhancedmule/tools/cli/application/ApplicationCmd.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/lib/src/test/java/com/aeontronix/enhancedmule/tools/anypoint/application/deploy/DeploymentServiceImplTest.java">
           <value>
             <Attribute>
