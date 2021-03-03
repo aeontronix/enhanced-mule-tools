@@ -13,7 +13,42 @@
       "staticIPs": true,
       "region": "moon-1",
       "workerType": "huge",
-      "workerCount": 7
+      "workerCount": 1
     }
-  }
+  },
+  "overrides": [
+    {
+      "type": "env",
+      "value": "ProdEnv",
+      "override": {
+        "deploymentParams": {
+          "cloudhub": {
+            "workerCount": 2
+          }
+        }
+      }
+    },
+    {
+      "type": "envType",
+      "value": "production",
+      "override": {
+        "deploymentParams": {
+          "cloudhub": {
+            "workerType": "gigantic"
+          }
+        }
+      }
+    },
+    {
+      "type": "envType",
+      "value": "dev",
+      "override": {
+        "deploymentParams": {
+          "cloudhub": {
+            "workerType": "tiny"
+          }
+        }
+      }
+    }
+  ]
 }

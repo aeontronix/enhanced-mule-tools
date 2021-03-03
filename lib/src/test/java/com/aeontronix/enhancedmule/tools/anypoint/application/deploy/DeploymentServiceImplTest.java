@@ -45,6 +45,7 @@ class DeploymentServiceImplTest {
     public static final String US_WEST_4 = "us-west-4";
     public static final String MYFABRIC = "myfabric";
     public static final String ENV_ID = "42798472398234-243432243-243432234";
+    private static final String ENV_NAME = "ProdEnv";
     private AnypointClient anypointClient;
     private Environment environment;
     private ApplicationSource appSrc;
@@ -70,6 +71,7 @@ class DeploymentServiceImplTest {
         when(anypointClient.getJsonHelper()).thenReturn(jsonHelper);
         when(anypointClient.getHttpHelper()).thenReturn(httpHelper);
         environment = mock(Environment.class);
+        when(environment.getName()).thenReturn(ENV_NAME);
         when(environment.getId()).thenReturn(ENV_ID);
         when(environment.getType()).thenReturn(Environment.Type.PRODUCTION);
         when(environment.refresh()).thenReturn(environment);
@@ -78,6 +80,7 @@ class DeploymentServiceImplTest {
         when(environment.findDefaultCHRegion()).thenReturn(new CHRegion(US_WEST_4,"zoomgalan"));
         when(environment.getClient()).thenReturn(anypointClient);
         when(environment.findWorkerTypeByName("huge")).thenReturn(new CHWorkerType("huge"));
+        when(environment.findWorkerTypeByName("gigantic")).thenReturn(new CHWorkerType("gigantic"));
         when(environment.findSmallestWorkerType()).thenReturn(new CHWorkerType(MICRO));
         when(environment.getSuffix()).thenReturn("-prod");
         organization = mock(Organization.class);

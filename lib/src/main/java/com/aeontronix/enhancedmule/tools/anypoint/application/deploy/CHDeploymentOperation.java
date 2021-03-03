@@ -82,6 +82,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
             } else {
                 workerType = environment.findWorkerTypeByName(cloudhub.getWorkerType());
             }
+            workerCount = cloudhub.getWorkerCount();
             if( workerCount < 1) {
                 workerCount = 1;
             }

@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -33,8 +34,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-import static com.aeontronix.enhancedmule.tools.util.JsonHelper.getCaseInsensitive;
-import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DeploymentServiceImpl implements DeploymentService {
@@ -67,23 +67,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             // Descriptor layer
             DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
             // Descriptor override layers
-            final JsonNode overrides = appDescJson.get("override");
-            if (isNotNull(overrides)) {
-                final ObjectNode byEnvType = (ObjectNode) overrides.get("byEnvType");
-                if (isNotNull(byEnvType)) {
-                    final ObjectNode envTypeOverride = (ObjectNode) getCaseInsensitive(byEnvType,environment.getType().name());
-                    if (isNotNull(envTypeOverride)) {
-                        DescriptorHelper.override((ObjectNode) jsonDesc, envTypeOverride);
-                    }
-                }
-                final ObjectNode byEnvName = (ObjectNode) overrides.get("byEnv");
-                if (isNotNull(byEnvName)) {
-                    final ObjectNode envNameOverride = (ObjectNode) getCaseInsensitive(byEnvType,environment.getName());
-                    if (isNotNull(envNameOverride)) {
-                        DescriptorHelper.override((ObjectNode) jsonDesc, envNameOverride);
-                    }
-                }
-            }
+            processOverrides(environment, (ObjectNode) jsonDesc, appDescJson.get("overrides"));
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
                     .readValue(jsonDesc);
             request.setApplicationDescriptor(applicationDescriptor);
@@ -113,6 +97,44 @@ public class DeploymentServiceImpl implements DeploymentService {
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
+    }
+
+    private void processOverrides(Environment environment, ObjectNode jsonDesc, JsonNode overrides) throws ProvisioningException {
+        if (isNotNull(overrides)) {
+            for (JsonNode override : overrides) {
+                final String type = JsonHelper.getText(override, "type");
+                if (type == null) {
+                    throw new ProvisioningException("Invalid override descriptor type " + type + " : " + override);
+                } else if (type.equalsIgnoreCase("env")) {
+                    final String value = getOverrideValue(override, type);
+                    if (environment.getName().equalsIgnoreCase(value) || environment.getId().equalsIgnoreCase(value)) {
+                        DescriptorHelper.override(jsonDesc, getOverrideJson(override));
+                    }
+                } else if (type.equalsIgnoreCase("envtype")) {
+                    final String value = getOverrideValue(override, type);
+                    if (environment.getType().name().equalsIgnoreCase(value) ) {
+                        DescriptorHelper.override(jsonDesc, getOverrideJson(override));
+                    }
+                }
+            }
+        }
+    }
+
+    private ObjectNode getOverrideJson(JsonNode override) throws ProvisioningException {
+        final JsonNode overrideJson = override.get("override");
+        if(isNull(overrideJson)) {
+            throw new ProvisioningException("Invalid override descriptor : " + override);
+        }
+        return (ObjectNode) overrideJson;
+    }
+
+    @NotNull
+    private String getOverrideValue(JsonNode override, String type) throws ProvisioningException {
+        final String value = JsonHelper.getText(override, "value");
+        if (StringUtils.isBlank(value)) {
+            throw new ProvisioningException("Invalid override descriptor value " + type + " : " + override);
+        }
+        return value;
     }
 
     private void waitForApplicationStart(RuntimeDeploymentRequest request, DeploymentResult result) throws HttpException, ApplicationDeploymentFailedException {

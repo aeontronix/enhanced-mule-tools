@@ -81,10 +81,10 @@ public class JsonHelper implements Serializable {
         while (names.hasNext()) {
             String n = names.next();
             if(n.equalsIgnoreCase(name)) {
-                return true;
+                return node.get(n);
             }
         }
-        return false;
+        return null;
     }
 
     public AnypointClient getClient() {
@@ -288,4 +288,15 @@ public class JsonHelper implements Serializable {
     public static boolean isNotNull(JsonNode node) {
         return !isNull(node);
     }
+
+    public static String getText(JsonNode node, String name) {
+        if( isNotNull(node) ) {
+            final JsonNode val = node.get(name);
+            if( isNotNull(val) ) {
+                return val.textValue();
+            }
+        }
+        return null;
+    }
+
 }

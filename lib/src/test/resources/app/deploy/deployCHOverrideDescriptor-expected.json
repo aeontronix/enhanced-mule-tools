@@ -15,10 +15,10 @@
     "objectStoreV1": true,
     "persistentQueuesEncrypted": true,
     "workers": {
-      "amount": 1,
+      "amount": 2,
       "type": {
         "memory": null,
-        "name": "huge",
+        "name": "gigantic",
         "weight": null,
         "cpu": null
       }
@@ -28,7 +28,7 @@
       "anypoint.org.name": "MyOrg",
       "anypoint.env.suffix": "-prod",
       "anypoint.env.id": "42798472398234-243432243-243432234",
-      "anypoint.env.name": null,
+      "anypoint.env.name": "ProdEnv",
       "anypoint.env.type": "PRODUCTION"
     }
   },
