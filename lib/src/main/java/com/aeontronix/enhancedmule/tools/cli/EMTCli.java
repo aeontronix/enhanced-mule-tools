@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.config.*;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
@@ -15,13 +16,13 @@ import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProv
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import org.jline.reader.LineReader;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.File;
 import java.io.IOException;
 
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.ArgGroup;
+import static picocli.CommandLine.Option;
 
 @Command(name = "emt", mixinStandardHelpOptions = true, versionProvider = VersionHelper.class, subcommands = {ApplicationCmd.class, ConfigCmd.class})
 public class EMTCli {
@@ -75,7 +76,7 @@ public class EMTCli {
     }
 
     public ConfigProfile getProfile(String org, String groupId) throws IOException, ProfileNotFoundException {
-        return config.getProfile(null,org,groupId);
+        return config.getProfile(null, org, groupId);
     }
 
     public void saveConfig() throws IOException {
@@ -83,51 +84,66 @@ public class EMTCli {
     }
 
     public Environment getEnvironment(String organizationName, String environmentName) throws IOException, ProfileNotFoundException, NotFoundException {
-        if( organizationName == null ) {
+        if (organizationName == null) {
             organizationName = getProfile().getDefaultOrg();
         }
-        if( environmentName == null ) {
+        if (environmentName == null) {
             environmentName = getProfile().getDefaultEnv();
         }
-        if( organizationName == null ) {
+        if (organizationName == null) {
             throw new IllegalArgumentException("Organization not set and no default is assigned in profile");
         }
-        if( environmentName == null ) {
+        if (environmentName == null) {
             throw new IllegalArgumentException("Environment not set and no default is assigned in profile");
         }
         final EnhancedMuleClient client = getClient(organizationName, environmentName);
-        client.getAnypointClient().findEnvironment(organizationName,environmentName,false,false,null);
+        client.getAnypointClient().findEnvironment(organizationName, environmentName, false, false, null);
         return null;
     }
 
-    private EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
+    public EnhancedMuleClient getClient() throws IOException, ProfileNotFoundException {
+        return getClient(null,null);
+    }
+
+    public EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
         Credential credential;
-        if( credentialsArgs != null ) {
-            if( credentialsArgs.type == CredentialType.REFRESH ) {
+        if (credentialsArgs != null) {
+            if (credentialsArgs.type == CredentialType.REFRESH) {
                 throw new IllegalArgumentException("Refresh credentials can only be used in configuration profile");
             }
             credential = new Credential(credentialsArgs.id, credentialsArgs.secret, credentialsArgs.type);
         } else {
-            credential = getProfile(organizationName,environmentName).getCredential();
+            credential = getProfile(organizationName, environmentName).getCredential();
         }
-        if( credential == null ) {
+        if (credential == null) {
             throw new IllegalArgumentException("No credentials available");
         }
         final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getProfile());
-        if( credential.getType() == CredentialType.PASSWORD ) {
+        if (credential.getType() == CredentialType.PASSWORD) {
             enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAnypointUsernamePasswordImpl(credential.getId(), credential.getSecret()));
-        } else if( credential.getType() == CredentialType.ACCESS ) {
+        } else if (credential.getType() == CredentialType.ACCESS) {
             enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAccessTokenImpl(credential.getId(), credential.getSecret()));
         }
         return enhancedMuleClient;
     }
 
+    public Organization findOrganization(String organization) throws IOException, ProfileNotFoundException, NotFoundException {
+        if( organization != null ) {
+            return getClient(organization,null).getAnypointClient().findOrganizationByNameOrId(organization);
+        } else {
+            final AnypointClient anypointClient = getClient().getAnypointClient();
+            final Organization org = anypointClient.getUser().getOrganization();
+            org.setClient(anypointClient);
+            return org;
+        }
+    }
+
     static class CredentialsArgs {
-        @Option(names = {"--ci","--credential-id"}, description = "Credential Identifier")
+        @Option(names = {"--ci", "--credential-id"}, description = "Credential Identifier")
         private String id;
-        @Option(names = {"--cs","--credential-secret"}, description = "Credential Secret")
+        @Option(names = {"--cs", "--credential-secret"}, description = "Credential Secret")
         private String secret;
-        @Option(names = {"--ct","--credential-type"}, description = "Credential Secret")
+        @Option(names = {"--ct", "--credential-type"}, description = "Credential Secret")
         private CredentialType type;
     }
 }

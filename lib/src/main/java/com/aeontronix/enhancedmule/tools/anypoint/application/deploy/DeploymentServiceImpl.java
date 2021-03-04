@@ -9,6 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
@@ -47,8 +48,8 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException {
-        MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+    public ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException {
+        return MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
     }
 
     @Override

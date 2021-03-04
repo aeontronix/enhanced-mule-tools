@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools.cli.application.template;
 
 import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCreateCmd;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,6 @@ import picocli.CommandLine.Command;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,10 +35,10 @@ public class ApplicationTemplateCreateCmd implements Callable<Integer> {
             FileUtils.mkdirs(directory);
         }
         final ObjectMapper mapper = JsonHelper.createMapper();
-        final URL resource = getClass().getResource("/template/emt-genesis-template.json");
+        final URL resource = getClass().getResource("/template/genesis-template.json");
         final JsonNode json = mapper.readTree(resource);
         List<String> files = new ArrayList<>();
-        files.add("emt-genesis-template.json");
+        files.add("genesis-template.json");
         for (JsonNode file : json.get("files")) {
             final JsonNode res = file.get("resource");
             final String filename;
@@ -49,8 +47,11 @@ public class ApplicationTemplateCreateCmd implements Callable<Integer> {
             } else {
                 filename = file.get("path").textValue();
             }
-            try(InputStream is = getClass().getResourceAsStream("/template/"+ filename);
-                FileOutputStream fw = new FileOutputStream(new File(directory,filename))) {
+            files.add(filename);
+        }
+        for (String file : files) {
+            try(InputStream is = getClass().getResourceAsStream("/template/"+ file);
+                FileOutputStream fw = new FileOutputStream(new File(directory,file))) {
                 IOUtils.copy(is,fw);
             }
         }

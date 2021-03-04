@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -432,7 +433,7 @@ public class HttpHelper implements Closeable {
     }
 
     public class MultiPartRequest {
-        private Map<String, Object> parts = new HashMap<>();
+        private LinkedHashMap<String, Object> parts = new LinkedHashMap<>();
         private HttpEntityEnclosingRequestBase request;
 
         MultiPartRequest(HttpEntityEnclosingRequestBase request) {

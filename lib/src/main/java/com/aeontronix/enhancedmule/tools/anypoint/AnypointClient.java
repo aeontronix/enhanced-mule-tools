@@ -200,9 +200,13 @@ public class AnypointClient implements Closeable, Serializable {
      */
     public User getUser() throws HttpException {
         try {
-            return anypointRestClient.get("/accounts/api/me").execute(User.class);
+            return anypointRestClient.get("/accounts/api/me").execute(UserInfo.class).getUser();
         } catch (RESTException e) {
-            throw new HttpException(e.getStatusCode());
+            if( e.getStatusCode() != null ) {
+                throw new HttpException(e.getStatusCode());
+            } else {
+                throw new HttpException(e);
+            }
         }
     }
 

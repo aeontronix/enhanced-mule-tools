@@ -44,8 +44,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -683,16 +685,28 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset publishExchangeAPIAsset(String name, String assetId, String assetVersion, String assetAPIVersion, String assetClassifier, String assetMainFile, File file) throws IOException, HttpException {
+        return publishExchangeAsset(assetId, name, assetVersion, "custom",assetVersion, new FileStreamSource(file), new ExchangePublishingPart("main",assetMainFile));
+    }
+
+    public ExchangeAsset publishExchangeCustomAsset(String assetId, String name, String version, StreamSource streamSource) throws IOException, HttpException {
+        return publishExchangeAsset(assetId, name, version, "v1","custom", streamSource);
+    }
+
+    public ExchangeAsset publishExchangeAsset(String assetId, String name, String version, String apiVersion, String classifier, StreamSource streamSource, ExchangePublishingPart... parts) throws IOException, HttpException {
         final HttpHelper.MultiPartRequest req = getClient().getHttpHelper().createAnypointMultiPartPostRequest("/exchange/api/v1/assets", null);
+        req.addText("version", version);
         req.addText("name", name);
         req.addText("organizationId", id);
         req.addText("groupId", id);
         req.addText("assetId", assetId);
-        req.addText("version", assetVersion);
-        req.addText("classifier", assetClassifier);
-        req.addText("apiVersion", assetAPIVersion);
-        req.addText("main", assetMainFile);
-        req.addBinary("asset", new FileStreamSource(file));
+        req.addText("classifier", classifier);
+        req.addText("apiVersion", apiVersion);
+        req.addBinary("asset", streamSource);
+        if( parts != null ) {
+            for (ExchangePublishingPart part : parts) {
+                req.addText(part.name, part.value);
+            }
+        }
         final String json = req.execute();
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
     }
@@ -778,5 +792,15 @@ public class Organization extends AnypointObject {
 
     public enum RequestAPIAccessResult {
         GRANTED, RESTORED, PENDING
+    }
+
+    public class ExchangePublishingPart {
+        private String name;
+        private String value;
+
+        public ExchangePublishingPart(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
     }
 }

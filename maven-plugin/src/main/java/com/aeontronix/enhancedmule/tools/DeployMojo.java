@@ -9,6 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentS
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class DeployMojo extends LegacyDeployMojo {
     public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
+    private static final EMTLogger emtLogger = new EMTLogger(logger);
     public static final String VAR = "var";
     public static final String CLOUDHUB = "cloudhub";
     /**
@@ -128,7 +130,8 @@ public class DeployMojo extends LegacyDeployMojo {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
                     req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);
-                    deploymentService.deployToExchange(req);
+                    final ApplicationIdentifier appId = deploymentService.deployToExchange(req);
+                    emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
                     vars = findPrefixProperties(vars, VAR);
                     properties = findPrefixProperties(properties, ANYPOINT_DEPLOY_PROPERTIES);

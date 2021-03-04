@@ -6,10 +6,11 @@ package com.aeontronix.enhancedmule.tools.emclient.authentication;
 
 import com.aeontronix.enhancedmule.tools.authentication.AccessTokenCredentials;
 import com.aeontronix.enhancedmule.tools.authentication.Credentials;
+import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 
 import java.io.IOException;
 
-public class CredentialsProviderAccessTokenImpl implements CredentialsProvider {
+public class CredentialsProviderAccessTokenImpl implements AnypointBearerTokenCredentialsProvider {
     private String tokenId;
     private String tokenSecret;
 
@@ -21,5 +22,10 @@ public class CredentialsProviderAccessTokenImpl implements CredentialsProvider {
     @Override
     public Credentials getCredentials() throws IOException {
         return new AccessTokenCredentials(tokenId, tokenSecret);
+    }
+
+    @Override
+    public String getAnypointBearerToken(EnhancedMuleClient restClient) throws IOException {
+        return restClient.getRestClient().get("/anypoint/bearer").execute(String.class);
     }
 }

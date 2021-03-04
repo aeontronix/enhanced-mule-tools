@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="/lib/pom.xml">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/lib/src/main/java/com/aeontronix/enhancedmule/tools/anypoint/application/descriptor/deployment/CloudhubDeploymentParameters.java">
           <value>
             <Attribute>

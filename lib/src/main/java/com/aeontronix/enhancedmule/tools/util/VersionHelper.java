@@ -30,6 +30,8 @@ public class VersionHelper implements CommandLine.IVersionProvider {
                 Properties p = new Properties();
                 p.load(pomProperties);
                 return p.get("version").toString();
+            } else {
+                return "UNKNOWN";
             }
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
