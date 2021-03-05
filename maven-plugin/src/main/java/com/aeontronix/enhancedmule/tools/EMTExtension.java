@@ -5,7 +5,10 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.ReflectionUtils;
-import com.aeontronix.enhancedmule.config.*;
+import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.Credential;
+import com.aeontronix.enhancedmule.config.CredentialType;
+import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
@@ -114,14 +117,10 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(profile != null ? profile : "*default*").toString());
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
                     emAccessTokenId, emAccessTokenSecret, profile, org, session.getCurrentProject().getGroupId());
-            try {
-                emClient.getAnypointClient().getUser();
-                addRepositoriesAuthentication(session);
-            } catch (Exception e) {
-                logger.warn("Unable to check connection status, skipping adding repository authentication");
-            }
-        } catch (Exception e) {
-            throw new MavenExecutionException(e.getMessage(), e);
+            emClient.getAnypointClient().getUser();
+            addRepositoriesAuthentication(session);
+        } catch (Throwable e) {
+            logger.warn("Unable to setup extension emclient", e);
         }
         super.afterProjectsRead(session);
     }
