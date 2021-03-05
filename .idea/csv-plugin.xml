@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="$MAVEN_REPOSITORY$/info/picocli/picocli/4.5.2/picocli-4.5.2-sources.jar!/picocli/CommandLine.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/lib/pom.xml">
           <value>
             <Attribute>

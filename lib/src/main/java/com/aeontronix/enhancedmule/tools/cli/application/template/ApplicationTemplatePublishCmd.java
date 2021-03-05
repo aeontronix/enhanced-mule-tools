@@ -36,7 +36,7 @@ public class ApplicationTemplatePublishCmd implements Callable<Integer> {
     private String assetId = EMT_TEMPLATE_ASSET_ID;
     @Option(names = "-n", description = "Exchange asset name")
     private String assetName = "Enhanced Mule Application Template";
-    @Option(names = "-v", description = "Exchange asset version")
+    @Option(names = "-e", description = "Exchange asset version")
     private String assetVersion = "0.0.1";
     @ParentCommand
     private ApplicationTemplateCmd parent;
