@@ -43,11 +43,13 @@ import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Command(name = "create", aliases = "cr", mixinStandardHelpOptions = true)
+@Command(name = "create")
 public class ApplicationCreateCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationCreateCmd.class);
     public static final String EMT_VERSION_KEY = "emtVersion";
     public static final String TEMPLATE_FILE = "genesis-template.json";
+    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @Option(names = "-D", description = "Template variables")
     private HashMap<String,String> vars = new HashMap<>();
     @Option(names = "-o", description = "Organization name or id")

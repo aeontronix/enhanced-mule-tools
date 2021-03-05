@@ -14,6 +14,8 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "profile",description = "Change or show active profile")
 public class ActiveProfileCmd implements Callable<Integer> {
     private EMTCli cli;
+    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @Parameters(arity = "0..1",description = "profile to activate")
     private String profile;
 

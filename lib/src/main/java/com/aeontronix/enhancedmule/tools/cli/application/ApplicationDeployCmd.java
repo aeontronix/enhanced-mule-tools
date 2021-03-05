@@ -17,9 +17,11 @@ import java.util.concurrent.Callable;
 import static org.slf4j.LoggerFactory.getLogger;
 import static picocli.CommandLine.*;
 
-@Command(name = "deploy", aliases = "de", mixinStandardHelpOptions = true)
+@Command(name = "deploy", aliases = "de")
 public class ApplicationDeployCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationDeployCmd.class);
+    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @ParentCommand
     private ApplicationCmd applicationCmd;
     @Parameters
@@ -30,7 +32,7 @@ public class ApplicationDeployCmd implements Callable<Integer> {
     private String organizationName;
     @Option(names = {"--environment","-e"})
     private String environmentName;
-    @Option(names = {"--var","-D"})
+    @Option(names = {"--var","-V"})
     private HashMap<String,String> vars;
     @Option(names = {"--property","-P"})
     private HashMap<String,String> properties;

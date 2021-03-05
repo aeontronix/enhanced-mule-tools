@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-@Command(name = "creds", description = "Set credentials in selected profile", mixinStandardHelpOptions = true)
+@Command(name = "creds", description = "Set credentials in selected profile")
 public class ConfigSetCredentials implements Callable<Integer> {
+    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @ParentCommand
     private ConfigCmd configCmd;
     @Parameters(arity = "1", index = "0", description = "Credential type (PASSWORD, ACCESS or REFRESH)")

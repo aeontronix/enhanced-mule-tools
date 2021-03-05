@@ -25,6 +25,9 @@ import java.util.function.Supplier;
 
 @Command(name = "shell")
 public class ShellCmd implements Callable<Integer> {
+    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
+
     public ShellCmd() {
     }
 

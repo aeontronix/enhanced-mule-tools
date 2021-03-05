@@ -24,10 +24,12 @@ import java.util.concurrent.Callable;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Command(name = "publish", mixinStandardHelpOptions = true)
+@Command(name = "publish")
 public class ApplicationTemplatePublishCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationTemplatePublishCmd.class);
     public static final String EMT_TEMPLATE_ASSET_ID = "emt-application-template";
+    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @Option(names = "-d", description = "Directory where template files will be created")
     private File directory;
     @Option(names = "-o", description = "Organization used to publish template")
@@ -36,7 +38,7 @@ public class ApplicationTemplatePublishCmd implements Callable<Integer> {
     private String assetId = EMT_TEMPLATE_ASSET_ID;
     @Option(names = "-n", description = "Exchange asset name")
     private String assetName = "Enhanced Mule Application Template";
-    @Option(names = "-e", description = "Exchange asset version")
+    @Option(names = "-v", description = "Exchange asset version")
     private String assetVersion = "0.0.1";
     @ParentCommand
     private ApplicationTemplateCmd parent;

@@ -9,13 +9,15 @@ import com.aeontronix.enhancedmule.tools.cli.application.template.ApplicationTem
 import picocli.CommandLine;
 import picocli.CommandLine.ParentCommand;
 
-@CommandLine.Command(name = "application", aliases = "app", mixinStandardHelpOptions = true,subcommands = {
+@CommandLine.Command(name = "application",subcommands = {
         ApplicationCreateCmd.class,
         ApplicationTemplateCmd.class
 })
 public class ApplicationCmd {
     @ParentCommand
     private EMTCli cli;
+    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
 
     public EMTCli getCli() {
         return cli;

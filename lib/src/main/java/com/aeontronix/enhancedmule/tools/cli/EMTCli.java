@@ -24,8 +24,12 @@ import java.io.IOException;
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
-@Command(name = "emt", mixinStandardHelpOptions = true, subcommands = {ApplicationCmd.class, ConfigCmd.class})
+@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class}, versionProvider = VersionHelper.class)
 public class EMTCli {
+    @Option(names = {"--version"}, versionHelp = true, description = "display version info")
+    boolean versionInfoRequested;
+    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
     @Option(names = "-p", description = "Profile")
     private String profileName;
     private File workDir = new File(".");
