@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Command(name = "create", mixinStandardHelpOptions = true)
 public class ApplicationTemplateCreateCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationTemplateCreateCmd.class);
-    @CommandLine.Option(names = "-d", description = "Directory where template files will be created")
+    @Parameters(description = "Directory where template files will be created")
     private File directory;
 
     @Override

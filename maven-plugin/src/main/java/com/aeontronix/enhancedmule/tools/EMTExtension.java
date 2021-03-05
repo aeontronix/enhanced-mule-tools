@@ -100,7 +100,8 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 }
                 emClient.setCredentialsLoader(credentialsProvider);
             }
-        } catch (IOException | ProfileNotFoundException e) {
+        } catch (Exception e) {
+            logger.warn("Failed to initialize emClient");
             throw new MavenExecutionException(e.getMessage(), e);
         }
         return emClient;
@@ -113,7 +114,12 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(profile != null ? profile : "*default*").toString());
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
                     emAccessTokenId, emAccessTokenSecret, profile, org, session.getCurrentProject().getGroupId());
-            addRepositoriesAuthentication(session);
+            try {
+                emClient.getAnypointClient().getUser();
+                addRepositoriesAuthentication(session);
+            } catch (Exception e) {
+                logger.warn("Unable to check connection status, skipping adding repository authentication");
+            }
         } catch (Exception e) {
             throw new MavenExecutionException(e.getMessage(), e);
         }

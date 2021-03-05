@@ -23,7 +23,7 @@ public class VersionHelper implements CommandLine.IVersionProvider {
         return EMT_VERSION_ARR;
     }
 
-    private static String getPOMVersion() {
+    public static String getPOMVersion() {
         try {
             final InputStream pomProperties = VersionHelper.class.getResourceAsStream("/META-INF/maven/com.aeontronix.enhanced-mule/enhanced-mule-tools-lib/pom.properties");
             if (pomProperties != null) {

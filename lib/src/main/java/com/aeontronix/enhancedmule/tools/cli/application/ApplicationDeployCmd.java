@@ -30,7 +30,7 @@ public class ApplicationDeployCmd implements Callable<Integer> {
     private String organizationName;
     @Option(names = {"--environment","-e"})
     private String environmentName;
-    @Option(names = {"--var","-V"})
+    @Option(names = {"--var","-D"})
     private HashMap<String,String> vars;
     @Option(names = {"--property","-P"})
     private HashMap<String,String> properties;

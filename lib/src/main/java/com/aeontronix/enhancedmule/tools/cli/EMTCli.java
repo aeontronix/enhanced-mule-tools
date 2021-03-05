@@ -24,7 +24,7 @@ import java.io.IOException;
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
-@Command(name = "emt", mixinStandardHelpOptions = true, versionProvider = VersionHelper.class, subcommands = {ApplicationCmd.class, ConfigCmd.class})
+@Command(name = "emt", mixinStandardHelpOptions = true, subcommands = {ApplicationCmd.class, ConfigCmd.class})
 public class EMTCli {
     @Option(names = "-p", description = "Profile")
     private String profileName;

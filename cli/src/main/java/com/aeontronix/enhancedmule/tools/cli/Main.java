@@ -16,7 +16,6 @@ import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProfileNotFoundException {
-        LoggingUtils.setupSimpleLogging(Level.INFO, true, false);
         if (args.length > 0 && args[0].equalsIgnoreCase("mvn")) {
             System.exit(MavenExecutor.execute(new File("."),Arrays.asList(Arrays.copyOfRange(args, 1, args.length))));
         } else {
