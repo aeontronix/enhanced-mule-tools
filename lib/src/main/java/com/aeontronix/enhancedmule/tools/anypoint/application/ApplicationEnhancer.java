@@ -39,8 +39,10 @@ public class ApplicationEnhancer {
 
     public static void enhanceApplicationArchive(File file, File descriptorFile, ApplicationDescriptor applicationDescriptor,
                                                  boolean deletePreWeave, boolean excludeIgnoreBasePath) throws IOException, UnpackException {
-        final String eclipse = System.getProperty("eclipse.product");
-        boolean mulestudio = eclipse != null && eclipse.toLowerCase().contains("mulestudio");
+        if( logger.isDebugEnabled() ) {
+            logger.debug(System.getProperties().toString());
+        }
+        boolean mulestudio = checkProperty("eclipse.product", "mulestudio") || checkProperty("eclipse.commands","studio");
         File oldArtifactFile = new File(file.getPath() + ".preweaving");
         if (oldArtifactFile.exists()) {
             FileUtils.delete(oldArtifactFile);
@@ -110,5 +112,10 @@ public class ApplicationEnhancer {
         if(deletePreWeave) {
             oldArtifactFile.delete();
         }
+    }
+
+    private static boolean checkProperty(String key, String value) {
+        final String eclipse = System.getProperty(key);
+        return eclipse != null && eclipse.toLowerCase().contains(value);
     }
 }
