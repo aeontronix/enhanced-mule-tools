@@ -36,7 +36,7 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
                     throw new IllegalStateException("Environment not set, using configuration element 'env', or maven property 'anypoint.env' to set");
                 }
             }
-            environment = getOrganization().findEnvironmentByName(env);
+            environment = getOrganization().findEnvironmentByNameOrId(env);
         }
         return environment;
     }

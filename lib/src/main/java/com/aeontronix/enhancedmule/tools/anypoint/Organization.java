@@ -103,6 +103,19 @@ public class Organization extends AnypointObject {
         return Environment.findEnvironmentsByOrg(client, this);
     }
 
+
+    public Environment findEnvironmentByNameOrId(String env) throws NotFoundException, HttpException {
+        try {
+            return findEnvironmentByName(env);
+        } catch (Exception e) {
+            try {
+                return findEnvironmentById(env);
+            } catch (NotFoundException notFoundException) {
+                throw new NotFoundException("Environment not found, if using name this could be a permission issue, try using the environment id instead.",e);
+            }
+        }
+    }
+
     @NotNull
     public Environment findEnvironmentByName(@NotNull String name) throws NotFoundException, HttpException {
         return Environment.findEnvironmentByName(name, client, this);
