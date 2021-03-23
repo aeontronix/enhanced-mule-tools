@@ -17,6 +17,7 @@ import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.runtime.ServerGroup;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -347,7 +348,7 @@ public class Environment extends AnypointObject<Organization> {
 
     @NotNull
     public static Environment findEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
-        logger.debug("Searching for environment named " + name);
+        logger.debug("Searching for environment named {}", name);
         for (Environment environment : findEnvironmentsByOrg(client, organization)) {
             logger.debug("Checking if " + environment.getName() + " is equals to " + name);
             if (name.equals(environment.getName())) {
@@ -370,13 +371,16 @@ public class Environment extends AnypointObject<Organization> {
     @SuppressWarnings("unchecked")
     @NotNull
     public static Environment findEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
+        logger.debug("finding environment by id: {}",id);
         String json = null;
+        final String organizationId = organization.getId();
         try {
-            json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments/" + id);
+            final HttpHelper httpHelper = client.getHttpHelper();
+            json = httpHelper.httpGet("/accounts/api/organizations/" + organizationId + "/environments/" + id);
             return client.getJsonHelper().readJson(organization.createEnvironmentObject(), json, organization);
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
-                throw new EnvironmentNotFoundException("Environment with id " + id + " not found within org " + organization.getId());
+                throw new EnvironmentNotFoundException("Environment with id " + id + " not found within org " + organizationId);
             } else {
                 throw e;
             }

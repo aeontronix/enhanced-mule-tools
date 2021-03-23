@@ -104,11 +104,14 @@ public class Organization extends AnypointObject {
     }
 
 
-    public Environment findEnvironmentByNameOrId(String env) throws NotFoundException, HttpException {
+    public Environment findEnvironmentByNameOrId(@NotNull String env) throws NotFoundException, HttpException {
+        logger.debug("Finding environment by name or id: {}",env);
         try {
+            logger.debug("Attempting to find by name: {}",env);
             return findEnvironmentByName(env);
         } catch (Exception e) {
             try {
+                logger.debug("Unable to find by name, searching by id instead: {}",env);
                 return findEnvironmentById(env);
             } catch (NotFoundException notFoundException) {
                 throw new NotFoundException("Environment not found, if using name this could be a permission issue, try using the environment id instead.",e);
