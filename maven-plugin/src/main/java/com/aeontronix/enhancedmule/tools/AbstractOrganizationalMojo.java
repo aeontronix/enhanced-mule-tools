@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -19,10 +20,12 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
 
     public synchronized Organization getOrganization() throws NotFoundException, IOException {
         if (organization == null) {
+            final AnypointClient client = getClient();
             if (org != null) {
-                organization = getClient().findOrganizationByNameOrId(org);
+                organization = client.findOrganizationByNameOrId(org);
             } else {
-                organization = getClient().getUser().getOrganization();
+                organization = client.getUser().getOrganization();
+                organization.setClient(client);
                 if( organization == null ) {
                     throw new IllegalArgumentException("Organization not set, use configuration element 'org' or maven property 'anypoint.org' to set");
                 }
