@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
+import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
@@ -21,8 +23,6 @@ import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -213,7 +213,7 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     public API findAPIByExchangeAssetIdOrNameAndVersion(@NotNull String idOrName, @NotNull String version, @Nullable String label) throws HttpException, NotFoundException {
-        for (APIAsset asset : findAllAPIs() ) {
+        for (APIAsset asset : findAllAPIs()) {
             if (asset.getAssetId().equalsIgnoreCase(idOrName)) {
                 for (API api : asset.getApis()) {
                     if (api.getAssetVersion().equalsIgnoreCase(version) && (label == null || label.equalsIgnoreCase(api.getInstanceLabel()))) {
@@ -248,7 +248,7 @@ public class Environment extends AnypointObject<Organization> {
                 }
             }
         }
-        return findAPIByExchangeAssetNameAndProductAPIVersion(name,productAPIVersion,label);
+        return findAPIByExchangeAssetNameAndProductAPIVersion(name, productAPIVersion, label);
     }
 
     public API findAPIByExchangeAssetNameAndProductAPIVersion(@NotNull String name, @NotNull String productAPIVersion, @Nullable String label) throws HttpException, NotFoundException {
@@ -267,7 +267,7 @@ public class Environment extends AnypointObject<Organization> {
     public List<API> findAPIsByExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
         ArrayList<API> apis = new ArrayList<>();
         for (APIAsset api : findAllAPIs()) {
-            if( api.getGroupId().equalsIgnoreCase(groupId) && api.getAssetId().equalsIgnoreCase(assetId) ) {
+            if (api.getGroupId().equalsIgnoreCase(groupId) && api.getAssetId().equalsIgnoreCase(assetId)) {
                 apis.addAll(api.getApis());
             }
         }
@@ -302,7 +302,7 @@ public class Environment extends AnypointObject<Organization> {
 
     public API findAPIById(String id) throws HttpException {
         final String json = httpHelper.httpGet(new URLBuilder("/apimanager/api/v1/organizations/" + getParent().getId() + "/environments/" + getId() + "/apis/").path(id).toString());
-        return jsonHelper.readJson(new API(this), json );
+        return jsonHelper.readJson(new API(this), json);
     }
 
     public CHApplication findCHApplicationByDomain(String domain) throws HttpException, NotFoundException {
@@ -327,7 +327,7 @@ public class Environment extends AnypointObject<Organization> {
 
     @JsonIgnore
     public String getSuffix() {
-        return "-"+getLName();
+        return "-" + getLName();
     }
 
     public API createAPI(@NotNull APISpec apiSpec, @Nullable String label,
@@ -335,7 +335,7 @@ public class Environment extends AnypointObject<Organization> {
         return API.create(this, apiSpec, label, implementationUrlJson, consumerUrl);
     }
 
-    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String implementationUrl, String consumerUrl , @Nullable String label,
+    public API createAPI(@NotNull APISpec apiSpec, boolean mule4, @Nullable String implementationUrl, String consumerUrl, @Nullable String label,
                          @NotNull API.Type type) throws HttpException {
         return API.create(this, apiSpec, mule4, implementationUrl, consumerUrl, label, type);
     }
@@ -358,9 +358,9 @@ public class Environment extends AnypointObject<Organization> {
         }
         try {
             final List<String> envNames = findEnvironmentsByOrg(client, organization).stream().map(Environment::getName).collect(Collectors.toList());
-            throw new EnvironmentNotFoundException("Environment not found in org  "+organization.getName()+" : " + name +" must be one of: "+envNames);
+            throw new EnvironmentNotFoundException("Environment not found in org  " + organization.getName() + " : " + name + " must be one of: " + envNames);
         } catch (Exception e) {
-            if( e instanceof EnvironmentNotFoundException ) {
+            if (e instanceof EnvironmentNotFoundException) {
                 throw e;
             } else {
                 throw new EnvironmentNotFoundException("Environment not found: " + name);
@@ -371,7 +371,7 @@ public class Environment extends AnypointObject<Organization> {
     @SuppressWarnings("unchecked")
     @NotNull
     public static Environment findEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
-        logger.debug("finding environment by id: {}",id);
+        logger.debug("finding environment by id: {}", id);
         String json = null;
         final String organizationId = organization.getId();
         try {
@@ -379,7 +379,16 @@ public class Environment extends AnypointObject<Organization> {
             json = httpHelper.httpGet("/accounts/api/organizations/" + organizationId + "/environments/" + id);
             return client.getJsonHelper().readJson(organization.createEnvironmentObject(), json, organization);
         } catch (HttpException e) {
-            if (e.getStatusCode() == 404) {
+            final int statusCode = e.getStatusCode();
+            if (statusCode == 401 || statusCode == 403) {
+                for (Environment environment : findEnvironmentsByOrg(client, organization)) {
+                    if( environment.getId().equalsIgnoreCase(id) ) {
+                        return environment;
+                    }
+                }
+                throw new EnvironmentNotFoundException("Environment not found: " + id);
+            }
+            if (statusCode == 404) {
                 throw new EnvironmentNotFoundException("Environment with id " + id + " not found within org " + organizationId);
             } else {
                 throw e;
