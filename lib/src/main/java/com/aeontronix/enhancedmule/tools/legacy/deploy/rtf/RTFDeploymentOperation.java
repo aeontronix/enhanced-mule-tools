@@ -10,15 +10,22 @@ import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
+import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.RTFDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
+import com.aeontronix.unpack.UnpackException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -26,7 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class RTFDeploymentOperation extends DeploymentOperation {
+    private static final Logger logger = getLogger(RTFDeploymentOperation.class);
+    private static final EMTLogger emtLogger = new EMTLogger(logger);
     private final Fabric fabric;
 
     public RTFDeploymentOperation(Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
@@ -69,6 +80,16 @@ public class RTFDeploymentOperation extends DeploymentOperation {
                 throw new UnexpectedException("RTF Target not found: " + fabric.getId());
             }
         }
+        ApplicationIdentifier appId = source.getApplicationIdentifier();
+        if( source instanceof FileApplicationSource ) {
+            final ExchangeDeploymentRequest req = new ExchangeDeploymentRequest(request.getBuildNumber(), appId, getEnvironment().getOrganization(), source, null);
+            try {
+                appId = MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+            } catch (UnpackException e) {
+                throw new UnauthorizedHttpException(e);
+            }
+            emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
+        }
         Map<String, Object> req = new HashMap<>();
         req.put("name", request.getAppName());
         req.put("labels", Collections.singletonList("beta"));
@@ -103,7 +124,6 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         target.put("replicas", replicas);
         final Map<String, Object> application = subMap(req, "application");
         final Map<String, Object> ref = subMap(application, "ref");
-        final ApplicationIdentifier appId = source.getApplicationIdentifier();
         ref.put("groupId", appId.getGroupId());
         ref.put("artifactId", appId.getArtifactId());
         ref.put("version", appId.getVersion());
