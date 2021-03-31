@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.zip.ZipFile;
 
@@ -32,6 +34,9 @@ public class MavenHelper {
     @SuppressWarnings("unchecked")
     public static ApplicationIdentifier uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
                                      String newVersion, String buildNumber) throws IOException, UnpackException {
+        if( buildNumber == null ) {
+            buildNumber = generateTimestampString();
+        }
         final File appArchFile = applicationSource.getLocalFile();
         if (appId == null) {
             try (final ZipFile zipFile = new ZipFile(appArchFile)) {
@@ -106,8 +111,13 @@ public class MavenHelper {
     }
 
     private static URLBuilder createMavenUrl(Organization org, ApplicationIdentifier appId) {
-        return new URLBuilder("https://maven.anypoint.mulesoft.com/api/v2/maven")
+        return new URLBuilder("https://maven.anypoint.mulesoft.com/api/v2/organizations/"+org.getId()+"/maven")
                 .path(org.getId(), true).path(appId.getArtifactId(), true)
                 .path(appId.getVersion(), true);
+    }
+
+    @NotNull
+    public static String generateTimestampString() {
+        return DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
     }
 }
