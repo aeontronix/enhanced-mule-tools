@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class DescriptorHelper {
     public static void override(ObjectNode obj, ObjectNode override) {
+        if( override == null ) {
+            return;
+        }
         final Iterator<Map.Entry<String, JsonNode>> fields = override.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> fieldEntry = fields.next();

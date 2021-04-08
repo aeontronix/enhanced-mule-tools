@@ -9,6 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.Applica
 import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -39,12 +40,13 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     private boolean filePropertiesSecure;
     private boolean skipWait;
     private boolean skipProvisioning;
+    private JsonNode legacyAppDescriptor;
     private boolean deleteSnapshots;
 
     public RuntimeDeploymentRequest(String filename, String appName, String artifactId, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
                                     String target, Environment environment, boolean injectEnvInfo, boolean skipWait,
-                                    boolean skipProvisioning) throws IOException {
+                                    boolean skipProvisioning, JsonNode legacyAppDescriptor) throws IOException {
         super(buildNumber);
         this.filename = filename;
         this.appName = appName;
@@ -53,6 +55,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         this.injectEnvInfo = injectEnvInfo;
         this.skipWait = skipWait;
         this.skipProvisioning = skipProvisioning;
+        this.legacyAppDescriptor = legacyAppDescriptor;
         if (vars != null && !vars.isEmpty()) {
             this.vars.putAll(vars);
         }
@@ -238,5 +241,9 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     public boolean isAutoApproveAPIAccessRequest() {
         final Boolean autoApproveAccess = applicationDescriptor.getDeploymentParams().getAutoApproveAccess();
         return autoApproveAccess == null || autoApproveAccess;
+    }
+
+    public JsonNode getLegacyAppDescriptor() {
+        return legacyAppDescriptor;
     }
 }

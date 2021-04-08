@@ -46,6 +46,9 @@
     }
   },
   "deploymentParams": {
-    "autoApproveAccess": "true"
+    "autoApproveAccess": "true",
+    "rtf": {
+      "httpInboundPublicUrl": "http://mypublicurl"
+    }
   }
 }

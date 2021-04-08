@@ -66,9 +66,23 @@ public class DeploymentServiceImpl implements DeploymentService {
             // default layer
             final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
             // Descriptor layer
-            DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
-            // Descriptor override layers
-            processOverrides(environment, (ObjectNode) jsonDesc, appDescJson.get("overrides"));
+            if( appDescJson != null && !appDescJson.isNull() ) {
+                DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
+                // Descriptor override layers
+                processOverrides(environment, (ObjectNode) jsonDesc, appDescJson.get("overrides"));
+                final JsonNode appId = appDescJson.get("id");
+                if (appId != null && !appId.isNull()) {
+                    request.getVars().put("app.id", appId.textValue());
+                } else {
+                    request.getVars().put("app.id", source.getArtifactId());
+                }
+            } else {
+                request.getVars().put("app.id", source.getArtifactId());
+            }
+            final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
+            if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
+                DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
+            }
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
                     .readValue(jsonDesc);
             request.setApplicationDescriptor(applicationDescriptor);
@@ -81,10 +95,6 @@ public class DeploymentServiceImpl implements DeploymentService {
             }
             DeploymentOperation op = createDeploymentOperation(request, source, environment, organization);
             request.setAppName(op.processAppName(request.getAppName()));
-            final JsonNode appId = appDescJson.get("id");
-            if (appId != null && !appId.isNull()) {
-                request.getVars().put("app.id", appId.textValue());
-            }
             logger.info(Ansi.ansi().fgBrightYellow().a("Deploying application").toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Organization: ").reset().a(organization.getName()).toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Environment: ").reset().a(environment.getName()).toString());

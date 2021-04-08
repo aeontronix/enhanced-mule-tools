@@ -109,7 +109,7 @@ class DeploymentServiceImplTest {
         properties.put("color", "blue");
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(FILE_JAR, APP_NAME, ARTIFACT_ID,
                 BUILD_NUMBER, vars, properties, null, null, environment, true,
-                true, true);
+                true, true, null);
         new DeploymentServiceImpl(anypointClient).deploy(request, objectMapper.createObjectNode(), appSrc);
         verifyCHNewDeploymentJson();
     }
@@ -118,7 +118,7 @@ class DeploymentServiceImplTest {
     void deployCHDefault() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, null, environment, true,
-                true, true);
+                true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
     }
@@ -127,7 +127,7 @@ class DeploymentServiceImplTest {
     void deployCHCustomLogger() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, "cloudhub", environment, true,
-                true, true);
+                true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
     }
@@ -136,7 +136,7 @@ class DeploymentServiceImplTest {
     void deployCHOverrideDescriptor() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, "cloudhub", environment, true,
-                true, true);
+                true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
     }
@@ -145,7 +145,7 @@ class DeploymentServiceImplTest {
     void deployRTF() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, null, environment, true,
-                true, true);
+                true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyRTFNewDeploymentJson();
     }
