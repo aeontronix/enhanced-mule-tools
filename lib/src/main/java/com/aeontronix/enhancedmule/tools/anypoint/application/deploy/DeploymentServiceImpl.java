@@ -82,7 +82,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
             }
-            JsonHelper.processVariables(jsonDesc, request.getVars());
+            JsonHelper.processVariables((ObjectNode) jsonDesc, request.getVars());
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
                     .readValue(jsonDesc);
             request.setApplicationDescriptor(applicationDescriptor);
