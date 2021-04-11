@@ -50,5 +50,18 @@
     "rtf": {
       "httpInboundPublicUrl": "http://mypublicurl"
     }
-  }
+  },
+  "overrides": [
+    {
+      "type": "env",
+      "value": "MyEnv",
+      "override": {q
+        "deploymentParams": {
+          "rtf": {
+            "httpInboundPublicUrl": "http://myenvurl"
+          }
+        }
+      }
+    }
+  ]
 }
