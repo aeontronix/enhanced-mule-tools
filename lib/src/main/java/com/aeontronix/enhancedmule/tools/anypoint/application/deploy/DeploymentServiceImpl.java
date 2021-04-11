@@ -61,7 +61,6 @@ public class DeploymentServiceImpl implements DeploymentService {
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {
-            JsonHelper.processVariables(appDescJson, request.getVars());
             final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
             // default layer
             final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
@@ -83,6 +82,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
             }
+            JsonHelper.processVariables(jsonDesc, request.getVars());
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
                     .readValue(jsonDesc);
             request.setApplicationDescriptor(applicationDescriptor);

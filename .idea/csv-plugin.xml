@@ -52,6 +52,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/lib/src/main/java/com/aeontronix/enhancedmule/tools/util/DescriptorHelper.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/lib/src/test/java/com/aeontronix/enhancedmule/tools/anypoint/application/deploy/DeploymentServiceImplTest.java">
           <value>
             <Attribute>
@@ -60,6 +67,13 @@
           </value>
         </entry>
         <entry key="/lib/src/test/java/com/aeontronix/enhancedmule/tools/anypoint/application/descriptor/ApplicationDescriptorTest.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/maven-plugin/src/main/java/com/aeontronix/enhancedmule/tools/DeployMojo.java">
           <value>
             <Attribute>
               <option name="separator" value=";" />
