@@ -20,22 +20,23 @@ public class DescriptorHelper {
         final Iterator<Map.Entry<String, JsonNode>> fields = override.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> fieldEntry = fields.next();
-            if( fieldEntry.getValue() instanceof ArrayNode ) {
+            final JsonNode fieldEntryValue = fieldEntry.getValue();
+            if( fieldEntryValue instanceof ArrayNode ) {
                 final JsonNode existingArray = obj.get(fieldEntry.getKey());
                 if (existingArray != null && !existingArray.isNull()) {
-                    ((ArrayNode) existingArray).addAll((ArrayNode) fieldEntry.getValue());
+                    ((ArrayNode) existingArray).addAll((ArrayNode) fieldEntryValue);
                 } else {
-                    obj.replace(fieldEntry.getKey(), fieldEntry.getValue());
+                    obj.replace(fieldEntry.getKey(), fieldEntryValue);
                 }
-            } else if( fieldEntry.getValue() instanceof ObjectNode ) {
+            } else if( fieldEntryValue instanceof ObjectNode ) {
                 final JsonNode fobj = obj.get(fieldEntry.getKey());
                 if(fobj == null || fobj.isNull() ) {
-                    obj.replace(fieldEntry.getKey(),fieldEntry.getValue());
+                    obj.replace(fieldEntry.getKey(), fieldEntryValue);
                 } else {
-                    override((ObjectNode) fobj,(ObjectNode) fieldEntry.getValue());
+                    override((ObjectNode) fobj,(ObjectNode) fieldEntryValue);
                 }
-            } else {
-                obj.replace(fieldEntry.getKey(),fieldEntry.getValue());
+            } else if( fieldEntryValue != null && ! fieldEntryValue.isNull()) {
+                obj.replace(fieldEntry.getKey(), fieldEntryValue);
             }
         }
     }

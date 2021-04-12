@@ -82,9 +82,10 @@ public class CHDeploymentOperation extends DeploymentOperation {
             } else {
                 workerType = environment.findWorkerTypeByName(cloudhub.getWorkerType());
             }
-            workerCount = cloudhub.getWorkerCount();
-            if( workerCount < 1) {
+            if( cloudhub.getWorkerCount() == null || cloudhub.getWorkerCount() < 1 ) {
                 workerCount = 1;
+            } else {
+                workerCount = cloudhub.getWorkerCount();
             }
             AnypointClient client = environment.getClient();
             HttpHelper httpHelper = client.getHttpHelper();

@@ -28,6 +28,7 @@ public class ApplicationProvisioningService {
     public APIProvisioningResult provision(ApplicationDescriptor applicationDescriptor, Environment environment,
                                            ProvisioningRequest request) throws ProvisioningException {
         try {
+            logger.info("Starting provisioning");
             APIProvisioningResult result = new APIProvisioningResult();
             final APIDescriptor api = applicationDescriptor.getApi();
             if (api != null) {
@@ -38,6 +39,7 @@ public class ApplicationProvisioningService {
             if (client != null) {
                 client.provision(applicationDescriptor, environment, request, result);
             }
+            logger.info("Finished provisioning");
             return result;
         } catch (Exception e) {
             throw new ProvisioningException(e);
