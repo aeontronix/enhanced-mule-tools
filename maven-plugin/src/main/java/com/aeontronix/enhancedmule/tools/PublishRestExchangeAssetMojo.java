@@ -59,6 +59,9 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
         if(asset.getId() == null) {
             asset.setId(project.getArtifactId());
         }
+        if( asset.getGroupId() == null ) {
+            asset.setGroupId(getOrganization().getId());
+        }
         if(asset.getVersion() == null) {
             asset.setVersion(project.getVersion());
         }

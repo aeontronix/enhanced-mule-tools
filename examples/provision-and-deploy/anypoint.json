@@ -6,7 +6,7 @@
     "fields": [
       {
         "key": "author",
-        "value": "Roger Smitherasfd"
+        "value": "Roger Smitherasfd ${foo}"
       },
       {
         "key": "subType",
