@@ -294,6 +294,7 @@ public class HttpHelper implements Closeable {
             }
             return doExecute(method);
         } catch (HttpException e) {
+            logger.debug("Failed to execute http request",e);
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
                 if (loginAttempts > 1) {
                     throw e;
@@ -303,7 +304,8 @@ public class HttpHelper implements Closeable {
                 }
             } else if (e.getStatusCode() >= 500) {
                 attempt++;
-                if (attempt > maxRetries) {
+                if (attempt > maxRetries || ( multiPartRequest != null && multiPartRequest.toEntity() != null &&
+                        ! multiPartRequest.toEntity().isRepeatable() ) ) {
                     throw e;
                 } else {
                     if( e.getStatusCode() == 502 && retryDelay < TOOMANYCALLSRETRYDELAY) {
