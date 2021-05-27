@@ -1,0 +1,227 @@
+JFDML JFormDesigner: "7.0.3.0.337" Java: "11.0.10" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundleName": "Bundle"
+	"i18n.keyPrefix": "AppDescEditor"
+	"i18n.bundlePackage": "com.aeontronix.enhancedmule.tools"
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+			"$layoutConstraints": "hidemode 3"
+			"$columnConstraints": "[grow,fill][fill]"
+			"$rowConstraints": "[][grow]"
+		} ) {
+			name: "this"
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "overrides"
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 0"
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "overridesEditButton"
+				"text": new FormMessage( null, "AppDescEditor.overridesEditButton.text" )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 1 0"
+			} )
+			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+				name: "sections"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "hidemode 3"
+					"$columnConstraints": "[right][grow,fill]"
+					"$rowConstraints": "[][][]"
+				} ) {
+					name: "appDetails"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "idEditLabel"
+						"text": new FormMessage( null, "AppDescEditor.idEditLabel.text" )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+					add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+						name: "idTextField"
+						"placeholder": "Inherited from POM"
+						addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 0"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "nameLabel"
+						"text": new FormMessage( null, "AppDescEditor.nameLabel.text" )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 1"
+					} )
+					add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+						name: "nameTextField"
+						"placeholder": "Inherited from POM"
+						addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 1"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "descLabel"
+						"text": new FormMessage( null, "AppDescEditor.descLabel.text" )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 2"
+					} )
+					add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+						name: "descTextField"
+						"placeholder": "Inherited from POM"
+						addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 2"
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": new FormMessage( null, "AppDescEditor.appDetails.tab.title" )
+				} )
+				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+					name: "apiTab"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+						"$layoutConstraints": "hidemode 3"
+						"$columnConstraints": "[fill][grow,fill]"
+						"$rowConstraints": "[][][][][][][]"
+					} ) {
+						name: "apiDetails"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label6"
+							"text": new FormMessage( null, "AppDescEditor.label6.text" )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 0 0,alignx right,growx 0"
+						} )
+						add( new FormComponent( "javax.swing.JCheckBox" ) {
+							name: "apiEnabledCheckbox"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "apiEnabledCheckboxActionPerformed", true ) )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 1 0"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label5"
+							"text": new FormMessage( null, "AppDescEditor.label5.text" )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 0 1,alignx right,growx 0"
+						} )
+						add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+							name: "apiConsumerUrlTextField"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 1 1"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label4"
+							"text": new FormMessage( null, "AppDescEditor.label4.text" )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 0 2,alignx right,growx 0"
+						} )
+						add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+							name: "apiImplementationUrlTextField"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 1 2"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label7"
+							"text": new FormMessage( null, "AppDescEditor.label7.text" )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 0 3,alignx right,growx 0"
+						} )
+						add( new FormComponent( "com.aeontronix.commons.swing.PlaceholderTextField" ) {
+							name: "apiLabelTextField"
+							addEvent( new FormEvent( "java.awt.event.KeyListener", "keyTyped", "descriptorChanged", true ) )
+						}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+							"value": "cell 1 3"
+						} )
+					}, new FormLayoutConstraints( null ) {
+						"title": new FormMessage( null, "AppDescEditor.apiDetails.tab.title" )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+						"$layoutConstraints": "hidemode 3"
+						"$columnConstraints": "[fill][fill]"
+						"$rowConstraints": "[][][]"
+					} ) {
+						name: "apiPoliciesPanel"
+					}, new FormLayoutConstraints( null ) {
+						"title": new FormMessage( null, "AppDescEditor.apiPoliciesPanel.tab.title" )
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+						"$layoutConstraints": "hidemode 3"
+						"$columnConstraints": "[fill][fill]"
+						"$rowConstraints": "[][][]"
+					} ) {
+						name: "apiSlaTiersPanel"
+					}, new FormLayoutConstraints( null ) {
+						"title": new FormMessage( null, "AppDescEditor.apiSlaTiersPanel.tab.title" )
+					} )
+					add( new FormComponent( "com.aeontronix.enhancedmule.tools.editor.ExchangeDescEditor" ) {
+						name: "apiExchangeTab"
+					}, new FormLayoutConstraints( null ) {
+						"title": new FormMessage( null, "AppDescEditor.apiExchangeTab.tab.title" )
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": new FormMessage( null, "AppDescEditor.apiTab.tab.title" )
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "hidemode 3"
+					"$columnConstraints": "[right][grow,fill]"
+					"$rowConstraints": "[][][]"
+				} ) {
+					name: "clientTab"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label9"
+						"text": new FormMessage( null, "AppDescEditor.label9.text" )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 0"
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "checkBox4"
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 0"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label3"
+						"text": new FormMessage( null, "AppDescEditor.label3.text" )
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 0 1"
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textField3"
+					}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+						"value": "cell 1 1"
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": new FormMessage( null, "AppDescEditor.clientTab.tab.title" )
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "hidemode 3"
+					"$columnConstraints": "[fill][fill]"
+					"$rowConstraints": "[][][]"
+				} ) {
+					name: "deployentTab"
+				}, new FormLayoutConstraints( null ) {
+					"title": new FormMessage( null, "AppDescEditor.deployentTab.tab.title" )
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+					"$layoutConstraints": "hidemode 3"
+					"$columnConstraints": "[fill][fill]"
+					"$rowConstraints": "[][][]"
+				} ) {
+					name: "propertiesTab"
+				}, new FormLayoutConstraints( null ) {
+					"title": new FormMessage( null, "AppDescEditor.propertiesTab.tab.title" )
+				} )
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "scrollPane1"
+					add( new FormComponent( "org.fife.ui.rsyntaxtextarea.RSyntaxTextArea" ) {
+						name: "jsonTextArea"
+					} )
+				}, new FormLayoutConstraints( null ) {
+					"title": "JSON"
+				} )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 1 2 1,dock center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 410, 485 )
+		} )
+	}
+}
