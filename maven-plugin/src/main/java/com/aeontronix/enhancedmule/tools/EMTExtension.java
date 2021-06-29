@@ -58,7 +58,12 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
                                            String username, String password, String emAccessTokenId, String emAccessTokenSecret,
                                            String profile, String org, String groupId) throws MavenExecutionException {
-        EnhancedMuleClient emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
+        EnhancedMuleClient emClient;
+        try {
+            emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
+        } catch (ClassCastException e) {
+            emClient = null;
+        }
         try {
             if (emClient == null) {
                 emConfig = EMConfig.findConfigFile();
