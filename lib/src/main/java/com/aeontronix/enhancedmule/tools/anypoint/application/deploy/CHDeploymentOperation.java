@@ -118,7 +118,13 @@ public class CHDeploymentOperation extends DeploymentOperation {
             appInfoBuilder.set("fileName", deploymentRequest.getFilename());
             Map<String, Object> appInfo = appInfoBuilder.toMap();
             String deploymentJson;
-            logger.debug("Deploying application");
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying cloudhub application");
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Domain: "+appName);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Count: "+workerCount);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Type: "+workerType.getName());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Mule Version: "+muleVersion.getVersion());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Custom Log4J logging: "+(cloudhub.getCustomlog4j() ? "Yes" : "No"));
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Static IPs: "+(cloudhub.getStaticIPs() ? "Yes" : "No"));
             if (source.getLocalFile() != null) {
                 HttpHelper.MultiPartRequest req;
                 if (existingApp != null) {
