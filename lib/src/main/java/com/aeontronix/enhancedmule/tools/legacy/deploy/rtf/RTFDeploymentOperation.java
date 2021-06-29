@@ -14,7 +14,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.RTFDeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.deployment.RTFDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;

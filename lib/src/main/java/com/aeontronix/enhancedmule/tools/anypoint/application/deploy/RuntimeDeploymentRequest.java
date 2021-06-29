@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,10 +15,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static java.lang.Boolean.TRUE;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -45,7 +42,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public RuntimeDeploymentRequest(String filename, String appName, String artifactId, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
-                                    String target, Environment environment, boolean injectEnvInfo, boolean skipWait,
+                                    boolean ignoreMissingPropertyFile, String target, Environment environment, boolean injectEnvInfo, boolean skipWait,
                                     boolean skipProvisioning, JsonNode legacyAppDescriptor) throws IOException {
         super(buildNumber);
         this.filename = filename;
@@ -59,7 +56,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         if (vars != null && !vars.isEmpty()) {
             this.vars.putAll(vars);
         }
-        this.properties.putAll(buildProperties(properties, propertyfile, injectEnvInfo));
+        this.properties.putAll(buildProperties(properties, propertyfile, ignoreMissingPropertyFile, injectEnvInfo));
         this.target = target;
         this.vars.put("environment.id", environment.getId());
         this.vars.put("environment.name", environment.getName());
@@ -70,22 +67,26 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         this.vars.put("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
     }
 
-    private Map<String, String> buildProperties(Map<String, String> properties, File propertyfile, boolean injectEnvInfo) throws IOException {
+    private Map<String, String> buildProperties(Map<String, String> properties, File propertyfile, boolean ignoreMissingPropertyFile,
+                                                boolean injectEnvInfo) throws IOException {
         if (properties == null) {
             properties = new HashMap<>();
         }
         if (propertyfile != null) {
-            if (!propertyfile.exists()) {
-                throw new IllegalArgumentException("Property file not found: " + propertyfile);
-            }
-            Properties fileProps = new Properties();
-            try (FileInputStream fis = new FileInputStream(propertyfile)) {
-                fileProps.load(fis);
-            }
-            for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
-                String key = entry.getKey().toString();
-                if (!properties.containsKey(key)) {
-                    properties.put(key, entry.getValue().toString());
+            if (propertyfile.exists()) {
+                Properties fileProps = new Properties();
+                try (FileInputStream fis = new FileInputStream(propertyfile)) {
+                    fileProps.load(fis);
+                }
+                for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
+                    String key = entry.getKey().toString();
+                    if (!properties.containsKey(key)) {
+                        properties.put(key, entry.getValue().toString());
+                    }
+                }
+            } else {
+                if( ! ignoreMissingPropertyFile ) {
+                    throw new IllegalArgumentException("Property file not found: " + propertyfile);
                 }
             }
         }

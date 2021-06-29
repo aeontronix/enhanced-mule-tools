@@ -108,7 +108,7 @@ class DeploymentServiceImplTest {
         final HashMap<String, String> properties = new HashMap<>();
         properties.put("color", "blue");
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(FILE_JAR, APP_NAME, ARTIFACT_ID,
-                BUILD_NUMBER, vars, properties, null, null, environment, true,
+                BUILD_NUMBER, vars, properties, null, false, null, environment, true,
                 true, true, null);
         new DeploymentServiceImpl(anypointClient).deploy(request, objectMapper.createObjectNode(), appSrc);
         verifyCHNewDeploymentJson();
@@ -117,7 +117,7 @@ class DeploymentServiceImplTest {
     @Test
     void deployCHDefault() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, null, environment, true,
+                null, vars, properties, null, false, null, environment, true,
                 true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
@@ -126,7 +126,7 @@ class DeploymentServiceImplTest {
     @Test
     void deployCHCustomLogger() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, "cloudhub", environment, true,
+                null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
@@ -135,7 +135,7 @@ class DeploymentServiceImplTest {
     @Test
     void deployCHOverrideDescriptor() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, "cloudhub", environment, true,
+                null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyCHNewDeploymentJson();
@@ -144,7 +144,7 @@ class DeploymentServiceImplTest {
     @Test
     void deployRTF() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, null, environment, true,
+                null, vars, properties, null, false, null, environment, true,
                 true, true, null);
         deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
         verifyRTFNewDeploymentJson();

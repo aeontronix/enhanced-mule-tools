@@ -5,10 +5,10 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.CloudhubDeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.RTFDeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.deployment.RTFDeploymentParameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.maven.plugins.annotations.Parameter;
 

@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 
 public class ProvisioningRequestImpl implements ProvisioningRequest {
     private String buildNumber;

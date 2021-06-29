@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;

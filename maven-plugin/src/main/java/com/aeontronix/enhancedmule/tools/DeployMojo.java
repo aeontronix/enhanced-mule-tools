@@ -64,6 +64,11 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "anypoint.deploy.propertyfile", required = false)
     protected File propertyfile;
+    /**
+     * Ignore missing application properties file
+     */
+    @Parameter(property = "anypoint.deploy.propertyfile.ignoremissing", required = false)
+    protected boolean ignoreMissingPropertyFile;
 
     /**
      * Properties that should be inserted into a property file in the application archive
@@ -137,7 +142,7 @@ public class DeployMojo extends LegacyDeployMojo {
                     properties = findPrefixProperties(properties, ANYPOINT_DEPLOY_PROPERTIES);
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
                             source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties, propertyfile,
-                            target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning, getLegacyAppDescriptor());
+                            ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning, getLegacyAppDescriptor());
                     request.setFileProperties(fileProperties);
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);

@@ -4,9 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
+import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

@@ -10,8 +10,8 @@ import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningReque
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequestImpl;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.IconDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.InvalidAnypointDescriptorException;
+import com.aeontronix.enhancedmule.tools.application.api.IconDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.InvalidAnypointDescriptorException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;

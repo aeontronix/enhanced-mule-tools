@@ -9,8 +9,8 @@ import java.awt.event.*;
 
 import com.aeontronix.commons.SwingUtils;
 import com.aeontronix.commons.swing.PlaceholderTextField;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

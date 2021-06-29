@@ -9,7 +9,7 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.APISpecHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;

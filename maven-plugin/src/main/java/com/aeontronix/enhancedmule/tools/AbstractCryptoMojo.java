@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.config.EMConfig;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.key.AESKey;

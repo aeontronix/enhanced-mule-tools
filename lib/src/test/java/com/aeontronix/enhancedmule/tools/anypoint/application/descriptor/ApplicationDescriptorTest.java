@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.descriptor;
 
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;

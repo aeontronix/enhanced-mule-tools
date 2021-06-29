@@ -6,8 +6,8 @@ package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.*;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.*;
 import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;

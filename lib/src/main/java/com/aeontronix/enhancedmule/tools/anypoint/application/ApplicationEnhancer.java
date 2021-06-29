@@ -5,9 +5,9 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application;
 
 import com.aeontronix.commons.FileUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.anypoint.application.descriptor.api.PropertyDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.PropertyDescriptor;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.SourceFile;
 import com.aeontronix.unpack.UnpackException;
