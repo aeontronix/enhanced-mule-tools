@@ -88,7 +88,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
 
     @Override
     public String getFileName() {
-        return artifactId + "-" + version;
+        return artifactId + "-" + version + ".jar";
     }
 
     @Override
