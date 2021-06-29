@@ -12,6 +12,8 @@ public abstract class AbstractDeploymentRequest {
     public AbstractDeploymentRequest(String buildNumber) {
         if (buildNumber == null) {
             this.buildNumber = MavenHelper.generateTimestampString();
+        } else {
+            this.buildNumber = buildNumber;
         }
     }
 
