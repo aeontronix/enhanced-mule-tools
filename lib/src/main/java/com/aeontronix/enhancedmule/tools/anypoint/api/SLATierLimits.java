@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class SLATierLimits {
     @JsonProperty
     private boolean visible;
-    @JsonProperty
+    @JsonProperty(required = true)
     private int timePeriodInMilliseconds;
-    @JsonProperty
+    @JsonProperty(required = true)
     private int maximumRequests;
 
     public SLATierLimits() {

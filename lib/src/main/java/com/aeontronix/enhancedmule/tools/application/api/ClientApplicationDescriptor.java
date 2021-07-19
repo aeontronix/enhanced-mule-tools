@@ -227,11 +227,8 @@ public class ClientApplicationDescriptor {
         }
         logger.debug("Access group id = {}", accessDescriptor.getGroupId());
         String accessEnvId;
-        if (accessDescriptor.getEnvId() != null) {
-            logger.debug("Env id set: {}", accessDescriptor.getEnvId());
-            accessEnvId = accessDescriptor.getEnvId();
-        } else if (StringUtils.isNotBlank(accessDescriptor.getEnv())) {
-            accessEnvId = accessOrg.findEnvironmentByName(accessDescriptor.getEnv()).getId();
+        if (StringUtils.isNotBlank(accessDescriptor.getEnv())) {
+            accessEnvId = accessOrg.findEnvironmentByNameOrId(accessDescriptor.getEnv()).getId();
             logger.debug("access environment specified");
         } else {
             logger.debug("No access environment specified, using the API's environment");

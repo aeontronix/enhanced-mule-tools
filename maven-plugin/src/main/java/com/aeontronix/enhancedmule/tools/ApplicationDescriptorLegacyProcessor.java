@@ -36,6 +36,7 @@ import java.util.*;
 import static java.io.File.separator;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Deprecated
 public class ApplicationDescriptorLegacyProcessor implements ApplicationDescriptorProcessor {
     private static final String[] apiExts = {".raml",".yml",".yaml",".json"};
     private static final Logger logger = getLogger(ApplicationDescriptorLegacyProcessor.class);

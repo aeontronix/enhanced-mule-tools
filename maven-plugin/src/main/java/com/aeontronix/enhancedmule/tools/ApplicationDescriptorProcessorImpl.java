@@ -498,6 +498,22 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             }
             // 1.2.7
             relocate(asset, "assetId", "asset->assetId", asset, "id", "asset->id");
+            // 1.3.0
+            if( client == null ) {
+                client = (ObjectNode) applicationDescriptor.get("client");
+            }
+            if( client != null) {
+                access = client.get("access");
+                if( access != null ) {
+                    for (JsonNode jsonNode : access) {
+                        final JsonNode envId = jsonNode.get("envId");
+                        if( envId != null ) {
+                            logger.warn("client->access->envId is deprecated, use client->access->env instead");
+                            ((ObjectNode)jsonNode).set("env",envId);
+                        }
+                    }
+                }
+            }
         }
     }
 
