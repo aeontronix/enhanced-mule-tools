@@ -58,8 +58,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
             final ApplicationSourceMetadataProjectSourceImpl applicationSourceMetadata = new ApplicationSourceMetadataProjectSourceImpl(project, assetPagesDir, apiSpecDir);
             ApplicationDescriptorProcessor processor = new ApplicationDescriptorProcessorImpl(descriptor, project,
                     assetPagesDir, apiSpecDir, applicationSourceMetadata);
-            processor.legacyConvert();
-            processor.setDefaultValues(inheritNameAndDesc);
+            processor.legacyConvert(); // WONT MIGRATE
+            processor.setDefaultValues(inheritNameAndDesc); // MIGRATED
             processor.writeToFile(generateDescriptorFile, true);
             if (!mulePluginCompatibility) {
                 DefaultArtifact descriptorArtifactor = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),

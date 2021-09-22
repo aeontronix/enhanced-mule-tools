@@ -10,11 +10,13 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveProcessor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ArchiveApplicationSourceMetadata;
+import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperation;
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
@@ -33,7 +35,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-import static com.aeontronix.enhancedmule.tools.util.JsonHelper.*;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DeploymentServiceImpl implements DeploymentService {
@@ -59,16 +62,16 @@ public class DeploymentServiceImpl implements DeploymentService {
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {
-            final ObjectNode appDescJson = source.getAnypointDescriptor();
             final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
-            // Default layer
-            final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
-            // Descriptor layer
-            if( appDescJson != null && !appDescJson.isNull() ) {
-                DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
-                // Descriptor override layers
-                processOverrides(environment, (ObjectNode) jsonDesc, appDescJson.get("overrides"));
-                final JsonNode appId = appDescJson.get("id");
+            final ObjectNode anypointDescriptor = source.getAnypointDescriptor();
+            final JsonNode processed = anypointDescriptor.get("processed");
+            if (isNull(processed) || !processed.booleanValue()) {
+                final ArchiveApplicationSourceMetadata appMetadataSource = new ArchiveApplicationSourceMetadata(source.getLocalFile());
+                ApplicationArchiveProcessor.process(appMetadataSource, anypointDescriptor, jsonMapper);
+            }
+            final JsonNode jsonDesc = loadDescriptor(request, source, environment, jsonMapper, anypointDescriptor);
+            if (jsonDesc != null && !jsonDesc.isNull()) {
+                final JsonNode appId = jsonDesc.get("id");
                 if (appId != null && !appId.isNull()) {
                     request.getVars().put("app.id", appId.textValue());
                 } else {
@@ -76,10 +79,6 @@ public class DeploymentServiceImpl implements DeploymentService {
                 }
             } else {
                 request.getVars().put("app.id", source.getArtifactId());
-            }
-            final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
-            if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
-                DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
             }
             JsonHelper.processVariables((ObjectNode) jsonDesc, request.getVars());
             ApplicationDescriptor applicationDescriptor = jsonMapper.readerFor(ApplicationDescriptor.class)
@@ -109,6 +108,23 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
     }
 
+    private JsonNode loadDescriptor(RuntimeDeploymentRequest request, ApplicationSource source, Environment environment,
+                                    ObjectMapper jsonMapper, ObjectNode applicationAnypointDescriptor) throws IOException, ProvisioningException {
+        // Default layer
+        final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
+        // Descriptor layer
+        if (applicationAnypointDescriptor != null && !applicationAnypointDescriptor.isNull()) {
+            DescriptorHelper.override((ObjectNode) jsonDesc, applicationAnypointDescriptor);
+            // Descriptor override layers
+            processOverrides(environment, (ObjectNode) jsonDesc, applicationAnypointDescriptor.get("overrides"));
+        }
+        final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
+        if (legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
+            DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
+        }
+        return jsonDesc;
+    }
+
     private void processOverrides(Environment environment, ObjectNode jsonDesc, JsonNode overrides) throws ProvisioningException {
         if (isNotNull(overrides)) {
             for (JsonNode override : overrides) {
@@ -122,7 +138,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                     }
                 } else if (type.equalsIgnoreCase("envtype")) {
                     final String value = getOverrideValue(override, type);
-                    if (environment.getType().name().equalsIgnoreCase(value) ) {
+                    if (environment.getType().name().equalsIgnoreCase(value)) {
                         DescriptorHelper.override(jsonDesc, getOverrideJson(override));
                     }
                 }
@@ -132,7 +148,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     private ObjectNode getOverrideJson(JsonNode override) throws ProvisioningException {
         final JsonNode overrideJson = override.get("override");
-        if(isNull(overrideJson)) {
+        if (isNull(overrideJson)) {
             throw new ProvisioningException("Invalid override descriptor : " + override);
         }
         return (ObjectNode) overrideJson;
@@ -162,7 +178,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {
             return new CHDeploymentOperation(request, environment, source);
-        } else if( target.startsWith("rtf:") ) {
+        } else if (target.startsWith("rtf:")) {
             return new RTFDeploymentOperation(organization.findFabricByName(target.substring(4)), request, environment, source);
         } else {
             try {

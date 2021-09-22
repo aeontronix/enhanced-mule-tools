@@ -14,10 +14,9 @@ import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 
-class ApplicationDescriptorDefaultValuesTest {
+class ApplicationArchiveProcessorTest {
     public static final String APP_NAME = "My Application";
     public static final String APP_ID = "my-application";
     public static final String APP_VERS = "1.1.1";
@@ -38,9 +37,8 @@ class ApplicationDescriptorDefaultValuesTest {
     }
 
     private void setDefaultValues() throws IOException {
-        final ApplicationDescriptorDefaultValues defValues = new ApplicationDescriptorDefaultValues(src);
         final ObjectNode appDesc = getResource(testMethod + ".json");
-        defValues.setDefaultValues(appDesc, objectMapper);
+        ApplicationArchiveProcessor.process(src,appDesc, objectMapper);
         Assertions.assertEquals(appDesc, getResource(testMethod + "-expected.json"));
     }
 
@@ -51,7 +49,6 @@ class ApplicationDescriptorDefaultValuesTest {
 
     @Test
     public void testMavenDepAPI() throws IOException {
-        apiKitUsed();
         ramlDependencyExists("v5");
         setDefaultValues();
     }
@@ -65,10 +62,6 @@ class ApplicationDescriptorDefaultValuesTest {
             Mockito.when(src.getJsonContentFromDependencyArchive(API_GROUP_ID, API_ARTIFACT_ID, API_VERSION, "exchange.json"))
                     .thenReturn(exchangeJson);
         }
-    }
-
-    private void apiKitUsed() throws IOException {
-//        Mockito.when(src.isAPIKitUsed()).thenReturn(true);
     }
 
     private ObjectNode getResource(String path) throws IOException {

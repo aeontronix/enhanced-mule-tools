@@ -118,7 +118,8 @@ class DeploymentServiceImplTest {
     @Test
     void deployCHDefault() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, false, null, environment, true,
+                null, vars, properties, null, false, null, environment,
+                true,
                 true, true, null);
         deploymentService.deploy(request, appSrc);
         verifyCHNewDeploymentJson();

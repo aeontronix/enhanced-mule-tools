@@ -31,10 +31,9 @@ import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
 import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
 
 /**
- * This is used to assign default values for an application descriptor. This includes support for analysing project
- * files in order to find the correct default values.
+ * Used to process an application archive to set default values and to perform code weaving
  */
-public class ApplicationDescriptorDefaultValues {
+public class ApplicationArchiveProcessor {
     private static final String[] apiExts = {".raml", ".yml", ".yaml", ".json"};
     public static final String DESCRIPTION = "description";
     public static final String ID = "id";
@@ -57,13 +56,7 @@ public class ApplicationDescriptorDefaultValues {
     public static final String TYPE = "type";
     public static final String API = "api";
 
-    private ApplicationSourceMetadata src;
-
-    public ApplicationDescriptorDefaultValues(ApplicationSourceMetadata src) {
-        this.src = src;
-    }
-
-    public void setDefaultValues(ObjectNode applicationDescriptor, ObjectMapper objectMapper) throws IOException {
+    public static void process(ApplicationSourceMetadata src, ObjectNode applicationDescriptor, ObjectMapper objectMapper) throws IOException {
         String artifactId = src.getArtifactId();
         String version = src.getVersion();
         if (isNull(applicationDescriptor.get(ID))) {

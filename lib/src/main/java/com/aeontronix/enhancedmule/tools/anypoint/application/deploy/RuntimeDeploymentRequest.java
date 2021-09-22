@@ -42,7 +42,8 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public RuntimeDeploymentRequest(String filename, String appName, String artifactId, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
-                                    boolean ignoreMissingPropertyFile, String target, Environment environment, boolean injectEnvInfo, boolean skipWait,
+                                    boolean ignoreMissingPropertyFile, String target, Environment environment,
+                                    boolean injectEnvInfo, boolean skipWait,
                                     boolean skipProvisioning, JsonNode legacyAppDescriptor) throws IOException {
         super(buildNumber);
         this.filename = filename;
