@@ -78,7 +78,7 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
             asset.setDescription(project.getDescription());
         }
         if( asset.getAssetMainFile() == null ) {
-            asset.setAssetMainFile(ApplicationDescriptorProcessorImpl.findAPISpecFile(asset.getId(),apiSpecDir));
+            asset.setAssetMainFile(ApplicationSourceMetadataProjectSourceImpl.findAPISpecFile(asset.getId(),apiSpecDir));
         }
         if( asset.getApiVersion() == null ) {
             final String majorVersion = asset.getMajorVersion();

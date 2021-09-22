@@ -52,18 +52,18 @@ class DeploymentServiceImplTest {
     private Organization organization;
     private HttpHelper httpHelper;
     private ObjectMapper objectMapper = new ObjectMapper();
-    private JsonNode expectedJson;
-    private JsonNode descJson;
+    private ObjectNode expectedJson;
+    private ObjectNode descJson;
     private HashMap<String, String> vars;
     private HashMap<String, String> properties;
     private DeploymentServiceImpl deploymentService;
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    private void beforeAll(TestInfo testInfo) throws Exception {
+    private void beforeEachTest(TestInfo testInfo) throws Exception {
         String testName = testInfo.getTestMethod().orElseThrow(RuntimeException::new).getName();
-        descJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + ".json"));
-        expectedJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + "-expected.json"));
+        descJson = (ObjectNode) objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + ".json"));
+        expectedJson = (ObjectNode) objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + "-expected.json"));
         anypointClient = mock(AnypointClient.class);
         httpHelper = mock(HttpHelper.class);
         when(httpHelper.anypointHttpPost(any(),any(),any())).thenReturn("{}");
@@ -93,6 +93,7 @@ class DeploymentServiceImplTest {
         when(environment.getOrganization()).thenReturn(organization);
         when(environment.findServerByName(MYFABRIC)).thenThrow(new NotFoundException());
         appSrc = mock(ApplicationSource.class);
+        when(appSrc.getAnypointDescriptor()).thenReturn(descJson);
         when(appSrc.getFileName()).thenReturn("testapp-1.0.0.jar");
         when(appSrc.getApplicationIdentifier()).thenReturn(new ApplicationIdentifier("com.mycompany","testapp","1.0.0"));
         vars = new HashMap<>();
@@ -110,7 +111,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(FILE_JAR, APP_NAME, ARTIFACT_ID,
                 BUILD_NUMBER, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        new DeploymentServiceImpl(anypointClient).deploy(request, objectMapper.createObjectNode(), appSrc);
+        new DeploymentServiceImpl(anypointClient).deploy(request, appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -119,7 +120,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -128,7 +129,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -137,16 +138,16 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, appSrc);
         verifyCHNewDeploymentJson();
     }
 
     @Test
     void deployRTF() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
-                null, vars, properties, null, false, null, environment, true,
+                null, vars, properties, null, false, "rtf:"+MYFABRIC, environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, appSrc);
         verifyRTFNewDeploymentJson();
     }
 

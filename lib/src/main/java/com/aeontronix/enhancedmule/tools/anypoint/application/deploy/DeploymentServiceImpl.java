@@ -15,12 +15,10 @@ import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
-import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperation;
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
-import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
@@ -53,7 +51,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
+    public void deploy(RuntimeDeploymentRequest request, ApplicationSource source) throws DeploymentException, ProvisioningException {
         String target = request.getTarget();
         if (request.getFilename() == null) {
             request.setFilename(source.getFileName());
@@ -61,8 +59,9 @@ public class DeploymentServiceImpl implements DeploymentService {
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {
+            final ObjectNode appDescJson = source.getAnypointDescriptor();
             final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
-            // default layer
+            // Default layer
             final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
             // Descriptor layer
             if( appDescJson != null && !appDescJson.isNull() ) {
@@ -162,16 +161,16 @@ public class DeploymentServiceImpl implements DeploymentService {
         DeploymentOperation op;
         final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {
-            op = new CHDeploymentOperation(request, environment, source);
+            return new CHDeploymentOperation(request, environment, source);
+        } else if( target.startsWith("rtf:") ) {
+            return new RTFDeploymentOperation(organization.findFabricByName(target.substring(4)), request, environment, source);
         } else {
             try {
-                Server server = environment.findServerByName(target);
-                op = new HDeploymentOperation(request, server, source);
+                return new HDeploymentOperation(request, environment.findServerByName(target), source);
             } catch (NotFoundException e) {
-                final Fabric fabric = organization.findFabricByName(target);
-                op = new RTFDeploymentOperation(fabric, request, environment, source);
+                return new RTFDeploymentOperation(organization.findFabricByName(target), request, environment, source);
             }
         }
-        return op;
     }
+
 }

@@ -4,7 +4,6 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.commons.xml.XmlUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationEnhancer;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -18,13 +17,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -56,10 +50,14 @@ public class ProcessDescriptorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if( true ) {
+            throw new MojoExecutionException("Please remove process-descriptor mojo which isn't used in Enhance Mule Tools 2.x");
+        }
         try {
-            boolean apikit = isAPIKitUsed();
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
-            ApplicationDescriptorProcessor processor = new ApplicationDescriptorProcessorImpl(descriptor, project, assetPagesDir, apiSpecDir, apikit);
+            final ApplicationSourceMetadataProjectSourceImpl applicationSourceMetadata = new ApplicationSourceMetadataProjectSourceImpl(project, assetPagesDir, apiSpecDir);
+            ApplicationDescriptorProcessor processor = new ApplicationDescriptorProcessorImpl(descriptor, project,
+                    assetPagesDir, apiSpecDir, applicationSourceMetadata);
             processor.legacyConvert();
             processor.setDefaultValues(inheritNameAndDesc);
             processor.writeToFile(generateDescriptorFile, true);
@@ -89,28 +87,6 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
-    }
-
-    private boolean isAPIKitUsed() throws IOException, SAXException {
-        final File outputDir = new File(project.getBuild().getOutputDirectory());
-        @SuppressWarnings("Convert2Lambda") final File[] files = outputDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".xml");
-            }
-        });
-        if (files != null) {
-            for (File file : files) {
-                final Document xmlDoc = XmlUtils.parse(file,true);
-                final Element rootEl = xmlDoc.getDocumentElement();
-                if( "http://www.mulesoft.org/schema/mule/core".equals(rootEl.getNamespaceURI()) && "mule".equals(rootEl.getLocalName())) {
-                    if( rootEl.getElementsByTagNameNS("http://www.mulesoft.org/schema/mule/mule-apikit","config").getLength() > 0 ) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     private Artifact findAppArtifact(String classifier) {

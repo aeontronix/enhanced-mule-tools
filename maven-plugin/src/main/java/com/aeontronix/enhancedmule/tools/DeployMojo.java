@@ -11,7 +11,6 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDepl
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -147,13 +146,13 @@ public class DeployMojo extends LegacyDeployMojo {
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
                     request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
-                    final ObjectNode appDescJson = source.getAnypointDescriptor();
-                    deploymentService.deploy(request, appDescJson, source);
+                    deploymentService.deploy(request, source);
                 }
             }
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void handleDeprecated() {
         if (target == null && legacyTarget != null) {
             target = legacyTarget;
