@@ -18,6 +18,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -299,4 +303,7 @@ public class JsonHelper implements Serializable {
         return null;
     }
 
+    public static DocumentContext createJsonPathDocument(JsonNode node) {
+        return JsonPath.parse(node, Configuration.builder().jsonProvider(new JacksonJsonNodeJsonProvider()).build());
+    }
 }

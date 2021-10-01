@@ -1,7 +1,7 @@
 {
   "id": "testapp",
   "name": "testapp",
-  "description": null,
+  "description": "Cool Application",
   "version": "1.0.0",
   "mule3": null,
   "api": {

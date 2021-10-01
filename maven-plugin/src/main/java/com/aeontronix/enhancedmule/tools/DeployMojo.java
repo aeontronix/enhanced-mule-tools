@@ -19,12 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends LegacyDeployMojo {
     public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
@@ -68,7 +69,6 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "anypoint.deploy.propertyfile.ignoremissing", required = false)
     protected boolean ignoreMissingPropertyFile;
-
     /**
      * Properties that should be inserted into a property file in the application archive
      *
@@ -99,14 +99,26 @@ public class DeployMojo extends LegacyDeployMojo {
     private String buildNumber;
     @Parameter(property = "emt.provisioning.deletesnapshots")
     private Boolean deleteSnapshots;
-    @Parameter(property = "anypoint.target")
-    private String legacyTarget;
     /**
-     * If true API provisioning will be skipped
+     * Specified if environment info should be injected
      */
-    @Parameter(property = "anypoint.api.provisioning.skip")
-    @Deprecated
-    protected boolean skipApiProvisioning;
+    @Parameter(property = "anypoint.deploy.injectEnvInfo", defaultValue = "true")
+    protected Boolean injectEnvInfo;
+    /**
+     * If true, will force deployment even if same already application was already deployed.
+     */
+    @Parameter(property = "anypoint.deploy.force")
+    protected boolean force;
+    /**
+     * If true will skip wait for application to start (successfully or not)
+     */
+    @Parameter(property = "anypoint.deploy.skipwait")
+    protected boolean skipWait;
+    /**
+     * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
+     */
+    @Parameter(name = "target", property = "anypoint.deploy.target")
+    protected String target; //DONE
 
     @Override
     protected void doExecute() throws Exception {
@@ -142,7 +154,14 @@ public class DeployMojo extends LegacyDeployMojo {
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
                             source.getFileName(), buildNumber, vars, properties, propertyfile,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
-                            getLegacyAppDescriptor(), source);
+                            source);
+                    final Properties userProperties = session.getUserProperties();
+                    for (Object key : userProperties.keySet()) {
+                        final String keyStr = key.toString();
+                        if( keyStr.startsWith("-O") ) {
+                            request.setOverrideParameter(keyStr.substring(2),userProperties.getProperty(keyStr));
+                        }
+                    }
                     request.setFileProperties(fileProperties);
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
@@ -155,15 +174,6 @@ public class DeployMojo extends LegacyDeployMojo {
 
     @SuppressWarnings("deprecation")
     private void handleDeprecated() {
-        if (target == null && legacyTarget != null) {
-            target = legacyTarget;
-        }
-        if (chMuleVersionName == null && muleVersionName != null) {
-            logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
-            chMuleVersionName = muleVersionName;
-        }
-        if (skipApiProvisioning && !skipProvisioning) {
-            skipProvisioning = true;
-        }
+
     }
 }

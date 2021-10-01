@@ -29,11 +29,16 @@ import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
 import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
@@ -122,9 +127,11 @@ public class DeploymentServiceImpl implements DeploymentService {
             // Descriptor override layers
             processOverrides(environment, (ObjectNode) jsonDesc, applicationAnypointDescriptor.get("overrides"));
         }
-        final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
-        if (legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
-            DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
+        if( request.getOverrideParameters() != null && !request.getOverrideParameters().isEmpty() ) {
+            final DocumentContext documentContext = JsonHelper.createJsonPathDocument(jsonDesc);
+            for (Map.Entry<String, String> overrideParam : request.getOverrideParameters().entrySet()) {
+                documentContext.set(JsonPath.compile(overrideParam.getKey()), overrideParam.getValue());
+            }
         }
         return jsonDesc;
     }

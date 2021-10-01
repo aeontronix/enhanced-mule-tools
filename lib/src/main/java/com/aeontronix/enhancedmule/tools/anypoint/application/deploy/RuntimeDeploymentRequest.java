@@ -36,22 +36,21 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     private boolean filePropertiesSecure;
     private boolean skipWait;
     private boolean skipProvisioning;
-    private JsonNode legacyAppDescriptor;
     private boolean deleteSnapshots;
     private ApplicationSource applicationSource;
+    private final Map<String,String> overrideParameters = new HashMap<>();
 
     public RuntimeDeploymentRequest(String filename, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
                                     boolean ignoreMissingPropertyFile, String target, Environment environment,
                                     boolean injectEnvInfo, boolean skipWait,
-                                    boolean skipProvisioning, JsonNode legacyAppDescriptor, ApplicationSource applicationSource) throws IOException {
+                                    boolean skipProvisioning, ApplicationSource applicationSource) throws IOException {
         super(buildNumber);
         this.filename = filename;
         this.environment = environment;
         this.injectEnvInfo = injectEnvInfo;
         this.skipWait = skipWait;
         this.skipProvisioning = skipProvisioning;
-        this.legacyAppDescriptor = legacyAppDescriptor;
         this.applicationSource = applicationSource;
         if (vars != null && !vars.isEmpty()) {
             this.vars.putAll(vars);
@@ -237,11 +236,20 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return autoApproveAccess == null || autoApproveAccess;
     }
 
-    public JsonNode getLegacyAppDescriptor() {
-        return legacyAppDescriptor;
-    }
-
     public ApplicationSource getApplicationSource() {
         return applicationSource;
+    }
+
+    public Map<String, String> getOverrideParameters() {
+        return overrideParameters;
+    }
+
+    public void setOverrideParameters(Map<String, String> overrideParameters) {
+        this.overrideParameters.clear();
+        this.overrideParameters.putAll(overrideParameters);
+    }
+
+    public void setOverrideParameter(String key, String value) {
+        this.overrideParameters.put(key,value);
     }
 }

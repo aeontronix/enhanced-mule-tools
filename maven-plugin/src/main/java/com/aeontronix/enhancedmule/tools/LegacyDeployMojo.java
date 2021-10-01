@@ -32,16 +32,6 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.name.chprefix")
     protected String appNameCHPrefix;
     /**
-     * If true, will force deployment even if same already application was already deployed.
-     */
-    @Parameter(property = "anypoint.deploy.force")
-    protected boolean force;
-    /**
-     * If true will skip wait for application to start (successfully or not)
-     */
-    @Parameter(property = "anypoint.deploy.skipwait")
-    protected boolean skipWait;
-    /**
      * Deployment timeout
      */
     @Parameter(property = "anypoint.deploy.timeout")
@@ -56,22 +46,7 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(property = "anypoint.deploy.name")
     protected String appName;
-    /**
-     * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
-     */
-    @Parameter(name = "target", property = "anypoint.deploy.target")
-    protected String target; //DONE
-    /**
-     * Deprecated, use chMuleVersionName
-     */
-    @Parameter(name = "muleVersionName", property = "anypoint.deploy.ch.muleversion", required = false)
-    @Deprecated
-    protected String muleVersionName;
-    /**
-     *
-     */
-    @Parameter(property = "anypoint.deploy.ch.runtime.version", required = false)
-    protected String chMuleVersionName;
+
     /**
      * Cloudhub only: Deployment region
      */
@@ -94,11 +69,6 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
      */
     @Parameter(name = "customlog4j", property = "anypoint.deploy.ch.customlog4j")
     protected Boolean customlog4j;
-    /**
-     * Specified if environment info should be injected
-     */
-    @Parameter(property = "anypoint.deploy.injectEnvInfo", defaultValue = "true")
-    protected Boolean injectEnvInfo;
     /**
      * Indicates if existing application properties should be merged
      */
@@ -160,45 +130,4 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
     protected RTFDeploymentConfig.DeploymentModel updateStrategy;
     @Parameter(property = "anypoint.deploy.rtf.replicas")
     protected Integer replicas;
-
-    public JsonNode getLegacyAppDescriptor() throws IOException {
-        final ApplicationDescriptor app = new ApplicationDescriptor();
-        final DeploymentParameters deploymentParameters = new DeploymentParameters();
-        app.setDeploymentParams(deploymentParameters);
-        deploymentParameters.setTarget(target);
-        deploymentParameters.setDeployTimeout(deployTimeout != null ? Duration.ofMillis(deployTimeout) : null);
-        deploymentParameters.setDeployRetryDelay(deployRetryDelay != null ? Duration.ofMillis(deployRetryDelay) : null);
-        deploymentParameters.setMergeExistingProperties(mergeExistingProperties);
-        deploymentParameters.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
-        deploymentParameters.setMergeExistingPropertiesOverride(mergeExistingPropertiesOverride);
-        deploymentParameters.setExtMonitoring(extMonitoring);
-        final CloudhubDeploymentParameters ch = deploymentParameters.getCloudhub();
-        ch.setAppNamePrefix(appNameCHPrefix);
-        ch.setAppNameSuffixNPOnly(appNameCHSuffixNPOnly);
-        ch.setAppNameSuffix(appNameCHSuffix);
-        ch.setMuleVersion(chMuleVersionName);
-        ch.setPersistentQueues(persistentQueues);
-        ch.setPersistentQueuesEncrypted(persistentQueuesEncrypted);
-        ch.setObjectStoreV1(objectStoreV1);
-        ch.setCustomlog4j(customlog4j);
-        ch.setStaticIPs(staticIPs);
-        ch.setRegion(region);
-        ch.setWorkerType(workerType);
-        ch.setWorkerCount(workerCount);
-        final RTFDeploymentParameters rtf = deploymentParameters.getRtf();
-        rtf.setCpuReserved(cpuReserved);
-        rtf.setCpuLimit(cpuLimit);
-        rtf.setMemoryReserved(memoryReserved);
-        rtf.setMemoryLimit(memoryLimit);
-        rtf.setClustered(clustered);
-        rtf.setEnforceDeployingReplicasAcrossNodes(enforceDeployingReplicasAcrossNodes);
-        rtf.setHttpInboundPublicUrl(httpInboundPublicUrl);
-        rtf.setJvmArgs(jvmArgs);
-        rtf.setRuntimeVersion(rtfRuntimeVersion);
-        rtf.setLastMileSecurity(lastMileSecurity);
-        rtf.setForwardSslSession(forwardSslSession);
-        rtf.setUpdateStrategy(updateStrategy);
-        rtf.setReplicas(replicas);
-        return getClient().getJsonHelper().getJsonMapper().valueToTree(app);
-    }
 }

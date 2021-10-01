@@ -65,7 +65,7 @@ public class DeployOnlyTests {
         properties.put("color", "blue");
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(DeploymentTestsHelper.FILE_JAR,
                 DeploymentTestsHelper.BUILD_NUMBER, vars, properties, null, false, null, environment, true,
-                true, true, null, appSrc);
+                true, true, appSrc);
         new DeploymentServiceImpl(anypointClient).deploy(request);
         verifyCHNewDeploymentJson();
     }
@@ -75,7 +75,7 @@ public class DeployOnlyTests {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, null, environment,
                 true,
-                true, true, null, appSrc);
+                true, true, appSrc);
         deploymentService.deploy(request);
         verifyCHNewDeploymentJson();
     }
@@ -84,7 +84,7 @@ public class DeployOnlyTests {
     void deployCHCustomLogger() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, "cloudhub", environment, true,
-                true, true, null, appSrc);
+                true, true, appSrc);
         deploymentService.deploy(request);
         verifyCHNewDeploymentJson();
     }
@@ -93,7 +93,7 @@ public class DeployOnlyTests {
     void deployCHOverrideDescriptor() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, "cloudhub", environment, true,
-                true, true, null, appSrc);
+                true, true, appSrc);
         deploymentService.deploy(request);
         verifyCHNewDeploymentJson();
     }
@@ -102,7 +102,7 @@ public class DeployOnlyTests {
     void deployRTF() throws Exception {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, "rtf:"+ DeploymentTestsHelper.MYFABRIC, environment, true,
-                true, true, null, appSrc);
+                true, true, appSrc);
         deploymentService.deploy(request);
         verifyRTFNewDeploymentJson();
     }

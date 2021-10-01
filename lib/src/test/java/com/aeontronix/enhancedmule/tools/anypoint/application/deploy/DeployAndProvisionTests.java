@@ -57,7 +57,8 @@ public class DeployAndProvisionTests {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, null, DeploymentTestsHelper.createMockEnvironment(anypointClient),
                 true,
-                true, false, null, applicationSource);
+                true, false, applicationSource);
+        request.getOverrideParameters().put("description","Cool Application");
         //noinspection unchecked
         when(anypointClient.deployApplicationToCH(eq(false), any(Environment.class), eq(true), any(Map.class),
                 eq("api-application.jar"), any(FileInputStream.class), eq("testapp-prod")))
