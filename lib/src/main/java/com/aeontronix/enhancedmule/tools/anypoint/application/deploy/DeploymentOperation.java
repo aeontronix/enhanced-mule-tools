@@ -9,13 +9,10 @@ import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ExchangeApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
@@ -71,51 +68,7 @@ public abstract class DeploymentOperation {
             }
             if (applicationDescriptor != null && !deploymentRequest.isSkipProvisioning() ) {
                 logger.debug("Found anypoint provisioning file, provisioning");
-                final Organization organization = environment.getOrganization();
-                final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
-                boolean assetPublished = false;
-                final ExchangeManagementClient exchangeManagementClient = new ExchangeManagementClient();
-                if (applicationDescriptor.isAssetPublish()) {
-                    final ExchangeAssetDescriptor asset = applicationDescriptor.getApi().getAsset();
-                    assetPublished = exchangeManagementClient.publish(asset, organization, source, deploymentRequest);
-                }
-                provisioningResult = applicationProvisioningService.provision(applicationDescriptor, environment, deploymentRequest);
-                final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
-                if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId()) {
-                    final String apiIdProperty = apiDescriptor.getApiIdProperty();
-                    if (apiIdProperty == null) {
-                        throw new IllegalArgumentException("apiIdProperty musn't be null");
-                    }
-                    deploymentRequest.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
-                    deploymentRequest.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
-                    try {
-                        final String clientSecret = environment.getClientSecret();
-                        if (clientSecret != null) {
-                            deploymentRequest.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
-                        }
-                    } catch (HttpException e) {
-                        if (e.getStatusCode() != 401) {
-                            throw e;
-                        }
-                    }
-                }
-                if (assetPublished && deploymentRequest.isDeleteSnapshots()) {
-                    exchangeManagementClient.deleteSnapshots(organization, applicationDescriptor.getApi().getAsset());
-                }
-                final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
-                ClientApplication clientApp = provisioningResult.getClientApplication();
-                if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
-                    final String clientIdProperty = clientDescriptor.getClientIdProperty();
-                    if (clientIdProperty == null) {
-                        throw new IllegalStateException("client descriptor id property musn't be null");
-                    }
-                    deploymentRequest.setOverrideProperty(clientIdProperty, clientApp.getClientId());
-                    final String clientSecretProperty = clientDescriptor.getClientSecretProperty();
-                    if (clientSecretProperty == null) {
-                        throw new IllegalStateException("client descriptor id property musn't be null");
-                    }
-                    deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
-                }
+                client.provisionApplication(applicationDescriptor, deploymentRequest);
             }
             if (deploymentRequest.isFilePropertiesSecure() && applicationDescriptor != null &&
                     applicationDescriptor.getProperties() != null) {

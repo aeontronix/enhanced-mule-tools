@@ -6,8 +6,19 @@ package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,9 +28,24 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class DeployAndProvisionTests {
+    @Captor
+    ArgumentCaptor<ApplicationDescriptor> applicationDescriptorArgumentCaptor;
+    @Captor
+    ArgumentCaptor<RuntimeDeploymentRequest> runtimeDeploymentRequestArgumentCaptor;
+    private ObjectNode expectedJson;
+
+    @BeforeEach
+    private void beforeEachTest(TestInfo testInfo) throws Exception {
+        String testName = testInfo.getTestMethod().orElseThrow(RuntimeException::new).getName();
+        final ObjectMapper objectMapper = new ObjectMapper();
+        expectedJson = (ObjectNode) objectMapper.readTree(getClass().getResource("/app/deployAndProvision/" + testName + "-expected.json"));
+    }
+
     @Test
     public void deployAPI() throws Exception {
         final File appArchiveFile = new File(requireNonNull(getClass().getResource("/api-application.jar")).toURI());
@@ -31,7 +57,8 @@ public class DeployAndProvisionTests {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
                 null, vars, properties, null, false, null, DeploymentTestsHelper.createMockEnvironment(anypointClient),
                 true,
-                true, true, null, applicationSource);
+                true, false, null, applicationSource);
+        //noinspection unchecked
         when(anypointClient.deployApplicationToCH(eq(false), any(Environment.class), eq(true), any(Map.class),
                 eq("api-application.jar"), any(FileInputStream.class), eq("testapp-prod")))
                 .thenReturn("{\n" +
@@ -45,5 +72,10 @@ public class DeployAndProvisionTests {
                         "  }\n" +
                         "}\n");
         deploymentService.deploy(request);
+        verify(anypointClient).provisionApplication(applicationDescriptorArgumentCaptor.capture(),
+                runtimeDeploymentRequestArgumentCaptor.capture());
+        final ApplicationDescriptor applicationDescriptor = applicationDescriptorArgumentCaptor.getValue();
+        final ObjectMapper objectMapper = JsonHelper.createMapper();
+        Assertions.assertEquals(expectedJson, objectMapper.valueToTree(applicationDescriptor));
     }
 }

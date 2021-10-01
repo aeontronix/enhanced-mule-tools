@@ -1,0 +1,121 @@
+{
+  "id": "testapp",
+  "name": "testapp",
+  "description": null,
+  "version": "1.0.0",
+  "mule3": null,
+  "api": {
+    "asset": {
+      "groupId": null,
+      "id": "testapp-spec",
+      "version": "1.0.0",
+      "apiVersion": "v1",
+      "name": "testapp",
+      "description": null,
+      "tags": null,
+      "portal": {
+        "pages": [
+          {
+            "name": "exchange/home.md",
+            "path": null,
+            "content": "# HOME PAGE\n"
+          }
+        ]
+      },
+      "categories": null,
+      "fields": null,
+      "icon": null,
+      "create": true,
+      "type": "REST",
+      "assetMainFile": "testapp.raml",
+      "classifier": "raml"
+    },
+    "implementationUrl": null,
+    "consumerUrl": null,
+    "implementationUrlJson": null,
+    "tags": null,
+    "addAutoDiscovery": false,
+    "autoDiscoveryFlow": "api-main",
+    "policies": [],
+    "accessedBy": null,
+    "label": null,
+    "slaTiers": null,
+    "apiIdProperty": "anypoint.api.id",
+    "injectApiId": true
+  },
+  "properties": {
+    "anypoint.platform.client_id": {
+      "key": null,
+      "name": "Anypoint platform client id",
+      "description": null,
+      "file": false,
+      "secure": false,
+      "required": false,
+      "values": null,
+      "static": false,
+      "default": null
+    },
+    "anypoint.platform.client_secret": {
+      "key": null,
+      "name": "Anypoint platform client secret",
+      "description": null,
+      "file": false,
+      "secure": true,
+      "required": false,
+      "values": null,
+      "static": false,
+      "default": null
+    },
+    "anypoint.api.id": {
+      "key": null,
+      "name": "Anypoint API identifier",
+      "description": null,
+      "file": false,
+      "secure": false,
+      "required": false,
+      "values": null,
+      "static": false,
+      "default": null
+    }
+  },
+  "client": null,
+  "deploymentParams": {
+    "appName": null,
+    "target": null,
+    "cloudhub": {
+      "appNameSuffix": null,
+      "appNameSuffixNPOnly": false,
+      "appNamePrefix": null,
+      "muleVersion": null,
+      "persistentQueues": false,
+      "persistentQueuesEncrypted": false,
+      "objectStoreV1": false,
+      "customlog4j": false,
+      "staticIPs": false,
+      "region": null,
+      "workerType": null,
+      "workerCount": 1
+    },
+    "rtf": {
+      "cpuReserved": "20m",
+      "cpuLimit": "1700m",
+      "memoryReserved": "700Mi",
+      "memoryLimit": "700Mi",
+      "clustered": false,
+      "enforceDeployingReplicasAcrossNodes": false,
+      "httpInboundPublicUrl": null,
+      "jvmArgs": null,
+      "runtimeVersion": null,
+      "lastMileSecurity": null,
+      "forwardSslSession": null,
+      "updateStrategy": "ROLLING",
+      "replicas": 1
+    },
+    "deployTimeout": "PT15M",
+    "deployRetryDelay": "PT3S",
+    "mergeExistingProperties": false,
+    "mergeExistingPropertiesOverride": false,
+    "extMonitoring": true,
+    "autoApproveAccess": true
+  }
+}

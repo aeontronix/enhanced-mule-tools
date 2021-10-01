@@ -8,8 +8,19 @@ import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
+import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ExchangeManagementClient;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.application.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.restclient.RESTClient;
 import com.aeontronix.restclient.RESTClientHost;
@@ -399,5 +410,55 @@ public class AnypointClient implements Closeable, Serializable {
         String deploymentJson = req.execute();
         elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: " + domain);
         return deploymentJson;
+    }
+
+    public void provisionApplication(ApplicationDescriptor applicationDescriptor, RuntimeDeploymentRequest deploymentRequest) throws ProvisioningException, HttpException {
+        APIProvisioningResult provisioningResult;
+        final Environment environment = deploymentRequest.getEnvironment();
+        final Organization organization = environment.getOrganization();
+        final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(this);
+        boolean assetPublished = false;
+        final ExchangeManagementClient exchangeManagementClient = new ExchangeManagementClient();
+        if (applicationDescriptor.isAssetPublish()) {
+            final ExchangeAssetDescriptor asset = applicationDescriptor.getApi().getAsset();
+            assetPublished = exchangeManagementClient.publish(asset, organization, deploymentRequest.getApplicationSource(), deploymentRequest);
+        }
+        provisioningResult = applicationProvisioningService.provision(applicationDescriptor, environment, deploymentRequest);
+        final APIDescriptor apiDescriptor = applicationDescriptor.getApi();
+        if (provisioningResult.getApi() != null && apiDescriptor.isInjectApiId()) {
+            final String apiIdProperty = apiDescriptor.getApiIdProperty();
+            if (apiIdProperty == null) {
+                throw new IllegalArgumentException("apiIdProperty musn't be null");
+            }
+            deploymentRequest.setOverrideProperty(apiIdProperty, provisioningResult.getApi().getId());
+            deploymentRequest.setOverrideProperty(DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, environment.getClientId());
+            try {
+                final String clientSecret = environment.getClientSecret();
+                if (clientSecret != null) {
+                    deploymentRequest.setOverrideProperty(DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
+                }
+            } catch (HttpException e) {
+                if (e.getStatusCode() != 401) {
+                    throw e;
+                }
+            }
+        }
+        if (assetPublished && deploymentRequest.isDeleteSnapshots()) {
+            exchangeManagementClient.deleteSnapshots(organization, applicationDescriptor.getApi().getAsset());
+        }
+        final ClientApplicationDescriptor clientDescriptor = applicationDescriptor.getClient();
+        ClientApplication clientApp = provisioningResult.getClientApplication();
+        if (clientApp != null && clientDescriptor != null && clientDescriptor.isInjectClientIdSec()) {
+            final String clientIdProperty = clientDescriptor.getClientIdProperty();
+            if (clientIdProperty == null) {
+                throw new IllegalStateException("client descriptor id property musn't be null");
+            }
+            deploymentRequest.setOverrideProperty(clientIdProperty, clientApp.getClientId());
+            final String clientSecretProperty = clientDescriptor.getClientSecretProperty();
+            if (clientSecretProperty == null) {
+                throw new IllegalStateException("client descriptor id property musn't be null");
+            }
+            deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
+        }
     }
 }
