@@ -8,10 +8,10 @@ import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.validation.ValidationUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequestImpl;
-import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.InvalidAnypointDescriptorException;
+import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -46,51 +47,52 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
 
     @Override
     protected void doExecute() throws Exception {
-        if( skip ) {
+        if (skip) {
             return;
         }
-        if( ! apiSpecDir.exists() ) {
-            throw new IOException(apiSpecDir+" doesn't exist");
-        } else if( ! apiSpecDir.isDirectory() ) {
-            throw new IOException(apiSpecDir+" isn't a directory");
+        if (!apiSpecDir.exists()) {
+            throw new IOException(apiSpecDir + " doesn't exist");
+        } else if (!apiSpecDir.isDirectory()) {
+            throw new IOException(apiSpecDir + " isn't a directory");
         }
         final ObjectMapper om = new ObjectMapper();
         final ExchangeAssetDescriptor asset = om.readValue(assetDescriptorFile, ExchangeAssetDescriptor.class);
-        if(asset.getId() == null) {
+        if (asset.getId() == null) {
             asset.setId(project.getArtifactId());
         }
-        if( asset.getGroupId() == null ) {
+        if (asset.getGroupId() == null) {
             asset.setGroupId(getOrganization().getId());
         }
-        if(asset.getVersion() == null) {
+        if (asset.getVersion() == null) {
             asset.setVersion(project.getVersion());
         }
-        if( asset.getVersion().toLowerCase().endsWith("-snapshot") ) {
-            if( buildNumber == null ) {
+        if (asset.getVersion().toLowerCase().endsWith("-snapshot")) {
+            if (buildNumber == null) {
                 buildNumber = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
             }
-            asset.setVersion(asset.getVersion()+ "-" + buildNumber);
+            asset.setVersion(asset.getVersion() + "-" + buildNumber);
         }
-        if(asset.getName() == null) {
+        if (asset.getName() == null) {
             asset.setName(project.getName());
         }
-        if(asset.getDescription() == null) {
+        if (asset.getDescription() == null) {
             asset.setDescription(project.getDescription());
         }
-        if( asset.getAssetMainFile() == null ) {
-            asset.setAssetMainFile(ApplicationSourceMetadataProjectSourceImpl.findAPISpecFile(asset.getId(),apiSpecDir));
+        if (asset.getAssetMainFile() == null) {
+            asset.setAssetMainFile(ApplicationSourceMetadataProjectSourceImpl
+                    .findAPISpecFile(Collections.singletonList(asset.getId()), apiSpecDir));
         }
-        if( asset.getApiVersion() == null ) {
+        if (asset.getApiVersion() == null) {
             final String majorVersion = asset.getMajorVersion();
-            if( "raml".equalsIgnoreCase(asset.getClassifier()) ) {
-                asset.setApiVersion("v"+majorVersion);
+            if ("raml".equalsIgnoreCase(asset.getClassifier())) {
+                asset.setApiVersion("v" + majorVersion);
             } else {
-                asset.setApiVersion(majorVersion+".0.0");
+                asset.setApiVersion(majorVersion + ".0.0");
             }
         }
-        if( asset.getIcon() == null ) {
+        if (asset.getIcon() == null) {
             final File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
-            if( iconFile != null ) {
+            if (iconFile != null) {
                 asset.setIcon(new IconDescriptor(iconFile.getPath()));
             }
         }
@@ -98,8 +100,8 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
         asset.findPages(assetPagesDir);
         ValidationUtils.validate(asset, InvalidAnypointDescriptorException.class);
         final HashMap<String, File> specFiles = new HashMap<>();
-        addFile(specFiles,null,apiSpecDir);
-        final ProvisioningRequest provisioningRequest = new ProvisioningRequestImpl(buildNumber,deleteSnapshots,true);
+        addFile(specFiles, null, apiSpecDir);
+        final ProvisioningRequest provisioningRequest = new ProvisioningRequestImpl(buildNumber, deleteSnapshots, true);
         asset.publish(getOrganization(), new APISpecSource() {
             @Override
             public Set<String> listAPISpecFiles() throws IOException {
@@ -108,8 +110,8 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
 
             @Override
             public void writeAPISpecFile(String name, OutputStream os) throws IOException {
-                try( final FileInputStream fis = new FileInputStream(specFiles.get(name)) ) {
-                    IOUtils.copy(fis,os);
+                try (final FileInputStream fis = new FileInputStream(specFiles.get(name))) {
+                    IOUtils.copy(fis, os);
                 }
             }
         }, provisioningRequest);
@@ -117,16 +119,16 @@ public class PublishRestExchangeAssetMojo extends AbstractOrganizationalMojo {
     }
 
     private void addFile(HashMap<String, File> specFiles, String path, File file) {
-        if( file.isDirectory() ) {
+        if (file.isDirectory()) {
             for (File f : file.listFiles()) {
                 String p = f.getName();
-                if( path != null ) {
+                if (path != null) {
                     p = path + "/" + p;
                 }
-                addFile(specFiles,p,f);
+                addFile(specFiles, p, f);
             }
         } else {
-            specFiles.put(path,file);
+            specFiles.put(path, file);
         }
     }
 }

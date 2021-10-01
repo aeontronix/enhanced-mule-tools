@@ -1,6 +1,7 @@
 {
   "processed": true,
   "deploymentParams": {
+    "appName": "overriddenappname",
     "target": "cloudhub",
     "extMonitoring": false,
     "cloudhub": {

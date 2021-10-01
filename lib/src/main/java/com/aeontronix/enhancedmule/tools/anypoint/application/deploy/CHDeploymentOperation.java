@@ -7,22 +7,24 @@ package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.aeontronix.enhancedmule.tools.runtime.CHDeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
-import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.enhancedmule.tools.util.EMTLogger;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.util.HttpHelper;
+import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +62,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
     @Override
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException {
         try {
+            String domain = generateCHAppName(request);
             long start = System.currentTimeMillis();
             final DeploymentParameters deploymentParameters = request.getApplicationDescriptor().getDeploymentParams();
             final CloudhubDeploymentParameters cloudhub = request.getApplicationDescriptor().getDeploymentParams().getCloudhub();
@@ -82,23 +85,22 @@ public class CHDeploymentOperation extends DeploymentOperation {
             } else {
                 workerType = environment.findWorkerTypeByName(cloudhub.getWorkerType());
             }
-            if( cloudhub.getWorkerCount() == null || cloudhub.getWorkerCount() < 1 ) {
+            if (cloudhub.getWorkerCount() == null || cloudhub.getWorkerCount() < 1) {
                 workerCount = 1;
             } else {
                 workerCount = cloudhub.getWorkerCount();
             }
             AnypointClient client = environment.getClient();
             HttpHelper httpHelper = client.getHttpHelper();
-            JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
+            JsonHelper.MapBuilder appInfoBuilder = JsonHelper.buildJsonMap();
             final Boolean extMonitoring = deploymentParameters.getExtMonitoring();
             if (extMonitoring == null || extMonitoring) {
                 deploymentRequest.setProperty("anypoint.platform.config.analytics.agent.enabled", "true");
             }
-            String appName = request.getAppName();
-            CHApplication existingApp = getExistingApp(appName);
+            CHApplication existingApp = getExistingApp(domain);
             deploymentRequest.mergeExistingProperties(existingApp);
             appInfoBuilder.set("properties", deploymentRequest.getProperties())
-                    .set("domain", appName)
+                    .set("domain", domain)
                     .set("monitoringEnabled", true)
                     .set("monitoringAutoRestart", true)
                     .set("loggingNgEnabled", true)
@@ -119,38 +121,15 @@ public class CHDeploymentOperation extends DeploymentOperation {
             Map<String, Object> appInfo = appInfoBuilder.toMap();
             String deploymentJson;
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying cloudhub application");
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Domain: "+appName);
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Count: "+workerCount);
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Type: "+workerType.getName());
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Mule Version: "+muleVersion.getVersion());
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Custom Log4J logging: "+(cloudhub.getCustomlog4j() ? "Yes" : "No"));
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Static IPs: "+(cloudhub.getStaticIPs() ? "Yes" : "No"));
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Domain: " + domain);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Count: " + workerCount);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Type: " + workerType.getName());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Mule Version: " + muleVersion.getVersion());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Custom Log4J logging: " + (cloudhub.getCustomlog4j() ? "Yes" : "No"));
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Static IPs: " + (cloudhub.getStaticIPs() ? "Yes" : "No"));
             if (source.getLocalFile() != null) {
-                HttpHelper.MultiPartRequest req;
-                if (existingApp != null) {
-                    req = httpHelper.createAnypointMultiPartPutRequest("/cloudhub/api/v2/applications/" + existingApp.getDomain(),
-                            environment);
-                } else {
-                    req = httpHelper.createAnypointMultiPartPostRequest("/cloudhub/api/v2/applications", getEnvironment());
-                    req = req.addText("autoStart", "true");
-                }
-                String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
-                req = req.addText("appInfoJson", appInfoJson);
-                logger.debug("Deployment JSON: {}", appInfoJson);
-                req = req.addBinary("file", new StreamSource() {
-                    @Override
-                    public String getFileName() {
-                        return deploymentRequest.getFilename();
-                    }
-
-                    @Override
-                    public InputStream createInputStream() throws IOException {
-                        return new FileInputStream(source.getLocalFile());
-                    }
-                });
-                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to Cloudhub");
-                deploymentJson = req.execute();
-                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: " + appName);
+                deploymentJson = client.deployApplicationToCH(existingApp != null, environment,
+                        true, appInfo, deploymentRequest.getFilename(), new FileInputStream(source.getLocalFile()), domain);
             } else {
                 Map<String, Object> deployJson = new HashMap<>();
                 deployJson.put("applicationInfo", appInfo);
@@ -161,7 +140,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
                     deployJson.put("autoStart", true);
                     deploymentJson = httpHelper.anypointHttpPost("/cloudhub/api/v2/applications/", deployJson, environment);
                 }
-                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Requested application start from exchange asset: " + appName);
+                elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Requested application start from exchange asset: " + domain);
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
@@ -181,6 +160,23 @@ public class CHDeploymentOperation extends DeploymentOperation {
         }
     }
 
+    private String generateCHAppName(RuntimeDeploymentRequest request) {
+        String appName = request.getAppName();
+        final CloudhubDeploymentParameters cloudhub = deploymentRequest.getApplicationDescriptor().getDeploymentParams().getCloudhub();
+        if (cloudhub.getAppNameSuffix() != null) {
+            appName = appName + cloudhub.getAppNameSuffix();
+        } else {
+            final Environment environment = getEnvironment();
+            if (!cloudhub.getAppNameSuffixNPOnly() || !PRODUCTION.equals(environment.getType())) {
+                appName = appName + environment.getSuffix();
+            }
+        }
+        if (cloudhub.getAppNamePrefix() != null) {
+            appName = cloudhub.getAppNamePrefix() + appName;
+        }
+        return appName;
+    }
+
     private CHApplication getExistingApp(String appName) throws HttpException {
         try {
             logger.debug("Searching for pre-existing application named " + appName);
@@ -191,25 +187,5 @@ public class CHDeploymentOperation extends DeploymentOperation {
             logger.debug("Couldn't find application named {}", appName);
             return null;
         }
-    }
-
-    @Override
-    public String processAppName(String appName) {
-        if (appName == null) {
-            final CloudhubDeploymentParameters cloudhub = deploymentRequest.getApplicationDescriptor().getDeploymentParams().getCloudhub();
-            if (cloudhub.getAppNameSuffix() != null) {
-                appName = deploymentRequest.getArtifactId() + cloudhub.getAppNameSuffix();
-            } else {
-                final Environment environment = getEnvironment();
-                if (!cloudhub.getAppNameSuffixNPOnly() || !PRODUCTION.equals(environment.getType())) {
-                    appName = deploymentRequest.getArtifactId() + environment.getSuffix();
-                }
-            }
-            if (cloudhub.getAppNamePrefix() != null) {
-                appName = cloudhub.getAppNamePrefix() + appName;
-            }
-            return appName;
-        }
-        return appName;
     }
 }

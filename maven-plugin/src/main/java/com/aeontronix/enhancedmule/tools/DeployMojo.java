@@ -140,14 +140,14 @@ public class DeployMojo extends LegacyDeployMojo {
                     vars = findPrefixProperties(vars, VAR);
                     properties = findPrefixProperties(properties, ANYPOINT_DEPLOY_PROPERTIES);
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
-                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties, propertyfile,
+                            source.getFileName(), buildNumber, vars, properties, propertyfile,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
-                            getLegacyAppDescriptor());
+                            getLegacyAppDescriptor(), source);
                     request.setFileProperties(fileProperties);
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
                     request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
-                    deploymentService.deploy(request, source);
+                    deploymentService.deploy(request);
                 }
             }
         }

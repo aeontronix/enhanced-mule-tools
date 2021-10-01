@@ -8,6 +8,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
@@ -23,8 +24,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implements ProvisioningRequest {
     private static final Logger logger = getLogger(RuntimeDeploymentRequest.class);
     private ApplicationDescriptor applicationDescriptor;
-    private String appName;
-    private String artifactId;
     private Environment environment;
     private boolean injectEnvInfo;
     private String target;
@@ -39,21 +38,21 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     private boolean skipProvisioning;
     private JsonNode legacyAppDescriptor;
     private boolean deleteSnapshots;
+    private ApplicationSource applicationSource;
 
-    public RuntimeDeploymentRequest(String filename, String appName, String artifactId, String buildNumber,
+    public RuntimeDeploymentRequest(String filename, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
                                     boolean ignoreMissingPropertyFile, String target, Environment environment,
                                     boolean injectEnvInfo, boolean skipWait,
-                                    boolean skipProvisioning, JsonNode legacyAppDescriptor) throws IOException {
+                                    boolean skipProvisioning, JsonNode legacyAppDescriptor, ApplicationSource applicationSource) throws IOException {
         super(buildNumber);
         this.filename = filename;
-        this.appName = appName;
-        this.artifactId = artifactId;
         this.environment = environment;
         this.injectEnvInfo = injectEnvInfo;
         this.skipWait = skipWait;
         this.skipProvisioning = skipProvisioning;
         this.legacyAppDescriptor = legacyAppDescriptor;
+        this.applicationSource = applicationSource;
         if (vars != null && !vars.isEmpty()) {
             this.vars.putAll(vars);
         }
@@ -123,10 +122,6 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return vars;
     }
 
-    public String getArtifactId() {
-        return artifactId;
-    }
-
     public String getTarget() {
         return target;
     }
@@ -140,7 +135,8 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     }
 
     public String getAppName() {
-        return appName;
+        String appName = applicationDescriptor != null ? applicationDescriptor.getDeploymentParams().getAppName() : null;
+        return appName != null ? appName : applicationSource.getArtifactId();
     }
 
     public String getFilename() {
@@ -149,10 +145,6 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public void setFilename(String filename) {
         this.filename = filename;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
     }
 
     public HashMap<String, String> getProperties() {
@@ -247,5 +239,9 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public JsonNode getLegacyAppDescriptor() {
         return legacyAppDescriptor;
+    }
+
+    public ApplicationSource getApplicationSource() {
+        return applicationSource;
     }
 }

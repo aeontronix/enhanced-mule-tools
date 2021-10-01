@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationSourceMetadata;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public interface ApplicationDescriptorProcessor {
 
     ObjectNode getApplicationDescriptorJson();
 
-    void setDefaultValues(boolean inheritNameAndDesc) throws IOException;
     void legacyConvert();
+
     ApplicationDescriptor getAnypointDescriptor() throws IOException;
 }

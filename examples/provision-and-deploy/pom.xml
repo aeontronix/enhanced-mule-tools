@@ -28,6 +28,17 @@
     </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>anypoint.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.mule.tools.maven</groupId>
@@ -50,7 +61,6 @@
                             </vars>
                         </configuration>
                         <goals>
-                            <goal>process-descriptor</goal>
                             <goal>deploy</goal>
                         </goals>
                     </execution>

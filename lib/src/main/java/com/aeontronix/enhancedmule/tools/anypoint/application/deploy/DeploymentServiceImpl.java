@@ -9,13 +9,13 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationEnhancer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveProcessor;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptorDefaultValues;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.ArchiveApplicationSourceMetadata;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperation;
@@ -42,6 +42,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class DeploymentServiceImpl implements DeploymentService {
     private static final Logger logger = getLogger(DeploymentServiceImpl.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
+    private final ObjectMapper jsonMapper = JsonHelper.createMapper();
     private AnypointClient client;
 
     public DeploymentServiceImpl(AnypointClient client) {
@@ -54,7 +55,8 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deploy(RuntimeDeploymentRequest request, ApplicationSource source) throws DeploymentException, ProvisioningException {
+    public void deploy(RuntimeDeploymentRequest request) throws DeploymentException, ProvisioningException {
+        final ApplicationSource source = request.getApplicationSource();
         String target = request.getTarget();
         if (request.getFilename() == null) {
             request.setFilename(source.getFileName());
@@ -62,14 +64,17 @@ public class DeploymentServiceImpl implements DeploymentService {
         final Environment environment = request.getEnvironment();
         final Organization organization = environment.getOrganization();
         try {
-            final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
             final ObjectNode anypointDescriptor = source.getAnypointDescriptor();
             final JsonNode processed = anypointDescriptor.get("processed");
             if (isNull(processed) || !processed.booleanValue()) {
-                final ArchiveApplicationSourceMetadata appMetadataSource = new ArchiveApplicationSourceMetadata(source.getLocalFile());
-                ApplicationArchiveProcessor.process(appMetadataSource, anypointDescriptor, jsonMapper);
+                ApplicationDescriptorDefaultValues.setDefaultValues(source.getApplicationSourceMetadata(), anypointDescriptor, jsonMapper);
+                try {
+                    ApplicationEnhancer.enhanceApplicationArchive(jsonMapper, source, anypointDescriptor, false);
+                } catch (UnpackException e) {
+                    throw new IOException(e);
+                }
             }
-            final JsonNode jsonDesc = loadDescriptor(request, source, environment, jsonMapper, anypointDescriptor);
+            final JsonNode jsonDesc = loadDescriptor(request, environment, jsonMapper, anypointDescriptor);
             if (jsonDesc != null && !jsonDesc.isNull()) {
                 final JsonNode appId = jsonDesc.get("id");
                 if (appId != null && !appId.isNull()) {
@@ -92,7 +97,6 @@ public class DeploymentServiceImpl implements DeploymentService {
                 request.setTarget(target);
             }
             DeploymentOperation op = createDeploymentOperation(request, source, environment, organization);
-            request.setAppName(op.processAppName(request.getAppName()));
             logger.info(Ansi.ansi().fgBrightYellow().a("Deploying application").toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Organization: ").reset().a(organization.getName()).toString());
             logger.info(Ansi.ansi().fgBrightYellow().a("Environment: ").reset().a(environment.getName()).toString());
@@ -108,7 +112,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
     }
 
-    private JsonNode loadDescriptor(RuntimeDeploymentRequest request, ApplicationSource source, Environment environment,
+    private JsonNode loadDescriptor(RuntimeDeploymentRequest request, Environment environment,
                                     ObjectMapper jsonMapper, ObjectNode applicationAnypointDescriptor) throws IOException, ProvisioningException {
         // Default layer
         final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);

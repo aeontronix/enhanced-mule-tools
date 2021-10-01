@@ -7,7 +7,6 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.ApplicationArchiveProcessor;
 import com.aeontronix.enhancedmule.tools.application.ApplicationSourceMetadata;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,9 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.apache.maven.model.Resource;
 import org.apache.maven.project.MavenProject;
@@ -37,14 +34,12 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
     public static final String ID = "id";
     public static final String API = "api";
     private final MavenProject project;
-    private final ApplicationSourceMetadata applicationSourceMetadata;
     private final ObjectMapper objectMapper;
     private ObjectNode applicationDescriptor;
 
     public ApplicationDescriptorProcessorImpl(@Nullable String descriptor, @NotNull MavenProject project,
                                               File assetPagesDir, File apiSpecDir, ApplicationSourceMetadata applicationSourceMetadata) throws IOException {
         this.project = project;
-        this.applicationSourceMetadata = applicationSourceMetadata;
         objectMapper = JsonHelper.createMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         File descriptorFile;
@@ -91,11 +86,6 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
     @Override
     public ObjectNode getApplicationDescriptorJson() {
         return applicationDescriptor;
-    }
-
-    @Override
-    public void setDefaultValues(boolean inheritNameAndDesc) throws IOException {
-        ApplicationArchiveProcessor.process(applicationSourceMetadata, applicationDescriptor, objectMapper);
     }
 
     @Override

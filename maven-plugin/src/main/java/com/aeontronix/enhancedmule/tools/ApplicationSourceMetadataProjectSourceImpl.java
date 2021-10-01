@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -32,8 +30,7 @@ import java.util.zip.ZipFile;
 import static java.io.File.separator;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class ApplicationSourceMetadataProjectSourceImpl implements ApplicationSourceMetadata {
-    private static final String[] apiExts = {".raml", ".yml", ".yaml", ".json"};
+public class ApplicationSourceMetadataProjectSourceImpl extends ApplicationSourceMetadata {
     private static final Logger logger = getLogger(ApplicationSourceMetadataProjectSourceImpl.class);
     private final MavenProject project;
     private final File assetPagesDir;
@@ -78,9 +75,9 @@ public class ApplicationSourceMetadataProjectSourceImpl implements ApplicationSo
 
 
     @Nullable
-    public String findAPISpecFile(String assetId) {
+    public String findAPISpecFile(String... names) {
         if (apiSpecDir != null && apiSpecDir.exists()) {
-            return findAPISpecFile(assetId, apiSpecDir);
+            return findAPISpecFile(names != null ? Arrays.asList(names) : Collections.emptyList(), apiSpecDir);
         }
         return null;
     }
@@ -92,9 +89,10 @@ public class ApplicationSourceMetadataProjectSourceImpl implements ApplicationSo
     }
 
     @Nullable
-    public static String findAPISpecFile(String assetId, File dir) {
+    public static String findAPISpecFile(List<String> names, File dir) {
         if (dir.exists()) {
-            final List<String> filenames = Arrays.asList("api", assetId);
+            final ArrayList<String> filenames = new ArrayList<>(names);
+            filenames.add("api");
             for (String apiExt : apiExts) {
                 for (String filename : filenames) {
                     String apiFile = filename + apiExt;
@@ -133,7 +131,7 @@ public class ApplicationSourceMetadataProjectSourceImpl implements ApplicationSo
 
     @Override
     @NotNull
-    public Map<String, String> listPortalPages() throws IOException {
+    public Map<String, String> getPortalPages() throws IOException {
         HashMap<String, String> pages = new HashMap<>();
         if (assetPagesDir != null && assetPagesDir.exists()) {
             final File[] files = assetPagesDir.listFiles();
@@ -179,23 +177,7 @@ public class ApplicationSourceMetadataProjectSourceImpl implements ApplicationSo
             for (File file : files) {
                 try {
                     final Document xmlDoc = XmlUtils.parse(file, true);
-                    final Element rootEl = xmlDoc.getDocumentElement();
-                    if ("http://www.mulesoft.org/schema/mule/core".equals(rootEl.getNamespaceURI()) &&
-                            "mule".equals(rootEl.getLocalName())) {
-                        final NodeList nodeList = rootEl.getElementsByTagNameNS("http://www.mulesoft.org/schema/mule/mule-apikit", "config");
-                        final int totalTags = nodeList.getLength();
-                        for (int i = 0; i < totalTags; i++) {
-                            final Element el = (Element) nodeList.item(i);
-                            final String name = el.getAttribute("name");
-                            String api = el.getAttribute("api");
-                            if (api != null) {
-                                api = el.getAttribute("raml");
-                            }
-                            if (api != null) {
-                                list.add(APIKitSpec.create(name, api, project.getArtifactId()));
-                            }
-                        }
-                    }
+                    list.addAll(findAPIKitSpec(xmlDoc));
                 } catch (SAXException e) {
                     throw new IOException(e);
                 }

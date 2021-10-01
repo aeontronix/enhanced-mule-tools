@@ -10,7 +10,7 @@
     "monitoringEnabled": true,
     "staticIPsEnabled": false,
     "monitoringAutoRestart": true,
-    "domain": "appartid-prod",
+    "domain": "testapp-prod",
     "persistentQueues": false,
     "objectStoreV1": false,
     "persistentQueuesEncrypted": false,

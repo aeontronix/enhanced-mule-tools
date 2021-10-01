@@ -192,8 +192,4 @@ public abstract class DeploymentOperation {
         }
         return json;
     }
-
-    public String processAppName(String appName) {
-        return appName != null ? appName : deploymentRequest.getArtifactId();
-    }
 }

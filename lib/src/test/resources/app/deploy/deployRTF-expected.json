@@ -10,7 +10,7 @@
     "configuration": {
       "mule.agent.application.properties.service": {
         "secureproperties": {},
-        "applicationName": "appartid",
+        "applicationName": "testapp",
         "properties": {
           "anypoint.org.id": "428536327643427636",
           "anypoint.org.name": "MyOrg",
@@ -22,7 +22,7 @@
       }
     }
   },
-  "name": "appartid",
+  "name": "testapp",
   "labels": [
     "beta"
   ],

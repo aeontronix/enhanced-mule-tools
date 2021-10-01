@@ -10,10 +10,7 @@ import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.restclient.RESTClient;
 import com.aeontronix.restclient.RESTClientHost;
 import com.aeontronix.restclient.RESTException;
@@ -25,10 +22,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -39,6 +33,7 @@ import java.util.regex.Pattern;
 public class AnypointClient implements Closeable, Serializable {
     private static Pattern idRegex = Pattern.compile("[a-zA-Z0-9\\-]+");
     private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
+    private static final EMTLogger elogger = new EMTLogger(logger);
     protected JsonHelper jsonHelper = new JsonHelper();
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
@@ -202,7 +197,7 @@ public class AnypointClient implements Closeable, Serializable {
         try {
             return anypointRestClient.get("/accounts/api/me").execute(UserInfo.class).getUser();
         } catch (RESTException e) {
-            if( e.getStatusCode() != null ) {
+            if (e.getStatusCode() != null) {
                 throw new HttpException(e.getStatusCode());
             } else {
                 throw new HttpException(e);
@@ -375,5 +370,34 @@ public class AnypointClient implements Closeable, Serializable {
 
     public RESTClientHost getAnypointRestClient() {
         return anypointRestClient;
+    }
+
+    public String deployApplicationToCH(boolean existingApp, Environment environment, boolean autoStart, Map<String, Object> appInfo,
+                                        String filename, FileInputStream fileInputStream, String domain) throws IOException {
+        HttpHelper.MultiPartRequest req;
+        if (existingApp) {
+            req = httpHelper.createAnypointMultiPartPutRequest("/cloudhub/api/v2/applications/" + domain, environment);
+        } else {
+            req = httpHelper.createAnypointMultiPartPostRequest("/cloudhub/api/v2/applications", environment);
+        }
+        req = req.addText("autoStart", Boolean.toString(autoStart));
+        String appInfoJson = new String(environment.getClient().getJsonHelper().toJson(appInfo));
+        req = req.addText("appInfoJson", appInfoJson);
+        logger.debug("Deployment JSON: {}", appInfoJson);
+        req = req.addBinary("file", new StreamSource() {
+            @Override
+            public String getFileName() {
+                return filename;
+            }
+
+            @Override
+            public InputStream createInputStream() throws IOException {
+                return fileInputStream;
+            }
+        });
+        elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to Cloudhub");
+        String deploymentJson = req.execute();
+        elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: " + domain);
+        return deploymentJson;
     }
 }

@@ -55,12 +55,12 @@ public class ProcessDescriptorMojo extends AbstractMojo {
         }
         try {
             final File generateDescriptorFile = new File(project.getBuild().getDirectory(), "anypoint.json");
-            final ApplicationSourceMetadataProjectSourceImpl applicationSourceMetadata = new ApplicationSourceMetadataProjectSourceImpl(project, assetPagesDir, apiSpecDir);
-            ApplicationDescriptorProcessor processor = new ApplicationDescriptorProcessorImpl(descriptor, project,
-                    assetPagesDir, apiSpecDir, applicationSourceMetadata);
-            processor.legacyConvert(); // WONT MIGRATE
-            processor.setDefaultValues(inheritNameAndDesc); // MIGRATED
-            processor.writeToFile(generateDescriptorFile, true);
+//            final ApplicationSourceMetadataProjectSourceImpl applicationSourceMetadata = new ApplicationSourceMetadataProjectSourceImpl(project, assetPagesDir, apiSpecDir);
+//            ApplicationDescriptorProcessor processor = new ApplicationDescriptorProcessorImpl(descriptor, project,
+//                    assetPagesDir, apiSpecDir, applicationSourceMetadata);
+//            processor.legacyConvert(); // WONT MIGRATE
+//            processor.setDefaultValues(inheritNameAndDesc); // MIGRATED
+//            processor.writeToFile(generateDescriptorFile, true);
             if (!mulePluginCompatibility) {
                 DefaultArtifact descriptorArtifactor = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), project.getVersion(),
                         "compile", "json", "anypoint-descriptor", new DefaultArtifactHandler("json"));
@@ -80,7 +80,8 @@ public class ProcessDescriptorMojo extends AbstractMojo {
                 if (file == null || !file.exists()) {
                     throw new IllegalStateException("Mule artifact not found");
                 }
-                ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile, processor.getAnypointDescriptor(), light, excludeIgnoreBasePath);
+//                ApplicationEnhancer.enhanceApplicationArchive(file, generateDescriptorFile,  // MIGRATED
+//                        processor.getAnypointDescriptor(), light, excludeIgnoreBasePath);    // MIGRATED
             } else {
                 logger.warn("No mule application attached, skipping archive enhancement");
             }

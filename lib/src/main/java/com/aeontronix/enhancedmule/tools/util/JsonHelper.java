@@ -126,7 +126,7 @@ public class JsonHelper implements Serializable {
         }
     }
 
-    public MapBuilder buildJsonMap() {
+    public static MapBuilder buildJsonMap() {
         return new MapBuilder();
     }
 
@@ -233,7 +233,7 @@ public class JsonHelper implements Serializable {
         }
     }
 
-    public class MapBuilder {
+    public static class MapBuilder {
         private MapBuilder parent;
         private Map<String, Object> request;
 

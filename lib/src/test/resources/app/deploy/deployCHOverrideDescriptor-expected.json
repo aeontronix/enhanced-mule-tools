@@ -10,7 +10,7 @@
     "monitoringEnabled": true,
     "staticIPsEnabled": true,
     "monitoringAutoRestart": true,
-    "domain": "pref-appartid-myprod",
+    "domain": "pref-overriddenappname-myprod",
     "persistentQueues": true,
     "objectStoreV1": true,
     "persistentQueuesEncrypted": true,

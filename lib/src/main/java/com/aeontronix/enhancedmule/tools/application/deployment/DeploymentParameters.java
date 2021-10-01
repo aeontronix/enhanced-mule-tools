@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 
 public class DeploymentParameters {
+    private String appName;
     private String target;
     private CloudhubDeploymentParameters cloudhub;
     private RTFDeploymentParameters rtf;
@@ -22,6 +23,14 @@ public class DeploymentParameters {
     private Boolean autoApproveAccess;
 
     public DeploymentParameters() {
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String getTarget() {

@@ -4,16 +4,19 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
+import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
+import com.aeontronix.enhancedmule.tools.application.ApplicationSourceMetadata;
+import com.aeontronix.enhancedmule.tools.application.ArchiveApplicationSourceMetadata;
 import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -23,10 +26,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 public abstract class ApplicationSource implements APISpecSource, Closeable {
-    private static final Logger logger = getLogger(ApplicationSource.class);
+    private final ObjectMapper objectMapper = JsonHelper.createMapper();
     protected AnypointClient client;
     protected ApplicationIdentifier applicationIdentifier;
 
@@ -42,13 +43,9 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
         }
     }
 
-    public abstract String getFileName();
-
-    public abstract File getLocalFile() throws IOException;
-
-    public abstract boolean exists();
-
-    public abstract ObjectNode getAnypointDescriptor() throws IOException, HttpException;
+    public ApplicationSourceMetadata getApplicationSourceMetadata() throws IOException {
+        return new ArchiveApplicationSourceMetadata(getLocalFile());
+    }
 
     @Nullable
     protected ObjectNode readDescriptorFromZip(File file) throws IOException {
@@ -56,7 +53,7 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
         ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
         if (anypointJson != null) {
             try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(is);
+                return (ObjectNode) objectMapper.readTree(is);
             }
         } else {
             return null;
@@ -65,16 +62,12 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
 
     public String getArtifactId() {
         final ApplicationIdentifier applicationIdentifier = getApplicationIdentifier();
-        if( applicationIdentifier != null ) {
+        if (applicationIdentifier != null) {
             return applicationIdentifier.getArtifactId();
         } else {
             return null;
         }
     }
-
-    public abstract ApplicationIdentifier getApplicationIdentifier();
-
-    public abstract Map<String, Object> getSourceJson(JsonHelper jsonHelper);
 
     @Override
     public Set<String> listAPISpecFiles() throws IOException {
@@ -99,4 +92,20 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
             IOUtils.copy(zipFile.getInputStream(entry), os);
         }
     }
+
+    public void replaceFile(File file) throws IOException {
+        FileUtils.copy(getLocalFile(), file);
+    }
+
+    public abstract String getFileName();
+
+    public abstract File getLocalFile() throws IOException;
+
+    public abstract boolean exists();
+
+    public abstract ObjectNode getAnypointDescriptor() throws IOException, HttpException;
+
+    public abstract ApplicationIdentifier getApplicationIdentifier();
+
+    public abstract Map<String, Object> getSourceJson(JsonHelper jsonHelper);
 }
