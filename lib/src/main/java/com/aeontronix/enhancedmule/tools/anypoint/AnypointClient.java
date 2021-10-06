@@ -10,7 +10,7 @@ import com.aeontronix.commons.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
@@ -412,7 +412,7 @@ public class AnypointClient implements Closeable, Serializable {
         return deploymentJson;
     }
 
-    public void provisionApplication(ApplicationDescriptor applicationDescriptor, RuntimeDeploymentRequest deploymentRequest) throws ProvisioningException, HttpException {
+    public void provisionApplication(ApplicationDescriptor applicationDescriptor, DeploymentRequest deploymentRequest) throws ProvisioningException, HttpException {
         APIProvisioningResult provisioningResult;
         final Environment environment = deploymentRequest.getEnvironment();
         final Organization organization = environment.getOrganization();

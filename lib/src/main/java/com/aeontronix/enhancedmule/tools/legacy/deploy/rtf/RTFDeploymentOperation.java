@@ -12,8 +12,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.application.deployment.RTFDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
@@ -40,7 +39,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
     private static final EMTLogger emtLogger = new EMTLogger(logger);
     private final Fabric fabric;
 
-    public RTFDeploymentOperation(Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
+    public RTFDeploymentOperation(Fabric fabric, DeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
         super(req, environment, applicationSource);
         this.fabric = fabric;
     }
@@ -61,7 +60,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
     }
 
     @Override
-    protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException {
+    protected DeploymentResult doDeploy(DeploymentRequest request) throws IOException, HttpException {
         final RTFDeploymentParameters rtf = request.getApplicationDescriptor().getDeploymentParams().getRtf();
         if (StringUtils.isBlank(rtf.getRuntimeVersion())) {
             try {
@@ -81,10 +80,10 @@ public class RTFDeploymentOperation extends DeploymentOperation {
             }
         }
         ApplicationIdentifier appId = source.getApplicationIdentifier();
-        if( source instanceof FileApplicationSource ) {
-            final ExchangeDeploymentRequest req = new ExchangeDeploymentRequest(request.getBuildNumber(), appId, getEnvironment().getOrganization(), source, null);
+        if (source instanceof FileApplicationSource) {
             try {
-                appId = MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+                appId = MavenHelper.uploadToMaven(source.getApplicationIdentifier(),
+                        getEnvironment().getOrganization(), source, null, request.getBuildNumber());
             } catch (UnpackException e) {
                 throw new UnauthorizedHttpException(e);
             }
@@ -118,7 +117,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         deploymentSettings.put("forwardSslSession", rtf.getForwardSslSession());
         deploymentSettings.put("updateStrategy", rtf.getUpdateStrategy() != null ? rtf.getUpdateStrategy().name().toLowerCase() : "rolling");
         Integer replicas = rtf.getReplicas();
-        if( replicas == null ) {
+        if (replicas == null) {
             replicas = 1;
         }
         target.put("replicas", replicas);

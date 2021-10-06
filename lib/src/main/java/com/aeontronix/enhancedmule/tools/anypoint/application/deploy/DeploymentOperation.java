@@ -42,14 +42,14 @@ public abstract class DeploymentOperation {
     private static final EMTLogger elogger = new EMTLogger(logger);
     public static final String ANYPOINT_PLATFORM_CLIENT_ID = "anypoint.platform.client_id";
     public static final String ANYPOINT_PLATFORM_CLIENT_SECRET = "anypoint.platform.client_secret";
-    protected RuntimeDeploymentRequest deploymentRequest;
+    protected DeploymentRequest deploymentRequest;
     protected Environment environment;
     protected ApplicationSource source;
 
     public DeploymentOperation() {
     }
 
-    public DeploymentOperation(RuntimeDeploymentRequest request, Environment environment, ApplicationSource source) {
+    public DeploymentOperation(DeploymentRequest request, Environment environment, ApplicationSource source) {
         this.deploymentRequest = request;
         this.environment = environment;
         this.source = source;
@@ -120,7 +120,7 @@ public abstract class DeploymentOperation {
         }
     }
 
-    protected abstract DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException;
+    protected abstract DeploymentResult doDeploy(DeploymentRequest request) throws IOException, HttpException, DeploymentException;
 
     public Environment getEnvironment() {
         return environment;

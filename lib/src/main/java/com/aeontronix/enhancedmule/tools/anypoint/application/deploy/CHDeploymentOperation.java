@@ -40,7 +40,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
     private String region;
     private CHWorkerType workerType;
 
-    public CHDeploymentOperation(RuntimeDeploymentRequest req, Environment environment, ApplicationSource source) {
+    public CHDeploymentOperation(DeploymentRequest req, Environment environment, ApplicationSource source) {
         super(req, environment, source);
     }
 
@@ -60,7 +60,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
 //    }
 
     @Override
-    protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException {
+    protected DeploymentResult doDeploy(DeploymentRequest request) throws IOException, HttpException, DeploymentException {
         try {
             String domain = generateCHAppName(request);
             long start = System.currentTimeMillis();
@@ -160,7 +160,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
         }
     }
 
-    private String generateCHAppName(RuntimeDeploymentRequest request) {
+    private String generateCHAppName(DeploymentRequest request) {
         String appName = request.getAppName();
         final CloudhubDeploymentParameters cloudhub = deploymentRequest.getApplicationDescriptor().getDeploymentParams().getCloudhub();
         if (cloudhub.getAppNameSuffix() != null) {

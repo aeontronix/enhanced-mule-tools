@@ -36,7 +36,7 @@ public class DeployAndProvisionTests {
     @Captor
     ArgumentCaptor<ApplicationDescriptor> applicationDescriptorArgumentCaptor;
     @Captor
-    ArgumentCaptor<RuntimeDeploymentRequest> runtimeDeploymentRequestArgumentCaptor;
+    ArgumentCaptor<DeploymentRequest> runtimeDeploymentRequestArgumentCaptor;
     private ObjectNode expectedJson;
 
     @BeforeEach
@@ -54,8 +54,10 @@ public class DeployAndProvisionTests {
         HashMap<String, String> vars = new HashMap<>();
         HashMap<String, String> properties = new HashMap<>();
         final FileApplicationSource applicationSource = new FileApplicationSource(anypointClient, appArchiveFile);
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
-                null, vars, properties, null, false, null, DeploymentTestsHelper.createMockEnvironment(anypointClient),
+        final Environment environment = DeploymentTestsHelper.createMockEnvironment(anypointClient);
+        final DeploymentRequest request = new DeploymentRequest(null,
+                null, vars, properties, null, false, null, null,
+                environment,
                 true,
                 true, false, applicationSource);
         request.getOverrideParameters().put("description","Cool Application");

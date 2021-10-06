@@ -26,7 +26,7 @@ public class HDeploymentOperation extends DeploymentOperation {
     private Server target;
     private JsonHelper jsonHelper;
 
-    public HDeploymentOperation(RuntimeDeploymentRequest req, Server server, ApplicationSource source) {
+    public HDeploymentOperation(DeploymentRequest req, Server server, ApplicationSource source) {
         super(req, server.getParent(), source);
         this.target = server;
     }
@@ -40,7 +40,7 @@ public class HDeploymentOperation extends DeploymentOperation {
 //    }
 
     @Override
-    protected DeploymentResult doDeploy(RuntimeDeploymentRequest deploymentRequest) throws IOException, HttpException {
+    protected DeploymentResult doDeploy(DeploymentRequest deploymentRequest) throws IOException, HttpException {
         HttpHelper.MultiPartRequest request;
         long start = System.currentTimeMillis();
         AnypointClient client = environment.getClient();

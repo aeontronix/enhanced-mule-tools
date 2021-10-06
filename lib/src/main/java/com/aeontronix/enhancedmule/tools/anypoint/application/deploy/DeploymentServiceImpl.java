@@ -29,10 +29,8 @@ import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -55,12 +53,13 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException {
-        return MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+    public ApplicationIdentifier deployToExchange(DeploymentRequest req) throws IOException, UnpackException {
+        return MavenHelper.uploadToMaven(req.getApplicationSource().getApplicationIdentifier(), req.getOrganization(),
+                req.getApplicationSource(), null, req.getBuildNumber());
     }
 
     @Override
-    public void deploy(RuntimeDeploymentRequest request) throws DeploymentException, ProvisioningException {
+    public void deploy(DeploymentRequest request) throws DeploymentException, ProvisioningException {
         final ApplicationSource source = request.getApplicationSource();
         String target = request.getTarget();
         if (request.getFilename() == null) {
@@ -117,7 +116,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
     }
 
-    private JsonNode loadDescriptor(RuntimeDeploymentRequest request, Environment environment,
+    private JsonNode loadDescriptor(DeploymentRequest request, Environment environment,
                                     ObjectMapper jsonMapper, ObjectNode applicationAnypointDescriptor) throws IOException, ProvisioningException {
         // Default layer
         final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
@@ -174,7 +173,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         return value;
     }
 
-    private void waitForApplicationStart(RuntimeDeploymentRequest request, DeploymentResult result) throws HttpException, ApplicationDeploymentFailedException {
+    private void waitForApplicationStart(DeploymentRequest request, DeploymentResult result) throws HttpException, ApplicationDeploymentFailedException {
         if (result != null && !request.isSkipWait()) {
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Waiting for application start");
             final DeploymentParameters deploymentParameters = request.getApplicationDescriptor().getDeploymentParams();
@@ -184,7 +183,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @NotNull
-    private DeploymentOperation createDeploymentOperation(RuntimeDeploymentRequest request, ApplicationSource source, Environment environment, Organization organization) throws HttpException, NotFoundException {
+    private DeploymentOperation createDeploymentOperation(DeploymentRequest request, ApplicationSource source, Environment environment, Organization organization) throws HttpException, NotFoundException {
         DeploymentOperation op;
         final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {

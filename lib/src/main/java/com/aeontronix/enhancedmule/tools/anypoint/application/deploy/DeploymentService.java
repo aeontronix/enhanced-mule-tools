@@ -12,7 +12,7 @@ import com.aeontronix.unpack.UnpackException;
 import java.io.IOException;
 
 public interface DeploymentService {
-    ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException;
+    ApplicationIdentifier deployToExchange(DeploymentRequest req) throws IOException, UnpackException;
 
-    void deploy(RuntimeDeploymentRequest request) throws DeploymentException, ProvisioningException;
+    void deploy(DeploymentRequest request) throws DeploymentException, ProvisioningException;
 }

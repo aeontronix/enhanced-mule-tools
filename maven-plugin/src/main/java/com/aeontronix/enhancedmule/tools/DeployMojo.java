@@ -6,8 +6,7 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentServiceImpl;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
-import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
@@ -19,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 
@@ -140,26 +138,27 @@ public class DeployMojo extends LegacyDeployMojo {
                 }
                 file = MavenUtils.getProjectJar(project).getPath();
             }
-            ApplicationIdentifier applicationIdentifier = project != null ? new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()) : null;
             final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient());
             try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
-                    final ExchangeDeploymentRequest req;
-                    req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);
-                    final ApplicationIdentifier appId = deploymentService.deployToExchange(req);
+                    final DeploymentRequest request = new DeploymentRequest(filename != null ? filename :
+                            source.getFileName(), buildNumber, vars, properties, propertyfile,
+                            ignoreMissingPropertyFile, target, getOrganization(), null, injectEnvInfo, skipWait, skipProvisioning,
+                            source);
+                    final ApplicationIdentifier appId = deploymentService.deployToExchange(request);
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
                     vars = findPrefixProperties(vars, VAR);
                     properties = findPrefixProperties(properties, ANYPOINT_DEPLOY_PROPERTIES);
-                    final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
+                    final DeploymentRequest request = new DeploymentRequest(filename != null ? filename :
                             source.getFileName(), buildNumber, vars, properties, propertyfile,
-                            ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
+                            ignoreMissingPropertyFile, target, null, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             source);
                     final Properties userProperties = session.getUserProperties();
                     for (Object key : userProperties.keySet()) {
                         final String keyStr = key.toString();
-                        if( keyStr.startsWith("-O") ) {
-                            request.setOverrideParameter(keyStr.substring(2),userProperties.getProperty(keyStr));
+                        if (keyStr.startsWith("-O")) {
+                            request.setOverrideParameter(keyStr.substring(2), userProperties.getProperty(keyStr));
                         }
                     }
                     request.setFileProperties(fileProperties);

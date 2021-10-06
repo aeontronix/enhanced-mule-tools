@@ -1,0 +1,67 @@
+{
+  "$schema": "https://static.enhanced-mule.com/schemas/application/0-0-0/application.schema.json",
+  "api": {
+    "consumerUrl": "${myurl}",
+    "addAutoDiscovery": true,
+    "fields": [
+      {
+        "key": "author",
+        "value": "Roger Smitherasfd ${foo}"
+      },
+      {
+        "key": "subType",
+        "value": [
+          "RAML"
+        ]
+      }
+    ],
+    "exchangeTags": [
+      "footag",
+      "batag"
+    ],
+    "categories": {
+      "API Type": [
+        "SYSTEM"
+      ]
+    },
+    "label": "${environment.lname}-latest"
+  },
+  "client": {},
+  "properties": {
+    "test1": {
+      "name": "Test Key",
+      "secure": true,
+      "type": "sss",
+      "values": {
+        "local": "mylocalconfigprop",
+        "envType": {
+          "SANDBOX": "mysandboxconfigprop",
+          "PRODUCTION": "myprodconfigprop"
+        },
+        "env": {
+          "Dev": "mydevconfigprop",
+          "Prod": "myprodconfigprop"
+        }
+      }
+    }
+  },
+  "deploymentParams": {
+    "autoApproveAccess": "true",
+    "rtf": {
+      "httpInboundPublicUrl": "http://mypublicurl"
+    }
+  },
+  "overrides": [
+    {
+      "type": "env",
+      "value": "MyEnv",
+      "override": {
+        "deploymentParams": {
+          "rtf": {
+            "httpInboundPublicUrl": "http://myenvurl"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -5,12 +5,13 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -21,11 +22,12 @@ import java.util.*;
 import static java.lang.Boolean.TRUE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implements ProvisioningRequest {
-    private static final Logger logger = getLogger(RuntimeDeploymentRequest.class);
+public class DeploymentRequest implements ProvisioningRequest {
+    private static final Logger logger = getLogger(DeploymentRequest.class);
+    protected String buildNumber;
     private ApplicationDescriptor applicationDescriptor;
+    private Organization organization;
     private Environment environment;
-    private boolean injectEnvInfo;
     private String target;
     private String filename;
     private final HashMap<String, String> vars = new HashMap<>();
@@ -40,15 +42,19 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     private ApplicationSource applicationSource;
     private final Map<String,String> overrideParameters = new HashMap<>();
 
-    public RuntimeDeploymentRequest(String filename, String buildNumber,
-                                    Map<String, String> vars, Map<String, String> properties, File propertyfile,
-                                    boolean ignoreMissingPropertyFile, String target, Environment environment,
-                                    boolean injectEnvInfo, boolean skipWait,
-                                    boolean skipProvisioning, ApplicationSource applicationSource) throws IOException {
-        super(buildNumber);
+    public DeploymentRequest(String filename, String buildNumber,
+                             Map<String, String> vars, Map<String, String> properties, File propertyfile,
+                             boolean ignoreMissingPropertyFile, String target, Organization organization, Environment environment,
+                             boolean injectEnvInfo, boolean skipWait,
+                             boolean skipProvisioning, ApplicationSource applicationSource) throws IOException {
+        if (buildNumber == null) {
+            this.buildNumber = MavenHelper.generateTimestampString();
+        } else {
+            this.buildNumber = buildNumber;
+        }
         this.filename = filename;
+        this.organization = organization != null ? organization : environment != null ? environment.getOrganization() : null;
         this.environment = environment;
-        this.injectEnvInfo = injectEnvInfo;
         this.skipWait = skipWait;
         this.skipProvisioning = skipProvisioning;
         this.applicationSource = applicationSource;
@@ -127,6 +133,10 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public Organization getOrganization() {
+        return organization;
     }
 
     public Environment getEnvironment() {
@@ -251,5 +261,9 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public void setOverrideParameter(String key, String value) {
         this.overrideParameters.put(key,value);
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
     }
 }

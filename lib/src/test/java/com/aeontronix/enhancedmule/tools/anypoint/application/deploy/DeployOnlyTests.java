@@ -63,8 +63,8 @@ public class DeployOnlyTests {
         final HashMap<String, String> vars = new HashMap<>();
         final HashMap<String, String> properties = new HashMap<>();
         properties.put("color", "blue");
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(DeploymentTestsHelper.FILE_JAR,
-                DeploymentTestsHelper.BUILD_NUMBER, vars, properties, null, false, null, environment, true,
+        final DeploymentRequest request = new DeploymentRequest(DeploymentTestsHelper.FILE_JAR,
+                DeploymentTestsHelper.BUILD_NUMBER, vars, properties, null, false, null, organization, environment, true,
                 true, true, appSrc);
         new DeploymentServiceImpl(anypointClient).deploy(request);
         verifyCHNewDeploymentJson();
@@ -72,8 +72,8 @@ public class DeployOnlyTests {
 
     @Test
     void deployCHDefault() throws Exception {
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
-                null, vars, properties, null, false, null, environment,
+        final DeploymentRequest request = new DeploymentRequest(null,
+                null, vars, properties, null, false, null, organization, environment,
                 true,
                 true, true, appSrc);
         deploymentService.deploy(request);
@@ -82,8 +82,8 @@ public class DeployOnlyTests {
 
     @Test
     void deployCHCustomLogger() throws Exception {
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
-                null, vars, properties, null, false, "cloudhub", environment, true,
+        final DeploymentRequest request = new DeploymentRequest(null,
+                null, vars, properties, null, false, "cloudhub", organization, environment, true,
                 true, true, appSrc);
         deploymentService.deploy(request);
         verifyCHNewDeploymentJson();
@@ -91,8 +91,8 @@ public class DeployOnlyTests {
 
     @Test
     void deployCHOverrideDescriptor() throws Exception {
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
-                null, vars, properties, null, false, "cloudhub", environment, true,
+        final DeploymentRequest request = new DeploymentRequest(null,
+                null, vars, properties, null, false, "cloudhub", organization, environment, true,
                 true, true, appSrc);
         deploymentService.deploy(request);
         verifyCHNewDeploymentJson();
@@ -100,8 +100,8 @@ public class DeployOnlyTests {
 
     @Test
     void deployRTF() throws Exception {
-        final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null,
-                null, vars, properties, null, false, "rtf:"+ DeploymentTestsHelper.MYFABRIC, environment, true,
+        final DeploymentRequest request = new DeploymentRequest(null,
+                null, vars, properties, null, false, "rtf:"+ DeploymentTestsHelper.MYFABRIC, organization, environment, true,
                 true, true, appSrc);
         deploymentService.deploy(request);
         verifyRTFNewDeploymentJson();
