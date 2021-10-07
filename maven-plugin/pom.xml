@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.enhanced-mule</groupId>
         <artifactId>enhanced-mule-tools</artifactId>
-        <version>2.0.0-alpha1-SNAPSHOT</version>
+        <version>2.0.0-alpha1</version>
     </parent>
 
     <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>enhanced-mule-tools-lib</artifactId>
-            <version>2.0.0-alpha1-SNAPSHOT</version>
+            <version>2.0.0-alpha1</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.aeon-commons</groupId>
