@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="EntryPointsManager">
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="org.apache.maven.plugins.annotations.Mojo" />
-      <item index="1" class="java.lang.String" itemvalue="org.junit.jupiter.api.BeforeEach" />
-    </list>
-    <writeAnnotations>
-      <writeAnnotation name="org.apache.maven.plugins.annotations.Parameter" />
-    </writeAnnotations>
-  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/anypoint-mockserver/pom.xml" />
-        <option value="$PROJECT_DIR$/exchange-wagon/pom.xml" />
-        <option value="$PROJECT_DIR$/lib-desktop/pom.xml" />
-      </set>
-    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="12" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/classes" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
   <component name="TaskProjectConfiguration">
     <server type="Gitlab" url="https://gitlab.com" />
   </component>
