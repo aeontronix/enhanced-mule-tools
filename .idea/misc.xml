@@ -14,8 +14,6 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/pom.xml" />
-        <option value="$PROJECT_DIR$/../enhanced-mule-api/pom.xml" />
-        <option value="$PROJECT_DIR$/../../aeon-rest-client/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
