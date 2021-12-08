@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 
 import java.io.IOException;
 
-@Command(name = "emt", subcommands = {LoginCmd.class}, versionProvider = VersionHelper.class)
+@Command(name = "emt", subcommands = {LoginCmd.class, StatusCmd.class}, versionProvider = VersionHelper.class)
 public class EMTCli {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
