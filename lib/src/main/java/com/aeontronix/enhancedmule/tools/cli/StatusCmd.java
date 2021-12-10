@@ -23,10 +23,10 @@ public class StatusCmd implements Callable {
     public Object call() throws Exception {
         final EMTClientStatus status = cli.getClient().getStatus();
         if( status.isAuthenticated() ) {
-            logger.info("Authenticated: Yes");
-            logger.info("User: "+status.getUsername());
+            cli.console("Authenticated: Yes");
+            cli.console("User: "+status.getUsername());
         } else {
-            logger.info("Authenticated: No");
+            cli.console("Authenticated: No");
         }
         return null;
     }

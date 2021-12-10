@@ -56,4 +56,8 @@ public class EMTCli {
     public void saveConfig() throws IOException {
         getConfig().save();
     }
+
+    public void console( String message ) {
+        System.out.println(message);
+    }
 }
