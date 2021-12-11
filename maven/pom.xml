@@ -9,7 +9,7 @@
     <parent>
         <artifactId>enhanced-mule-tools</artifactId>
         <groupId>com.aeontronix.enhanced-mule</groupId>
-        <version>2.0.0-alpha2-SNAPSHOT</version>
+        <version>2.0.0-alpha2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>enhanced-mule-tools-lib</artifactId>
-            <version>2.0.0-alpha2-SNAPSHOT</version>
+            <version>2.0.0-alpha2</version>
         </dependency>
 
         <dependency>
