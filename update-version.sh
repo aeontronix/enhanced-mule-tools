@@ -11,9 +11,9 @@ echo "Current version: ${POM_VERSION}"
 echo "New version ?"
 read VERSION
 mvn versions:set -DprocessAllModules=true -DgroupId='*' -DartifactId='*' -DnewVersion=${VERSION}-SNAPSHOT
-upd provision-only
-upd provision-and-deploy
-upd provision-and-deploy-inprojectraml
-upd provision-and-deploy-to-exchange
-upd provision-and-deploy-compat
-upd publish-rest
+#upd provision-only
+#upd provision-and-deploy
+#upd provision-and-deploy-inprojectraml
+#upd provision-and-deploy-to-exchange
+#upd provision-and-deploy-compat
+#upd publish-rest

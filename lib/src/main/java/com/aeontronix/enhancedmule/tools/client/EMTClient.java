@@ -53,4 +53,8 @@ public class EMTClient {
     public String getBearerToken() {
         return configProfile.getBearerToken();
     }
+
+    public void updateBearerToken(String token) {
+        configProfile.setBearerToken(token);
+    }
 }
