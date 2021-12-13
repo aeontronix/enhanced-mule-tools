@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.client;
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.oidc.OIDCApi;
 import com.aeontronix.enhancedmule.oidc.UserInfo;
@@ -27,10 +28,10 @@ public class EMTClient {
         this.configProfile = configProfile;
         final URI serverUrl = this.configProfile.getServerUrl();
         if (serverUrl != null) {
-            final ResteasyWebTarget target = client.target(serverUrl);
+            final ResteasyWebTarget target = client.target(new URLBuilder(serverUrl).path("api/v1").toUri());
             openIdConnectAPI = target.proxy(OIDCApi.class);
         } else {
-            throw new LoginRequired();
+            throw new ConfigMissingException("Server URL not set, please use config command to set");
         }
     }
 

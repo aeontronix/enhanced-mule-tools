@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 
 import java.io.IOException;
 
-@Command(name = "emt", subcommands = {LoginCmd.class, StatusCmd.class}, versionProvider = VersionHelper.class)
+@Command(name = "emt", subcommands = {LoginCmd.class, StatusCmd.class, ConfigCmd.class}, versionProvider = VersionHelper.class)
 public class EMTCli {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
@@ -35,7 +35,7 @@ public class EMTCli {
         return configProfile;
     }
 
-    private EMConfig getConfig() throws IOException {
+    public EMConfig getConfig() throws IOException {
         if( configFile == null ) {
             configFile = EMConfig.findConfigFile();
         }

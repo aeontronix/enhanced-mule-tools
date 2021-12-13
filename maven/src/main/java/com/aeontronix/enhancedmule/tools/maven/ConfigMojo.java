@@ -4,13 +4,13 @@
 
 package com.aeontronix.enhancedmule.tools.maven;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.config.EMConfig;
-import com.aeontronix.enhancedmule.tools.client.EMTClient;
-import com.aeontronix.enhancedmule.tools.client.LoginHelper;
-import org.apache.maven.plugin.AbstractMojo;
+import com.aeontronix.enhancedmule.tools.cli.LoginCmd;
+import com.aeontronix.enhancedmule.tools.utils.ConfigHelper;
+import com.aeontronix.enhancedmule.tools.utils.MavenSettingsUpdater;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
@@ -20,25 +20,21 @@ import java.net.URI;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Mojo(name = "login", requiresProject = false)
-public class LoginMojo extends AbstractMojo {
-    private static final Logger logger = getLogger(LoginMojo.class);
+@Mojo(name = "config", requiresProject = false)
+public class ConfigMojo extends AbstractEMTMojo {
+    private static final Logger logger = getLogger(LoginCmd.class);
     @Parameter(property = "emt.server.url")
     private URI serverUrl;
     @Parameter(property = "emt.maven.settings.file")
     private File mvnSettingsFile;
     @Parameter(property = "emt.maven.settings.file")
     private String mvnSettingsId;
-    @Parameter(property = "emt.profile")
-    private String profile;
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    protected void execute(EMConfig configFile, ConfigProfile profile) throws MojoExecutionException {
         try {
-            EMConfig configFile = EMConfig.findConfigFile();
-            final ConfigProfile configProfile = configFile.getOrCreateProfile(profile);
-            final EMTClient emtClient = new EMTClient(configProfile);
-            LoginHelper.login(mvnSettingsFile, mvnSettingsId, emtClient, configFile, configProfile, serverUrl);
+            ConfigHelper.updateConfig(configFile, profile, serverUrl, mvnSettingsFile, mvnSettingsId);
+            logger.info("Settings updated");
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

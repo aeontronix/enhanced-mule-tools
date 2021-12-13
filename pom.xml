@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.aeontronix.maven</groupId>
         <artifactId>aeontronix-oss-parent-pom</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
 
     <groupId>com.aeontronix.enhanced-mule</groupId>
@@ -23,7 +23,7 @@
     <description>Automation tools for mulesoft's anypoint platform</description>
     <url>https://aeontronix.gitlab.io/oss/enhanced-mule-tools/</url>
     <packaging>pom</packaging>
-    <version>2.0.0-alpha3-SNAPSHOT</version>
+    <version>2.0.0-alpha4-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
@@ -31,7 +31,7 @@
 
     <organization>
         <name>Aeontronix Inc</name>
-        <url>http://www.aeontronix.com</url>
+        <url>https://www.aeontronix.com</url>
     </organization>
 
     <developers>
@@ -75,13 +75,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
+            <version>22.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
