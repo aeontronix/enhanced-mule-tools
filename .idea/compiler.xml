@@ -7,16 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="aeon-rest-client" />
-        <module name="enhanced-mule-application-demo" />
-        <module name="enhanced-mule-api" />
-      </profile>
-      <profile name="Annotation profile for Enhanced Mule Tools" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
+        <module name="enhanced-mule-tools-cli" />
         <module name="enhanced-mule-tools-maven-plugin" />
         <module name="enhanced-mule-tools-lib" />
-        <module name="enhanced-mule-tools-cli" />
+        <module name="enhanced-mule-application-demo" />
+        <module name="enhanced-mule-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -31,7 +26,7 @@
       <module name="enhanced-mule-tools" target="8" />
       <module name="enhanced-mule-tools-cli" target="8" />
       <module name="enhanced-mule-tools-lib" target="8" />
-      <module name="enhanced-mule-tools-maven-plugin" target="1.5" />
+      <module name="enhanced-mule-tools-maven-plugin" target="8" />
       <module name="exchange-wagon" target="8" />
       <module name="lib-desktop" target="8" />
     </bytecodeTargetLevel>

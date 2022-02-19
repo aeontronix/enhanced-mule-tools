@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy.rtf;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
@@ -24,6 +25,7 @@ import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.aeontronix.unpack.UnpackException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -81,7 +83,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
             }
         }
         ApplicationIdentifier appId = source.getApplicationIdentifier();
-        if( source instanceof FileApplicationSource ) {
+        if (source instanceof FileApplicationSource) {
             final ExchangeDeploymentRequest req = new ExchangeDeploymentRequest(request.getBuildNumber(), appId, getEnvironment().getOrganization(), source, null);
             try {
                 appId = MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
@@ -118,7 +120,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         deploymentSettings.put("forwardSslSession", rtf.getForwardSslSession());
         deploymentSettings.put("updateStrategy", rtf.getUpdateStrategy() != null ? rtf.getUpdateStrategy().name().toLowerCase() : "rolling");
         Integer replicas = rtf.getReplicas();
-        if( replicas == null ) {
+        if (replicas == null) {
             replicas = 1;
         }
         target.put("replicas", replicas);
@@ -134,10 +136,40 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         properties.put("applicationName", request.getAppName());
         properties.put("properties", deploymentRequest.getProperties());
         properties.put("secureproperties", Collections.emptyMap());
-        final String json = environment.getClient().getHttpHelper().httpPost(new URLBuilder("/hybrid/api/v2/organizations")
-                .path(environment.getOrganization().getId()).path("environments").path(environment.getId())
-                .path("deployments")
-                .toString(), req);
+        String deploymentId = getExistingAppDeploymentId(appId.getArtifactId(), fabric.getId());
+
+        if (StringUtils.isNotEmpty(deploymentId)) {
+            final String json = environment.getClient().getHttpHelper()
+                    .httpPatch(new URLBuilder("/hybrid/api/v2/organizations")
+                            .path(environment.getOrganization().getId()).path("environments").path(environment.getId())
+                            .path("deployments").path(deploymentId).toString(), req);
+
+        } else {
+
+            final String json = environment.getClient().getHttpHelper()
+                    .httpPost(
+                            new URLBuilder("/hybrid/api/v2/organizations").path(environment.getOrganization().getId())
+                                    .path("environments").path(environment.getId()).path("deployments").toString(),
+                            req);
+        }
+        return null;
+    }
+
+    private String getExistingAppDeploymentId(String artifactId, String targetId) throws HttpException {
+
+        logger.debug("Searching for pre-existing RTF application named " + artifactId);
+        final AnypointClient client = environment.getClient();
+        final String deployments = client.getHttpHelper()
+                .httpGet(new URLBuilder("/hybrid/api/v2/organizations").path(environment.getOrganization().getId())
+                        .path("environments").path(environment.getId()).path("deployments").toString());
+        if (deployments != null) {
+            for (JsonNode node : client.getJsonHelper().readJsonTree(deployments).at("/items")) {
+                if (artifactId.equalsIgnoreCase(node.get("name").asText())
+                        && targetId.equalsIgnoreCase(node.get("target").get("targetId").asText())) {
+                    return node.get("id").asText();
+                }
+            }
+        }
         return null;
     }
 }
