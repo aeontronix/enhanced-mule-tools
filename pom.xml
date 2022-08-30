@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.maven</groupId>
         <artifactId>aeontronix-oss-parent-pom</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.7</version>
     </parent>
 
     <groupId>com.aeontronix.enhanced-mule</groupId>
