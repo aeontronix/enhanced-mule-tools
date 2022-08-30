@@ -1,7 +1,7 @@
 include:
-  - project: 'aeontronix/templates/gitlab-pipelines'
-    file: 'maven-oss-lib.yml'
+  - project: 'aeontronix/commercial-software/ci-pipeline-lib'
+    file: 'gitlab/maven-oss-lib.yml'
 
-publish-release:
-  after_script:
-    - source release.sh
+#publish-release:
+#  after_script:
+#    - source release.sh
