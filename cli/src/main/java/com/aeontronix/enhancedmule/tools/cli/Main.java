@@ -4,7 +4,6 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.commons.logging.LoggingUtils;
 import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.util.MavenExecutor;
 import picocli.CommandLine;
@@ -12,7 +11,6 @@ import picocli.CommandLine;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProfileNotFoundException {

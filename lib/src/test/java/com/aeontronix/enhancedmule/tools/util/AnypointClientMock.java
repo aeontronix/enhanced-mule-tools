@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import org.mockito.Mockito;
 
 public class AnypointClientMock extends AnypointClient {
@@ -34,7 +34,7 @@ public class AnypointClientMock extends AnypointClient {
     public void mockGetAPIs(String orgId, String query, String contentPath) {
         URLBuilder urlBuilder = new URLBuilder("/apiplatform/repository/v2/organizations/" + orgId + "/apis?ascending=false&limit=25&offset=0&sort=createdDate");
         if (query != null) {
-            urlBuilder.param("query", query);
+            urlBuilder.queryParam("query", query);
         }
         mockHttpGet(urlBuilder.toString(), contentPath);
     }

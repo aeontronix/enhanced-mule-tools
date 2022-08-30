@@ -4,9 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public abstract class PaginatedList<X, Z extends AnypointObject> implements Iter
     protected abstract URLBuilder buildUrl();
 
     public void download() throws HttpException {
-        String url = buildUrl().param("limit", limit).param("offset", offset).toString();
+        String url = buildUrl().queryParam("limit", limit).queryParam("offset", offset).toString();
         String json = parent.getClient().getHttpHelper().httpGet(url);
         JsonHelper jsonHelper = parent.getClient().getJsonHelper();
         parseJson(json, jsonHelper);

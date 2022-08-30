@@ -4,23 +4,22 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
-import com.aeontronix.commons.BackendAccessException;
-import com.aeontronix.commons.TempFile;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
@@ -28,6 +27,7 @@ import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.enhancedmule.tools.util.restclient.RESTException;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
@@ -516,7 +516,7 @@ public class Organization extends AnypointObject {
         throw new NotFoundException("Target not found: " + id);
     }
 
-    public ReleaseManifest findExchangeReleaseManifest(String uri) {
+    public ReleaseManifest findExchangeReleaseManifest(String uri) throws RESTException {
         String name = "Release Manifest: " + id;
         String artifactId = "relmanifest-" + id;
         String version;
@@ -542,7 +542,7 @@ public class Organization extends AnypointObject {
             }
             version = oldestVersion + ".0.0";
         } catch (HttpException e) {
-            throw new BackendAccessException(e);
+            throw new RESTException(e, e.getStatusCode());
         } catch (NotFoundException e) {
             version = "1.0.0";
         }

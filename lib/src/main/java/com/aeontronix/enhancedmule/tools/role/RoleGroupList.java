@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.role;
 
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,8 @@ public class RoleGroupList extends PaginatedList<RoleGroup, Organization> {
 
     @Override
     protected @NotNull URLBuilder buildUrl() {
-        return new URLBuilder("/accounts/api/organizations/").path(parent.getId()).path("rolegroups").param("include_internal", false);
+        return new URLBuilder("/accounts/api/organizations/").path(parent.getId()).path("rolegroups")
+                .queryParam("include_internal", false);
     }
 
     @Override

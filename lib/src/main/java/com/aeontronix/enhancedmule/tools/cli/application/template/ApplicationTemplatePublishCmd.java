@@ -5,15 +5,10 @@
 package com.aeontronix.enhancedmule.tools.cli.application.template;
 
 import com.aeontronix.commons.ArchiveUtils;
-import com.aeontronix.commons.TempFile;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
-import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.User;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.util.FileStreamSource;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.slf4j.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -52,7 +47,7 @@ public class ApplicationTemplatePublishCmd implements Callable<Integer> {
             logger.error("Directory not found: " + directory.getPath());
             return -1;
         }
-        try (final TempFile tarch = new TempFile("tarch",".zip")) {
+        try (final TempFile tarch = new TempFile("tarch", ".zip")) {
             ArchiveUtils.zipDir(directory.getPath(), tarch);
             final EnhancedMuleClient client = parent.getParent().getCli().getClient(organization, null);
             final Organization org = parent.getParent().getCli().findOrganization(organization);

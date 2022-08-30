@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.commons.UserDisplayableException;
+import com.aeontronix.commons.exception.UserDisplayableException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

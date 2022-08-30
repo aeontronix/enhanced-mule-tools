@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;

@@ -4,23 +4,22 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import com.aeontronix.restclient.JsonConvertionException;
 import com.aeontronix.restclient.RESTClient;
 import com.aeontronix.restclient.RESTException;
-import com.aeontronix.restclient.RefreshableCredential;
+import com.aeontronix.restclient.RESTRequest;
+import com.aeontronix.restclient.auth.AuthenticationHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.aeontronix.commons.StringUtils;
-import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationProvider implements RefreshableCredential {
+public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationProvider implements AuthenticationHandler {
     public static final String LOGIN_PATH = "/accounts/login";
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String bearerToken;
@@ -45,7 +44,7 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
             request.put("username", username);
             request.put("password", password);
             httpHelper.setLoginRequest(true);
-            Map data = objectMapper.readValue(httpHelper.httpPost(LOGIN_PATH, request),Map.class);
+            Map data = objectMapper.readValue(httpHelper.httpPost(LOGIN_PATH, request), Map.class);
             return new AnypointAccessToken((String) data.get("access_token"));
         } catch (IOException e) {
             throw new HttpException(e);
@@ -54,7 +53,7 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
 
     @Override
     public String filterSecret(String resStr) {
-        return resStr.replace(password,"**********");
+        return resStr.replace(password, "**********");
     }
 
     public String getUsername() {
@@ -66,25 +65,31 @@ public class AuthenticationProviderUsernamePasswordImpl extends AuthenticationPr
     }
 
     @Override
-    public void applyCredentials(HttpRequestBase request) {
-        if( bearerToken != null ) {
-            request.setHeader("Authorization","bearer "+bearerToken);
+    public void refreshCredential(RESTClient restClient) throws RESTException {
+        Map<String, String> request = new HashMap<>();
+        request.put("username", username);
+        request.put("password", password);
+        final Map result = restClient.get(URI.create("https://anypoint.mulesoft.com/login")).executeAndConvertToObject(Map.class);
+        bearerToken = (String) result.get("access_token");
+        if (StringUtils.isBlank(bearerToken)) {
+            throw new RESTException("Login service didn't return valid bearer token");
         }
     }
 
     @Override
-    public void refreshCredential(RESTClient restClient) throws IOException, RESTException {
-        try {
-            Map<String, String> request = new HashMap<>();
-            request.put("username", username);
-            request.put("password", password);
-            final Map result = restClient.get(URI.create("https://anypoint.mulesoft.com/login")).json(request).execute(Map.class);
-            bearerToken = (String) result.get("access_token");
-            if( StringUtils.isBlank(bearerToken) ) {
-                throw new IOException("Login service didn't return valid bearer token");
-            }
-        } catch (JsonConvertionException e) {
-            throw new IOException("Failed to retrieve bearer token: "+e.getMessage(),e);
+    public boolean isRefreshRequired() {
+        return bearerToken == null;
+    }
+
+    @Override
+    public boolean isRefreshable() {
+        return true;
+    }
+
+    @Override
+    public void applyCredentials(RESTRequest request) {
+        if (bearerToken != null) {
+            request.setHeader("Authorization", "bearer " + bearerToken);
         }
     }
 }

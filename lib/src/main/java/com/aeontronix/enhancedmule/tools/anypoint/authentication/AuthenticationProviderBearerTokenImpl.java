@@ -7,7 +7,9 @@ package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
-import org.apache.http.client.methods.HttpRequestBase;
+import com.aeontronix.restclient.RESTClient;
+import com.aeontronix.restclient.RESTException;
+import com.aeontronix.restclient.RESTRequest;
 
 public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvider {
     private String anypointBearerToken;
@@ -23,11 +25,27 @@ public class AuthenticationProviderBearerTokenImpl extends AuthenticationProvide
 
     @Override
     public String filterSecret(String resStr) {
-        return resStr.replace(anypointBearerToken,"**********");
+        return resStr.replace(anypointBearerToken, "**********");
     }
 
     @Override
-    public void applyCredentials(HttpRequestBase request) {
-        request.setHeader("Authorization","bearer "+anypointBearerToken);
+    public boolean isRefreshRequired() {
+        return false;
+    }
+
+    @Override
+    public boolean isRefreshable() {
+        return false;
+    }
+
+    @Override
+    public void applyCredentials(RESTRequest request) {
+        if (anypointBearerToken != null) {
+            request.setHeader("Authorization", "bearer " + anypointBearerToken);
+        }
+    }
+
+    @Override
+    public void refreshCredential(RESTClient restClient) throws RESTException {
     }
 }

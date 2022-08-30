@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.exchange;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.TempFile;
-import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
@@ -325,7 +325,7 @@ public class ExchangeAssetDescriptor {
                         int idx = fileName.indexOf(".");
                         if (idx != -1) {
                             final PortalPageDescriptor p = new PortalPageDescriptor();
-                            p.setContent(IOUtils.toString(file));
+                            p.setContent(FileUtils.toString(file));
                             p.setName(fileName.substring(0, idx));
                             pages.add(p);
                         }

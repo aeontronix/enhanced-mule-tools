@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.exchange;
 
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +32,9 @@ public class AssetList extends PaginatedList<ExchangeAssetOverview, Organization
     @Override
     protected @NotNull URLBuilder buildUrl() {
         URLBuilder urlBuilder = new URLBuilder("/exchange/api/v1/assets")
-                .param("organizationId", parent.getId());
+                .queryParam("organizationId", parent.getId());
         if (filter != null) {
-            urlBuilder.param("search", filter);
+            urlBuilder.queryParam("search", filter);
         }
         return urlBuilder;
     }

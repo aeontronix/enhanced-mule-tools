@@ -4,12 +4,14 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
+import com.aeontronix.restclient.RESTClient;
+import com.aeontronix.restclient.RESTException;
+import com.aeontronix.restclient.RESTRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.aeontronix.commons.StringUtils;
-import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -48,11 +50,26 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
 
     @Override
     public String filterSecret(String resStr) {
-        return resStr.replace(clientSecret,"**********");
+        return resStr.replace(clientSecret, "**********");
     }
 
     @Override
-    public void applyCredentials(HttpRequestBase request) {
+    public boolean isRefreshRequired() {
+        return false;
+    }
+
+    @Override
+    public boolean isRefreshable() {
+        return false;
+    }
+
+    @Override
+    public void applyCredentials(RESTRequest request) {
+        throw new RuntimeException("Not implemented (don't use connected app client_credentials it has severe limitations)");
+    }
+
+    @Override
+    public void refreshCredential(RESTClient restClient) throws RESTException {
         throw new RuntimeException("Not implemented (don't use connected app client_credentials it has severe limitations)");
     }
 }

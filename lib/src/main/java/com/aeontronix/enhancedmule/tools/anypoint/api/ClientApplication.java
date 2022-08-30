@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -12,7 +13,6 @@ import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -112,7 +112,7 @@ public class ClientApplication extends AnypointObject<Organization> {
                 .toMap();
         URLBuilder path = new URLBuilder(organization.getUriPath()).path("/applications");
         if (accessedAPIInstanceId != null) {
-            path.param("apiInstanceId", accessedAPIInstanceId);
+            path.queryParam("apiInstanceId", accessedAPIInstanceId);
         }
         String json = null;
         try {

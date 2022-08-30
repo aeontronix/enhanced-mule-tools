@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -26,9 +26,9 @@ public class ClientApplicationList extends PaginatedList<ClientApplication, Orga
     @Override
     protected URLBuilder buildUrl() {
         URLBuilder urlBuilder = new URLBuilder(parent.getUriPath() + "/applications")
-                .param("ascending", "true");
+                .queryParam("ascending", "true");
         if (filter != null) {
-            urlBuilder.param("query", filter);
+            urlBuilder.queryParam("query", filter);
         }
         return urlBuilder;
     }

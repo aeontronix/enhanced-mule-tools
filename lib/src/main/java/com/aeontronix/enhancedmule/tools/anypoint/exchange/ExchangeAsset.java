@@ -10,7 +10,7 @@ package com.aeontronix.enhancedmule.tools.anypoint.exchange;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;

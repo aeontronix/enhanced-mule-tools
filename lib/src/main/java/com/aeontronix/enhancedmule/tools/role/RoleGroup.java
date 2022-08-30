@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.role;
 
+import com.aeontronix.commons.URLBuilder;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -13,8 +15,6 @@ import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
 
 import java.util.*;
 
@@ -133,7 +133,7 @@ public class RoleGroup extends AnypointObject<Organization> {
 
     public void deleteRoleAssignment(Iterable<RoleAssignment> roleAssignments) throws HttpException {
         for (RoleAssignment roleAssignment : roleAssignments) {
-            httpHelper.httpDelete(buildUrl(parent, getId()).path("roles").param("roleId", roleAssignment.getId()).toString(),
+            httpHelper.httpDelete(buildUrl(parent, getId()).path("roles").queryParam("roleId", roleAssignment.getId()).toString(),
                     Collections.singletonList(roleAssignment));
         }
     }

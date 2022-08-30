@@ -4,12 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.util.APISpecHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -279,7 +279,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                             int idx = fileName.indexOf(".");
                             if (idx != -1) {
                                 final ObjectNode p = objectMapper.createObjectNode();
-                                p.set(CONTENT, new TextNode(IOUtils.toString(file)));
+                                p.set(CONTENT, new TextNode(FileUtils.toString(file)));
                                 p.set(NAME, new TextNode(fileName.substring(0, idx)));
                                 pages.add(p);
                             }

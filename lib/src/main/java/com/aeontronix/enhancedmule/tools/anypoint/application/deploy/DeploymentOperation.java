@@ -4,17 +4,22 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.commons.TempFile;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.*;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ExchangeManagementClient;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.application.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ExchangeApplicationSource;

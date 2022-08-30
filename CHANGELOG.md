@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for deployment configurations in anypoint.json
 - anypoint.json support for environment-specific overrides
 
+### Fixed
+
+- Bug when string that supports variables ends in $
+
 ## [1.2.7](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.7)
 
 ### Added

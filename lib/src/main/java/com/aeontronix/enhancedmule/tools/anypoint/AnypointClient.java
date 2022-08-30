@@ -4,13 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
-import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
+import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.AlertUpdate;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderUsernamePasswordImpl;
-import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -65,7 +64,8 @@ public class AnypointClient implements Closeable, Serializable {
         this.maxParallelDeployments = maxParallelDeployments;
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
         init();
-        anypointRestClient.setCredential(authenticationProvider);
+        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com"))
+                .authenticationHandler(authenticationProvider).build();
     }
 
     private void init() {
@@ -74,7 +74,7 @@ public class AnypointClient implements Closeable, Serializable {
         modelMapper = new ModelMapper();
         modelMapper.validate();
         restClient = RESTClient.builder().build();
-        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com"));
+        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com")).build();
     }
 
     private boolean loadAnypointCliConfig() {
@@ -200,9 +200,10 @@ public class AnypointClient implements Closeable, Serializable {
      */
     public User getUser() throws HttpException {
         try {
-            return anypointRestClient.get("/accounts/api/me").execute(UserInfo.class).getUser();
+            return anypointRestClient.get("/accounts/api/me")
+                    .execute().toObject(UserInfo.class).getUser();
         } catch (RESTException e) {
-            if( e.getStatusCode() != null ) {
+            if (e.getStatusCode() > 0) {
                 throw new HttpException(e.getStatusCode());
             } else {
                 throw new HttpException(e);
@@ -363,10 +364,6 @@ public class AnypointClient implements Closeable, Serializable {
 
     public void unsetProxy() {
         httpHelper.unsetProxy();
-    }
-
-    public AnypointAccessToken getBearerToken() throws HttpException {
-        return getHttpHelper().getAuthToken();
     }
 
     public RESTClient getRestClient() {

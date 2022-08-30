@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;

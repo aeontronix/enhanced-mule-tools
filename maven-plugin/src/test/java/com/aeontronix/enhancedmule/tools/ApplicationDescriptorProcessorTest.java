@@ -12,6 +12,7 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.Returns;
@@ -27,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ApplicationDescriptorProcessorTest {
     @Test
+    @Disabled
     public void testDefaultWithAPIDependency() throws Exception {
         final Helper helper = new Helper("defaultWithAPIDep", true);
         helper.addDependency("company.com", "myproject-spec", "3.2.1", "oas", "anypoint-sys-api-spec-1.0.0-oas.zip");
@@ -34,12 +36,14 @@ class ApplicationDescriptorProcessorTest {
     }
 
     @Test
+    @Disabled
     public void testWithAPISpec() throws Exception {
         final Helper helper = new Helper("withramlspec", true);
         helper.testDefaultValues();
     }
 
     @Test
+    @Disabled
     public void testWithAPISpecSnapshot() throws Exception {
         final Helper helper = new Helper("withramlspecSnapshot", true);
         helper.testDefaultValues();

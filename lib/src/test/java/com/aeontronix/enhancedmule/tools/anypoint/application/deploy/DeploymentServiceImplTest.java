@@ -22,7 +22,10 @@ import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
@@ -60,13 +63,13 @@ class DeploymentServiceImplTest {
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    private void beforeAll(TestInfo testInfo) throws Exception {
+    public void beforeAll(TestInfo testInfo) throws Exception {
         String testName = testInfo.getTestMethod().orElseThrow(RuntimeException::new).getName();
         descJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + ".json"));
         expectedJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + "-expected.json"));
         anypointClient = mock(AnypointClient.class);
         httpHelper = mock(HttpHelper.class);
-        when(httpHelper.anypointHttpPost(any(),any(),any())).thenReturn("{}");
+        when(httpHelper.anypointHttpPost(any(), any(), any())).thenReturn("{}");
         final JsonHelper jsonHelper = new JsonHelper(anypointClient);
         when(anypointClient.getJsonHelper()).thenReturn(jsonHelper);
         when(anypointClient.getHttpHelper()).thenReturn(httpHelper);

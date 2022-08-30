@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.cli.application.template;
 
-import com.aeontronix.commons.FileUtils;
+import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;

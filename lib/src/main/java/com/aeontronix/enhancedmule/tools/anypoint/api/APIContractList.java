@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class APIContractList extends PaginatedList<APIContract, API> {
     @Override
     protected URLBuilder buildUrl() {
         URLBuilder url = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getParent().getId() + "/environments/" + parent.getParent().getId() + "/apis/" + parent.getId() + "/contracts")
-                .param("ascending", "true");
+                .queryParam("ascending", "true");
         return url;
     }
 

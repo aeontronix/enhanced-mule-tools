@@ -4,12 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.ThreadUtils;
+import com.aeontronix.commons.exception.UnexpectedException;
+import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
-import com.aeontronix.commons.Base64;
-import com.aeontronix.commons.ThreadUtils;
-import com.aeontronix.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -26,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -77,35 +77,12 @@ public class HttpHelper implements Closeable {
         httpClient.close();
     }
 
-    public AnypointAccessToken getAuthToken() throws HttpException {
-        if (authToken == null) {
-            this.authToken = authenticationProvider.getBearerToken(this);
-        }
-        return this.authToken;
-    }
-
-    public void setAuthToken(AnypointAccessToken authToken) {
-        this.authToken = authToken;
-    }
-
-    private void readObject(java.io.ObjectInputStream in)
-            throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        this.httpClient = authenticationProvider.createHttpClient();
-    }
-
     public void httpGetBasicAuth(String path, OutputStream outputStream) throws HttpException {
         logger.debug("HTTP GET W/ BASIC AUTH: " + path);
         HttpGet request = new HttpGet(convertPath(path));
         httpExecuteMethodBasicAuth(outputStream, request);
     }
 
-    public void httpPutBasicAuth(String path, byte[] data, OutputStream outputStream) throws HttpException {
-        logger.debug("HTTP PUT W/ BASIC AUTH: " + path);
-        HttpPut request = new HttpPut(convertPath(path));
-        request.setEntity(new ByteArrayEntity(data));
-        httpExecuteMethodBasicAuth(outputStream, request);
-    }
     public void httpPutBasicAuth(String path, InputStream is, OutputStream outputStream) throws HttpException {
         logger.debug("HTTP PUT W/ BASIC AUTH: " + path);
         HttpPut request = new HttpPut(convertPath(path));
@@ -412,7 +389,7 @@ public class HttpHelper implements Closeable {
         try {
             String authStr = "~~~Token~~~" +
                     ":" + authenticationProvider.getBearerToken(this).getAnypointAccessToken();
-            byte[] encodedAuth = Base64.encodeBase64(authStr.getBytes(StandardCharsets.UTF_8));
+            byte[] encodedAuth = Base64.getEncoder().encode(authStr.getBytes(StandardCharsets.UTF_8));
             String authHeader = "Basic " + new String(encodedAuth);
             request.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
             return request;

@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.util.restclient;
 
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.aeontronix.commons.UnexpectedException;
 
 import java.io.IOException;
 import java.io.InputStream;

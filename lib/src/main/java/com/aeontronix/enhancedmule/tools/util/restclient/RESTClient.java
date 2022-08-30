@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.util.restclient;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
@@ -26,7 +26,9 @@ import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 

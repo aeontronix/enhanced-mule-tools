@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
-import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.UnexpectedException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;

@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy.rtf;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UnexpectedException;
+import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;

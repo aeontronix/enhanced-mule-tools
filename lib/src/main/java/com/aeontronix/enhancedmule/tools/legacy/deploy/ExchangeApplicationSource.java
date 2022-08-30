@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
-import com.aeontronix.commons.TempFile;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;

@@ -4,7 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.commons.UserDisplayableException;
+
+import com.aeontronix.commons.exception.UserDisplayableException;
 
 public class RequestAPIAccessException extends UserDisplayableException {
     public RequestAPIAccessException() {

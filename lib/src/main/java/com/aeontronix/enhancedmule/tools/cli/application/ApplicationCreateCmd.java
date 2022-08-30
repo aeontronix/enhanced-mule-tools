@@ -4,40 +4,34 @@
 
 package com.aeontronix.enhancedmule.tools.cli.application;
 
-import com.aeontronix.commons.FileUtils;
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.TempDir;
-import com.aeontronix.commons.TempFile;
+import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetFile;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.cli.application.template.ApplicationTemplatePublishCmd;
-import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import com.aeontronix.genesis.Template;
 import com.aeontronix.genesis.TemplateExecutionException;
 import com.aeontronix.genesis.TemplateExecutor;
 import com.aeontronix.genesis.ZipResourceLoader;
-import com.aeontronix.restclient.RESTClient;
-import com.aeontronix.restclient.RESTException;
-import com.aeontronix.restclient.RESTResponseProcessingException;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import com.aeontronix.restclient.RESTResponse;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -81,22 +75,14 @@ public class ApplicationCreateCmd implements Callable<Integer> {
             final Optional<AssetFile> file = exchangeAsset.getFiles().stream()
                     .filter(f -> "custom".equalsIgnoreCase(f.getClassifier())).findFirst();
             final AssetFile assetFile = file.orElseThrow(() -> new RuntimeException("Asset is a not an EMT template"));
-            try(TempFile tempFile = new TempFile("emttemplate");  ) {
-                org.getClient().getRestClient().get(URI.create(assetFile.getExternalLink()))
-                        .execute(new RESTClient.ResponseHandler<InputStream>() {
-                            @Override
-                            public <X> X handleRestResponse(CloseableHttpResponse response) throws RESTResponseProcessingException {
-                                try {
-                                    try(FileOutputStream fos = new FileOutputStream(tempFile)) {
-                                        IOUtils.copy(response.getEntity().getContent(),fos);
-                                    }
-                                    return null;
-                                } catch (IOException e) {
-                                    throw new RESTResponseProcessingException(e);
-                                }
-                            }
-                        });
-                template = Template.loadTemplate(new ZipResourceLoader(tempFile) );
+            try (TempFile tempFile = new TempFile("emttemplate")) {
+                try (final RESTResponse response = org.getClient().getRestClient().get(URI.create(assetFile.getExternalLink()))
+                        .execute()) {
+                    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                        IOUtils.copy(response.getContentStream(), fos);
+                    }
+                }
+                template = Template.loadTemplate(new ZipResourceLoader(tempFile));
                 template.setResourcePath("/");
                 execute(template);
             }

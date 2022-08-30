@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,9 +27,9 @@ public class APISpecList extends PaginatedList<APISpec, Organization> {
     @Override
     protected URLBuilder buildUrl() {
         URLBuilder url = new URLBuilder("/apimanager/xapi/v1/organizations/" + parent.getId() + "/apiSpecs")
-                .param("ascending", "true");
+                .queryParam("ascending", "true");
         if (filter != null) {
-            url.param("searchTerm", filter);
+            url.queryParam("searchTerm", filter);
         }
         return url;
     }

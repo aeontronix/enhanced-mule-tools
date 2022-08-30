@@ -4,11 +4,11 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.PaginatedList;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.URLBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,11 +29,11 @@ public class APIList extends PaginatedList<APIAsset, Environment> {
     @Override
     protected @NotNull URLBuilder buildUrl() {
         URLBuilder urlBuilder = new URLBuilder("/apimanager/api/v1/organizations/" + parent.getParent().getId() + "/environments/" + parent.getId() + "/apis")
-                .param("ascending", "true");
+                .queryParam("ascending", "true");
         if (filter != null) {
-            urlBuilder.param("query", filter);
+            urlBuilder.queryParam("query", filter);
         }
-        urlBuilder.param("sort", "createdDate");
+        urlBuilder.queryParam("sort", "createdDate");
         return urlBuilder;
     }
 

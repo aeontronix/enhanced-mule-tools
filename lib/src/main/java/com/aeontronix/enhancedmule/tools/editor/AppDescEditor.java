@@ -4,11 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.editor;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import com.aeontronix.commons.SwingUtils;
 import com.aeontronix.commons.swing.PlaceholderTextField;
+import com.aeontronix.commons.swing.SwingUtils;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -23,6 +20,8 @@ import org.slf4j.Logger;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
