@@ -15,13 +15,12 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.Parameters;
+import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "deploy")
 public class ApplicationDeployCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationDeployCmd.class);
-    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
     @ParentCommand
     private ApplicationCmd applicationCmd;
     @Parameters

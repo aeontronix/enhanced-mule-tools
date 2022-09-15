@@ -16,8 +16,6 @@ import picocli.CommandLine.ParentCommand;
 public class ApplicationCmd {
     @ParentCommand
     private EMTCli cli;
-    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
 
     public EMTCli getCli() {
         return cli;

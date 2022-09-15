@@ -5,14 +5,11 @@
 package com.aeontronix.enhancedmule.tools.cli.config;
 
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
 @Command(name = "config", subcommands = ConfigSetCredentials.class)
 public class ConfigCmd {
-    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
     @ParentCommand
     private EMTCli cli;
 

@@ -13,8 +13,6 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/pom.xml" />
-        <option value="$PROJECT_DIR$/../enhanced-mule-api/pom.xml" />
-        <option value="$PROJECT_DIR$/../../aeon-rest-client/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -27,6 +25,9 @@
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_12" default="true" project-jdk-name="12" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
   </component>
   <component name="TaskProjectConfiguration">
     <server type="Gitlab" url="https://gitlab.com" />

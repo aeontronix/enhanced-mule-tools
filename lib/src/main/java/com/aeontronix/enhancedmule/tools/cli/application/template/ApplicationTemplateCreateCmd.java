@@ -10,7 +10,6 @@ import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -27,8 +26,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Command(name = "create")
 public class ApplicationTemplateCreateCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationTemplateCreateCmd.class);
-    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
     @Parameters(description = "Directory where template files will be created")
     private File directory;
 

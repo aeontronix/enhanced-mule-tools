@@ -1,0 +1,14 @@
+foo:
+  type: group
+  properties:
+    bla:
+      secure: true
+    foo:
+      name: xxx
+    ra:
+      type: group
+      properties:
+        xxx:
+          secure: true
+bla.ble:
+  secure: true

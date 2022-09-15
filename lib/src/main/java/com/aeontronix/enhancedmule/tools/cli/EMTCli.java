@@ -11,10 +11,13 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
+import com.aeontronix.enhancedmule.tools.cli.crypto.EncryptCmd;
+import com.aeontronix.enhancedmule.tools.cli.crypto.KeyGenCmd;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAccessTokenImpl;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
+import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReader;
 import picocli.CommandLine.Command;
 
@@ -24,12 +27,11 @@ import java.io.IOException;
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
-@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class}, versionProvider = VersionHelper.class)
+@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class},
+        versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
-    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
     @Option(names = "-p", description = "Profile")
     private String profileName;
     private File workDir = new File(".");
@@ -75,6 +77,7 @@ public class EMTCli {
         this.profileName = profileName;
     }
 
+    @NotNull
     public ConfigProfile getProfile() throws IOException, ProfileNotFoundException {
         return getProfile(null, null);
     }
@@ -106,7 +109,7 @@ public class EMTCli {
     }
 
     public EnhancedMuleClient getClient() throws IOException, ProfileNotFoundException {
-        return getClient(null,null);
+        return getClient(null, null);
     }
 
     public EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
@@ -132,8 +135,8 @@ public class EMTCli {
     }
 
     public Organization findOrganization(String organization) throws IOException, ProfileNotFoundException, NotFoundException {
-        if( organization != null ) {
-            return getClient(organization,null).getAnypointClient().findOrganizationByNameOrId(organization);
+        if (organization != null) {
+            return getClient(organization, null).getAnypointClient().findOrganizationByNameOrId(organization);
         } else {
             final AnypointClient anypointClient = getClient().getAnypointClient();
             final Organization org = anypointClient.getUser().getOrganization();

@@ -23,8 +23,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ApplicationTemplatePublishCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationTemplatePublishCmd.class);
     public static final String EMT_TEMPLATE_ASSET_ID = "emt-application-template";
-    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
     @Option(names = "-d", description = "Directory where template files will be created")
     private File directory;
     @Option(names = "-o", description = "Organization used to publish template")

@@ -6,8 +6,6 @@
 
 set -e
 
-source /usr/bin/prepare-build
-
 FILE=formula/emt.rb
 
 RELVERSION=${POM_REL_VERSION}

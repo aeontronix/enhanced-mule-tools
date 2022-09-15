@@ -6,29 +6,37 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="aeon-rest-client" />
         <module name="enhanced-mule-tools-cli" />
-        <module name="enhanced-mule-tools-lib" />
         <module name="enhanced-mule-tools-maven-plugin" />
+        <module name="enhanced-mule-tools-lib" />
         <module name="enhanced-mule-application-demo" />
-        <module name="enhanced-mule-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="aeon-rest-client" target="8" />
+      <module name="aeon-rest-client" target="1.8" />
+      <module name="aeon-rest-client (1)" target="1.8" />
+      <module name="aeon-rest-client-apache-hc" target="1.8" />
+      <module name="aeon-rest-client-core" target="1.8" />
+      <module name="aeon-rest-client-jackson" target="1.8" />
       <module name="anypoint-cli" target="1.8" />
       <module name="anypoint-lib" target="1.8" />
       <module name="anypoint-maven-plugin" target="1.7" />
       <module name="anypoint-tools" target="1.8" />
       <module name="anypointtools-maven-plugin" target="1.7" />
-      <module name="enhanced-mule-api" target="8" />
+      <module name="enhanced-mule-api" target="1.8" />
       <module name="enhanced-mule-application-demo" target="1.5" />
-      <module name="enhanced-mule-tools" target="8" />
-      <module name="enhanced-mule-tools-cli" target="8" />
-      <module name="enhanced-mule-tools-lib" target="8" />
-      <module name="enhanced-mule-tools-maven-plugin" target="8" />
+      <module name="enhanced-mule-tools" target="1.8" />
+      <module name="enhanced-mule-tools-cli" target="1.8" />
+      <module name="enhanced-mule-tools-lib" target="1.8" />
+      <module name="enhanced-mule-tools-maven-plugin" target="1.8" />
       <module name="exchange-wagon" target="8" />
       <module name="lib-desktop" target="8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="enhanced-mule-tools" options="" />
+      <module name="enhanced-mule-tools-maven-plugin" options="-parameters" />
+    </option>
   </component>
 </project>

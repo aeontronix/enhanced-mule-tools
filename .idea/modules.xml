@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../aeon-rest-client/aeon-rest-client.iml" filepath="$PROJECT_DIR$/../../aeon-rest-client/aeon-rest-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../enhanced-mule-api/enhanced-mule-api.iml" filepath="$PROJECT_DIR$/../enhanced-mule-api/enhanced-mule-api.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../enhanced-mule-tools.iml" filepath="$PROJECT_DIR$/../enhanced-mule-tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/enhanced-mule-tools.iml" filepath="$PROJECT_DIR$/enhanced-mule-tools.iml" />
       <module fileurl="file://$PROJECT_DIR$/cli/enhanced-mule-tools-cli.iml" filepath="$PROJECT_DIR$/cli/enhanced-mule-tools-cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib/enhanced-mule-tools-lib.iml" filepath="$PROJECT_DIR$/lib/enhanced-mule-tools-lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/maven-plugin/enhanced-mule-tools-maven-plugin.iml" filepath="$PROJECT_DIR$/maven-plugin/enhanced-mule-tools-maven-plugin.iml" />
