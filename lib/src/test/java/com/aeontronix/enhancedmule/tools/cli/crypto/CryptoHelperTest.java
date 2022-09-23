@@ -6,11 +6,8 @@ package com.aeontronix.enhancedmule.tools.cli.crypto;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.commons.file.FileUtils;
-import com.aeontronix.commons.file.TempDir;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.DecryptionException;
-import com.aeontronix.kryptotek.EncryptionException;
 import com.aeontronix.kryptotek.Key;
 import com.aeontronix.kryptotek.key.DecryptionKey;
 import org.junit.jupiter.api.Assertions;
@@ -54,15 +51,15 @@ class CryptoHelperTest {
         Assertions.assertEquals(new HashSet<>(Arrays.asList("foo.bla", "bla.ble", "foo.ra.xxx")), sensitiveProperties);
     }
 
-    @Test
-    public void testEncryptProperties() throws IOException, EncryptionException, DecryptionException {
-        try (TempDir tempDir = new TempDir("tmp")) {
-            FileUtils.copyDirectory(propertiesFile.getParentFile(), tempDir);
-            CryptoHelper.encryptProperties(key, propertiesFile);
-            validateEncryptedProperties(loadProperties("local.properties"));
-            validateEncryptedProperties(loadProperties("env-dev.yaml"));
-        }
-    }
+//    @Test
+//    public void testEncryptProperties() throws IOException, EncryptionException, DecryptionException {
+//        try (TempDir tempDir = new TempDir("tmp")) {
+//            FileUtils.copyDirectory(propertiesFile.getParentFile(), tempDir);
+//            CryptoHelper.encryptProperties(key, propertiesFile);
+//            validateEncryptedProperties(loadProperties("local.properties"));
+//            validateEncryptedProperties(loadProperties("env-dev.yaml"));
+//        }
+//    }
 
     private void validateEncryptedProperties(Map<String, String> props) throws DecryptionException {
         assertProperty(props, "foo.bla", "hello", true);
