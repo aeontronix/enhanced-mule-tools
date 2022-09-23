@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.aeontronix.kryptotek</groupId>
             <artifactId>kryptotek-core</artifactId>
-            <version>1.1.0-beta6-SNAPSHOT</version>
+            <version>1.1.0-beta7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
