@@ -136,7 +136,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         properties.put("applicationName", request.getAppName());
         properties.put("properties", deploymentRequest.getProperties());
         properties.put("secureproperties", Collections.emptyMap());
-        String deploymentId = getExistingAppDeploymentId(appId.getArtifactId(), fabric.getId());
+        String deploymentId = getExistingAppDeploymentId(request.getAppName(), fabric.getId());
 
         if (StringUtils.isNotEmpty(deploymentId)) {
             final String json = environment.getClient().getHttpHelper()
@@ -155,16 +155,15 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         return null;
     }
 
-    private String getExistingAppDeploymentId(String artifactId, String targetId) throws HttpException {
-
-        logger.debug("Searching for pre-existing RTF application named " + artifactId);
+    private String getExistingAppDeploymentId(String appName, String targetId) throws HttpException {
+        logger.debug("Searching for pre-existing RTF application named " + appName);
         final AnypointClient client = environment.getClient();
         final String deployments = client.getHttpHelper()
                 .httpGet(new URLBuilder("/hybrid/api/v2/organizations").path(environment.getOrganization().getId())
                         .path("environments").path(environment.getId()).path("deployments").toString());
         if (deployments != null) {
             for (JsonNode node : client.getJsonHelper().readJsonTree(deployments).at("/items")) {
-                if (artifactId.equalsIgnoreCase(node.get("name").asText())
+                if (appName.equalsIgnoreCase(node.get("name").asText())
                         && targetId.equalsIgnoreCase(node.get("target").get("targetId").asText())) {
                     return node.get("id").asText();
                 }
