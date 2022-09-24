@@ -13,11 +13,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="enhanced-mule-tools-lib" />
-    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons:2.0.0-beta5" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-core:2.0.0-beta5" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-file:2.0.0-beta5" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-io:2.0.0-beta5" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-validation:2.0.0-beta5" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons:2.0.0-beta8" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-core:2.0.0-beta8" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-file:2.0.0-beta8" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-io:2.0.0-beta8" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-validation:2.0.0-beta8" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-properties:2.0.0-beta8" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-swing:2.0.0-beta5" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-config:1.0.0-beta2" level="project" />
     <orderEntry type="library" name="Maven: com.intellij:annotations:12.0" level="project" />

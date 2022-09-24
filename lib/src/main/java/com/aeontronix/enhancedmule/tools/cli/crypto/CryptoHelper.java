@@ -4,7 +4,9 @@
 
 package com.aeontronix.enhancedmule.tools.cli.crypto;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.commons.properties.PropertiesUtils;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.DecryptionException;
@@ -15,21 +17,22 @@ import com.aeontronix.kryptotek.key.EncryptionKey;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class CryptoHelper {
     public static final Pattern ENCRYPTED_PROP_REGEX = Pattern.compile("^\\{\\{encrypted:(.*)}}$");
+    private static final Logger logger = getLogger(CryptoHelper.class);
 
     public static String crypt(Key key, String value, boolean encrypt) throws EncryptionException, DecryptionException {
         if (encrypt) {
@@ -73,7 +76,7 @@ public class CryptoHelper {
     }
 
     @NotNull
-    public static Set<String> findSensitiveProperties(@NotNull File file) throws IOException {
+    public static Set<String> findSecureProperties(@NotNull File file) throws IOException {
         final HashSet<String> files = new HashSet<>();
         final String nlc = file.getName().toLowerCase();
         final ObjectMapper objectMapper;
@@ -83,11 +86,11 @@ public class CryptoHelper {
             objectMapper = new ObjectMapper(new YAMLFactory());
         }
         final JsonNode jsonNode = objectMapper.readTree(file);
-        findSensitivePropertiesInPropertyMap(jsonNode, null, files);
+        findSecurePropertiesInPropertyMap(jsonNode, null, files);
         return files;
     }
 
-    private static void findSensitivePropertiesInPropertyMap(JsonNode jsonNode, String path, HashSet<String> files) {
+    private static void findSecurePropertiesInPropertyMap(JsonNode jsonNode, String path, HashSet<String> files) {
         final Iterator<Map.Entry<String, JsonNode>> it = jsonNode.fields();
         while (it.hasNext()) {
             Map.Entry<String, JsonNode> entry = it.next();
@@ -103,7 +106,7 @@ public class CryptoHelper {
             final JsonNode type = jsonNode.get("type");
             if (type != null && type.isTextual() && type.asText().equalsIgnoreCase("group")) {
                 final ObjectNode properties = (ObjectNode) jsonNode.get("properties");
-                findSensitivePropertiesInPropertyMap(properties, path, files);
+                findSecurePropertiesInPropertyMap(properties, path, files);
             }
         }
     }
@@ -133,8 +136,8 @@ public class CryptoHelper {
     }
 
     private static void cryptProperties(Key key, File propertiesFile, boolean encrypt) throws IOException, EncryptionException, DecryptionException {
-        final Set<String> sensitiveProperties = findSensitiveProperties(propertiesFile);
-        if (!sensitiveProperties.isEmpty()) {
+        final Set<String> secureProperties = findSecureProperties(propertiesFile);
+        if (!secureProperties.isEmpty()) {
             String basePath = propertiesFile.getName();
             final String lc = basePath.toLowerCase();
             if (lc.endsWith(".yaml") || lc.endsWith(".json")) {
@@ -146,46 +149,21 @@ public class CryptoHelper {
             }
             final String pattern = "^" + basePath + "-(local|env-.+|envtype-.+).(properties|yaml|yml|json)";
             final File[] files = propertiesFile.getParentFile().listFiles((dir, name) -> name.toLowerCase().matches(pattern));
-            for (File file : files) {
-                final String fn = file.getName().toLowerCase();
-                if (fn.endsWith(".properties")) {
-                    Properties props = new Properties();
-                    try (FileInputStream fs = new FileInputStream(file)) {
-                        props.load(fs);
+            if (files != null) {
+                for (File file : files) {
+                    final Properties properties = PropertiesUtils.readProperties(file);
+                    for (String sKey : secureProperties) {
+                        final String value = properties.getProperty(sKey);
+                        if (StringUtils.isNotBlank(value)) {
+                            if (value.startsWith("{{") && value.endsWith("}}")) {
+                                logger.debug("Skipping property {} since it's using an expression", sKey);
+                            } else {
+                                properties.setProperty(sKey, encrypt ? encrypt(key, value, false) : decrypt(key, value));
+                            }
+                        }
                     }
-                    cryptProperties(key, encrypt, sensitiveProperties, props);
-                    try (FileOutputStream fos = new FileOutputStream(file)) {
-                        props.store(fos, "");
-                    }
-                } else if (fn.endsWith(".yaml") || fn.endsWith(".yml")) {
-                    final Properties props = readYamlProperties(file);
-                    cryptProperties(key, encrypt, sensitiveProperties, props);
+                    PropertiesUtils.writeProperties(file, properties);
                 }
-            }
-        }
-    }
-
-    public static Properties readYamlProperties(File file) throws IOException {
-        final ObjectMapper om = new ObjectMapper(new YAMLFactory());
-        return readJacksonProperties(file, om);
-    }
-
-    public static Properties readJsonProperties(File file) throws IOException {
-        final ObjectMapper om = new ObjectMapper();
-        return readJacksonProperties(file, om);
-    }
-
-    private static Properties readJacksonProperties(File file, ObjectMapper om) throws IOException {
-        final JsonNode propsTree = om.readTree(file);
-        final JavaPropsMapper mapper = new JavaPropsMapper();
-        return mapper.writeValueAsProperties(propsTree);
-    }
-
-    private static void cryptProperties(Key key, boolean encrypt, Set<String> sensitiveProperties, Properties props) throws EncryptionException, DecryptionException {
-        for (String propKey : sensitiveProperties) {
-            final String value = props.getProperty(propKey);
-            if (props.containsKey(propKey)) {
-                props.setProperty(propKey, crypt(key, value, encrypt));
             }
         }
     }

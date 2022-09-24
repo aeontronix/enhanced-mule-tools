@@ -5,16 +5,18 @@
 package com.aeontronix.enhancedmule.tools.cli.crypto;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.commons.exception.UnexpectedException;
+import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.commons.file.TempDir;
+import com.aeontronix.commons.properties.PropertiesUtils;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.DecryptionException;
+import com.aeontronix.kryptotek.EncryptionException;
 import com.aeontronix.kryptotek.Key;
 import com.aeontronix.kryptotek.key.DecryptionKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -47,29 +49,29 @@ class CryptoHelperTest {
 
     @Test
     public void testFindingSensitiveProperties() throws URISyntaxException, IOException {
-        final Set<String> sensitiveProperties = CryptoHelper.findSensitiveProperties(propertiesFile);
+        final Set<String> sensitiveProperties = CryptoHelper.findSecureProperties(propertiesFile);
         Assertions.assertEquals(new HashSet<>(Arrays.asList("foo.bla", "bla.ble", "foo.ra.xxx")), sensitiveProperties);
     }
 
-//    @Test
-//    public void testEncryptProperties() throws IOException, EncryptionException, DecryptionException {
-//        try (TempDir tempDir = new TempDir("tmp")) {
-//            FileUtils.copyDirectory(propertiesFile.getParentFile(), tempDir);
-//            CryptoHelper.encryptProperties(key, propertiesFile);
-//            validateEncryptedProperties(loadProperties("local.properties"));
-//            validateEncryptedProperties(loadProperties("env-dev.yaml"));
-//        }
-//    }
+    @Test
+    public void testEncryptProperties() throws IOException, EncryptionException, DecryptionException {
+        try (TempDir tempDir = new TempDir("tmp")) {
+            FileUtils.copy(propertiesFile.getParentFile(), tempDir);
+            CryptoHelper.encryptProperties(key, propertiesFile);
+            validateEncryptedProperties(loadProperties("local.properties"));
+            validateEncryptedProperties(loadProperties("env-dev.yaml"));
+        }
+    }
 
-    private void validateEncryptedProperties(Map<String, String> props) throws DecryptionException {
+    private void validateEncryptedProperties(Properties props) throws DecryptionException {
         assertProperty(props, "foo.bla", "hello", true);
         assertProperty(props, "bla.ble", "plane", true);
         assertProperty(props, "foo.ra.xxx", "bird", true);
         assertProperty(props, "foo.foo", "train", false);
     }
 
-    private void assertProperty(Map<String, String> props, String pkey, String expected, boolean encrypted) throws DecryptionException {
-        final String val = props.get(pkey);
+    private void assertProperty(Properties props, String pkey, String expected, boolean encrypted) throws DecryptionException {
+        final String val = props.getProperty(pkey);
         if (encrypted) {
             Assertions.assertTrue(val.startsWith("{{encrypted:"));
             Assertions.assertTrue(val.endsWith("}}"));
@@ -81,17 +83,8 @@ class CryptoHelperTest {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private Map<String, String> loadProperties(String ext) throws IOException {
+    private Properties loadProperties(String ext) throws IOException {
         final File file = new File(propertiesFile.getParentFile(), "properties-" + ext);
-        if (ext.endsWith(".properties")) {
-            final Properties properties = new Properties();
-            try (FileInputStream is = new FileInputStream(file)) {
-                properties.load(is);
-            }
-            return new HashMap<String, String>((Map) properties);
-        } else if (ext.endsWith(".yaml")) {
-//            new ObjectMapper(new YAMLFactory()).readTree()
-        }
-        throw new UnexpectedException("invalid ext:" + ext);
+        return PropertiesUtils.readProperties(file);
     }
 }
