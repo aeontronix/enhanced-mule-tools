@@ -1,7 +1,7 @@
 require "formula"
 
-class Emt < Formula
-  desc "Enhanced Mule Tools CLI"
+class EmtMilestone < Formula
+  desc "Enhanced Mule Tools CLI ( Milestone release )"
   homepage "https://www.enhanced-mule.com"
   url "https://repo1.maven.org/maven2/com/aeontronix/enhanced-mule/enhanced-mule-tools-cli/@version@/enhanced-mule-tools-cli-@version@-dist.tbz2"
   sha256 "@checksum@"
