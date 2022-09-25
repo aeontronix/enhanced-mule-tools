@@ -1,7 +1,7 @@
 variables:
   PUBLISH_HOMEBREW: "/aeontronix/enhancedmule.git"
   PUBLISH_HOMEBREW_FILE: "cli/target/enhanced-mule-tools-cli-@version@-dist.tbz2"
-  PUBLISH_HOMEBREW_FORMULA: "cli/src/main/assembly/emt.tap.rb"
+  PUBLISH_HOMEBREW_FORMULA: "cli/src/main/assembly/emt.tap"
   PUBLISH_HOMEBREW_FORMULA_NAME: "emt"
 
 include:
