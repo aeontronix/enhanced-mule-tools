@@ -7,19 +7,16 @@ package com.aeontronix.enhancedmule.tools.cli.config;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.config.Credential;
 import com.aeontronix.enhancedmule.config.CredentialType;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
-@Command(name = "creds", description = "Set credentials in selected profile")
-public class ConfigSetCredentials implements Callable<Integer> {
+@Command(name = "key", description = "Set encrypted key in active profile")
+public class ConfigSetKeyCmd implements Callable<Integer> {
     @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
     boolean usageHelpRequested;
     @ParentCommand

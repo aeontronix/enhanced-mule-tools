@@ -15,15 +15,17 @@ import picocli.CommandLine.ParentCommand;
 import java.io.File;
 import java.util.concurrent.Callable;
 
+import static picocli.CommandLine.Help.Visibility.ALWAYS;
+
 public abstract class AbstractCryptoCmd implements Callable<Integer> {
     @ParentCommand
-    private EMTCli cli;
+    protected EMTCli cli;
     @ArgGroup(exclusive = true, multiplicity = "0..1")
-    private EncryptCmd.KeyOptions keyOptions;
+    protected EncryptCmd.KeyOptions keyOptions;
     @Option(names = {"-v", "--value"}, description = "Text to encrypt", arity = "1")
-    private String value;
-    //    @Option(names = {"-p", "--path"}, description = "Property definition file path", defaultValue = "src/main/resources/properties.yaml", showDefaultValue = ALWAYS)
-    private File path;
+    protected String value;
+    @Option(names = {"-p", "--path"}, description = "Property definition file path", defaultValue = "src/main/resources/properties.yaml", showDefaultValue = ALWAYS)
+    protected File path;
 
     @Override
     public Integer call() throws Exception {
@@ -40,5 +42,4 @@ public abstract class AbstractCryptoCmd implements Callable<Integer> {
     }
 
     public abstract int run(Key key, String value) throws Exception;
-
 }

@@ -14,7 +14,11 @@ import java.io.File;
 public class DecryptCmd extends AbstractCryptoCmd {
     @Override
     public int run(Key key, String value) throws Exception {
-        System.out.println(CryptoHelper.decrypt(key, value));
+        if (value != null) {
+            System.out.println(CryptoHelper.decrypt(key, value));
+        } else {
+            CryptoHelper.encryptProperties(key, path);
+        }
         return 0;
     }
 

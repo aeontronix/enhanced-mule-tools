@@ -6,6 +6,7 @@
     </list>
     <writeAnnotations>
       <writeAnnotation name="org.apache.maven.plugins.annotations.Parameter" />
+      <writeAnnotation name="picocli.CommandLine.Option" />
     </writeAnnotations>
   </component>
   <component name="MavenProjectsManager">

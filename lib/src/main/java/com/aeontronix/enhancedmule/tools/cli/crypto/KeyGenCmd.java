@@ -6,10 +6,12 @@ package com.aeontronix.enhancedmule.tools.cli.crypto;
 
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.InvalidKeyEncodingException;
 import com.aeontronix.kryptotek.key.AESKeyLen;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -21,14 +23,22 @@ import static com.aeontronix.kryptotek.EncodedKey.Format.B64;
 
 @Command(name = "keygen", description = "Generate a property encryption key")
 public class KeyGenCmd implements Callable<Integer> {
+    @CommandLine.ParentCommand
+    private EMTCli cli;
     @Parameters(description = "File to write key to", arity = "0..1")
     private File file;
+    @CommandLine.Option(names = {"-s", "--save"}, description = "Save key to active profile", defaultValue = "false")
+    private boolean save;
 
     @Override
     public Integer call() throws Exception {
         final String key = genKey(file);
         if (key != null) {
             System.out.println(key);
+        }
+        if (save) {
+            cli.getProfile().setCryptoKey(key);
+            cli.saveConfig();
         }
         return 0;
     }

@@ -8,7 +8,7 @@ import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
-@Command(name = "config", subcommands = ConfigSetCredentials.class)
+@Command(name = "config", subcommands = ConfigSetCredentialsCmd.class)
 public class ConfigCmd {
     @ParentCommand
     private EMTCli cli;
