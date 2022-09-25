@@ -37,8 +37,8 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="enhanced-mule-tools" options="" />
       <module name="enhanced-mule-tools-cli" options="" />
-      <module name="enhanced-mule-tools-lib" options="-parameters" />
-      <module name="enhanced-mule-tools-maven-plugin" options="" />
+      <module name="enhanced-mule-tools-lib" options="" />
+      <module name="enhanced-mule-tools-maven-plugin" options="-parameters" />
     </option>
   </component>
 </project>
