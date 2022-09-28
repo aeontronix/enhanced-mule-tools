@@ -5,12 +5,11 @@
 package com.aeontronix.enhancedmule.tools.cli.config;
 
 import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.Credential;
-import com.aeontronix.enhancedmule.config.CredentialType;
+import com.aeontronix.enhancedmule.tools.cli.CredentialsArgs;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 import java.util.concurrent.Callable;
@@ -21,18 +20,14 @@ public class ConfigSetCredentialsCmd implements Callable<Integer> {
     boolean usageHelpRequested;
     @ParentCommand
     private ConfigCmd configCmd;
-    @Parameters(arity = "1", index = "0", description = "Credential type (PASSWORD, ACCESS or REFRESH)")
-    private CredentialType type;
-    @Parameters(arity = "1", index = "1", description = "Credential id")
-    private String credentialId;
-    @Parameters(arity = "1", index = "2", description = "Credential secret")
-    private String credentialSecret;
+    @ArgGroup(exclusive = false, multiplicity = "0..1")
+    private CredentialsArgs credentials;
 
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = configCmd.getCli();
         final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
-        profile.setCredential(new Credential(credentialId, credentialSecret, type));
+        profile.setCredentials(credentials.getCredentials());
         cli.saveConfig();
         return null;
     }

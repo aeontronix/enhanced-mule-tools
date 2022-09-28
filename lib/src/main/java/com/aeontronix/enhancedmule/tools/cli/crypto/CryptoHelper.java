@@ -27,6 +27,7 @@ import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -137,6 +138,7 @@ public class CryptoHelper {
 
     private static void cryptProperties(Key key, File propertiesFile, boolean encrypt) throws IOException, EncryptionException, DecryptionException {
         final Set<String> secureProperties = findSecureProperties(propertiesFile);
+        logger.info("Secure properties: " + String.join(", ", secureProperties));
         if (!secureProperties.isEmpty()) {
             String basePath = propertiesFile.getName();
             final String lc = basePath.toLowerCase();
@@ -147,16 +149,20 @@ public class CryptoHelper {
             } else {
                 throw new IllegalArgumentException("Invalid descriptor file path, must end in .json, .yaml or .yml");
             }
-            final String pattern = "^" + basePath + "-(local|env-.+|envtype-.+).(properties|yaml|yml|json)";
+            final String pattern = "^" + basePath + "-(local|env-.+|envtype-.+)\\.(properties|yaml|yml|json)";
             final File[] files = propertiesFile.getParentFile().listFiles((dir, name) -> name.toLowerCase().matches(pattern));
             if (files != null) {
+                logger.info("Property files: " + Arrays.stream(files).map(File::getName).collect(Collectors.joining(", ")));
                 for (File file : files) {
                     final Properties properties = PropertiesUtils.readProperties(file);
                     for (String sKey : secureProperties) {
                         final String value = properties.getProperty(sKey);
                         if (StringUtils.isNotBlank(value)) {
-                            if (value.startsWith("{{") && value.endsWith("}}")) {
+                            final boolean expression = value.startsWith("{{") && value.endsWith("}}");
+                            if (encrypt && expression) {
                                 logger.debug("Skipping property {} since it's using an expression", sKey);
+                            } else if (!encrypt && !expression) {
+                                logger.debug("Skipping property {} since it's not encrypted", sKey);
                             } else {
                                 properties.setProperty(sKey, encrypt ? encrypt(key, value, false) : decrypt(key, value));
                             }

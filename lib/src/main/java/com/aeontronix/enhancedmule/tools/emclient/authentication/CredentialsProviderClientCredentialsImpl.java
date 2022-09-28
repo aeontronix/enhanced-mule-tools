@@ -10,11 +10,11 @@ import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 
 import java.io.IOException;
 
-public class CredentialsProviderAccessTokenImpl implements AnypointBearerTokenCredentialsProvider {
+public class CredentialsProviderClientCredentialsImpl implements AnypointBearerTokenCredentialsProvider {
     private String tokenId;
     private String tokenSecret;
 
-    public CredentialsProviderAccessTokenImpl(String tokenId, String tokenSecret) {
+    public CredentialsProviderClientCredentialsImpl(String tokenId, String tokenSecret) {
         this.tokenId = tokenId;
         this.tokenSecret = tokenSecret;
     }

@@ -4,18 +4,21 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.enhancedmule.config.*;
+import com.aeontronix.enhancedmule.config.ConfigCredentials;
+import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.EMConfig;
+import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
+import com.aeontronix.enhancedmule.tools.cli.crypto.DecryptCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.EncryptCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.KeyGenCmd;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
-import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAccessTokenImpl;
-import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReader;
@@ -27,7 +30,7 @@ import java.io.IOException;
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
-@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class},
+@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class, DecryptCmd.class},
         versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
@@ -36,12 +39,13 @@ public class EMTCli {
     private String profileName;
     private File workDir = new File(".");
     private LineReader reader;
-    @ArgGroup(exclusive = false)
+    @ArgGroup(exclusive = false, multiplicity = "0..1")
     private CredentialsArgs credentialsArgs;
     private EMConfig config;
 
     public EMTCli() throws IOException, ProfileNotFoundException {
         config = EMConfig.findConfigFile();
+        config.checkProfileExists(profileName);
         config.setActive(profileName);
     }
 
@@ -113,24 +117,16 @@ public class EMTCli {
     }
 
     public EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
-        Credential credential;
-        if (credentialsArgs != null) {
-            if (credentialsArgs.type == CredentialType.REFRESH) {
-                throw new IllegalArgumentException("Refresh credentials can only be used in configuration profile");
-            }
-            credential = new Credential(credentialsArgs.id, credentialsArgs.secret, credentialsArgs.type);
-        } else {
-            credential = getProfile(organizationName, environmentName).getCredential();
+        ConfigCredentials credentials;
+        credentials = credentialsArgs != null ? credentialsArgs.getCredentials() : null;
+        if (credentials == null) {
+            credentials = getProfile(organizationName, environmentName).getCredentials();
         }
-        if (credential == null) {
+        if (credentials == null) {
             throw new IllegalArgumentException("No credentials available");
         }
         final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getProfile());
-        if (credential.getType() == CredentialType.PASSWORD) {
-            enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAnypointUsernamePasswordImpl(credential.getId(), credential.getSecret()));
-        } else if (credential.getType() == CredentialType.ACCESS) {
-            enhancedMuleClient.setCredentialsLoader(new CredentialsProviderAccessTokenImpl(credential.getId(), credential.getSecret()));
-        }
+        enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
         return enhancedMuleClient;
     }
 
@@ -145,12 +141,4 @@ public class EMTCli {
         }
     }
 
-    static class CredentialsArgs {
-        @Option(names = {"--ci", "--credential-id"}, description = "Credential Identifier")
-        private String id;
-        @Option(names = {"--cs", "--credential-secret"}, description = "Credential Secret")
-        private String secret;
-        @Option(names = {"--ct", "--credential-type"}, description = "Credential Secret")
-        private CredentialType type;
-    }
 }

@@ -17,7 +17,7 @@ public class DecryptCmd extends AbstractCryptoCmd {
         if (value != null) {
             System.out.println(CryptoHelper.decrypt(key, value));
         } else {
-            CryptoHelper.encryptProperties(key, path);
+            CryptoHelper.decryptProperties(key, path);
         }
         return 0;
     }

@@ -27,6 +27,7 @@ public class ActiveProfileCmd implements Callable<Integer> {
     public Integer call() throws Exception {
         final EMConfig config = cli.getConfig();
         if( profile != null ) {
+            config.checkProfileExists(profile);
             config.setActive(profile);
         }
         System.out.println(Ansi.ansi().a("Active profile: "+config.getActive()));

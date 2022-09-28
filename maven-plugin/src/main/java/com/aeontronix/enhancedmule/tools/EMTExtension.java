@@ -6,11 +6,10 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.ReflectionUtils;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.Credential;
-import com.aeontronix.enhancedmule.config.CredentialType;
 import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
+import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
@@ -67,6 +66,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         try {
             if (emClient == null) {
                 emConfig = EMConfig.findConfigFile();
+                emConfig.checkProfileExists(profile);
                 emConfig.setActive(profile);
                 configProfile = emConfig.getProfile(null, org, groupId);
                 emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile);
@@ -86,20 +86,10 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                     credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
                 } else if (isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret)) {
                     logger.info("Using Access Token");
-                    credentialsProvider = new CredentialsProviderAccessTokenImpl(emAccessTokenId, emAccessTokenSecret);
+                    credentialsProvider = new CredentialsProviderClientCredentialsImpl(emAccessTokenId, emAccessTokenSecret);
                 } else {
-                    if (configProfile != null && configProfile.getCredential() != null) {
-                        final Credential credential = configProfile.getCredential();
-                        final String accessKeyId = credential.getId();
-                        final String accessKeySecret = credential.getSecret();
-                        if (isNotBlank(accessKeyId) && isNotBlank(accessKeySecret)) {
-                            logger.info("Using credentials from configuration file: {}", accessKeyId);
-                            if (credential.getType() == CredentialType.PASSWORD) {
-                                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(accessKeyId, accessKeySecret);
-                            } else {
-                                credentialsProvider = new CredentialsProviderAccessTokenImpl(accessKeyId, accessKeySecret);
-                            }
-                        }
+                    if (configProfile != null && configProfile.getCredentials() != null) {
+                        credentialsProvider = CredentialsConverter.convert(configProfile.getCredentials());
                     }
                     if (credentialsProvider == null) {
                         logger.info("No EMT credentials available");
