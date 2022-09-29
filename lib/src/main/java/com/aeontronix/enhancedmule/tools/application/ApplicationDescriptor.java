@@ -6,7 +6,6 @@ package com.aeontronix.enhancedmule.tools.application;
 
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.ClientApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
 
 public class ApplicationDescriptor {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationDescriptor.class);
@@ -26,7 +24,6 @@ public class ApplicationDescriptor {
     private String version;
     private Boolean mule3;
     private APIDescriptor api;
-    private HashMap<String, PropertyDescriptor> properties;
     private ClientApplicationDescriptor client;
     private DeploymentParameters deploymentParams;
 
@@ -89,24 +86,6 @@ public class ApplicationDescriptor {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public synchronized HashMap<String, PropertyDescriptor> getProperties() {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        return properties;
-    }
-
-    public synchronized void setProperties(HashMap<String, PropertyDescriptor> properties) {
-        this.properties = properties;
-    }
-
-    public void addProperty(String key, boolean secure) {
-        if (properties == null) {
-            properties = new HashMap<>();
-        }
-        properties.put(key, new PropertyDescriptor(key, key, secure));
     }
 
     public ClientApplicationDescriptor getClient() {
