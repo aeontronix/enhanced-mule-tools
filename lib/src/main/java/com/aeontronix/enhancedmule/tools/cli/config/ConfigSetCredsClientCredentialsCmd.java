@@ -20,7 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ConfigSetCredsClientCredentialsCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ConfigSetCredsClientCredentialsCmd.class);
     @ParentCommand
-    private ConfigSetCredsCmd parent;
+    private ConfigCmd parent;
     @Parameters(description = "Client id", arity = "1")
     private String clientId;
     @Parameters(description = "Client secret", arity = "1")

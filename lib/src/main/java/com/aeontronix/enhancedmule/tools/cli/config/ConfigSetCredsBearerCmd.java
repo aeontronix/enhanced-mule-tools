@@ -20,7 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ConfigSetCredsBearerCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ConfigSetCredsBearerCmd.class);
     @ParentCommand
-    private ConfigSetCredsCmd parent;
+    private ConfigCmd parent;
     @CommandLine.Parameters(description = "Bearer token", arity = "1")
     String bearer;
 
