@@ -5,30 +5,31 @@
 package com.aeontronix.enhancedmule.tools.cli.config;
 
 import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.tools.cli.CredentialsArgs;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
-import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
+import org.slf4j.Logger;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 
 import java.util.concurrent.Callable;
 
-@Command(name = "creds", description = "Set credentials in selected profile")
-public class ConfigSetCredentialsCmd implements Callable<Integer> {
-    @CommandLine.Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
+import static org.slf4j.LoggerFactory.getLogger;
+
+@Command(name = "env", description = "Set default environment in configuration")
+public class ConfigSetEnvCmd implements Callable<Integer> {
+    private static final Logger logger = getLogger(ConfigSetEnvCmd.class);
     @ParentCommand
     private ConfigCmd configCmd;
-    @ArgGroup(exclusive = false, multiplicity = "0..1")
-    private CredentialsArgs credentials;
+    @Parameters(description = "Default environment name or id", arity = "1")
+    private String env;
 
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = configCmd.getCli();
         final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
-        profile.setCredentials(credentials.getCredentials());
+        profile.setDefaultEnv(env);
         cli.saveConfig();
-        return null;
+        logger.info("Default environment set to " + env);
+        return 0;
     }
 }
