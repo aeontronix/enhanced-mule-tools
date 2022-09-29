@@ -8,7 +8,6 @@ import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.PropertyDescriptor;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.SourceFile;
 import com.aeontronix.unpack.UnpackException;
@@ -25,8 +24,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -96,17 +93,17 @@ public class ApplicationEnhancer {
                 if (!contains(configs, ENHANCED_MULE_TOOLS_FLOW_XML)) {
                     configs.add(ENHANCED_MULE_TOOLS_FLOW_XML);
                 }
-                final ArrayNode secureProperties = getOrCreateArray(root, "secureProperties");
-                HashMap<String, PropertyDescriptor> propDesc = applicationDescriptor.getProperties();
-                if (propDesc != null) {
-                    for (Map.Entry<String, PropertyDescriptor> prop : propDesc.entrySet()) {
-                        if (prop.getValue().isSecure()) {
-                            if (!contains(secureProperties, prop.getKey())) {
-                                secureProperties.add(prop.getKey());
-                            }
-                        }
-                    }
-                }
+//                final ArrayNode secureProperties = getOrCreateArray(root, "secureProperties");
+//                HashMap<String, PropertyDescriptor> propDesc = applicationDescriptor.getProperties();
+//                if (propDesc != null) {
+//                    for (Map.Entry<String, PropertyDescriptor> prop : propDesc.entrySet()) {
+//                        if (prop.getValue().isSecure()) {
+//                            if (!contains(secureProperties, prop.getKey())) {
+//                                secureProperties.add(prop.getKey());
+//                            }
+//                        }
+//                    }
+//                }
                 return root;
             }
         });
