@@ -114,7 +114,7 @@ public class ApplicationDescriptorLegacyProcessor implements ApplicationDescript
                 api.setApiIdProperty("anypoint.api.id");
             }
             final String apiIdProperty = api.getApiIdProperty();
-            final HashMap<String, PropertyDescriptor> properties = applicationDescriptor.getProperties();
+            final HashMap<String, PropertyDescriptor> properties = new HashMap<>();
             getOrCreateProperty(properties, apiIdProperty, "Anypoint API identifier", false);
             getOrCreateProperty(properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
             getOrCreateProperty(properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
@@ -181,16 +181,16 @@ public class ApplicationDescriptorLegacyProcessor implements ApplicationDescript
         }
         final ClientApplicationDescriptor client = applicationDescriptor.getClient();
         if( client != null ) {
-            if( client.getClientIdProperty() == null ) {
+            if (client.getClientIdProperty() == null) {
                 client.setClientIdProperty("anypoint.api.client.id");
             }
-            if( client.getClientSecretProperty() == null ) {
+            if (client.getClientSecretProperty() == null) {
                 client.setClientSecretProperty("anypoint.api.client.secret");
             }
-            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
-            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
-            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientIdProperty(), "API Client Id", false);
-            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientSecretProperty(), "API Client Secret", true);
+//            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
+//            getOrCreateProperty(applicationDescriptor.getProperties(), DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
+//            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientIdProperty(), "API Client Id", false);
+//            getOrCreateProperty(applicationDescriptor.getProperties(), client.getClientSecretProperty(), "API Client Secret", true);
         }
     }
 

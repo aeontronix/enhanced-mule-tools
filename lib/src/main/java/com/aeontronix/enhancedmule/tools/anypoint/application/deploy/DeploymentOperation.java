@@ -19,7 +19,6 @@ import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningResult;
 import com.aeontronix.enhancedmule.tools.application.api.ClientApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.PropertyDescriptor;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ExchangeApplicationSource;
@@ -122,15 +121,15 @@ public abstract class DeploymentOperation {
                     deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
                 }
             }
-            if (deploymentRequest.isFilePropertiesSecure() && applicationDescriptor != null &&
-                    applicationDescriptor.getProperties() != null) {
-                for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
-                    if (propertyDescriptor.isSecure()) {
-                        String pVal = deploymentRequest.getProperties().remove(propertyDescriptor.getKey());
-                        deploymentRequest.addFileProperty(propertyDescriptor.getKey(), pVal);
-                    }
-                }
-            }
+//            if (deploymentRequest.isFilePropertiesSecure() && applicationDescriptor != null &&
+//                    applicationDescriptor.getProperties() != null) {
+//                for (PropertyDescriptor propertyDescriptor : applicationDescriptor.getProperties().values()) {
+//                    if (propertyDescriptor.isSecure()) {
+//                        String pVal = deploymentRequest.getProperties().remove(propertyDescriptor.getKey());
+//                        deploymentRequest.addFileProperty(propertyDescriptor.getKey(), pVal);
+//                    }
+//                }
+//            }
             final Map<String, String> fileProperties = deploymentRequest.getFileProperties();
             if (fileProperties != null && !fileProperties.isEmpty()) {
                 if (logger.isDebugEnabled()) {
