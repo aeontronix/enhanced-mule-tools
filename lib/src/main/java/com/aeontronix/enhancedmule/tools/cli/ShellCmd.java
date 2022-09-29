@@ -1,15 +1,12 @@
 package com.aeontronix.enhancedmule.tools.cli;
 
 import com.aeontronix.enhancedmule.tools.util.MavenExecutor;
-import org.jline.console.CmdDesc;
-import org.jline.console.CommandRegistry;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.impl.completer.SystemCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.TailTipWidgets;
@@ -19,7 +16,6 @@ import picocli.shell.jline3.PicocliCommands;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -51,7 +47,6 @@ public class ShellCmd implements Callable<Integer> {
             cmd.setCaseInsensitiveEnumValuesAllowed(true);
             cmd.setOptionsCaseInsensitive(true);
             cmd.setPosixClusteredShortOptionsAllowed(false);
-            cmd.addSubcommand(new ActiveProfileCmd(commands));
             PicocliCommands picocliCommands = new PicocliCommands(cmd);
 
             Parser parser = new DefaultParser();

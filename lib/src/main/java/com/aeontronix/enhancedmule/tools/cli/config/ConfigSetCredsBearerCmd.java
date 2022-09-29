@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Command(name = "upw", description = "Set username/password authentication in configuration")
+@Command(name = "bearer", description = "Set username/password authentication in configuration")
 public class ConfigSetCredsBearerCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ConfigSetCredsBearerCmd.class);
     @ParentCommand

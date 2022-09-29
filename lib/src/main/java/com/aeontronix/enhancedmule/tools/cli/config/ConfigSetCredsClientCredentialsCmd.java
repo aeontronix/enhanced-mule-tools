@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Command(name = "cc", description = "Set connected apps client credentials authentication in configuration")
+@Command(name = "clientcreds", description = "Set connected apps client credentials authentication in configuration")
 public class ConfigSetCredsClientCredentialsCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ConfigSetCredsClientCredentialsCmd.class);
     @ParentCommand
