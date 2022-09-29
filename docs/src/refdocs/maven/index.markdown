@@ -16,10 +16,10 @@ For any goal marked as 'authenticated' below, you will need to specify one of th
 
 If you have an user with username/password credentials (so NOT a Single Sign On user), you can just specify the following properties:
 
-| Name | Property | Description |
-|------|----------|-------------|
-| username | anypoint.username | Anypoint Username
-| password | anypoint.password | Anypoint Password
+| Name     | Property          | Description       |
+|----------|-------------------|-------------------|
+| username | anypoint.username | Anypoint Username |
+| password | anypoint.password | Anypoint Password |
 
 ## 1.2. Connected Apps
 
@@ -28,10 +28,10 @@ You can also use a "connected apps" client id/secret (grant type must be `client
 **IMPORTANT: At the time of this documentation being updated, there was a bug with connected apps client credential,
 which causes client application create impossible**
 
-| Name | Property | Description |
-|------|----------|-------------|
-| clientId | anypoint.client.id | Anypoint authentication client id
-| clientSecret | anypoint.client.secret | Anypoint authentication client secret
+| Name         | Property               | Description                           |
+|--------------|------------------------|---------------------------------------|
+| clientId     | anypoint.client.id     | Anypoint authentication client id     |
+| clientSecret | anypoint.client.secret | Anypoint authentication client secret |
 
 ## 1.3. Bearer Token
 
@@ -45,11 +45,11 @@ Alternatively you can obtain a user's authentication bearer token and pass it us
 
 The maven plugin supports the following goals:
 
-| Name   | Description | Authenticated | Default Phase | 
-|--------|-------------|---------------|---------------|
-| [process-descriptor](#process-descriptor) | Process an application's anypoint descriptor and include in project | No | generate-resources
-| [provision](#provision) | Provision anypoint | Yes | install
-| [deploy](#deploy) | Deploy an a mule application through Anypoint Runtime Manager | Yes | deploy
+| Name                                      | Description                                                         | Authenticated | Default Phase      | 
+|-------------------------------------------|---------------------------------------------------------------------|---------------|--------------------|
+| [process-descriptor](#process-descriptor) | Process an application's anypoint descriptor and include in project | No            | generate-resources |
+| [provision](#provision)                   | Provision anypoint                                                  | Yes           | install            |
+| [deploy](#deploy)                         | Deploy an a mule application through Anypoint Runtime Manager       | Yes           | deploy             |
 
 ## <a name="process-descriptor"></a>2.1. process-descriptor
 
@@ -57,11 +57,11 @@ You **MUST** run this goal when building your mule application. This will read a
 and generate a new anypoint.json file that is added to your project's generated resources folder, as well as attached as
 an maven artifact with a classifier `anypoint-descriptor`.
 
-| Name | Property | Required | Default | Description |
-|------|----------|----------|---------|----|
-| descriptor | anypoint.descriptor | | No | Descriptor file path
-| mulePluginCompatibility | muleplugin.compat | | false | Must be set to true to use standard mule plugin to deploy
-| attachDescriptor | anypoint.descriptor.attach | true | No | Attaches the descriptor to the maven project (don't change this unless you're using provisioning goal or have a really good reason to do so) 
+| Name                    | Property                   | Required | Default | Description                                                                                                                                  |
+|-------------------------|----------------------------|----------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| descriptor              | anypoint.descriptor        |          | No      | Descriptor file path                                                                                                                         |
+| mulePluginCompatibility | muleplugin.compat          |          | false   | Must be set to true to use standard mule plugin to deploy                                                                                    |
+| attachDescriptor        | anypoint.descriptor.attach | true     | No      | Attaches the descriptor to the maven project (don't change this unless you're using provisioning goal or have a really good reason to do so) |
 
 ## <a name="deploy"></a>2.2. deploy
 
@@ -72,24 +72,24 @@ The `deploy` goal of the maven plugin supports the following parameters for both
 - Description: Description of the parameter
 - Required: If the parameter is required
 
-| Name | Property | Required |  Description |
-|------|----------|----------|--------------|
-| org | anypoint.org | Yes | Organization Name
-| env | anypoint.env | Yes | Environment Name
-| skipApiProvisioning | anypoint.api.provisioning.skip | No | If set to `true`, automatic API Manager provisioning will be skipped
-| skipDeploy | anypoint.deploy.skip | No |If set to `true`, the deployment will be skipped
-| filename | anypoint.deploy.filename | No | Filename (if not specified the file's name will be used)
-| appName | anypoint.deploy.name | No | Application name ( default: `${artifactId}-${anypoint.env}` )
-| force | anypoint.deploy.force | No | If true, will force deployment even if same already application was already deployed.
-| skipWait | anypoint.deploy.skipwait | No | If true will skip wait for application to start
-| deployTimeout | anypoint.deploy.timeout | No | Deployment timeout in milliseconds ( defaults to 10 min)
-| deployRetryDelay | anypoint.deploy.retrydelay | No | Delay (in milliseconds) in retrying a deployment ( defaults to 2.5 seconds )
-| properties | anypoint.deploy.properties.*[propertyname]* | No | Application Properties that will be set in Runtime Manager (note this must be in the form of a [maven properties](https://maven.apache.org/pom.html#Properties) ) 
-| propertyfile | anypoint.deploy.propertyfile | No | Application Properties stored in a property file, that will be set in Runtime Manager
-| fileProperties | | No | Properties that will be injected in a property file in the project's archive at deploy time (rather than in Runtime Manager)
-| filePropertiesPath | | No | Path of the property file (inside the application jar) for properties set in `fileProperties`
-| filePropertiesSecure | | No | If set to true, all secure properties will be moved into `fileProperties` rather than `properties`
-| vars | | No | Variables for anypoint.json templating
+| Name                 | Property                                    | Required | Description                                                                                                                                                       |
+|----------------------|---------------------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| org                  | anypoint.org                                | Yes      | Organization Name                                                                                                                                                 |
+| env                  | anypoint.env                                | Yes      | Environment Name                                                                                                                                                  |
+| skipApiProvisioning  | anypoint.api.provisioning.skip              | No       | If set to `true`, automatic API Manager provisioning will be skipped                                                                                              |
+| skipDeploy           | anypoint.deploy.skip                        | No       | If set to `true`, the deployment will be skipped                                                                                                                  |
+| filename             | anypoint.deploy.filename                    | No       | Filename (if not specified the file's name will be used)                                                                                                          |
+| appName              | anypoint.deploy.name                        | No       | Application name ( default: `${artifactId}-${anypoint.env}` )                                                                                                     |
+| force                | anypoint.deploy.force                       | No       | If true, will force deployment even if same already application was already deployed.                                                                             |
+| skipWait             | anypoint.deploy.skipwait                    | No       | If true will skip wait for application to start                                                                                                                   |
+| deployTimeout        | anypoint.deploy.timeout                     | No       | Deployment timeout in milliseconds ( defaults to 10 min)                                                                                                          |
+| deployRetryDelay     | anypoint.deploy.retrydelay                  | No       | Delay (in milliseconds) in retrying a deployment ( defaults to 2.5 seconds )                                                                                      |
+| properties           | anypoint.deploy.properties.*[propertyname]* | No       | Application Properties that will be set in Runtime Manager (note this must be in the form of a [maven properties](https://maven.apache.org/pom.html#Properties) ) |
+| propertyfile         | anypoint.deploy.propertyfile                | No       | Application Properties stored in a property file, that will be set in Runtime Manager                                                                             |
+| fileProperties       |                                             | No       | Properties that will be injected in a property file in the project's archive at deploy time (rather than in Runtime Manager)                                      |
+| filePropertiesPath   |                                             | No       | Path of the property file (inside the application jar) for properties set in `fileProperties`                                                                     |
+| filePropertiesSecure |                                             | No       | If set to true, all secure properties will be moved into `fileProperties` rather than `properties`                                                                |
+| vars                 |                                             | No       | Variables for anypoint.json templating                                                                                                                            |
 
 When running standalone, the following parameters are also supported
 
