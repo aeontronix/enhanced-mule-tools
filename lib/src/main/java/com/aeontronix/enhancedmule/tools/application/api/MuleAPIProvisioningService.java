@@ -12,9 +12,9 @@ import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.APISpec;
 import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import org.fusesource.jansi.Ansi;
@@ -22,7 +22,9 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -81,23 +83,28 @@ public class MuleAPIProvisioningService {
                     plogger.info(EMTLogger.Product.API_MANAGER, "Created api {}", api.getAssetId(), assetVersion);
                 }
             }
-            if (apiDescriptor.getPolicies() != null) {
-                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}", api.getAssetId());
+            final List<PolicyDescriptor> policies = apiDescriptor.getPolicies();
+            if (policies != null && !policies.isEmpty()) {
+                plogger.info(EMTLogger.Product.API_MANAGER, "Setting policies for {}: {}", api.getAssetId(), policies.stream().map(PolicyDescriptor::getAssetId).collect(Collectors.joining(", ")));
                 api.deletePolicies();
-                for (PolicyDescriptor policyDescriptor : apiDescriptor.getPolicies()) {
+                for (PolicyDescriptor policyDescriptor : policies) {
+                    logger.info("Creating policy {}:{}:{}", policyDescriptor.getGroupId(), policyDescriptor.getAssetId(), policyDescriptor.getAssetVersion());
                     api.createPolicy(policyDescriptor);
                 }
             }
-            if (apiDescriptor.getSlaTiers() != null) {
+            final List<SLATierDescriptor> slaTiers = apiDescriptor.getSlaTiers();
+            if (slaTiers != null && !slaTiers.isEmpty()) {
                 plogger.info(EMTLogger.Product.API_MANAGER, "Setting SLA Tiers for {}", api.getAssetId());
-                for (SLATierDescriptor slaTierDescriptor : apiDescriptor.getSlaTiers()) {
+                for (SLATierDescriptor slaTierDescriptor : slaTiers) {
                     try {
                         SLATier slaTier = api.findSLATier(slaTierDescriptor.getName());
                         slaTier.setAutoApprove(slaTierDescriptor.isAutoApprove());
                         slaTier.setDescription(slaTierDescriptor.getDescription());
                         slaTier.setLimits(slaTierDescriptor.getLimits());
+                        plogger.info(EMTLogger.Product.API_MANAGER, "Updating SLA Tiers {}", slaTierDescriptor.getName());
                         slaTier = slaTier.update();
                     } catch (NotFoundException e) {
+                        plogger.info(EMTLogger.Product.API_MANAGER, "Creating SLA Tiers {}", slaTierDescriptor.getName());
                         api.createSLATier(slaTierDescriptor.getName(), slaTierDescriptor.getDescription(), slaTierDescriptor.isAutoApprove(), slaTierDescriptor.getLimits());
                     }
                 }

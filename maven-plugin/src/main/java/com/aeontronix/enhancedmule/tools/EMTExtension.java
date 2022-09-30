@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
@@ -115,7 +116,11 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             emClient.getAnypointClient().getUser();
             addRepositoriesAuthentication(session);
         } catch (Throwable e) {
-            logger.warn("Unable to setup extension emclient", e);
+            if (e instanceof HttpException && ((HttpException) e).getStatusCode() == 401) {
+                logger.warn("Anypoint authentication failed", e);
+            } else {
+                logger.warn("Unable to setup extension emclient", e);
+            }
         }
         super.afterProjectsRead(session);
     }

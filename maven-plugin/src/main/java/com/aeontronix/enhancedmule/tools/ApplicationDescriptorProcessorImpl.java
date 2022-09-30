@@ -93,6 +93,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             descriptorFile = ApplicationDescriptor.findAnypointFile(project.getBasedir());
         }
         if (descriptorFile == null) {
+            logger.warn("No anypoint.json file found, using defaults");
             applicationDescriptor = objectMapper.createObjectNode();
         } else {
             applicationDescriptor = readFile(descriptorFile);
