@@ -11,11 +11,11 @@ import com.aeontronix.enhancedmule.config.CredentialsUsernamePasswordImpl;
 import picocli.CommandLine;
 
 public class CredentialsArgs {
-    @CommandLine.Option(names = {"-upw", "--username-password"}, description = "Username / Password credentials", arity = "2")
+    @CommandLine.Option(names = {"-upw", "--username-password"}, description = "Username / Password credentials (first parameter is username, second is password)", arity = "2")
     public String[] upw;
     @CommandLine.Option(names = {"-bt", "--bearer"}, description = "Bearer token credentials")
     public String bearer;
-    @CommandLine.Option(names = {"-cc", "--credential-credentials"}, description = "Credential Credentials", arity = "2")
+    @CommandLine.Option(names = {"-cc", "--credential-credentials"}, description = "Credential Credentials  (first parameter is client id, second is client password)", arity = "2")
     public String[] clientCreds;
 
     public ConfigCredentials getCredentials() {
