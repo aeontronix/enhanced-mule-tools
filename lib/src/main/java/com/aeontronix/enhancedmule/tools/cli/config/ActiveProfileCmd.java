@@ -36,9 +36,11 @@ public class ActiveProfileCmd implements Callable<Integer> {
                 config.checkProfileExists(profile);
             }
             config.setActive(profile);
+            config.getOrCreateProfile(profile);
             config.save();
         }
-        System.out.println(Ansi.ansi().a("Active profile: "+config.getActive()));
+        System.out.println(Ansi.ansi().a("Active profile: " + config.getActive()));
+        System.out.println("Available profiles: " + String.join(", ", config.getProfiles().keySet()));
         return 0;
     }
 }
