@@ -37,6 +37,8 @@ import static picocli.CommandLine.Option;
 public class EMTCli {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
+    @Option(names = {"-d", "--debug"}, description = "Enable debug")
+    private boolean debug;
     @Option(names = "-p", description = "Profile")
     private String profileName;
     private File workDir = new File(".");
@@ -49,6 +51,10 @@ public class EMTCli {
         config = EMConfig.findConfigFile();
         config.checkProfileExists(profileName);
         config.setActive(profileName);
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 
     public EMConfig getConfig() {

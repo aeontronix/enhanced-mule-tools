@@ -20,7 +20,7 @@
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-validation:2.0.0-beta8" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-properties:2.0.0-beta8" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-swing:2.0.0-beta5" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-client-config:1.0.0-beta5" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-client-config:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.intellij:annotations:12.0" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:2.0.1.Final" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.restclient:aeon-rest-client:1.0.0-beta11" level="project" />
