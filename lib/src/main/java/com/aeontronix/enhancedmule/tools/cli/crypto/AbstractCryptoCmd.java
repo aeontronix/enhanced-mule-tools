@@ -32,7 +32,7 @@ public abstract class AbstractCryptoCmd implements Callable<Integer> {
         if (keyOptions == null) {
             keyOptions = new EncryptCmd.KeyOptions();
         }
-        final String cryptoKey = CryptoHelper.findCryptoKey(keyOptions.key, keyOptions.keyFile, cli.getProfile());
+        final String cryptoKey = CryptoHelper.findCryptoKey(keyOptions.key, keyOptions.keyFile, cli.getActiveProfile());
         if (StringUtils.isBlank(cryptoKey)) {
             throw new IllegalArgumentException("No cryptography key found in profile or parameters");
         }

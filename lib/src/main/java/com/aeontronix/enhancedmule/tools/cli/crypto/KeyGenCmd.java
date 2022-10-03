@@ -37,7 +37,7 @@ public class KeyGenCmd implements Callable<Integer> {
             System.out.println(key);
         }
         if (save) {
-            cli.getProfile().setCryptoKey(key);
+            cli.getActiveProfile().setCryptoKey(key);
             cli.saveConfig();
         }
         return 0;

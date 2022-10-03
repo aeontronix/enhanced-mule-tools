@@ -27,7 +27,7 @@ public class ConfigSetCredsBearerCmd implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = parent.getCli();
-        final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
+        final ConfigProfile profile = cli.getActiveProfile();
         profile.setCredentials(new CredentialsBearerTokenImpl(bearer));
         cli.saveConfig();
         logger.info("Credentials updated");

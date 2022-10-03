@@ -33,7 +33,7 @@
     <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.31" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-swing:2.0.0-beta5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.4" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-client-config:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.aeontronix.enhanced-mule:enhanced-mule-client-config:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.intellij:annotations:12.0" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:2.0.1.Final" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.restclient:aeon-rest-client:1.0.0-beta11" level="project" />

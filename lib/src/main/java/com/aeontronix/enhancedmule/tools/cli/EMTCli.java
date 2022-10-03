@@ -46,11 +46,15 @@ public class EMTCli {
     @ArgGroup(exclusive = false, multiplicity = "0..1")
     private CredentialsArgs credentialsArgs;
     private EMConfig config;
+    private ConfigProfile activeProfile;
 
     public EMTCli() throws IOException, ProfileNotFoundException {
         config = EMConfig.findConfigFile();
-        config.checkProfileExists(profileName);
-        config.setActive(profileName);
+        if (profileName != null) {
+            activeProfile = config.getProfileByProfileName(profileName);
+        } else {
+            activeProfile = config.getProfile(null, null, null);
+        }
     }
 
     public boolean isDebug() {
@@ -81,21 +85,9 @@ public class EMTCli {
         this.reader = reader;
     }
 
-    public String getProfileName() {
-        return profileName != null ? profileName : "default";
-    }
-
-    public void setProfileName(String profileName) {
-        this.profileName = profileName;
-    }
-
     @NotNull
-    public ConfigProfile getProfile() throws IOException, ProfileNotFoundException {
-        return getProfile(null, null);
-    }
-
-    public ConfigProfile getProfile(String org, String groupId) throws IOException, ProfileNotFoundException {
-        return config.getProfile(null, org, groupId);
+    public ConfigProfile getActiveProfile() throws IOException, ProfileNotFoundException {
+        return config.getActiveProfile();
     }
 
     public void saveConfig() throws IOException {
@@ -104,10 +96,10 @@ public class EMTCli {
 
     public Environment getEnvironment(String organizationName, String environmentName) throws IOException, ProfileNotFoundException, NotFoundException {
         if (organizationName == null) {
-            organizationName = getProfile().getDefaultOrg();
+            organizationName = getActiveProfile().getDefaultOrg();
         }
         if (environmentName == null) {
-            environmentName = getProfile().getDefaultEnv();
+            environmentName = getActiveProfile().getDefaultEnv();
         }
         if (organizationName == null) {
             throw new IllegalArgumentException("Organization not set and no default is assigned in profile");
@@ -128,12 +120,12 @@ public class EMTCli {
         ConfigCredentials credentials;
         credentials = credentialsArgs != null ? credentialsArgs.getCredentials() : null;
         if (credentials == null) {
-            credentials = getProfile(organizationName, environmentName).getCredentials();
+            credentials = getActiveProfile().getCredentials();
         }
         if (credentials == null) {
             throw new IllegalArgumentException("No credentials available");
         }
-        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getProfile());
+        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getActiveProfile());
         enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
         return enhancedMuleClient;
     }

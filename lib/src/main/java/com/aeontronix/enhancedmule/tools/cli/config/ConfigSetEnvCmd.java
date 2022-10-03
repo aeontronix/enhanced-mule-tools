@@ -26,7 +26,7 @@ public class ConfigSetEnvCmd implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = configCmd.getCli();
-        final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
+        final ConfigProfile profile = cli.getActiveProfile();
         profile.setDefaultEnv(env);
         cli.saveConfig();
         logger.info("Default environment set to " + env);

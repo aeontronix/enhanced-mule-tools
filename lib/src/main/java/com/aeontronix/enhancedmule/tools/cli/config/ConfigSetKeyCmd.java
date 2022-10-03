@@ -26,7 +26,7 @@ public class ConfigSetKeyCmd implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         final EMTCli cli = configCmd.getCli();
-        final ConfigProfile profile = cli.getConfig().getOrCreateProfile(cli.getProfileName());
+        final ConfigProfile profile = cli.getActiveProfile();
         profile.setCryptoKey(key);
         cli.saveConfig();
         logger.info("Encryption key updated");
