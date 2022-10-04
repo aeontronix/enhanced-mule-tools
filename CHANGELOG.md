@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.3.1)
+
+### Fixed
+
+- Bug when attempting to switch CLI profile back to default
+
 ## [1.3.0](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.3.0)
 
 ### Added
@@ -12,10 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support deploying from sources to RTF
 - Support for deployment configurations in anypoint.json
 - anypoint.json support for environment-specific overrides
+- Encryption support for Enhanced mule properties
 
 ### Fixed
 
 - Bug when string that supports variables ends in $
+
+### Changed
+
+- Overhauled CLI
 
 ## [1.2.7](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.2.7)
 

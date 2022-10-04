@@ -132,14 +132,14 @@ fabric.properties
 src/site/markdown/schema
 src/site/resources/schema
 
-docs/src.old/_site
-docs/src.old/.sass-cache
+docs.old/src.old/_site
+docs.old/src.old/.sass-cache
 .jekyll-cache
 .jekyll-metadata
-docs/vendor
+docs.old/vendor
 docs/schemas/*.md
-docs/public
+docs.old/public
 _tmp
-docs/src.old/anypoint.schema.markdown
-docs/enhanced-mule-tools
-docs/_staging/
+docs.old/src.old/anypoint.schema.markdown
+docs.old/enhanced-mule-tools
+docs.old/_staging/
