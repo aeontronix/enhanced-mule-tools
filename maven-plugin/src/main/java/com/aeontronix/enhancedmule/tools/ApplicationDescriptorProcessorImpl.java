@@ -409,7 +409,9 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         for (Dependency d : project.getDependencies()) {
             String classifier = d.getClassifier();
             if (classifier != null) {
-                if (classifier.equalsIgnoreCase("raml") || classifier.equalsIgnoreCase("oas")) {
+                if (classifier.equalsIgnoreCase("raml") ||
+                        classifier.equalsIgnoreCase("oas") ||
+                        classifier.equalsIgnoreCase("wsdl")) {
                     if (dependency != null) {
                         logger.warn("Found more than one raml/oas dependencies in pom, ignoring all");
                         return null;
