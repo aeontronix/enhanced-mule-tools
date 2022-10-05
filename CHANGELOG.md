@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Some edge case bugs around profile from config with maven plugin, and authentication
 - Bug when using prepare-publish to publish a connector
+- Error when publishing WSDL
 
 ## [1.3.1](https://gitlab.com/aeontronix/oss/enhanced-mule/enhanced-mule-tools/-/releases/v1.3.1)
 
