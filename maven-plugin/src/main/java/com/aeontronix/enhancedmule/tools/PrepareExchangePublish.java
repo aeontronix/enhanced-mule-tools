@@ -76,14 +76,12 @@ public class PrepareExchangePublish extends AbstractOrganizationalMojo {
             }
             snapshotVersionSuffic = project.getVersion() + "-" + snapshotVersionSuffic;
             project.setVersion(snapshotVersionSuffic);
-            if (projectArtifact != null) {
-                projectArtifact.setVersion(snapshotVersionSuffic);
-                projectArtifact.setVersionRange(VersionRange.createFromVersion(snapshotVersionSuffic));
-            }
+            projectArtifact.setVersion(snapshotVersionSuffic);
+            projectArtifact.setVersionRange(VersionRange.createFromVersion(snapshotVersionSuffic));
         }
-        if (project.getDistributionManagement() == null && addDistributionManagement) {
+        if (project.getDistributionManagement() != null && addDistributionManagement) {
             MavenArtifactRepository repo = new MavenArtifactRepository();
-            repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication(username, password));
+            repo.setAuthentication(new org.apache.maven.artifact.repository.Authentication("~~~Token~~~", emClient.getAnypointBearerToken()));
             repo.setId(serverId);
             repo.setUrl(emClient.getExchangeMavenUrl());
             repo.setLayout(new DefaultRepositoryLayout());
