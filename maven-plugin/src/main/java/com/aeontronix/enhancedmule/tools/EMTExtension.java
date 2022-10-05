@@ -68,8 +68,11 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             if (emClient == null) {
                 emConfig = EMConfig.findConfigFile();
                 emConfig.checkProfileExists(profile);
-                emConfig.setActive(profile);
-                configProfile = emConfig.getProfile(null, org, groupId);
+                if (profile != null) {
+                    emConfig.checkProfileExists(profile);
+                    emConfig.setActive(profile);
+                }
+                configProfile = emConfig.getActiveProfile();
                 emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile);
                 final Proxy proxy = session.getSettings().getActiveProxy();
                 if (proxy != null) {
@@ -110,10 +113,16 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
         try {
             loadProperties(session);
-            logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(profile != null ? profile : "*default*").toString());
+            emConfig = EMConfig.findConfigFile();
+            logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(emConfig.getActive()).toString());
+            final MavenProject project = session.getTopLevelProject();
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret, profile, org, session.getCurrentProject().getGroupId());
-            emClient.getAnypointClient().getUser();
+                    emAccessTokenId, emAccessTokenSecret, profile, org, project != null ? project.getGroupId() : null);
+            try {
+                emClient.getAnypointClient().getUser();
+            } catch (IOException e) {
+                logger.warn("Unable to verify authentication");
+            }
             addRepositoriesAuthentication(session);
         } catch (Throwable e) {
             if (e instanceof HttpException && ((HttpException) e).getStatusCode() == 401) {

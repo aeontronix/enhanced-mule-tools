@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
@@ -83,7 +83,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    accessTokenId, accessTokenSecret, profile, org, project.getGroupId());
+                    accessTokenId, accessTokenSecret, profile, org, project != null ? project.getGroupId() : null);
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {

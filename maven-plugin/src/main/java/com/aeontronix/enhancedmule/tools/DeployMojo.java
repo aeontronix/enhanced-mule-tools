@@ -94,10 +94,13 @@ public class DeployMojo extends LegacyDeployMojo {
     @Parameter
     protected Map<String, String> vars;
     /**
-     * Build number
+     * Is this is specified, the provided build number is used as a suffix to SNAPSHOT versions published to exchange
      */
     @Parameter(property = "anypoint.deploy.buildnumber")
     private String buildNumber;
+    /**
+     * If this is set to true, and a snapshot is deployed to RTF, older snapshots will be deleted
+     */
     @Parameter(property = "emt.provisioning.deletesnapshots")
     private Boolean deleteSnapshots;
     @Parameter(property = "anypoint.target")
