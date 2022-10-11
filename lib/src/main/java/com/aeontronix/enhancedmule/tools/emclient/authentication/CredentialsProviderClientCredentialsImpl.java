@@ -26,6 +26,6 @@ public class CredentialsProviderClientCredentialsImpl implements AnypointBearerT
 
     @Override
     public String getAnypointBearerToken(EnhancedMuleClient restClient) throws IOException {
-        return restClient.getRestClient().get("/anypoint/bearer").execute(String.class);
+        return restClient.getLegacyRestClient().get("/anypoint/bearer").execute(String.class);
     }
 }

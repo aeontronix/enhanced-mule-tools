@@ -32,9 +32,9 @@ import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
 @Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
-        DecryptCmd.class, ActiveProfileCmd.class},
+        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class},
         versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
-public class EMTCli {
+public class EMTCli extends AbstractCommand {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
     @Option(names = {"-d", "--debug"}, description = "Enable debug")
@@ -55,6 +55,11 @@ public class EMTCli {
         } else {
             activeProfile = config.getProfile(null, null, null);
         }
+    }
+
+    @Override
+    public EMTCli getCli() {
+        return this;
     }
 
     public boolean isDebug() {
