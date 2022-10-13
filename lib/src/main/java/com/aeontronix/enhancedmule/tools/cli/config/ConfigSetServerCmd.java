@@ -30,11 +30,12 @@ public class ConfigSetServerCmd implements Callable<Integer> {
         final ConfigProfile profile = cli.getActiveProfile();
         if (serverURL != null) {
             profile.setServerUrl(serverURL.toString());
+            logger.info("Server URL updated to " + serverURL.toString());
         } else {
             profile.setServerUrl(null);
+            logger.info("Using cloud enhanced mule serveremt");
         }
         cli.saveConfig();
-        logger.info("Server URL updated to " + serverURL.toString());
         return 0;
     }
 }
