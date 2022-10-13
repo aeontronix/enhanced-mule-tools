@@ -9,7 +9,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.ParentCommand;
 
 @Command(name = "config", subcommands = {ConfigSetCredsUsernamePasswordCmd.class, ConfigSetCredsBearerCmd.class,
-        ConfigSetCredsClientCredentialsCmd.class, ConfigSetKeyCmd.class, ConfigSetEnvCmd.class})
+        ConfigSetCredsClientCredentialsCmd.class, ConfigSetKeyCmd.class, ConfigSetEnvCmd.class,
+        ConfigSetServerCmd.class})
 public class ConfigCmd {
     @ParentCommand
     private EMTCli cli;

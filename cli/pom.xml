@@ -30,7 +30,8 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
-            <version>2.0.0</version>
+            <!--suppress MavenPackageUpdate -->
+            <version>1.7.36</version>
         </dependency>
         <!--        &lt;!&ndash; Maven Embedded &ndash;&gt;
                 <dependency>

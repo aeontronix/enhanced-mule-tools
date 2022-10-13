@@ -54,12 +54,16 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             final String challenge = StringUtils.base64Encode(sha256(verifier.getBytes(US_ASCII)), true);
             final String redirectUrl = "http://localhost:" + serverSocket.getLocalPort() + "/";
             final EMTCli cli = getCli();
-            final String authServerBaseUrl;
+            final String authServerOIDCBaseUrl;
             final RESTClientHost authServerClient;
             try (RESTClient restClient = RESTClient.builder().build()) {
-                authServerBaseUrl = "https://auth.enhanced-mule.com/v1/oidc";
-                authServerClient = restClient.host(authServerBaseUrl).build();
-                final URI authorizeUri = new URLBuilder(authServerBaseUrl + "/authorize")
+                String authServerBaseUrl = cli.getActiveProfile().getServerUrl();
+                if (authServerBaseUrl == null) {
+                    authServerBaseUrl = "https://auth.enhanced-mule.com";
+                }
+                authServerOIDCBaseUrl = authServerBaseUrl + "/v1/oidc";
+                authServerClient = restClient.host(authServerOIDCBaseUrl).build();
+                final URI authorizeUri = new URLBuilder(authServerOIDCBaseUrl + "/authorize")
                         .queryParam("redirect_uri", redirectUrl)
                         .queryParam("state", state)
                         .queryParam("code_challenge", challenge)

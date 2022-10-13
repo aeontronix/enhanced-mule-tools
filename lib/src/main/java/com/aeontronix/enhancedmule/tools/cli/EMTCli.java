@@ -32,7 +32,7 @@ import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
 @Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
-        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class},
+        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class},
         versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli extends AbstractCommand {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
