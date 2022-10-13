@@ -33,7 +33,7 @@ public class ConfigSetServerCmd implements Callable<Integer> {
             logger.info("Server URL updated to " + serverURL.toString());
         } else {
             profile.setServerUrl(null);
-            logger.info("Using cloud enhanced mule serveremt");
+            logger.info("Using enhanced mule cloud server");
         }
         cli.saveConfig();
         return 0;
