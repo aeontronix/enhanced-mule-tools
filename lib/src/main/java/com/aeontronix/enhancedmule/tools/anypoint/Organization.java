@@ -12,7 +12,6 @@ import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;

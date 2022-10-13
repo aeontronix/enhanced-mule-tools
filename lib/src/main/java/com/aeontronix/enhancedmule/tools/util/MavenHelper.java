@@ -1,13 +1,16 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2022
  */
 
-package com.aeontronix.enhancedmule.tools.anypoint.application;
+package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.TempFile;
+import com.aeontronix.commons.xml.XmlUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
+import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
@@ -15,14 +18,15 @@ import com.aeontronix.unpack.Unpacker;
 import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.ZipFile;
 
 import static com.aeontronix.commons.StringUtils.isBlank;
@@ -30,11 +34,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MavenHelper {
     private static final Logger logger = getLogger(MavenHelper.class);
+    public static final String SETTINGS_NS = "http://maven.apache.org/SETTINGS/1.1.0";
 
     @SuppressWarnings("unchecked")
     public static ApplicationIdentifier uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
-                                     String newVersion, String buildNumber) throws IOException, UnpackException {
-        if( buildNumber == null ) {
+                                                      String newVersion, String buildNumber) throws IOException, UnpackException {
+        if (buildNumber == null) {
             buildNumber = generateTimestampString();
         }
         final File appArchFile = applicationSource.getLocalFile();
@@ -111,7 +116,7 @@ public class MavenHelper {
     }
 
     private static URLBuilder createMavenUrl(Organization org, ApplicationIdentifier appId) {
-        return new URLBuilder("https://maven.anypoint.mulesoft.com/api/v2/organizations/"+org.getId()+"/maven")
+        return new URLBuilder("https://maven.anypoint.mulesoft.com/api/v2/organizations/" + org.getId() + "/maven")
                 .path(org.getId(), true).path(appId.getArtifactId(), true)
                 .path(appId.getVersion(), true);
     }
@@ -119,5 +124,41 @@ public class MavenHelper {
     @NotNull
     public static String generateTimestampString() {
         return DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS").format(LocalDateTime.now());
+    }
+
+    public static void updateMavenSettings(@NotNull File mavenSettingsFile, String activeProfileId, String bearerToken) throws SAXException, IOException {
+        String serverId;
+        if (activeProfileId.equals("default")) {
+            serverId = "anypoint-exchange";
+        } else {
+            serverId = "anypoint-exchange-" + activeProfileId;
+        }
+        final Document settingsDoc;
+        final Element root;
+        if (mavenSettingsFile.exists()) {
+            settingsDoc = XmlUtils.parse(mavenSettingsFile, true);
+            root = XmlUtils.getChildElement(settingsDoc, "settings", true);
+        } else {
+            settingsDoc = XmlUtils.createDocument(true);
+            root = settingsDoc.createElementNS(SETTINGS_NS, "settings");
+            root.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xs:schemaLocation", SETTINGS_NS + " http://maven.apache.org/xsd/settings-1.1.0.xsd");
+        }
+        final Element servers = XmlUtils.getChildElement(root, "servers", true);
+        final Optional<Element> serverOpt = XmlUtils.getChildNodes(servers, Element.class).stream().filter(n -> {
+            final Element id = XmlUtils.getChildElement(n, "id", false);
+            return id != null && id.getTextContent().trim().equals(serverId);
+        }).findFirst();
+        final Element server;
+        if (!serverOpt.isPresent()) {
+            server = XmlUtils.createElement("server", servers);
+            XmlUtils.createElement("id", server).setTextContent(serverId);
+        } else {
+            server = serverOpt.get();
+        }
+        XmlUtils.getChildElement(server, "username", true).setTextContent("~~~Token~~~");
+        XmlUtils.getChildElement(server, "password", true).setTextContent(bearerToken);
+        try (FileOutputStream stream = new FileOutputStream(mavenSettingsFile)) {
+            XmlUtils.serialize(settingsDoc, stream, false, true);
+        }
     }
 }

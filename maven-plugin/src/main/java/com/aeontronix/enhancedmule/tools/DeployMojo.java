@@ -33,6 +33,7 @@ public class DeployMojo extends LegacyDeployMojo {
     private static final EMTLogger emtLogger = new EMTLogger(logger);
     public static final String VAR = "var";
     public static final String CLOUDHUB = "cloudhub";
+    public static final String EMT_TARGET = "emt.target";
     /**
      * If true API provisioning will be skipped
      */
@@ -103,8 +104,8 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "emt.provisioning.deletesnapshots")
     private Boolean deleteSnapshots;
-    @Parameter(property = "anypoint.target")
-    private String legacyTarget;
+    @Parameter(property = EMT_TARGET)
+    private String target;
     /**
      * If true API provisioning will be skipped
      */
@@ -158,8 +159,18 @@ public class DeployMojo extends LegacyDeployMojo {
     }
 
     private void handleDeprecated() {
-        if (target == null && legacyTarget != null) {
-            target = legacyTarget;
+        if (legacyTarget1 != null) {
+            logger.warn("Property 'anypoint.deploy.target' is deprecated, please use " + EMT_TARGET);
+            if (target != null) {
+                target = legacyTarget1;
+            }
+        }
+        if (legacyTarget2 != null) {
+            logger.warn("Property 'anypoint.target' is deprecated, please use " + EMT_TARGET);
+            target = legacyTarget2;
+            if (target != null) {
+                target = legacyTarget2;
+            }
         }
         if (chMuleVersionName == null && muleVersionName != null) {
             logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");

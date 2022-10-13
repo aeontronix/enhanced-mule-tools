@@ -4,11 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application;
 
+import com.aeontronix.commons.xml.XmlUtils;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.util.MavenHelper;
 import com.aeontronix.unpack.transformer.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.aeontronix.commons.xml.XmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

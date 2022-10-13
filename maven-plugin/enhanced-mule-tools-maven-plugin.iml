@@ -33,7 +33,6 @@
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-xml:2.0.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:2.0.0" level="project" />
     <orderEntry type="library" name="Maven: info.picocli:picocli:4.6.3" level="project" />
-    <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.genesis:genesis-templating:1.0.0-beta5" level="project" />
     <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.30" level="project" />
     <orderEntry type="library" name="Maven: org.jline:jline:3.21.0" level="project" />
@@ -117,6 +116,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.plexus:plexus-container-default:1.0-alpha-9-stable-1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: classworlds:classworlds:1.1-alpha-2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.plexus:plexus-io:2.0.4" level="project" />
+    <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:2.4.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter:5.9.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.9.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.opentest4j:opentest4j:1.2.0" level="project" />

@@ -10,21 +10,17 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.rtf.RTFDeploymentOperation;
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
-import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
-import com.aeontronix.enhancedmule.tools.util.EMTLogger;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
-import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.enhancedmule.tools.util.*;
 import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +31,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
-import static com.aeontronix.enhancedmule.tools.util.JsonHelper.*;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNotNull;
+import static com.aeontronix.enhancedmule.tools.util.JsonHelper.isNull;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DeploymentServiceImpl implements DeploymentService {

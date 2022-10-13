@@ -4,7 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.application.MavenHelper;
+import com.aeontronix.enhancedmule.tools.util.MavenHelper;
 
 public abstract class AbstractDeploymentRequest {
     protected String buildNumber;

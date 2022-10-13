@@ -92,7 +92,12 @@ public class EMTCli extends AbstractCommand {
 
     @NotNull
     public ConfigProfile getActiveProfile() throws IOException, ProfileNotFoundException {
-        return config.getActiveProfile();
+        return activeProfile;
+    }
+
+    @NotNull
+    public String getActiveProfileId() throws IOException, ProfileNotFoundException {
+        return profileName != null ? profileName : config.getActive();
     }
 
     public void saveConfig() throws IOException {
