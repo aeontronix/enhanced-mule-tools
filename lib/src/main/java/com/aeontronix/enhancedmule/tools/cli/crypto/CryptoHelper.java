@@ -27,7 +27,6 @@ import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -120,57 +119,42 @@ public class CryptoHelper {
         return false;
     }
 
-    public static void encryptProperties(Key key, File propertiesFile) throws IOException, EncryptionException {
+    public static void encryptProperties(Key key, File descriptorFile, File propertiesFile) throws IOException, EncryptionException {
         try {
-            cryptProperties(key, propertiesFile, true);
+            cryptProperties(key, descriptorFile, propertiesFile, true);
         } catch (DecryptionException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
 
-    public static void decryptProperties(Key key, File propertiesFile) throws IOException, DecryptionException {
+    public static void decryptProperties(Key key, File descriptorFile, File propertiesFile) throws IOException, DecryptionException {
         try {
-            cryptProperties(key, propertiesFile, false);
+            cryptProperties(key, descriptorFile, propertiesFile, false);
         } catch (EncryptionException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
 
-    private static void cryptProperties(Key key, File propertiesFile, boolean encrypt) throws IOException, EncryptionException, DecryptionException {
+    private static void cryptProperties(Key key, File propertiesFile, File filePath, boolean encrypt) throws IOException, EncryptionException, DecryptionException {
         final Set<String> secureProperties = findSecureProperties(propertiesFile);
         logger.info("Secure properties: " + String.join(", ", secureProperties));
         if (!secureProperties.isEmpty()) {
-            String basePath = propertiesFile.getName();
-            final String lc = basePath.toLowerCase();
-            if (lc.endsWith(".yaml") || lc.endsWith(".json")) {
-                basePath = basePath.substring(0, basePath.length() - 5);
-            } else if (lc.endsWith(".yml")) {
-                basePath = basePath.substring(0, basePath.length() - 4);
-            } else {
-                throw new IllegalArgumentException("Invalid descriptor file path, must end in .json, .yaml or .yml");
-            }
-            final String pattern = "^" + basePath + "-(local|env-.+|envtype-.+)\\.(properties|yaml|yml|json)";
-            final File[] files = propertiesFile.getParentFile().listFiles((dir, name) -> name.toLowerCase().matches(pattern));
-            if (files != null) {
-                logger.info("Property files: " + Arrays.stream(files).map(File::getName).collect(Collectors.joining(", ")));
-                for (File file : files) {
-                    final Properties properties = PropertiesUtils.readProperties(file);
-                    for (String sKey : secureProperties) {
-                        final String value = properties.getProperty(sKey);
-                        if (StringUtils.isNotBlank(value)) {
-                            final boolean expression = value.startsWith("{{") && value.endsWith("}}");
-                            if (encrypt && expression) {
-                                logger.debug("Skipping property {} since it's using an expression", sKey);
-                            } else if (!encrypt && !expression) {
-                                logger.debug("Skipping property {} since it's not encrypted", sKey);
-                            } else {
-                                properties.setProperty(sKey, encrypt ? encrypt(key, value, false) : decrypt(key, value));
-                            }
-                        }
+            logger.info("Properties file: " + filePath);
+            final Properties properties = PropertiesUtils.readProperties(filePath);
+            for (String sKey : secureProperties) {
+                final String value = properties.getProperty(sKey);
+                if (StringUtils.isNotBlank(value)) {
+                    final boolean expression = value.startsWith("{{") && value.endsWith("}}");
+                    if (encrypt && expression) {
+                        logger.debug("Skipping property {} since it's using an expression", sKey);
+                    } else if (!encrypt && !expression) {
+                        logger.debug("Skipping property {} since it's not encrypted", sKey);
+                    } else {
+                        properties.setProperty(sKey, encrypt ? encrypt(key, value, false) : decrypt(key, value));
                     }
-                    PropertiesUtils.writeProperties(file, properties);
                 }
             }
+            PropertiesUtils.writeProperties(filePath, properties);
         }
     }
 }

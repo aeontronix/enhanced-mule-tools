@@ -25,11 +25,13 @@ import java.util.*;
 
 class CryptoHelperTest {
     public static final String KEY_STR = "aes:dKYWnOOcU8BpjyfSMs1zL8fGYiwPn4zpRSWs7wxN96k";
+    private final File localProperties;
     private File propertiesFile;
     private Key key;
 
     public CryptoHelperTest() throws URISyntaxException, InvalidKeyException {
         propertiesFile = new File(Objects.requireNonNull(getClass().getResource("/crypto/properties.yaml")).toURI());
+        localProperties = new File(Objects.requireNonNull(getClass().getResource("/crypto/properties-local.properties")).toURI());
         key = CryptoUtils.readKey(KEY_STR);
     }
 
@@ -57,9 +59,8 @@ class CryptoHelperTest {
     public void testEncryptProperties() throws IOException, EncryptionException, DecryptionException {
         try (TempDir tempDir = new TempDir("tmp")) {
             FileUtils.copy(propertiesFile.getParentFile(), tempDir);
-            CryptoHelper.encryptProperties(key, propertiesFile);
+            CryptoHelper.encryptProperties(key, propertiesFile, localProperties);
             validateEncryptedProperties(loadProperties("local.properties"));
-            validateEncryptedProperties(loadProperties("env-dev.yaml"));
         }
     }
 

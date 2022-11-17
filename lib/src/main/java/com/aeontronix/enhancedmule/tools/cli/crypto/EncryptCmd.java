@@ -20,7 +20,7 @@ public class EncryptCmd extends AbstractCryptoCmd {
         if (value != null) {
             System.out.println(CryptoHelper.encrypt(key, value, noExpression));
         } else {
-            CryptoHelper.encryptProperties(key, path);
+            CryptoHelper.encryptProperties(key, descPath, filePath);
         }
         return 0;
     }

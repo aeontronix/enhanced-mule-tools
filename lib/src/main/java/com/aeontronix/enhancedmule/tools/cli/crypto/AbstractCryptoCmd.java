@@ -24,8 +24,10 @@ public abstract class AbstractCryptoCmd implements Callable<Integer> {
     protected EncryptCmd.KeyOptions keyOptions;
     @Option(names = {"-v", "--value"}, description = "Text to encrypt", arity = "1")
     protected String value;
-    @Option(names = {"-p", "--path"}, description = "Property definition file path", defaultValue = "src/main/resources/properties.yaml", showDefaultValue = ALWAYS)
-    protected File path;
+    @Option(names = {"-d", "--descriptor-path"}, description = "Property definition file path", defaultValue = "src/main/resources/properties.yaml", showDefaultValue = ALWAYS)
+    protected File descPath;
+    @Option(names = {"-p", "--file-path"}, description = "Property file path", defaultValue = "src/main/resources/properties-local.yaml", showDefaultValue = ALWAYS)
+    protected File filePath;
 
     @Override
     public Integer call() throws Exception {
