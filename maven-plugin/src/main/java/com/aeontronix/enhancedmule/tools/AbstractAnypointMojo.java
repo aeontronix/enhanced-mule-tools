@@ -26,8 +26,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     public static final String EM_CLIENT = "emClient";
-    public static final String ACCESSTOKEN_ID = "accesstoken.id";
-    public static final String ACCESSTOKEN_SECRET = "accesstoken.secret";
+    public static final String EM_CLIENT_ID = "anypoint.client.id";
+    public static final String EM_CLIENT_SECRET = "anypoint.client.secret";
     /**
      * Anypoint username
      */
@@ -38,10 +38,10 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
      */
     @Parameter(property = "anypoint.password")
     protected String password;
-    @Parameter(property = ACCESSTOKEN_ID)
-    protected String accessTokenId;
-    @Parameter(property = ACCESSTOKEN_SECRET)
-    protected String accessTokenSecret;
+    @Parameter(property = EM_CLIENT_ID)
+    protected String clientId;
+    @Parameter(property = EM_CLIENT_SECRET)
+    protected String clientSecret;
     /**
      * Anypoint bearer token
      */
@@ -83,7 +83,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
             emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    accessTokenId, accessTokenSecret, profile, org, project != null ? project.getGroupId() : null);
+                    clientId, clientSecret, profile, org, project != null ? project.getGroupId() : null);
         } catch (MavenExecutionException e) {
             Throwable cause = e.getCause();
             if( cause == null ) {

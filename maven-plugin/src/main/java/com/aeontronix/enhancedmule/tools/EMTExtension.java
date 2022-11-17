@@ -56,7 +56,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private static EMConfig emConfig;
 
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
-                                           String username, String password, String emAccessTokenId, String emAccessTokenSecret,
+                                           String username, String password, String clientId, String clientSecret,
                                            String profile, String org, String groupId) throws MavenExecutionException {
         EnhancedMuleClient emClient;
         try {
@@ -88,9 +88,9 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 } else if (isNotBlank(username) && isNotBlank(password)) {
                     logger.info("Using Username Password: {}", username);
                     credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
-                } else if (isNotBlank(emAccessTokenId) && isNotBlank(emAccessTokenSecret)) {
+                } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
                     logger.info("Using Access Token");
-                    credentialsProvider = new CredentialsProviderClientCredentialsImpl(emAccessTokenId, emAccessTokenSecret);
+                    credentialsProvider = new CredentialsProviderClientCredentialsImpl(clientId, clientSecret);
                 } else {
                     if (configProfile != null && configProfile.getCredentials() != null) {
                         credentialsProvider = CredentialsConverter.convert(configProfile.getCredentials());
