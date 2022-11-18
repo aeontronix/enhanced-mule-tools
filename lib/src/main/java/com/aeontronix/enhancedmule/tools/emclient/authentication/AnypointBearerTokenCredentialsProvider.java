@@ -8,6 +8,6 @@ import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 
 import java.io.IOException;
 
-public interface AnypointBearerTokenCredentialsProvider extends CredentialsProvider {
+public interface AnypointBearerTokenCredentialsProvider extends LegacyCredentialsProvider {
     String getAnypointBearerToken(EnhancedMuleClient restClient) throws IOException;
 }

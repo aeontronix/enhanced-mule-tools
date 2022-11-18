@@ -79,9 +79,8 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                     emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword());
                 }
                 session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
-
                 logger.info("Initializing Enhanced Mule Tools");
-                CredentialsProvider credentialsProvider = null;
+                LegacyCredentialsProvider credentialsProvider = null;
                 if (isNotBlank(anypointBearerToken)) {
                     logger.info("Using Bearer Token");
                     credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);
@@ -89,7 +88,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                     logger.info("Using Username Password: {}", username);
                     credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
                 } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
-                    logger.info("Using Access Token");
+                    logger.info("Using Client Credentials: {}", clientId);
                     credentialsProvider = new CredentialsProviderClientCredentialsImpl(clientId, clientSecret);
                 } else {
                     if (configProfile != null && configProfile.getCredentials() != null) {

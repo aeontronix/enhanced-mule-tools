@@ -10,12 +10,13 @@ import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
-import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProvider;
+import com.aeontronix.enhancedmule.tools.emclient.authentication.LegacyCredentialsProvider;
 import com.aeontronix.enhancedmule.tools.exchange.ExchangeClient;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTAuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClient;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClientJsonParserJacksonImpl;
 import com.aeontronix.restclient.RESTClientHost;
+import com.aeontronix.restclient.RESTClientHostBuilder;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpRequestWrapper;
@@ -25,21 +26,26 @@ import org.apache.http.protocol.HttpContext;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
 
 public class EnhancedMuleClient implements Closeable, AutoCloseable {
     public static final String EMULE_SERVER_URL = "https://api.enhanced-mule.com";
     private RESTClient legacyRestClient;
-    private CredentialsProvider credentialsProvider;
+    private LegacyCredentialsProvider credentialsProvider;
     private String anypointPlatformUrl = "https://anypoint.mulesoft.com/";
     private String exchangeMavenBaseUrl = "https://maven.anypoint.mulesoft.com";
     private String exchangeMavenPath = "/api/v2/maven";
     private ExchangeClient exchangeClient;
+    private RESTClientHost anypointRestClient;
     private String serverUrl;
     private String publicServerUrl;
     private ConfigProfile configProfile;
     private com.aeontronix.restclient.RESTClient restClient;
     private RESTClientHost serverRestClient;
+    private HttpHost proxyHost;
+    private String proxyUsername;
+    private String proxyPassword;
 
     public EnhancedMuleClient(ConfigProfile configProfile) {
         this(EMULE_SERVER_URL, configProfile);
@@ -47,10 +53,9 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
 
     public EnhancedMuleClient(String serverUrl, ConfigProfile configProfile) {
         this.configProfile = configProfile;
-        restClient = com.aeontronix.restclient.RESTClient.builder().build();
-        serverRestClient = restClient.host(serverUrl).build();
-        legacyRestClient = new RESTClient(new RESTClientJsonParserJacksonImpl(), null, null, null);
         this.serverUrl = serverUrl;
+        initRestClient();
+        legacyRestClient = new RESTClient(new RESTClientJsonParserJacksonImpl(), null, null, null);
         legacyRestClient.setBaseUrl(this.serverUrl);
         publicServerUrl = new URLBuilder(this.serverUrl).path("public").toString();
         legacyRestClient.addAuthProvider(new EMAccessTokenProvider());
@@ -58,8 +63,26 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         exchangeClient = new ExchangeClient(legacyRestClient, exchangeMavenBaseUrl);
     }
 
+    private void initRestClient() {
+        com.aeontronix.restclient.RESTClient.Builder builder = com.aeontronix.restclient.RESTClient.builder();
+        if (proxyHost != null) {
+            builder = builder.proxy(URI.create(proxyHost.toURI()), proxyUsername, proxyPassword);
+        }
+        restClient = builder.build();
+        final RESTClientHostBuilder anypointRestClientBuilder = restClient.host(this.anypointPlatformUrl);
+        if (credentialsProvider != null) {
+            anypointRestClientBuilder.authenticationHandler(credentialsProvider.toAuthenticationHandler(restClient, this.anypointPlatformUrl));
+        }
+        anypointRestClient = anypointRestClientBuilder.build();
+        serverRestClient = restClient.host(this.serverUrl).build();
+    }
+
     public void setProxy(HttpHost proxyHost, String proxyUsername, String proxyPassword) {
+        this.proxyHost = proxyHost;
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
         legacyRestClient.setProxy(proxyHost, proxyUsername, proxyPassword);
+        initRestClient();
     }
 
     public ConfigProfile getConfigProfile() {
@@ -74,6 +97,10 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         return restClient;
     }
 
+    public RESTClientHost getAnypointRestClient() {
+        return anypointRestClient;
+    }
+
     public RESTClient getLegacyRestClient() {
         return legacyRestClient;
     }
@@ -83,12 +110,13 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         legacyRestClient.close();
     }
 
-    public CredentialsProvider getCredentialsLoader() {
+    public LegacyCredentialsProvider getCredentialsLoader() {
         return credentialsProvider;
     }
 
-    public void setCredentialsLoader(CredentialsProvider credentialsProvider) {
+    public void setCredentialsLoader(LegacyCredentialsProvider credentialsProvider) {
         this.credentialsProvider = credentialsProvider;
+        initRestClient();
     }
 
     public AnypointClient getAnypointClient() throws IOException {

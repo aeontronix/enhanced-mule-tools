@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.anypoint.authentication;
 
 import com.aeontronix.commons.StringUtils;
+import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.enhancedmule.tools.util.AnypointAccessToken;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
@@ -18,11 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvider {
+    public static final String TOKEN_PATH = "/accounts/api/v2/oauth2/token";
+    private String anypointPlatformUrl;
     private String clientId;
     private String clientSecret;
+    private String anypointBearerToken;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AuthenticationProviderConnectedAppsImpl(String clientId, String clientSecret) {
+    public AuthenticationProviderConnectedAppsImpl(RESTClient restClient, String anypointPlatformUrl, String clientId, String clientSecret) {
+        this.anypointPlatformUrl = anypointPlatformUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
@@ -41,7 +46,7 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
             request.put("client_secret", clientSecret);
             request.put("grant_type", "client_credentials");
             httpHelper.setLoginRequest(true);
-            Map data = objectMapper.readValue(httpHelper.httpPost("/accounts/api/v2/oauth2/token", request),Map.class);
+            Map data = objectMapper.readValue(httpHelper.httpPost(TOKEN_PATH, request), Map.class);
             return new AnypointAccessToken((String) data.get("access_token"));
         } catch (IOException e) {
             throw new HttpException(e);
@@ -65,11 +70,13 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
 
     @Override
     public void applyCredentials(RESTRequest request) {
-        throw new RuntimeException("Not implemented (don't use connected app client_credentials it has severe limitations)");
+        if (anypointBearerToken != null) {
+            request.setHeader("Authorization", "bearer " + anypointBearerToken);
+        }
     }
 
     @Override
     public void refreshCredential(RESTClient restClient) throws RESTException {
-        throw new RuntimeException("Not implemented (don't use connected app client_credentials it has severe limitations)");
+        anypointBearerToken = (String) restClient.get(new URLBuilder(anypointPlatformUrl).path(TOKEN_PATH).toUri()).executeAndConvertToObject(Map.class).get("access_token");
     }
 }
