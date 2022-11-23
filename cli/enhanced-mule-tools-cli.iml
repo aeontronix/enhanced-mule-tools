@@ -49,10 +49,8 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.21" level="project" />
     <orderEntry type="library" name="Maven: com.aeontronix.aeon-commons:aeon-commons-xml:2.0.0-beta1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.36" level="project" />
-    <orderEntry type="library" name="Maven: info.picocli:picocli:4.6.3" level="project" />
+    <orderEntry type="library" name="Maven: info.picocli:picocli:4.7.0" level="project" />
     <orderEntry type="library" name="Maven: org.fusesource.jansi:jansi:2.4.0" level="project" />
-    <orderEntry type="library" name="Maven: com.aeontronix.genesis:genesis-templating:1.0.0-beta8" level="project" />
-    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.31" level="project" />
     <orderEntry type="library" name="Maven: org.jline:jline:3.21.0" level="project" />
     <orderEntry type="library" name="Maven: org.jline:jline-console:3.21.0" level="project" />
     <orderEntry type="library" name="Maven: org.jline:jline-builtins:3.21.0" level="project" />
