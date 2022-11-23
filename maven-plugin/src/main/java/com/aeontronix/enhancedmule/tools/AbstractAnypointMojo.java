@@ -16,13 +16,17 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public abstract class AbstractAnypointMojo extends AbstractMojo {
+    private static final Logger logger = getLogger(AbstractAnypointMojo.class);
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     public static final String EM_CLIENT = "emClient";

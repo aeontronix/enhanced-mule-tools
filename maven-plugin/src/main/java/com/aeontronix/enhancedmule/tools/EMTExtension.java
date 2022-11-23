@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.ReflectionUtils;
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
@@ -12,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
+import com.aeontronix.kryptotek.DigestUtils;
 import org.apache.http.HttpHost;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -32,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component(role = AbstractMavenLifecycleParticipant.class)
@@ -58,6 +61,16 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     static EnhancedMuleClient createClient(String enhancedMuleServerUrl, MavenSession session, String anypointBearerToken,
                                            String username, String password, String clientId, String clientSecret,
                                            String profile, String org, String groupId) throws MavenExecutionException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Creating client");
+            logger.debug("Server URL: {}", enhancedMuleServerUrl);
+            logger.debug("Profile: {}", profile);
+            logger.debug("Bearer: SHA:{}", anypointBearerToken != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(anypointBearerToken.getBytes(UTF_8))) : "NOT SET");
+            logger.debug("Username: {}", username != null ? username : "NOT SET");
+            logger.debug("Password: SHA:{}", password != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(password.getBytes(UTF_8))) : "NOT SET");
+            logger.debug("Client Id: {}", clientId != null ? clientId : "NOT SET");
+            logger.debug("Client Secret: SHA:{}", clientSecret != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(clientSecret.getBytes(UTF_8))) : "NOT SET");
+        }
         EnhancedMuleClient emClient;
         try {
             emClient = (EnhancedMuleClient) session.getCurrentProject().getContextValue(ENHANCED_MULE_CLIENT);
