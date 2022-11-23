@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
+import static com.aeontronix.enhancedmule.tools.AbstractAnypointMojo.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -51,8 +52,8 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
     private String anypointBearerToken;
     private String username;
     private String password;
-    private String emAccessTokenId;
-    private String emAccessTokenSecret;
+    private String clientId;
+    private String clientSecret;
     private String serverId;
     private String org;
     private String profile;
@@ -129,7 +130,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             logger.info(Ansi.ansi().fgBrightYellow().a("Profile: ").reset().a(emConfig.getActive()).toString());
             final MavenProject project = session.getTopLevelProject();
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
-                    emAccessTokenId, emAccessTokenSecret, profile, org, project != null ? project.getGroupId() : null);
+                    clientId, clientSecret, profile, org, project != null ? project.getGroupId() : null);
             try {
                 emClient.getAnypointClient().getUser();
             } catch (IOException e) {
@@ -203,10 +204,10 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
         enhancedMuleServerUrl = getProperty(session, "enhancedMuleServerUrl", "enhancedmule.server.url", AbstractAnypointMojo.DEFAULT_EMSERVER_URL);
         org = getProperty(session, "org", "anypoint.org", null);
         anypointBearerToken = getProperty(session, "bearerToken", AbstractAnypointMojo.BEARER_TOKEN_PROPERTY, null);
-        username = getProperty(session, "username", "anypoint.username", null);
-        password = getProperty(session, "password", "anypoint.password", null);
-        emAccessTokenId = getProperty(session, "emAccessTokenId", "emule.accesstoken.id", null);
-        emAccessTokenSecret = getProperty(session, "emAccessTokenSecret", "emule.accesstoken.secret", null);
+        username = getProperty(session, "username", ANYPOINT_USERNAME, null);
+        password = getProperty(session, "password", ANYPOINT_PASSWORD, null);
+        clientId = getProperty(session, "clientId", EM_CLIENT_ID, null);
+        clientSecret = getProperty(session, "clientSecret", EM_CLIENT_SECRET, null);
         serverId = getProperty(session, "serverId", "anypoint.serverid", "anypoint-exchange-v2");
         profile = getProperty(session, "profile", "profile", null);
     }

@@ -32,15 +32,17 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String EM_CLIENT = "emClient";
     public static final String EM_CLIENT_ID = "anypoint.client.id";
     public static final String EM_CLIENT_SECRET = "anypoint.client.secret";
+    public static final String ANYPOINT_USERNAME = "anypoint.username";
+    public static final String ANYPOINT_PASSWORD = "anypoint.password";
     /**
      * Anypoint username
      */
-    @Parameter(property = "anypoint.username")
+    @Parameter(property = ANYPOINT_USERNAME)
     protected String username;
     /**
      * Anypoint password
      */
-    @Parameter(property = "anypoint.password")
+    @Parameter(property = ANYPOINT_PASSWORD)
     protected String password;
     @Parameter(property = EM_CLIENT_ID)
     protected String clientId;
