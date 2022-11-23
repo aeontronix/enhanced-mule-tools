@@ -51,27 +51,27 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.14.0-rc1</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>2.14.0-rc1</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>2.14.0-rc1</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.14.0-rc1</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-properties</artifactId>
-            <version>2.14.0-rc1</version>
+            <version>2.14.0</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -82,22 +82,22 @@
         <dependency>
             <groupId>com.aeontronix.aeon-commons</groupId>
             <artifactId>aeon-commons</artifactId>
-            <version>2.0.0-beta8</version>
+            <version>2.0.0-beta10</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.aeon-commons</groupId>
             <artifactId>aeon-commons-properties</artifactId>
-            <version>2.0.0-beta8</version>
+            <version>2.0.0-beta10</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.aeon-commons</groupId>
             <artifactId>aeon-commons-swing</artifactId>
-            <version>2.0.0-beta5</version>
+            <version>2.0.0-beta10</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.kryptotek</groupId>
             <artifactId>kryptotek-core</artifactId>
-            <version>1.1.0-beta7</version>
+            <version>1.1.0-beta8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>com.aeontronix.restclient</groupId>
             <artifactId>aeon-rest-client</artifactId>
-            <version>1.0.0-beta11</version>
+            <version>1.0.0-beta14</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.unpack</groupId>
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>com.aeontronix.genesis</groupId>
             <artifactId>genesis-templating</artifactId>
-            <version>1.0.0-beta5</version>
+            <version>1.0.0-beta8</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>

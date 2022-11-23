@@ -93,11 +93,10 @@ public class ApplicationCreateCmd implements Callable<Integer> {
     }
 
     private void execute(Template template) throws TemplateExecutionException {
-        final TemplateExecutor templateExecutor = new TemplateExecutor(template);
+        final TemplateExecutor templateExecutor = new TemplateExecutor(template, dir);
         templateExecutor.setVariables(vars);
-        templateExecutor.execute(dir);
+        templateExecutor.execute();
     }
-
 
     public static void unzip(File zipFile, File destDir) throws IOException {
         logger.info("Unzipping archive");

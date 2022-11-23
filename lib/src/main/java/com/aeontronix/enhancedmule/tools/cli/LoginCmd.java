@@ -51,7 +51,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
         try (final ServerSocket serverSocket = new ServerSocket(0)) {
             final String state = UUIDFactory.generate().toString();
             String verifier = UUIDFactory.generate().toString() + UUIDFactory.generate();
-            final String challenge = StringUtils.base64Encode(sha256(verifier.getBytes(US_ASCII)), true);
+            final String challenge = StringUtils.base64EncodeToString(sha256(verifier.getBytes(US_ASCII)), true);
             final String redirectUrl = "http://localhost:" + serverSocket.getLocalPort() + "/";
             final EMTCli cli = getCli();
             final String authServerOIDCBaseUrl;

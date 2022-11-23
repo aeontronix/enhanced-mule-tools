@@ -13,7 +13,6 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.apim.APIManagerCmd;
-import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ActiveProfileCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.DecryptCmd;
@@ -32,9 +31,11 @@ import java.io.IOException;
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
-@Command(name = "emt", subcommands = {ApplicationCmd.class, ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
-        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class},
-        versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
+@Command(name = "emt", subcommands = {
+        ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
+        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class
+//        , ApplicationCmd.class
+}, versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli extends AbstractCommand {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
     boolean versionInfoRequested;
