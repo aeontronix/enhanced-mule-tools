@@ -209,7 +209,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                     } else {
                         throw new IOException("Unable to identity mime-Type of icon image, please specify mimeType in descriptor: " + iconFile.getPath());
                     }
-                    icon.set(CONTENT, new TextNode(StringUtils.base64Encode(FileUtils.toByteArray(iconFile))));
+                    icon.set(CONTENT, new TextNode(StringUtils.base64EncodeToString(FileUtils.toByteArray(iconFile))));
                     asset.set(ICON, icon);
                 }
             }
