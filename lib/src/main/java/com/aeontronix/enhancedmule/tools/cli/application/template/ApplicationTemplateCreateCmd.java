@@ -26,12 +26,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Command(name = "create")
 public class ApplicationTemplateCreateCmd implements Callable<Integer> {
     private static final Logger logger = getLogger(ApplicationTemplateCreateCmd.class);
-    @Parameters(description = "Directory where template files will be created")
-    private File directory;
+    @Parameters(description = "Artifact id")
+    private String artifactId;
 
     @Override
     public Integer call() throws Exception {
-        if( ! directory.exists() ) {
+        File directory = new File(artifactId);
+        if (!directory.exists()) {
             FileUtils.mkdirs(directory);
         }
         final ObjectMapper mapper = JsonHelper.createMapper();
