@@ -41,7 +41,7 @@ public class HttpHelperRecorder extends HttpHelper {
                 } catch (IOException e) {
                     throw new UnexpectedException(e);
                 }
-                op.setContent(StringUtils.base64Encode(buf.toByteArray()));
+                op.setContent(StringUtils.base64EncodeToString(buf.toByteArray()));
             }
         }
         String json = super.executeWrapper(method, multiPartRequest);
