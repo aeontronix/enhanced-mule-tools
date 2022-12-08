@@ -7,15 +7,11 @@ package com.aeontronix.enhancedmule.tools.anypoint;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.file.TempFile;
-import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetList;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
@@ -760,7 +756,10 @@ public class Organization extends AnypointObject {
         try (final TempFile file = new TempFile("orig"); final TempFile newFile = new TempFile("new")) {
             final ApplicationIdentifier appId = new ApplicationIdentifier(groupId, artifactId, version);
             try (final FileOutputStream os = new FileOutputStream(file)) {
-                IOUtils.copy(emClient.getExchangeClient().getAsset(groupId, artifactId, version, "mule-application", "jar"), os);
+                final ExchangeAsset exchangeAsset = getClient().findOrganizationByNameOrId(groupId).findExchangeAsset(groupId, artifactId);
+                AssetFile appFile = exchangeAsset.getFiles().stream().filter(f -> "mule-application".equals(f.getClassifier())).findFirst()
+                        .orElseThrow(() -> new NotFoundException("application asset not found"));
+                os.write(getClient().getHttpHelper().httpGetBinary(appFile.getExternalLink()));
             }
             final ObjectNode descriptorJson = new FileApplicationSource(client, file, appId).getAnypointDescriptor();
             final ApplicationDescriptor anypointDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(descriptorJson);
