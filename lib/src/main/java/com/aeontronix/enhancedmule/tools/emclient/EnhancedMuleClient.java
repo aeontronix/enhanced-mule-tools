@@ -11,7 +11,6 @@ import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.LegacyCredentialsProvider;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeClient;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTAuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClient;
 import com.aeontronix.enhancedmule.tools.util.restclient.RESTClientJsonParserJacksonImpl;
@@ -36,7 +35,6 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     private String anypointPlatformUrl = "https://anypoint.mulesoft.com/";
     private String exchangeMavenBaseUrl = "https://maven.anypoint.mulesoft.com";
     private String exchangeMavenPath = "/api/v2/maven";
-    private ExchangeClient exchangeClient;
     private RESTClientHost anypointRestClient;
     private String serverUrl;
     private String publicServerUrl;
@@ -60,7 +58,6 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         publicServerUrl = new URLBuilder(this.serverUrl).path("public").toString();
         legacyRestClient.addAuthProvider(new EMAccessTokenProvider());
         legacyRestClient.addAuthProvider(new MavenAuthenticationProvider());
-        exchangeClient = new ExchangeClient(legacyRestClient, exchangeMavenBaseUrl);
     }
 
     private void initRestClient() {
@@ -87,10 +84,6 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
 
     public ConfigProfile getConfigProfile() {
         return configProfile;
-    }
-
-    public ExchangeClient getExchangeClient() {
-        return exchangeClient;
     }
 
     public com.aeontronix.restclient.RESTClient getRestClient() {

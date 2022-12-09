@@ -6,10 +6,10 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.validation.ValidationUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.APISpecSource;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequestImpl;
-import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.IconDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.InvalidAnypointDescriptorException;
 import com.fasterxml.jackson.databind.ObjectMapper;

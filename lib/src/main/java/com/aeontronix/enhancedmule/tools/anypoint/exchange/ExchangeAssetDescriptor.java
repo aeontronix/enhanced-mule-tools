@@ -1,18 +1,16 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2022
  */
 
-package com.aeontronix.enhancedmule.tools.exchange;
+package com.aeontronix.enhancedmule.tools.anypoint.exchange;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.file.TempFile;
+import com.aeontronix.enhancedmule.tools.anypoint.APISpecSource;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetCategory;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
-import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.application.api.APICustomFieldDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.IconDescriptor;

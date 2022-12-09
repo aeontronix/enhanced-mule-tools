@@ -6,9 +6,9 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.APISpecSource;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
-import com.aeontronix.enhancedmule.tools.exchange.APISpecSource;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

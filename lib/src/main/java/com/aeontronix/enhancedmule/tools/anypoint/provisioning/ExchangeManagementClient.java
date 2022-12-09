@@ -9,7 +9,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;

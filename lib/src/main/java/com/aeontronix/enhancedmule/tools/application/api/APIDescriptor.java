@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.application.api;
 
 import com.aeontronix.enhancedmule.tools.anypoint.api.SLATierLimits;
-import com.aeontronix.enhancedmule.tools.exchange.ExchangeAssetDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAssetDescriptor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
