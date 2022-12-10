@@ -25,12 +25,16 @@ public class MavenUtils {
         if (logger.isDebugEnabled()) {
             logger.debug("Listing attached artifacts : " + project.getAttachedArtifacts());
         }
+        Artifact artifact = project.getArtifact();
+        if (isMuleApplication(artifact)) {
+            return artifact.getFile();
+        }
         for (Object artifactObj : project.getAttachedArtifacts()) {
-            Artifact artifact = (Artifact) artifactObj;
+            artifact = (Artifact) artifactObj;
             if (logger.isDebugEnabled()) {
                 logger.debug("Found : " + artifact.getFile() + " of classifier " + artifact.getClassifier());
             }
-            if (artifact.getClassifier() != null && artifact.getClassifier().equals("mule-application")) {
+            if (isMuleApplication(artifact)) {
                 logger.debug("File is mule-application");
                 return artifact.getFile();
             } else if (logger.isDebugEnabled()) {
@@ -38,12 +42,16 @@ public class MavenUtils {
             }
         }
         for (Object artifactObj : project.getAttachedArtifacts()) {
-            Artifact artifact = (Artifact) artifactObj;
+            artifact = (Artifact) artifactObj;
             if (artifact.getType().equals("zip") && StringUtils.isBlank(artifact.getClassifier())) {
                 return artifact.getFile();
             }
         }
         throw new MojoExecutionException("No mule-application attached artifact found");
+    }
+
+    private static boolean isMuleApplication(Artifact artifact) {
+        return artifact != null && artifact.getClassifier() != null && artifact.getClassifier().equals("mule-application");
     }
 
     public static boolean isTemplateOrExample(MavenProject project) {

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,7 +25,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ApplicationSourceEnhancer {
+    private static final Logger logger = getLogger(ApplicationSourceEnhancer.class);
     private RESTClient restClient;
     private File projectDir;
 
@@ -41,6 +45,7 @@ public class ApplicationSourceEnhancer {
             }
             final Document pomDoc = XmlUtils.parse(pomFile, false);
             setupEmtMavenPlugin(pomDoc);
+            disableExchangePreDeploy(pomDoc);
             setupAnypointJson(projectDir);
             try (final FileOutputStream fos = new FileOutputStream(pomFile)) {
                 XmlUtils.serialize(pomDoc, fos, true, true);
@@ -53,6 +58,7 @@ public class ApplicationSourceEnhancer {
     private void setupAnypointJson(File projectDir) throws IOException {
         final File file = new File(projectDir, "anypoint.json");
         if (!file.exists()) {
+            logger.info("anypoint.json missing, creating");
             final ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
             objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -70,14 +76,18 @@ public class ApplicationSourceEnhancer {
             final ObjectNode overrideObj = (ObjectNode) ApplicationDescriptor.createDefault(objectMapper);
             override.set("override", overrideObj);
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, desc);
+        } else {
+            logger.info("anypoint.json exists, skipping");
         }
     }
 
     private void setupEmtMavenPlugin(Document pomDoc) throws XPathExpressionException, RESTException {
         String emtVersion = getLatestVersion("14801271");
         final Element emPluginVersion = XPathUtils.evalXPathElement("//build/plugins/plugin[ artifactId/text() = 'enhanced-mule-tools-maven-plugin' and groupId/text() = 'com.aeontronix.enhanced-mule']/version", pomDoc);
+        final Element mvnProject = pomDoc.getDocumentElement();
         if (emPluginVersion == null) {
-            final Element build = XmlUtils.getChildElement(pomDoc.getDocumentElement(), "build", true);
+            logger.info("EMT maven plugin missing, adding");
+            final Element build = XmlUtils.getChildElement(mvnProject, "build", true);
             final Element plugins = XmlUtils.getChildElement(build, "plugins", true);
             final Element plugin = XmlUtils.createElement("plugin", plugins);
             XmlUtils.createElement("groupId", plugin).setTextContent("com.aeontronix.enhanced-mule");
@@ -89,8 +99,28 @@ public class ApplicationSourceEnhancer {
             XmlUtils.createElement("goal", goals).setTextContent("process-descriptor");
             XmlUtils.createElement("goal", goals).setTextContent("deploy");
         } else {
+            logger.info("EMT maven plugin found, updating version to " + emtVersion);
             emPluginVersion.setTextContent(emtVersion);
         }
+        final Element properties = XmlUtils.getChildElement(mvnProject, "properties", true);
+        XmlUtils.getChildElement(properties, "maven.deploy.skip", true).setTextContent("true");
+    }
+
+    private void disableExchangePreDeploy(Document pomDoc) throws XPathExpressionException, RESTException {
+        Element plugin = XPathUtils.evalXPathElement("//build/plugins/plugin[ artifactId/text() = 'exchange-mule-maven-plugin' and groupId/text() = 'org.mule.tools.maven']", pomDoc);
+        if (plugin == null) {
+            logger.info("adding exchange-mule-maven-plugin");
+            final Element mvnProject = pomDoc.getDocumentElement();
+            final Element build = XmlUtils.getChildElement(mvnProject, "build", true);
+            final Element plugins = XmlUtils.getChildElement(build, "plugins", true);
+            plugin = XmlUtils.createElement("plugin", plugins);
+            XmlUtils.createElement("groupId", plugin).setTextContent("org.mule.tools.maven");
+            XmlUtils.createElement("artifactId", plugin).setTextContent("exchange-mule-maven-plugin");
+            XmlUtils.createElement("version", plugin).setTextContent("0.0.17");
+        }
+        logger.info("Setting exchange-mule-maven-plugin to skip");
+        final Element config = XmlUtils.getChildElement(plugin, "configuration", true);
+        XmlUtils.getChildElement(config, "skip", true).setTextContent("true");
     }
 
     public void setupEMPConnector() throws RESTException {
