@@ -7,7 +7,10 @@ package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
-import com.aeontronix.enhancedmule.tools.application.api.*;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.application.api.ClientApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.MuleAPIProvisioningService;
 import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,6 +37,8 @@ public class ApplicationProvisioningService {
             if (api != null) {
                 logger.debug("API descriptor found, provisioning");
                 muleAPIProvisioningService.provisionAPI(api, applicationDescriptor, environment, result);
+            } else {
+                logger.debug("No API description found");
             }
             final ClientApplicationDescriptor client = applicationDescriptor.getClient();
             if (client != null) {

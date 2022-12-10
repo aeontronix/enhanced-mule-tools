@@ -114,6 +114,10 @@ public class ProcessDescriptorMojo extends AbstractMojo {
     }
 
     private Artifact findAppArtifact(String classifier) {
+        final Artifact artifact = project.getArtifact();
+        if (classifier.equals(artifact.getClassifier())) {
+            return artifact;
+        }
         for (Artifact attachedArtifact : project.getAttachedArtifacts()) {
             final String cl = attachedArtifact.getClassifier();
             logger.info("attached artifact: " + cl + " / " + attachedArtifact.getType());

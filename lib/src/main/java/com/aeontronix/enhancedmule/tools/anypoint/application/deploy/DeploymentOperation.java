@@ -75,6 +75,9 @@ public abstract class DeploymentOperation {
             }
             if (applicationDescriptor != null && !deploymentRequest.isSkipProvisioning() ) {
                 logger.debug("Found anypoint provisioning file, provisioning");
+                if (logger.isDebugEnabled()) {
+                    logger.debug(client.getJsonHelper().getJsonMapper().writeValueAsString(applicationDescriptor));
+                }
                 final Organization organization = environment.getOrganization();
                 final ApplicationProvisioningService applicationProvisioningService = new ApplicationProvisioningService(client);
                 boolean assetPublished = false;
