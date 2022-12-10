@@ -13,7 +13,7 @@ import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
 
 import java.io.IOException;
 
-public class CredentialsProviderAnypointBearerToken implements LegacyCredentialsProvider, AnypointBearerTokenCredentialsProvider {
+public class CredentialsProviderAnypointBearerToken implements CredentialsProvider, AnypointBearerTokenCredentialsProvider {
     private String anypointBearerToken;
 
     @Override

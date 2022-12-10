@@ -14,7 +14,7 @@ import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.aeontronix.kryptotek.DigestUtils;
-import org.apache.http.HttpHost;
+import com.aeontronix.restclient.ProxySettings;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.repository.Authentication;
@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.List;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
@@ -87,14 +88,13 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                     emConfig.setActive(profile);
                 }
                 configProfile = emConfig.getActiveProfile();
-                emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile);
                 final Proxy proxy = session.getSettings().getActiveProxy();
-                if (proxy != null) {
-                    emClient.setProxy(new HttpHost(proxy.getHost()), proxy.getUsername(), proxy.getPassword());
-                }
+                emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile, proxy != null ?
+                        new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
+                                proxy.getUsername(), proxy.getPassword());
                 session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
                 logger.info("Initializing Enhanced Mule Tools");
-                LegacyCredentialsProvider credentialsProvider = null;
+                CredentialsProvider credentialsProvider = null;
                 if (isNotBlank(anypointBearerToken)) {
                     logger.info("Using Bearer Token");
                     credentialsProvider = new CredentialsProviderAnypointBearerToken(anypointBearerToken);

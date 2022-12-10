@@ -10,7 +10,7 @@ import com.aeontronix.restclient.auth.AuthenticationHandler;
 
 import java.io.IOException;
 
-public interface LegacyCredentialsProvider {
+public interface CredentialsProvider {
     Credentials getCredentials() throws IOException;
 
     AuthenticationHandler toAuthenticationHandler(RESTClient restClient, String anypointPlatformUrl);

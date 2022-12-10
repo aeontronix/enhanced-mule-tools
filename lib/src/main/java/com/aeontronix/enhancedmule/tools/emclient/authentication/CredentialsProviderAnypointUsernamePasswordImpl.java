@@ -10,7 +10,9 @@ import com.aeontronix.enhancedmule.tools.authentication.AnypointUsernamePassword
 import com.aeontronix.enhancedmule.tools.authentication.Credentials;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.restclient.RESTClient;
+import com.aeontronix.restclient.RESTException;
 import com.aeontronix.restclient.auth.AuthenticationHandler;
+import com.aeontronix.restclient.json.JsonConvertionException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,15 +39,19 @@ public class CredentialsProviderAnypointUsernamePasswordImpl implements Anypoint
 
     @Override
     public String getAnypointBearerToken(EnhancedMuleClient emClient) throws IOException {
-        final String loginUrl = new URLBuilder(emClient.getAnypointPlatformUrl()).path("/accounts/login").toString();
-        Map<String, String> loginReq = new HashMap<>();
-        loginReq.put("username", username);
-        loginReq.put("password", password);
-        final Map response = emClient.getLegacyRestClient().postJson(loginUrl, loginReq).execute(Map.class);
-        final String accessToken = (String) response.get("access_token");
-        if (accessToken == null) {
-            throw new IOException("No access token returned by anypoint login");
+        try {
+            final String loginUrl = new URLBuilder(emClient.getAnypointPlatformUrl()).path("/accounts/login").toString();
+            Map<String, String> loginReq = new HashMap<>();
+            loginReq.put("username", username);
+            loginReq.put("password", password);
+            final Map response = emClient.getAnypointClient().getAnypointRestClient().post(loginUrl).jsonBody(loginUrl).executeAndConvertToObject(Map.class);
+            final String accessToken = (String) response.get("access_token");
+            if (accessToken == null) {
+                throw new IOException("No access token returned by anypoint login");
+            }
+            return accessToken;
+        } catch (RESTException | JsonConvertionException e) {
+            throw new IOException(e);
         }
-        return accessToken;
     }
 }

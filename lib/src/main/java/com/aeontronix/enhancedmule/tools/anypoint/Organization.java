@@ -22,7 +22,6 @@ import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.*;
-import com.aeontronix.enhancedmule.tools.util.restclient.RESTException;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
@@ -511,7 +510,7 @@ public class Organization extends AnypointObject {
         throw new NotFoundException("Target not found: " + id);
     }
 
-    public ReleaseManifest findExchangeReleaseManifest(String uri) throws RESTException {
+    public ReleaseManifest findExchangeReleaseManifest(String uri) throws HttpException {
         String name = "Release Manifest: " + id;
         String artifactId = "relmanifest-" + id;
         String version;
@@ -536,8 +535,6 @@ public class Organization extends AnypointObject {
                 }
             }
             version = oldestVersion + ".0.0";
-        } catch (HttpException e) {
-            throw new RESTException(e, e.getStatusCode());
         } catch (NotFoundException e) {
             version = "1.0.0";
         }
