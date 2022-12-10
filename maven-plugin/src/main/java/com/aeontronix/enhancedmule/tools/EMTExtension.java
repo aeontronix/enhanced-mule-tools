@@ -91,7 +91,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
                 final Proxy proxy = session.getSettings().getActiveProxy();
                 emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile, proxy != null ?
                         new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
-                                proxy.getUsername(), proxy.getPassword());
+                                proxy.getUsername(), proxy.getPassword()) : null);
                 session.getCurrentProject().setContextValue(ENHANCED_MULE_CLIENT, emClient);
                 logger.info("Initializing Enhanced Mule Tools");
                 CredentialsProvider credentialsProvider = null;
