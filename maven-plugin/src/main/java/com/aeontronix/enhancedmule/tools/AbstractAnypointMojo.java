@@ -132,7 +132,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             String key = entry.getKey().toString();
             if (key.startsWith(prefix)) {
-                key = key.substring(prefix.length() + 1);
+                key = key.substring(prefix.length());
                 if (StringUtils.isNotBlank(key)) {
                     String value = entry.getValue().toString();
                     if (target == null) {
