@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.application;
 
+import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.xml.XPathUtils;
 import com.aeontronix.commons.xml.XmlUtils;
 import com.aeontronix.restclient.RESTClient;
@@ -47,11 +48,57 @@ public class ApplicationSourceEnhancer {
             setupEmtMavenPlugin(pomDoc);
             disableExchangePreDeploy(pomDoc);
             setupAnypointJson(projectDir);
+            setupEnhancedMuleProperties(projectDir, pomDoc);
             try (final FileOutputStream fos = new FileOutputStream(pomFile)) {
                 XmlUtils.serialize(pomDoc, fos, true, true);
             }
         } catch (Exception e) {
             throw new ApplicationSourceEnhancementException(e);
+        }
+        logger.info("Application enhancement completed");
+    }
+
+    private void setupEnhancedMuleProperties(File projectDir, Document pomDoc) throws XPathExpressionException, IOException, RESTException {
+        String artifactId = "enhanced-mule-properties-provider";
+        String groupId = "com.aeontronix.enhanced-mule";
+        String newVersion = getLatestVersion("39986379");
+        final Element depVersion = XPathUtils.evalXPathElement("//dependencies/dependency[ artifactId/text() = '"
+                + artifactId + "' and groupId/text() = '" + groupId + "']/version", pomDoc);
+        if (depVersion != null) {
+            final String oldVersion = depVersion.getTextContent().trim();
+            if (!oldVersion.equals(newVersion)) {
+                depVersion.setTextContent(newVersion);
+                logger.info("Updated version of " + groupId + ":" + artifactId + " from " + oldVersion + " to " + newVersion);
+            }
+        } else {
+            final Element dependencies = XmlUtils.getChildElement(pomDoc.getDocumentElement(), "dependencies", true);
+            final Element dependency = XmlUtils.createElement("dependency", dependencies);
+            XmlUtils.createElement("groupId", dependency).setTextContent(groupId);
+            XmlUtils.createElement("artifactId", dependency).setTextContent(artifactId);
+            XmlUtils.createElement("version", dependency).setTextContent(newVersion);
+            XmlUtils.createElement("classifier", dependency).setTextContent("mule-plugin");
+            logger.info("Added dependency " + groupId + ":" + artifactId + ":" + newVersion);
+            final File propertiesXml = new File(projectDir.getPath() + File.separator + "src" + File.separator + "main" +
+                    File.separator + "mule" + File.separator + "properties.xml");
+            if (!propertiesXml.exists()) {
+                FileUtils.write(propertiesXml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "\n" +
+                        "<mule xmlns:enhanced-mule-properties=\"http://www.mulesoft.org/schema/mule/enhanced-mule-properties\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
+                        "\txmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                        "\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                        "http://www.mulesoft.org/schema/mule/enhanced-mule-properties http://www.mulesoft.org/schema/mule/enhanced-mule-properties/current/mule-enhanced-mule-properties.xsd\">\n" +
+                        "\t<enhanced-mule-properties:config name=\"Enhanced_Mule_Properties_Config\" doc:name=\"Enhanced Mule Properties Config\" doc:id=\"a35802ca-2aa9-43c0-8c16-11db87f94841\" />\n" +
+                        "</mule>\n");
+                logger.info("Added src/main/mule/properties.xml");
+            }
+        }
+        final File propFile = new File(projectDir.getPath() + File.separator + "src" + File.separator + "main" +
+                File.separator + "resources" + File.separator + "properties.yaml");
+        if (!propFile.exists()) {
+            FileUtils.write(propFile, "http.listener:\n" +
+                    "  type: https\n" +
+                    "  name: HTTPS Listener properties\n" +
+                    "  description: HTTP listener properties plus self-signed cert");
         }
     }
 
@@ -121,10 +168,6 @@ public class ApplicationSourceEnhancer {
         logger.info("Setting exchange-mule-maven-plugin to skip");
         final Element config = XmlUtils.getChildElement(plugin, "configuration", true);
         XmlUtils.getChildElement(config, "skip", true).setTextContent("true");
-    }
-
-    public void setupEMPConnector() throws RESTException {
-        String empVersion = getLatestVersion("39986379");
     }
 
     @SuppressWarnings("unchecked")
