@@ -5,9 +5,9 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
 
 import static java.lang.Boolean.TRUE;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -42,7 +45,8 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public RuntimeDeploymentRequest(String filename, String appName, String artifactId, String buildNumber,
                                     Map<String, String> vars, Map<String, String> properties, File propertyfile,
-                                    boolean ignoreMissingPropertyFile, String target, Environment environment, boolean injectEnvInfo, boolean skipWait,
+                                    boolean ignoreMissingPropertyFile, String target, Environment environment,
+                                    boolean injectEnvInfo, boolean skipWait,
                                     boolean skipProvisioning, JsonNode legacyAppDescriptor) throws IOException {
         super(buildNumber);
         this.filename = filename;

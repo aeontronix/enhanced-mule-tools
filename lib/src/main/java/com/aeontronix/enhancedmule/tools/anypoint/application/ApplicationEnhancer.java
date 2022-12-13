@@ -93,18 +93,26 @@ public class ApplicationEnhancer {
                 if (!contains(configs, ENHANCED_MULE_TOOLS_FLOW_XML)) {
                     configs.add(ENHANCED_MULE_TOOLS_FLOW_XML);
                 }
-//                final ArrayNode secureProperties = getOrCreateArray(root, "secureProperties");
+                final ArrayNode secureProperties = getOrCreateArray(root, "secureProperties");
+                addSecureProperty(secureProperties, "anypoint.platform.client_secret");
+                addSecureProperty(secureProperties, "anypoint.api.client.secret");
 //                HashMap<String, PropertyDescriptor> propDesc = applicationDescriptor.getProperties();
+//                HashMap<String, PropertyDescriptor> propDesc = new HashMap<>();
+//                propDesc.put("anypoint.platform.client_secret",true);
 //                if (propDesc != null) {
 //                    for (Map.Entry<String, PropertyDescriptor> prop : propDesc.entrySet()) {
 //                        if (prop.getValue().isSecure()) {
-//                            if (!contains(secureProperties, prop.getKey())) {
-//                                secureProperties.add(prop.getKey());
-//                            }
+//                            addSecureProperty(secureProperties, prop);
 //                        }
 //                    }
 //                }
                 return root;
+            }
+
+            private void addSecureProperty(ArrayNode secureProperties, String propertyKey) {
+                if (!contains(secureProperties, propertyKey)) {
+                    secureProperties.add(propertyKey);
+                }
             }
         });
         unpacker.addTransformers(transformers);
