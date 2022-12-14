@@ -251,30 +251,32 @@ public class ExchangeAssetDescriptor {
 
     public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
-        if (name != null && !name.equals(exchangeAsset.getName())) {
-            exchangeAsset.updateName(name);
-            plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());
-        }
-        if (description != null && !description.equals(exchangeAsset.getDescription())) {
-            exchangeAsset.updateDescription(description);
-            plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' description", exchangeAsset.getAssetId());
-        }
-        updateTags(exchangeAsset);
-        if (icon != null) {
-            exchangeAsset.updateIcon(StringUtils.base64Decode(icon.getContent()), icon.getMimeType());
-            plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' icon", exchangeAsset.getAssetId());
-        }
-        final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
-        for (String field : results.getModified()) {
-            plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' custom field '{}'", exchangeAsset.getAssetId(), field);
-        }
-        for (String field : results.getNotDefined()) {
-            logger.warn("Custom field not defined, assignment failed: " + field);
-        }
-        updateExchangeCategories(exchangeAsset);
-        // portal
-        if (portal != null) {
-            portal.provision(exchangeAsset);
+        if (create) {
+            if (name != null && !name.equals(exchangeAsset.getName())) {
+                exchangeAsset.updateName(name);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());
+            }
+            if (description != null && !description.equals(exchangeAsset.getDescription())) {
+                exchangeAsset.updateDescription(description);
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' description", exchangeAsset.getAssetId());
+            }
+            updateTags(exchangeAsset);
+            if (icon != null) {
+                exchangeAsset.updateIcon(StringUtils.base64Decode(icon.getContent()), icon.getMimeType());
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' icon", exchangeAsset.getAssetId());
+            }
+            final ExchangeAsset.CustomFieldUpdateResults results = exchangeAsset.updateCustomFields(fields);
+            for (String field : results.getModified()) {
+                plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' custom field '{}'", exchangeAsset.getAssetId(), field);
+            }
+            for (String field : results.getNotDefined()) {
+                logger.warn("Custom field not defined, assignment failed: " + field);
+            }
+            updateExchangeCategories(exchangeAsset);
+            // portal
+            if (portal != null) {
+                portal.provision(exchangeAsset);
+            }
         }
     }
 
