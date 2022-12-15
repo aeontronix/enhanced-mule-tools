@@ -33,7 +33,7 @@ public class CLILogFormatter extends Formatter {
         }
         String errorMessage = formatMessage(record);
         if (record.getLevel().intValue() > Level.INFO.intValue()) {
-            errorMessage = Ansi.ansi().fgBrightRed().a(errorMessage).reset().toString();
+            errorMessage = Ansi.ansi().fgBrightRed().a("ERROR: " + errorMessage).reset().toString();
         }
         txt.append(errorMessage).append('\n');
         return txt.toString();

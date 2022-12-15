@@ -15,7 +15,15 @@ public class DecryptCmd extends AbstractCryptoCmd {
     @Override
     public int run(Key key, String value) throws Exception {
         if (value != null) {
-            System.out.println(CryptoHelper.decrypt(key, value));
+            try {
+                System.out.println(CryptoHelper.decrypt(key, value));
+            } catch (ClassCastException e) {
+                if (e.getMessage().contains("PublicKey")) {
+                    throw new IllegalArgumentException("Public key can only be used for encryption, decryption not allowed (private key required for that)");
+                } else {
+                    throw e;
+                }
+            }
         } else {
             CryptoHelper.decryptProperties(key, descPath, filePath);
         }
