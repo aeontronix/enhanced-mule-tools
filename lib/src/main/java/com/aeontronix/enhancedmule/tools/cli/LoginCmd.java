@@ -10,7 +10,6 @@ import com.aeontronix.commons.UUIDFactory;
 import com.aeontronix.enhancedmule.config.CredentialsBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.util.MavenHelper;
 import com.aeontronix.restclient.RESTClient;
-import com.aeontronix.restclient.RESTClientHost;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -54,16 +53,15 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             final String challenge = StringUtils.base64EncodeToString(sha256(verifier.getBytes(US_ASCII)), true);
             final String redirectUrl = "http://localhost:" + serverSocket.getLocalPort() + "/";
             final EMTCli cli = getCli();
-            final String authServerOIDCBaseUrl;
-            final RESTClientHost authServerClient;
             try (RESTClient restClient = RESTClient.builder().build()) {
                 String authServerBaseUrl = cli.getActiveProfile().getServerUrl();
                 if (authServerBaseUrl == null) {
                     authServerBaseUrl = "https://auth.enhanced-mule.com";
                 }
-                authServerOIDCBaseUrl = authServerBaseUrl + "/v1/oidc";
-                authServerClient = restClient.host(authServerOIDCBaseUrl).build();
-                final URI authorizeUri = new URLBuilder(authServerOIDCBaseUrl + "/authorize")
+                final Map oidcCfg = restClient.get(new URLBuilder(authServerBaseUrl).path("/.well-known/openid-configuration").toUri()).executeAndConvertToObject(Map.class);
+                final String authorizationEndpoint = (String) oidcCfg.get("authorization_endpoint");
+                final String tokenEndpoint = (String) oidcCfg.get("token_endpoint");
+                final URI authorizeUri = new URLBuilder(authorizationEndpoint)
                         .queryParam("redirect_uri", redirectUrl)
                         .queryParam("state", state)
                         .queryParam("code_challenge", challenge)
@@ -83,7 +81,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                     req.put("redirect_uri", redirectUrl);
                     req.put("code_verifier", verifier);
                     req.put("code", code);
-                    final Map<String, String> tokens = authServerClient.post("token").jsonBody(req)
+                    final Map<String, String> tokens = restClient.post(tokenEndpoint).jsonBody(req)
                             .executeAndConvertToObject(Map.class);
                     final String anAccessToken = tokens.get("an_access_token");
                     cli.getActiveProfile().setCredentials(new CredentialsBearerTokenImpl(anAccessToken));
