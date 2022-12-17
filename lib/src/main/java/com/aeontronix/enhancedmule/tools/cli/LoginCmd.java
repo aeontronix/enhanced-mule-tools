@@ -34,7 +34,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Command(name = "login", description = "Login to server")
 public class LoginCmd extends AbstractCommand implements Callable<Integer> {
     private static final Logger logger = getLogger(LoginCmd.class);
-    public static final Pattern codeMatcher = Pattern.compile("code=(.*)[\\s&]");
+    public static final Pattern codeMatcher = Pattern.compile("code=(.*?)&");
     @Option(names = {"-ss", "--skip-maven-settings-update"},
             description = "If set to true, maven settings.xml will not be updated with bearer token",
             showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
