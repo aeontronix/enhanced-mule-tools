@@ -66,6 +66,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                         .queryParam("state", state)
                         .queryParam("code_challenge", challenge)
                         .queryParam("code_challenge_method", "S256")
+                        .queryParam("scope", "full")
                         .toUri();
                 logger.info("Authenticating request: " + authorizeUri);
                 try {
