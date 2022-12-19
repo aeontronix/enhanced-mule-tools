@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.application.api;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -13,14 +14,13 @@ import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
-import com.aeontronix.enhancedmule.tools.util.HttpException;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
+import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.aeontronix.commons.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -161,6 +161,7 @@ public class ClientApplicationDescriptor {
                     Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
                     API accessedAPI = new API(apiEnv);
                     accessedAPI.setId(instance.getId());
+                    accessedAPI.setAssetId(instance.getAssetId());
                     logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
                     APIContract contract = null;
                     try {
@@ -181,7 +182,7 @@ public class ClientApplicationDescriptor {
                             }
                         }
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
-                        plogger.info(API_MANAGER,"Requested API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
+                        plogger.info(API_MANAGER, "Requested API access to API {} from client {} ", accessedAPI.getAssetId(), clientApplication.getName());
                     }
                     if (!contract.isApproved() && request.isAutoApproveAPIAccessRequest()) {
                         try {
