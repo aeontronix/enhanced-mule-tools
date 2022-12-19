@@ -7,9 +7,9 @@ package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
-import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHWorkerType;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
@@ -105,6 +105,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
                     .set("objectStoreV1", cloudhub.getObjectStoreV1())
                     .set("persistentQueues", cloudhub.getPersistentQueues())
                     .set("persistentQueuesEncrypted", cloudhub.getPersistentQueuesEncrypted())
+                    .set("region", region)
                     .set("staticIPsEnabled", cloudhub.getStaticIPs())
                     .set("loggingCustomLog4JEnabled", cloudhub.getCustomlog4j());
             appInfoBuilder.addMap("muleVersion").set("version", muleVersion.getVersion()).set("updateId", muleVersion.getLatestUpdate().getId());
@@ -119,8 +120,9 @@ public class CHDeploymentOperation extends DeploymentOperation {
             Map<String, Object> appInfo = appInfoBuilder.toMap();
             String deploymentJson;
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying cloudhub application");
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Domain: "+appName);
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Count: "+workerCount);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Domain: " + appName);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Region: " + region);
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Count: " + workerCount);
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Worker Type: "+workerType.getName());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Mule Version: "+muleVersion.getVersion());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Custom Log4J logging: "+(cloudhub.getCustomlog4j() ? "Yes" : "No"));
