@@ -14,6 +14,7 @@
     "persistentQueues": false,
     "objectStoreV1": false,
     "persistentQueuesEncrypted": false,
+    "region": "us-west-4",
     "workers": {
       "amount": 1,
       "type": {
@@ -25,8 +26,8 @@
     },
     "properties": {
       "anypoint.org.id": "428536327643427636",
-      "anypoint.platform.config.analytics.agent.enabled": "true",
       "color": "blue",
+      "anypoint.platform.config.analytics.agent.enabled": "true",
       "anypoint.org.name": "MyOrg",
       "anypoint.env.suffix": "-prod",
       "anypoint.env.id": "42798472398234-243432243-243432234",
