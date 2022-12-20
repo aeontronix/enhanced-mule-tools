@@ -49,6 +49,7 @@ public class ApplicationSourceEnhancer {
             disableExchangePreDeploy(pomDoc);
             setupAnypointJson(projectDir);
             setupEnhancedMuleProperties(projectDir, pomDoc);
+            setupEnhMuleConfigFile(projectDir);
             try (final FileOutputStream fos = new FileOutputStream(pomFile)) {
                 XmlUtils.serialize(pomDoc, fos, true, true);
             }
@@ -56,6 +57,22 @@ public class ApplicationSourceEnhancer {
             throw new ApplicationSourceEnhancementException(e);
         }
         logger.info("Application enhancement completed");
+    }
+
+    private void setupEnhMuleConfigFile(File projectDir) throws IOException {
+        final File propertiesXml = new File(projectDir.getPath() + File.separator + "src" + File.separator + "main" +
+                File.separator + "mule" + File.separator + "enh-mule.xml");
+        if (!propertiesXml.exists()) {
+            FileUtils.write(propertiesXml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "\n" +
+                    "<mule xmlns:enhanced-mule-properties=\"http://www.mulesoft.org/schema/mule/enhanced-mule-properties\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
+                    "\txmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                    "\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                    "http://www.mulesoft.org/schema/mule/enhanced-mule-properties http://www.mulesoft.org/schema/mule/enhanced-mule-properties/current/mule-enhanced-mule-properties.xsd\">\n" +
+                    "\t<enhanced-mule-properties:config name=\"Enhanced_Mule_Properties_Config\" doc:name=\"Enhanced Mule Properties Config\" doc:id=\"a35802ca-2aa9-43c0-8c16-11db87f94841\" />\n" +
+                    "</mule>\n");
+            logger.info("Added src/main/mule/enh-mule.xml");
+        }
     }
 
     private void setupEnhancedMuleProperties(File projectDir, Document pomDoc) throws XPathExpressionException, IOException, RESTException {
@@ -78,19 +95,6 @@ public class ApplicationSourceEnhancer {
             XmlUtils.createElement("version", dependency).setTextContent(newVersion);
             XmlUtils.createElement("classifier", dependency).setTextContent("mule-plugin");
             logger.info("Added dependency " + groupId + ":" + artifactId + ":" + newVersion);
-            final File propertiesXml = new File(projectDir.getPath() + File.separator + "src" + File.separator + "main" +
-                    File.separator + "mule" + File.separator + "properties.xml");
-            if (!propertiesXml.exists()) {
-                FileUtils.write(propertiesXml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "\n" +
-                        "<mule xmlns:enhanced-mule-properties=\"http://www.mulesoft.org/schema/mule/enhanced-mule-properties\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
-                        "\txmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                        "\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                        "http://www.mulesoft.org/schema/mule/enhanced-mule-properties http://www.mulesoft.org/schema/mule/enhanced-mule-properties/current/mule-enhanced-mule-properties.xsd\">\n" +
-                        "\t<enhanced-mule-properties:config name=\"Enhanced_Mule_Properties_Config\" doc:name=\"Enhanced Mule Properties Config\" doc:id=\"a35802ca-2aa9-43c0-8c16-11db87f94841\" />\n" +
-                        "</mule>\n");
-                logger.info("Added src/main/mule/properties.xml");
-            }
         }
         final File propFile = new File(projectDir.getPath() + File.separator + "src" + File.separator + "main" +
                 File.separator + "resources" + File.separator + "properties.yaml");
