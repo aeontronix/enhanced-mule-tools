@@ -135,12 +135,16 @@ public class MavenHelper {
         }
         final Document settingsDoc;
         final Element root;
+        File oldFile;
         if (mavenSettingsFile.exists()) {
+            oldFile = new File(mavenSettingsFile.getPath() + ".old");
             settingsDoc = XmlUtils.parse(mavenSettingsFile, true);
             root = XmlUtils.getChildElement(settingsDoc, "settings", true);
         } else {
+            oldFile = null;
             settingsDoc = XmlUtils.createDocument(true);
             root = settingsDoc.createElementNS(SETTINGS_NS, "settings");
+            settingsDoc.appendChild(root);
             root.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xs:schemaLocation", SETTINGS_NS + " http://maven.apache.org/xsd/settings-1.1.0.xsd");
         }
         final Element servers = XmlUtils.getChildElement(root, "servers", true);
@@ -157,8 +161,19 @@ public class MavenHelper {
         }
         XmlUtils.getChildElement(server, "username", true).setTextContent("~~~Token~~~");
         XmlUtils.getChildElement(server, "password", true).setTextContent(bearerToken);
+        if (oldFile != null) {
+            mavenSettingsFile.renameTo(oldFile);
+        }
         try (FileOutputStream stream = new FileOutputStream(mavenSettingsFile)) {
             XmlUtils.serialize(settingsDoc, stream, false, true);
+            if (oldFile != null) {
+                oldFile.delete();
+            }
+        } catch (Throwable e) {
+            logger.error("An error occurred updating settings.xml, rolling back to old file");
+            if (oldFile != null) {
+                oldFile.renameTo(mavenSettingsFile);
+            }
         }
     }
 }

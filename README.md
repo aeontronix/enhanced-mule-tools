@@ -1,7 +1,9 @@
-**IMPORTANT NOTE**
+# Enhanced Mule Tools
 
-This project's maintenance has been taken over by Aeontronix (please note maven group id has now changed, see docs).
+## Documentation
 
-Documentation: https://enhanced-mule-tools.aeontronix.com/
+See https://docs.enhanced-mule.com for documentation
 
-Repository URL: https://gitlab.com/aeontronix/oss/enhanced-mule-tools
+## Contributing
+
+To contribute changes, fork this project and create pull request in gitlab
