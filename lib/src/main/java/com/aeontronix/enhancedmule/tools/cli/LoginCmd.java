@@ -21,11 +21,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.aeontronix.kryptotek.DigestUtils.sha256;
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -76,7 +80,17 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                 }
                 try (final Socket socket = serverSocket.accept(); BufferedReader r = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
                     final String line = r.readLine();
-                    final String code = getCode(line);
+                    String result;
+                    Map<String, String> params = new HashMap<>();
+                    for (String str : URI.create(line.split(" ")[1]).getQuery().split("&")) {
+                        String[] entry = str.split("=");
+                        params.put(entry[0],StringUtils.urlDecode(entry[1]));
+                    }
+                    final String code = params.get("code");
+                    final String callbackState = params.get("state");
+                    if( ! callbackState.equals(state) ) {
+                        throw new IllegalArgumentException("Received state does not match sent");
+                    }
                     final Map<String, String> req = new HashMap<>();
                     req.put("grant_type", "authorization_code");
                     req.put("redirect_uri", redirectUrl);
@@ -95,15 +109,6 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             }
         }
         return 0;
-    }
-
-    public static String getCode(String line) throws IOException {
-        final Matcher matcher = codeMatcher.matcher(line);
-        if (matcher.find()) {
-            return URLDecoder.decode(matcher.group(1), "UTF-8");
-        } else {
-            throw new IOException("Invalid response: " + line);
-        }
     }
 
     public static void renderPage(Socket socket, String message) throws IOException {
