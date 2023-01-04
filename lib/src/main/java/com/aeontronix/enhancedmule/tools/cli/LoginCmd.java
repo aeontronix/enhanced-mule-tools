@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2022
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.cli;
@@ -78,7 +78,9 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                 } catch (Exception e) {
                     logger.warn("Unable to launch browser, please manually open web browser and navigate to : " + authorizeUri);
                 }
-                try (final Socket socket = serverSocket.accept(); BufferedReader r = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                try (final Socket socket = serverSocket.accept();
+                     BufferedReader r = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                     final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
                     final String line = r.readLine();
                     String result;
                     Map<String, String> params = new HashMap<>();
@@ -104,19 +106,18 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                     if (!updateSettingsXml) {
                         MavenHelper.updateMavenSettings(mavenSettingsFile, cli.getActiveProfileId(), anAccessToken);
                     }
-                    renderPage(socket, "Login successful, you can close this browser window");
+                    String redirectTo = params.get("redirectTo");
+                    if( redirectTo != null ) {
+                        w.write("HTTP/1.1 302 Found\nContent-Type: text/html\nLocation: "+redirectTo+"\n\n");
+                    } else {
+                        w.append("HTTP/1.1 200 Ok\nContent-Type: text/html\n\n");
+                        w.append("<html><body><center>");
+                        w.append("Login successful, you can close this browser window");
+                        w.append("</center></body></html>");
+                    }
                 }
             }
         }
         return 0;
-    }
-
-    public static void renderPage(Socket socket, String message) throws IOException {
-        try (final BufferedWriter w = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-            w.append("HTTP/1.1 200 Ok\nContent-Type: text/html\n\n");
-            w.append("<html><body><center>");
-            w.append(message);
-            w.append("</center></body></html>");
-        }
     }
 }
