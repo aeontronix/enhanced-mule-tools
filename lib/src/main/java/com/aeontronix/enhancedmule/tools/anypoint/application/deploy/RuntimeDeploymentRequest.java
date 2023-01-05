@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
@@ -10,6 +10,8 @@ import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.runtime.CHApplication;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.aeontronix.enhancedmule.propertiesprovider.utils.JacksonFlattener.flattenToStringMap;
 import static java.lang.Boolean.TRUE;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -71,6 +74,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         this.vars.put("organization.lname", environment.getOrganization().getName().replace(" ", "_").toLowerCase());
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, String> buildProperties(Map<String, String> properties, File propertyfile, boolean ignoreMissingPropertyFile,
                                                 boolean injectEnvInfo) throws IOException {
         if (properties == null) {
@@ -78,18 +82,29 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         }
         if (propertyfile != null) {
             if (propertyfile.exists()) {
-                Properties fileProps = new Properties();
-                try (FileInputStream fis = new FileInputStream(propertyfile)) {
-                    fileProps.load(fis);
-                }
-                for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
-                    String key = entry.getKey().toString();
-                    if (!properties.containsKey(key)) {
-                        properties.put(key, entry.getValue().toString());
+                String propFilePath = propertyfile.getPath().toLowerCase();
+                if (propFilePath.endsWith(".properties")) {
+                    Properties fileProps = new Properties();
+                    try (FileInputStream fis = new FileInputStream(propertyfile)) {
+                        fileProps.load(fis);
                     }
+                    for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
+                        String key = entry.getKey().toString();
+                        if (!properties.containsKey(key)) {
+                            properties.put(key, entry.getValue().toString());
+                        }
+                    }
+                } else if (propFilePath.endsWith(".json") || propFilePath.endsWith(".yaml")) {
+                    ObjectMapper objectMapper;
+                    if (propFilePath.endsWith(".json")) {
+                        objectMapper = new ObjectMapper();
+                    } else {
+                        objectMapper = new ObjectMapper(new YAMLFactory());
+                    }
+                    properties.putAll(flattenToStringMap(objectMapper.readValue(propFilePath, Map.class)));
                 }
             } else {
-                if( ! ignoreMissingPropertyFile ) {
+                if (!ignoreMissingPropertyFile) {
                     throw new IllegalArgumentException("Property file not found: " + propertyfile);
                 }
             }
