@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
@@ -94,7 +94,7 @@ public class User extends AnypointObject {
     }
 
     @Override
-    public void setClient(AnypointClient client) {
+    public void setClient(LegacyAnypointClient client) {
         super.setClient(client);
         if (organization != null) {
             organization.setClient(client);

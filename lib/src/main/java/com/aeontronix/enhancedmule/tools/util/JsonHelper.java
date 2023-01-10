@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.InvalidJsonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,12 +26,12 @@ import java.util.*;
 
 public class JsonHelper implements Serializable {
     private ObjectMapper jsonMapper = createMapper();
-    private AnypointClient client;
+    private LegacyAnypointClient client;
 
     public JsonHelper() {
     }
 
-    public JsonHelper(AnypointClient client) {
+    public JsonHelper(LegacyAnypointClient client) {
         this.client = client;
     }
 
@@ -87,11 +87,11 @@ public class JsonHelper implements Serializable {
         return null;
     }
 
-    public AnypointClient getClient() {
+    public LegacyAnypointClient getClient() {
         return client;
     }
 
-    public void setClient(AnypointClient client) {
+    public void setClient(LegacyAnypointClient client) {
         this.client = client;
     }
 
@@ -185,7 +185,7 @@ public class JsonHelper implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public <X> X readJson(Class<X> objClass, JsonNode node, AnypointClient client) {
+    public <X> X readJson(Class<X> objClass, JsonNode node, LegacyAnypointClient client) {
         try {
             Object obj = jsonMapper.treeToValue(node, objClass);
             if (obj instanceof AnypointObject) {

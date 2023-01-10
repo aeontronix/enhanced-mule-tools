@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -27,7 +27,7 @@ public class DesignCenterProject extends AnypointObject<Organization> {
     }
 
     public static DesignCenterProject create(Organization organization, String name, String type, boolean visualDesignerMode, String ownerId) throws HttpException {
-        AnypointClient client = organization.getClient();
+        LegacyAnypointClient client = organization.getClient();
         Map<String, Object> req = client.getJsonHelper().buildJsonMap()
                 .set("name", name)
                 .set("type", type)

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -38,9 +38,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class DeploymentServiceImpl implements DeploymentService {
     private static final Logger logger = getLogger(DeploymentServiceImpl.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
-    private AnypointClient client;
+    private LegacyAnypointClient client;
 
-    public DeploymentServiceImpl(AnypointClient client) {
+    public DeploymentServiceImpl(LegacyAnypointClient client) {
         this.client = client;
     }
 

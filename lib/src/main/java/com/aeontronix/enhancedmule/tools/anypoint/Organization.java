@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
@@ -60,11 +60,11 @@ public class Organization extends AnypointObject {
     public Organization() {
     }
 
-    public Organization(AnypointClient client) {
+    public Organization(LegacyAnypointClient client) {
         super(client);
     }
 
-    public Organization(AnypointClient client, String id) {
+    public Organization(LegacyAnypointClient client, String id) {
         super(client);
         this.id = id;
     }

@@ -1,19 +1,20 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.enhancedmule.config.ConfigCredentials;
-import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.EMConfig;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.anypointsdk.AnypointClient;
+import com.aeontronix.anypointsdk.auth.AnypointClientCredentialsAuthenticationHandler;
+import com.aeontronix.anypointsdk.auth.AnypointUPWAuthenticationHandler;
+import com.aeontronix.enhancedmule.config.*;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.apim.APIManagerCmd;
 import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
+import com.aeontronix.enhancedmule.tools.cli.cloudhub.CloudhubCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ActiveProfileCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.DecryptCmd;
@@ -23,12 +24,16 @@ import com.aeontronix.enhancedmule.tools.cli.exchange.ExchangeCmd;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
+import com.aeontronix.restclient.auth.AuthenticationHandler;
+import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReader;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
@@ -36,7 +41,7 @@ import static picocli.CommandLine.Option;
 @Command(name = "emt", subcommands = {
         ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
         DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class,
-        ExchangeCmd.class, ApplicationCmd.class
+        ExchangeCmd.class, ApplicationCmd.class, CloudhubCmd.class
 }, versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli extends AbstractCommand {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
@@ -49,16 +54,16 @@ public class EMTCli extends AbstractCommand {
     private LineReader reader;
     @ArgGroup(exclusive = false, multiplicity = "0..1")
     private CredentialsArgs credentialsArgs;
+    @Option(names = {"-u","--base-url"}, description = "Anypoint base URL",
+            defaultValue = "https://anypoint.mulesoft.com",
+            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    private URL baseUrl;
     private EMConfig config;
     private ConfigProfile activeProfile;
+    private AnypointClient anypointClient;
 
     public EMTCli() throws IOException, ProfileNotFoundException {
         config = EMConfig.findConfigFile();
-        if (profileName != null) {
-            activeProfile = config.getProfileByProfileName(profileName);
-        } else {
-            activeProfile = config.getProfile(null, null, null);
-        }
     }
 
     @Override
@@ -96,6 +101,13 @@ public class EMTCli extends AbstractCommand {
 
     @NotNull
     public ConfigProfile getActiveProfile() throws IOException, ProfileNotFoundException {
+        if( activeProfile == null ) {
+            if (profileName != null) {
+                activeProfile = config.getProfileByProfileName(profileName);
+            } else {
+                activeProfile = config.getProfile(null, null, null);
+            }
+        }
         return activeProfile;
     }
 
@@ -106,6 +118,32 @@ public class EMTCli extends AbstractCommand {
 
     public void saveConfig() throws IOException {
         config.save();
+    }
+
+    public synchronized AnypointClient getAnypointClient() throws IOException, ProfileNotFoundException {
+        if( anypointClient == null ) {
+            AuthenticationHandler authenticationHandler;
+            if (credentialsArgs != null) {
+                authenticationHandler = credentialsArgs.getAuthenticationHandler();
+            } else {
+                ConfigCredentials creds = getActiveProfile().getCredentials();
+                if (creds instanceof CredentialsClientCredentialsImpl) {
+                    authenticationHandler = new AnypointClientCredentialsAuthenticationHandler(((CredentialsClientCredentialsImpl) creds).getClientId(),
+                            ((CredentialsClientCredentialsImpl) creds).getClientSecret());
+                } else if ( creds instanceof CredentialsUsernamePasswordImpl ) {
+                    authenticationHandler = new AnypointUPWAuthenticationHandler(((CredentialsUsernamePasswordImpl) creds).getUsername(),
+                            ((CredentialsUsernamePasswordImpl) creds).getPassword());
+                } else if( creds instanceof CredentialsBearerTokenImpl ) {
+                    authenticationHandler = new BearerTokenAuthenticationHandler(((CredentialsBearerTokenImpl) creds).getBearerToken());
+                } else {
+                    throw new IllegalStateException("No valid credentials specified in command or present in active configuration");
+                }
+            }
+            anypointClient = AnypointClient.builder()
+                    .baseUrl(baseUrl.toString())
+                    .authenticationHandler(authenticationHandler).build();
+        }
+        return anypointClient;
     }
 
     public Environment getEnvironment(String organizationName, String environmentName) throws IOException, ProfileNotFoundException, NotFoundException {
@@ -121,16 +159,16 @@ public class EMTCli extends AbstractCommand {
         if (environmentName == null) {
             throw new IllegalArgumentException("Environment not set and no default is assigned in profile");
         }
-        final EnhancedMuleClient client = getClient(organizationName, environmentName);
-        client.getAnypointClient().findEnvironment(organizationName, environmentName, false, false, null);
+        final EnhancedMuleClient client = getEMClient(organizationName, environmentName);
+        client.getLegacyAnypointClient().findEnvironment(organizationName, environmentName, false, false, null);
         return null;
     }
 
-    public EnhancedMuleClient getClient() throws IOException, ProfileNotFoundException {
-        return getClient(null, null);
+    public EnhancedMuleClient getEMClient() throws IOException, ProfileNotFoundException {
+        return getEMClient(null, null);
     }
 
-    public EnhancedMuleClient getClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
+    public EnhancedMuleClient getEMClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
         ConfigCredentials credentials;
         credentials = credentialsArgs != null ? credentialsArgs.getCredentials() : null;
         if (credentials == null) {
@@ -146,9 +184,9 @@ public class EMTCli extends AbstractCommand {
 
     public Organization findOrganization(String organization) throws IOException, ProfileNotFoundException, NotFoundException {
         if (organization != null) {
-            return getClient(organization, null).getAnypointClient().findOrganizationByNameOrId(organization);
+            return getEMClient(organization, null).getLegacyAnypointClient().findOrganizationByNameOrId(organization);
         } else {
-            final AnypointClient anypointClient = getClient().getAnypointClient();
+            final LegacyAnypointClient anypointClient = getEMClient().getLegacyAnypointClient();
             final Organization org = anypointClient.getUser().getOrganization();
             org.setClient(anypointClient);
             return org;

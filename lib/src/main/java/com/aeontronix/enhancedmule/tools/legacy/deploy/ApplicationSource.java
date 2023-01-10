@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.APISpecSource;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -27,14 +27,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class ApplicationSource implements APISpecSource, Closeable {
     private static final Logger logger = getLogger(ApplicationSource.class);
-    protected AnypointClient client;
+    protected LegacyAnypointClient client;
     protected ApplicationIdentifier applicationIdentifier;
 
-    public ApplicationSource(AnypointClient client) {
+    public ApplicationSource(LegacyAnypointClient client) {
         this.client = client;
     }
 
-    public static ApplicationSource create(String orgId, AnypointClient client, String path) throws IOException {
+    public static ApplicationSource create(String orgId, LegacyAnypointClient client, String path) throws IOException {
         if (path.startsWith("exchange://")) {
             return new ExchangeApplicationSource(orgId, client, path);
         } else {

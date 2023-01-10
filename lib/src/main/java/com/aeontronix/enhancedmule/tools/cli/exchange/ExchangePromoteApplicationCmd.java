@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2022
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.cli.exchange;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
@@ -26,8 +26,8 @@ public class ExchangePromoteApplicationCmd extends AbstractCommand implements Ca
 
     @Override
     public Integer call() throws Exception {
-        final EnhancedMuleClient emClient = getCli().getClient();
-        final AnypointClient anypointClient = emClient.getAnypointClient();
+        final EnhancedMuleClient emClient = getCli().getEMClient();
+        final LegacyAnypointClient anypointClient = emClient.getLegacyAnypointClient();
         final Organization org;
         if (businessGroup != null) {
             org = anypointClient.findOrganizationByNameOrId(businessGroup);

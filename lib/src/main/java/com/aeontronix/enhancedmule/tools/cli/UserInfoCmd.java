@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2022
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.cli;
@@ -24,7 +24,7 @@ public class UserInfoCmd extends AbstractCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         final User user;
         try {
-            final RESTClientHost anypointRestClient = getCli().getClient().getAnypointClient().getAnypointRestClient();
+            final RESTClientHost anypointRestClient = getCli().getEMClient().getLegacyAnypointClient().getAnypointRestClient();
             try (RESTResponse response = anypointRestClient.get("/accounts/api/me").execute()) {
                 logger.info("Anypoint User Info: " + IOUtils.toString(response.getContentStream()));
             }

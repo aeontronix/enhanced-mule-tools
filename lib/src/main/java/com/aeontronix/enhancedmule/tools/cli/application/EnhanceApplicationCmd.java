@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2022
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.cli.application;
@@ -20,7 +20,7 @@ public class EnhanceApplicationCmd extends AbstractCommand implements Callable<I
 
     @Override
     public Integer call() throws Exception {
-        new ApplicationSourceEnhancer(getCli().getClient().getRestClient(), projectDir).execute();
+        new ApplicationSourceEnhancer(getCli().getEMClient().getRestClient(), projectDir).execute();
         return 0;
     }
 }

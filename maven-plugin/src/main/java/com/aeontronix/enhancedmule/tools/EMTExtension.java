@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
@@ -132,7 +132,7 @@ public class EMTExtension extends AbstractMavenLifecycleParticipant {
             emClient = createClient(enhancedMuleServerUrl, session, anypointBearerToken, username, password,
                     clientId, clientSecret, profile, org, project != null ? project.getGroupId() : null);
             try {
-                emClient.getAnypointClient().getUser();
+                emClient.getLegacyAnypointClient().getUser();
             } catch (IOException e) {
                 logger.warn("Unable to verify authentication");
             }

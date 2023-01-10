@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.runtime;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -91,7 +91,7 @@ public class CHApplication extends AnypointObject<Environment> {
     }
 
     public static CHApplication find(Environment environment, String domain) throws HttpException, NotFoundException {
-        AnypointClient client = environment.getClient();
+        LegacyAnypointClient client = environment.getClient();
         try {
             String json = client.getHttpHelper().anypointHttpGet("/cloudhub/api/v2/applications/" + domain, environment);
             return client.getJsonHelper().readJson(new CHApplication(), json, environment);

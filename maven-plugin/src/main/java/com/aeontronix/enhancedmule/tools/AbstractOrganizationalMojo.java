@@ -1,14 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +18,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
 
     public synchronized Organization getOrganization() throws NotFoundException, IOException {
         if (organization == null) {
-            final AnypointClient client = getClient();
+            final LegacyAnypointClient client = getClient();
             if (org != null) {
                 organization = client.findOrganizationByNameOrId(org);
             } else {

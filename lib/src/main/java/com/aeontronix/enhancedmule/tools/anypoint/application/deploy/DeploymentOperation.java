@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -63,7 +63,7 @@ public abstract class DeploymentOperation {
     }
 
     public DeploymentResult deploy() throws ProvisioningException, IOException, HttpException, DeploymentException {
-        AnypointClient client = environment.getClient();
+        LegacyAnypointClient client = environment.getClient();
         boolean tmpFile = false;
         try {
             environment = environment.refresh();

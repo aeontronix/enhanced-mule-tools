@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
@@ -341,13 +341,13 @@ public class Environment extends AnypointObject<Organization> {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<Environment> findEnvironmentsByOrg(@NotNull AnypointClient client, @NotNull Organization organization) throws HttpException {
+    public static List<Environment> findEnvironmentsByOrg(@NotNull LegacyAnypointClient client, @NotNull Organization organization) throws HttpException {
         String json = client.getHttpHelper().httpGet("/accounts/api/organizations/" + organization.getId() + "/environments");
         return client.getJsonHelper().readJsonList((Class<Environment>) organization.getEnvironmentClass(), json, organization, "/data");
     }
 
     @NotNull
-    public static Environment findEnvironmentByName(@NotNull String name, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
+    public static Environment findEnvironmentByName(@NotNull String name, @NotNull LegacyAnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
         logger.debug("Searching for environment named {}", name);
         for (Environment environment : findEnvironmentsByOrg(client, organization)) {
             logger.debug("Checking if " + environment.getName() + " is equals to " + name);
@@ -370,7 +370,7 @@ public class Environment extends AnypointObject<Organization> {
 
     @SuppressWarnings("unchecked")
     @NotNull
-    public static Environment findEnvironmentById(@NotNull String id, @NotNull AnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
+    public static Environment findEnvironmentById(@NotNull String id, @NotNull LegacyAnypointClient client, @NotNull Organization organization) throws HttpException, EnvironmentNotFoundException {
         logger.debug("finding environment by id: {}", id);
         String json = null;
         final String organizationId = organization.getId();

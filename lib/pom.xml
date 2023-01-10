@@ -100,6 +100,11 @@
             <version>1.1.0-beta8</version>
         </dependency>
         <dependency>
+            <groupId>com.aeontronix.enhancedmule</groupId>
+            <artifactId>anypoint-sdk</artifactId>
+            <version>1.0.0-beta4</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
             <version>3.6.4</version>

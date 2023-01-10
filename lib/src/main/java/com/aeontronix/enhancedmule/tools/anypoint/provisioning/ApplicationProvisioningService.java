@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
@@ -18,13 +18,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ApplicationProvisioningService {
     private static final Logger logger = getLogger(ApplicationProvisioningService.class);
     private MuleAPIProvisioningService muleAPIProvisioningService;
-    private AnypointClient client;
+    private LegacyAnypointClient client;
 
-    public ApplicationProvisioningService(AnypointClient client, MuleAPIProvisioningService muleAPIProvisioningService) {
+    public ApplicationProvisioningService(LegacyAnypointClient client, MuleAPIProvisioningService muleAPIProvisioningService) {
         this.muleAPIProvisioningService = muleAPIProvisioningService;
     }
 
-    public ApplicationProvisioningService(AnypointClient client) {
+    public ApplicationProvisioningService(LegacyAnypointClient client) {
         this(client, new MuleAPIProvisioningService(client));
     }
 

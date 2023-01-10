@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy.rtf;
@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.legacy.deploy.rtf;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
@@ -157,7 +157,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
 
     private String getExistingAppDeploymentId(String appName, String targetId) throws HttpException {
         logger.debug("Searching for pre-existing RTF application named " + appName);
-        final AnypointClient client = environment.getClient();
+        final LegacyAnypointClient client = environment.getClient();
         final String deployments = client.getHttpHelper()
                 .httpGet(new URLBuilder("/hybrid/api/v2/organizations").path(environment.getOrganization().getId())
                         .path("environments").path(environment.getId()).path("deployments").toString());

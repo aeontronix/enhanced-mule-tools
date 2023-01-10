@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.emclient;
@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.emclient;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProvider;
@@ -83,10 +83,10 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
         initRestClient();
     }
 
-    public AnypointClient getAnypointClient() throws IOException {
+    public LegacyAnypointClient getLegacyAnypointClient() throws IOException {
         if (credentialsProvider instanceof AnypointBearerTokenCredentialsProvider) {
             final String anypointBearerToken = ((AnypointBearerTokenCredentialsProvider) credentialsProvider).getAnypointBearerToken(this);
-            final AnypointClient anypointClient = new AnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken));
+            final LegacyAnypointClient anypointClient = new LegacyAnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken));
             if (proxySettings != null) {
                 final URI proxyUri = proxySettings.getProxyUri();
                 anypointClient.setProxy(proxyUri.getScheme(), proxyUri.getHost(), proxyUri.getPort(),

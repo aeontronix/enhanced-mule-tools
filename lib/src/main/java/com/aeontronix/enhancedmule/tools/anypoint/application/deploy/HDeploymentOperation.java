@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
@@ -43,7 +43,7 @@ public class HDeploymentOperation extends DeploymentOperation {
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest deploymentRequest) throws IOException, HttpException {
         HttpHelper.MultiPartRequest request;
         long start = System.currentTimeMillis();
-        AnypointClient client = environment.getClient();
+        LegacyAnypointClient client = environment.getClient();
         HttpHelper httpHelper = client.getHttpHelper();
         String appName = deploymentRequest.getAppName();
         try {

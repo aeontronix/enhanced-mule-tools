@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.provisioning;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -68,7 +68,7 @@ public class OrganizationDescriptor {
         w.write('\n');
     }
 
-    public Organization provision(AnypointClient client) throws NotFoundException, HttpException, ProvisioningException {
+    public Organization provision(LegacyAnypointClient client) throws NotFoundException, HttpException, ProvisioningException {
         Organization org;
         if (ownerId == null) {
             ownerId = client.getUserId();
@@ -241,7 +241,7 @@ public class OrganizationDescriptor {
         this.roles = roles;
     }
 
-    public static Organization provision(AnypointClient client, File orgDescriptorFile, String orgName) throws NotFoundException, HttpException, IOException, ProvisioningException {
+    public static Organization provision(LegacyAnypointClient client, File orgDescriptorFile, String orgName) throws NotFoundException, HttpException, IOException, ProvisioningException {
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(orgDescriptorFile,
                 OrganizationDescriptor.class);
         if (StringUtils.isNotBlank(orgName)) {
@@ -250,7 +250,7 @@ public class OrganizationDescriptor {
         return org.provision(client);
     }
 
-    public static void toMarkdown(AnypointClient client, Writer w, File file, int headingDepth) throws IOException {
+    public static void toMarkdown(LegacyAnypointClient client, Writer w, File file, int headingDepth) throws IOException {
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(file,
                 OrganizationDescriptor.class);
         org.toMarkdown(w, headingDepth);

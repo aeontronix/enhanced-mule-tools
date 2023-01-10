@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
@@ -69,12 +69,12 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Parameter(property = "profile")
     protected String profile;
     protected EnhancedMuleClient emClient;
-    private AnypointClient client;
+    private LegacyAnypointClient client;
 
     public AbstractAnypointMojo() {
     }
 
-    public synchronized AnypointClient getClient() throws IOException {
+    public synchronized LegacyAnypointClient getClient() throws IOException {
         if (client == null) {
             client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings);
         }

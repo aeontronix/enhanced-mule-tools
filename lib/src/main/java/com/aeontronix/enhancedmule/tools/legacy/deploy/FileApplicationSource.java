@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,12 +25,12 @@ public class FileApplicationSource extends ApplicationSource {
     private static final Logger logger = getLogger(FileApplicationSource.class);
     private File file;
 
-    public FileApplicationSource(AnypointClient client, File file) {
+    public FileApplicationSource(LegacyAnypointClient client, File file) {
         super(client);
         this.file = file;
     }
 
-    public FileApplicationSource(AnypointClient client, File file, ApplicationIdentifier applicationIdentifier) {
+    public FileApplicationSource(LegacyAnypointClient client, File file, ApplicationIdentifier applicationIdentifier) {
         this(client, file);
         this.applicationIdentifier = applicationIdentifier;
     }

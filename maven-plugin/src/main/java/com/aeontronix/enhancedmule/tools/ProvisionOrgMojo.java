@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.OrganizationDescriptor;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -16,7 +16,7 @@ public class ProvisionOrgMojo extends AbstractAnypointMojo {
 
     @Override
     protected void doExecute() throws Exception {
-        AnypointClient client = getClient();
+        LegacyAnypointClient client = getClient();
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(orgDescriptorFile, OrganizationDescriptor.class);
         org.provision(client);
     }

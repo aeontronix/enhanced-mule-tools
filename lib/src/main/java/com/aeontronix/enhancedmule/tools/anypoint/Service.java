@@ -1,9 +1,9 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 public interface Service {
-    void setClient(AnypointClient client);
+    void setClient(LegacyAnypointClient client);
 }

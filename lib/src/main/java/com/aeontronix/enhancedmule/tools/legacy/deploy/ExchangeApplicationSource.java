@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy;
 
 import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -30,7 +30,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
     private String version;
     private TempFile tempFile;
 
-    ExchangeApplicationSource(String orgId, AnypointClient client, String url) throws IllegalArgumentException, IOException {
+    ExchangeApplicationSource(String orgId, LegacyAnypointClient client, String url) throws IllegalArgumentException, IOException {
         super(client);
         if (!url.startsWith(PREFIX)) {
             throw new IllegalArgumentException("Invalid exchange url ( must start with exchange:// ): " + url);
@@ -57,7 +57,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
         }
     }
 
-    public ExchangeApplicationSource(AnypointClient client, String orgId, String groupId, String artifactId, String version) {
+    public ExchangeApplicationSource(LegacyAnypointClient client, String orgId, String groupId, String artifactId, String version) {
         super(client);
         this.client = client;
         this.orgId = orgId;

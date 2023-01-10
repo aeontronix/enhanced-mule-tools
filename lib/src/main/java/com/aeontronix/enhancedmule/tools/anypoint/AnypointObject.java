@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
@@ -10,14 +10,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AnypointObject<X extends AnypointObject> implements Serializable {
     @JsonIgnore
     protected String json;
     @JsonIgnore
-    protected AnypointClient client;
+    protected LegacyAnypointClient client;
     @JsonIgnore
     protected HttpHelper httpHelper;
     @JsonIgnore
@@ -25,7 +24,7 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
     @JsonIgnore
     protected X parent;
 
-    public AnypointObject(AnypointClient client) {
+    public AnypointObject(LegacyAnypointClient client) {
         setClient(client);
     }
 
@@ -37,7 +36,7 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
     }
 
     @JsonIgnore
-    public AnypointClient getClient() {
+    public LegacyAnypointClient getClient() {
         return client;
     }
 
@@ -46,11 +45,11 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
         setClient(parent.getClient());
     }
 
-    public void setClient(AnypointClient client) {
+    public void setClient(LegacyAnypointClient client) {
         setClient(client, false);
     }
 
-    public void setClient(AnypointClient client, boolean setParent) {
+    public void setClient(LegacyAnypointClient client, boolean setParent) {
         this.client = client;
         httpHelper = client.getHttpHelper();
         jsonHelper = client.getJsonHelper();

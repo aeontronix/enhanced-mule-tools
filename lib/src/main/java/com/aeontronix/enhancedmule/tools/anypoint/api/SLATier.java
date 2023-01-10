@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +22,7 @@ public class SLATier extends AnypointObject<API> {
     private int applicationCount;
     private List<SLATierLimits> limits;
 
-    public SLATier(AnypointClient client) {
+    public SLATier(LegacyAnypointClient client) {
         super(client);
     }
 

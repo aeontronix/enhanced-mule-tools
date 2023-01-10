@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProviderBearerTokenImpl;
 import org.apache.maven.settings.Proxy;
@@ -16,15 +16,15 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class AnypointClientBuilder {
     private static final Logger logger = getLogger(AnypointClientBuilder.class);
 
-    public static AnypointClient buildClient(String bearerToken,
-                                             Settings settings) {
+    public static LegacyAnypointClient buildClient(String bearerToken,
+                                                   Settings settings) {
         AuthenticationProvider authenticationProvider;
         if (bearerToken != null) {
             authenticationProvider = new AuthenticationProviderBearerTokenImpl(bearerToken);
         } else {
             throw new IllegalArgumentException("No authentication credentials specified (username/password, client id/secret or bearer)");
         }
-        AnypointClient client = new AnypointClient(authenticationProvider);
+        LegacyAnypointClient client = new LegacyAnypointClient(authenticationProvider);
         Proxy proxy = settings.getActiveProxy();
         logger.debug("Checking debug settings");
         if (proxy != null) {

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
@@ -32,7 +32,7 @@ public class ClientApplication extends AnypointObject<Organization> {
     private String clientId;
     private String clientSecret;
 
-    public ClientApplication(AnypointClient client) {
+    public ClientApplication(LegacyAnypointClient client) {
         super(client);
     }
 
@@ -105,7 +105,7 @@ public class ClientApplication extends AnypointObject<Organization> {
     public static ClientApplication create(@NotNull Organization organization, @NotNull String name, String url,
                                            String description, List<String> redirectUri, String apiEndpoints,
                                            String accessedAPIInstanceId) throws HttpException {
-        AnypointClient client = organization.getClient();
+        LegacyAnypointClient client = organization.getClient();
         Map<String, Object> req = client.getJsonHelper().buildJsonMap().set("name", name.trim()).set("url", url)
                 .set("description", description != null ? description : "")
                 .set("redirectUri", redirectUri).set("apiEndpoints", apiEndpoints)

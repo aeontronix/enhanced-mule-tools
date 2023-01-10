@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2020
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint;
@@ -35,9 +35,9 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("SameParameterValue")
-public class AnypointClient implements Closeable, Serializable {
+public class LegacyAnypointClient implements Closeable, Serializable {
     private static Pattern idRegex = Pattern.compile("[a-zA-Z0-9\\-]+");
-    private static final Logger logger = LoggerFactory.getLogger(AnypointClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(LegacyAnypointClient.class);
     protected JsonHelper jsonHelper = new JsonHelper();
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
@@ -49,18 +49,18 @@ public class AnypointClient implements Closeable, Serializable {
     /**
      * Contructor used for serialization only
      **/
-    public AnypointClient() {
+    public LegacyAnypointClient() {
         if (!loadAnypointCliConfig()) {
             throw new IllegalStateException("Unable to find/load configurations");
         }
         init();
     }
 
-    public AnypointClient(AuthenticationProvider authenticationProvider) {
+    public LegacyAnypointClient(AuthenticationProvider authenticationProvider) {
         this(authenticationProvider, 3);
     }
 
-    public AnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
+    public LegacyAnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
         this.maxParallelDeployments = maxParallelDeployments;
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
         init();

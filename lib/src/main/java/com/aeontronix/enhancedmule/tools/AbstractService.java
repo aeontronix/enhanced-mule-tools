@@ -1,17 +1,17 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Service;
 
 public abstract class AbstractService implements Service {
-    protected AnypointClient client;
+    protected LegacyAnypointClient client;
 
     @Override
-    public void setClient(AnypointClient client) {
+    public void setClient(LegacyAnypointClient client) {
         this.client = client;
     }
 }

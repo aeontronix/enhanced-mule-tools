@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
@@ -87,7 +87,7 @@ public class CHDeploymentOperation extends DeploymentOperation {
             } else {
                 workerCount = cloudhub.getWorkerCount();
             }
-            AnypointClient client = environment.getClient();
+            LegacyAnypointClient client = environment.getClient();
             HttpHelper httpHelper = client.getHttpHelper();
             JsonHelper.MapBuilder appInfoBuilder = client.getJsonHelper().buildJsonMap();
             final Boolean extMonitoring = deploymentParameters.getExtMonitoring();

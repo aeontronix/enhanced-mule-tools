@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.emclient.authentication;
@@ -44,7 +44,7 @@ public class CredentialsProviderAnypointUsernamePasswordImpl implements Anypoint
             Map<String, String> loginReq = new HashMap<>();
             loginReq.put("username", username);
             loginReq.put("password", password);
-            final Map response = emClient.getAnypointClient().getAnypointRestClient().post(loginUrl).jsonBody(loginUrl).executeAndConvertToObject(Map.class);
+            final Map response = emClient.getLegacyAnypointClient().getAnypointRestClient().post(loginUrl).jsonBody(loginUrl).executeAndConvertToObject(Map.class);
             final String accessToken = (String) response.get("access_token");
             if (accessToken == null) {
                 throw new IOException("No access token returned by anypoint login");

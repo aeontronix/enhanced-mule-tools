@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.role;
 
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -30,7 +30,7 @@ public class RoleGroup extends AnypointObject<Organization> {
     @JsonProperty("external_names")
     private Set<String> externalNames;
 
-    public RoleGroup(AnypointClient client) {
+    public RoleGroup(LegacyAnypointClient client) {
         super(client);
     }
 
