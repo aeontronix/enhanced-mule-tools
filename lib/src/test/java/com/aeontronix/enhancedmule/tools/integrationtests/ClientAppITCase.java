@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.integrationtests;
 
 import com.aeontronix.commons.DataUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
@@ -25,7 +25,7 @@ public class ClientAppITCase {
     private static final Logger logger = LoggerFactory.getLogger(ClientAppITCase.class);
     private static Organization organization;
     private static Environment env;
-    private static AnypointClient client;
+    private static LegacyAnypointClient client;
     private static ClientApplication clientApp;
     private static String clientAppName;
     private static API api;
@@ -34,7 +34,7 @@ public class ClientAppITCase {
     static {
         try {
             clientAppName = "int-test-" + DataUtils.uuidToB32Str(UUID.randomUUID());
-            client = new AnypointClient();
+            client = new LegacyAnypointClient();
             organization = client.findOrganizationByNameOrId("mySubOrg");
             clientApp = null;
             env = organization.findEnvironmentByName("Sandbox");

@@ -1,22 +1,25 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.APIProvisioningITCase;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.DesignCenterProject;
 import com.aeontronix.enhancedmule.tools.anypoint.api.DesignCenterProjectExchange;
 import com.aeontronix.enhancedmule.tools.anypoint.api.policy.Policy;
-import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ApplicationProvisioningService;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
-import com.aeontronix.enhancedmule.tools.application.api.*;
+import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
+import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningConfig;
+import com.aeontronix.enhancedmule.tools.application.api.APIProvisioningResult;
+import com.aeontronix.enhancedmule.tools.application.api.PolicyDescriptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +30,10 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,7 +46,7 @@ public class AbstractAnypointTest {
     public static final String ATTRIBUTES_HEADERS_CLIENT_SECRET = "#[attributes.headers['client_secret']]";
     public static final String ATTRIBUTES_HEADERS_CLIENT_SECRET2 = "#[attributes.headers['client_so_secret']]";
     public static final String CLIENT_SECRET_EXPRESSION = "clientSecretExpression";
-    protected AnypointClient client;
+    protected LegacyAnypointClient client;
     protected @NotNull Organization org;
     protected boolean integrationTest = true;
     protected Environment env;
@@ -58,7 +64,7 @@ public class AbstractAnypointTest {
         if (integrationTest) {
             String testName = getTestName(testInfo);
             System.out.println("Recording test: " + testName);
-            client = new AnypointClient();
+            client = new LegacyAnypointClient();
             deleteTestOrgs();
             orgName = TESTPREFIX + String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", new Date());
             System.out.println("Creating test org " + orgName);
@@ -69,7 +75,7 @@ public class AbstractAnypointTest {
             org = client.findOrganizationByNameOrId(orgName);
             env = org.findEnvironmentByName(orgName);
         } else {
-            client = new AnypointClient();
+            client = new LegacyAnypointClient();
             HttpHelperReplayer httpHelper = new HttpHelperReplayer(client.getJsonHelper(), testRecordingFile);
             orgName = httpHelper.getOrgName();
             client.setHttpHelper(httpHelper);

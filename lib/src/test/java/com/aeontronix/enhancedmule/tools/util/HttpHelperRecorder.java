@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationProvider;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class HttpHelperRecorder extends HttpHelper {
     private HttpHelperRecording recording = new HttpHelperRecording();
 
-    public HttpHelperRecorder(AnypointClient client, AuthenticationProvider authenticationProvider, String orgName) {
+    public HttpHelperRecorder(LegacyAnypointClient client, AuthenticationProvider authenticationProvider, String orgName) {
         super(client.getJsonHelper(), authenticationProvider);
         recording.setOrgName(orgName);
     }

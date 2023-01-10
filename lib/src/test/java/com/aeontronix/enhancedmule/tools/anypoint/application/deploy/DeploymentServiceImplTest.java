@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Aeontronix 2021
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
@@ -49,7 +49,7 @@ class DeploymentServiceImplTest {
     public static final String MYFABRIC = "myfabric";
     public static final String ENV_ID = "42798472398234-243432243-243432234";
     private static final String ENV_NAME = "ProdEnv";
-    private AnypointClient anypointClient;
+    private LegacyAnypointClient anypointClient;
     private Environment environment;
     private ApplicationSource appSrc;
     private Organization organization;
@@ -67,7 +67,7 @@ class DeploymentServiceImplTest {
         String testName = testInfo.getTestMethod().orElseThrow(RuntimeException::new).getName();
         descJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + ".json"));
         expectedJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + "-expected.json"));
-        anypointClient = mock(AnypointClient.class);
+        anypointClient = mock(LegacyAnypointClient.class);
         httpHelper = mock(HttpHelper.class);
         when(httpHelper.anypointHttpPost(any(), any(), any())).thenReturn("{}");
         final JsonHelper jsonHelper = new JsonHelper(anypointClient);

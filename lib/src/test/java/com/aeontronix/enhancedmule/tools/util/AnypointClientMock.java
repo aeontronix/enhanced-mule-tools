@@ -1,16 +1,16 @@
 /*
- * Copyright (c) Aeontronix 2019
+ * Copyright (c) Aeontronix 2023
  */
 
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.AnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import org.mockito.Mockito;
 
-public class AnypointClientMock extends AnypointClient {
+public class AnypointClientMock extends LegacyAnypointClient {
     public static final String ORGID = "orgid";
     public static final String API_ID = "90485399";
     public static final String API_VERSION_ID = "6894188";
