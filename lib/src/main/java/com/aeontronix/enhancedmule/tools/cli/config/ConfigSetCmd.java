@@ -33,20 +33,27 @@ public class ConfigSetCmd implements Callable<Integer> {
     public Integer call() throws Exception {
         final EMTCli cli = parent.getCli();
         final ConfigProfile profile = cli.getActiveProfile();
-        if (anypointUrl != null) {
-            profile.setAnypointUrl(anypointUrl);
+        if (anypointUrl == null && serverUrl == null && defaultEnv == null && defaultOrg == null) {
+            logger.warn("No configuration option selected");
+        } else {
+            if (anypointUrl != null) {
+                profile.setAnypointUrl(anypointUrl);
+                logger.info("Anypoint URL set to " + anypointUrl);
+            }
+            if (serverUrl != null) {
+                profile.setServerUrl(serverUrl);
+                logger.info("Enhanced Mule Server URL set to " + anypointUrl);
+            }
+            if (defaultEnv != null) {
+                profile.setDefaultEnv(defaultEnv);
+                logger.info("Default environment set to " + defaultEnv);
+            }
+            if (defaultOrg != null) {
+                profile.setDefaultOrg(defaultOrg);
+                logger.info("Default org set to " + defaultOrg);
+            }
+            cli.saveConfig();
         }
-        if (serverUrl != null) {
-            profile.setServerUrl(serverUrl);
-        }
-        if (defaultEnv != null) {
-            profile.setDefaultEnv(defaultEnv);
-        }
-        if (defaultOrg != null) {
-            profile.setDefaultOrg(defaultOrg);
-        }
-        cli.saveConfig();
-        logger.info("Configuration");
         return 0;
     }
 }

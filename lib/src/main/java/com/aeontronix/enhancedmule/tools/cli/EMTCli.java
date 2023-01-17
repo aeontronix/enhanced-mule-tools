@@ -28,7 +28,6 @@ import com.aeontronix.restclient.auth.AuthenticationHandler;
 import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jline.reader.LineReader;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 import java.io.File;
@@ -54,10 +53,8 @@ public class EMTCli extends AbstractCommand {
     private LineReader reader;
     @ArgGroup(exclusive = false, multiplicity = "0..1")
     private CredentialsArgs credentialsArgs;
-    @Option(names = {"-u","--base-url"}, description = "Anypoint base URL",
-            defaultValue = "https://anypoint.mulesoft.com",
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
-    private URL baseUrl;
+    @Option(names = {"-u", "--base-url"}, description = "Anypoint base URL")
+    private URL anypointUrl;
     private EMConfig config;
     private ConfigProfile activeProfile;
     private AnypointClient anypointClient;
@@ -140,7 +137,7 @@ public class EMTCli extends AbstractCommand {
                 }
             }
             anypointClient = AnypointClient.builder()
-                    .baseUrl(baseUrl.toString())
+                    .baseUrl(anypointUrl.toString())
                     .authenticationHandler(authenticationHandler).build();
         }
         return anypointClient;
@@ -171,15 +168,19 @@ public class EMTCli extends AbstractCommand {
     public EnhancedMuleClient getEMClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
         ConfigCredentials credentials;
         credentials = credentialsArgs != null ? credentialsArgs.getCredentials() : null;
+        ConfigProfile profile = getActiveProfile();
         if (credentials == null) {
-            credentials = getActiveProfile().getCredentials();
+            credentials = profile.getCredentials();
         }
         if (credentials == null) {
             throw new IllegalArgumentException("No credentials available");
         }
-        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getActiveProfile(), null);
+        if (anypointUrl == null && profile.getAnypointUrl() != null) {
+            anypointUrl = new URL(profile.getAnypointUrl());
+        }
+        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(profile, null);
         enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
-        enhancedMuleClient.setAnypointPlatformUrl(baseUrl.toString());
+        enhancedMuleClient.setAnypointPlatformUrl(anypointUrl.toString());
         return enhancedMuleClient;
     }
 

@@ -4,12 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.User;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -25,14 +23,11 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     @Parameter(property = "anypoint.env")
     protected String env;
 
-    public synchronized Environment getEnvironment() throws NotFoundException, IOException {
+    public synchronized Environment getEnvironment() throws NotFoundException, IOException, ProfileNotFoundException {
         if (environment == null) {
             if (env == null) {
-                final ConfigProfile configProfile = getEmClient().getConfigProfile();
-                if( configProfile != null ) {
-                    env = configProfile.getDefaultEnv();
-                }
-                if( env == null ) {
+                env = configProfile.getDefaultEnv();
+                if (env == null) {
                     throw new IllegalStateException("Environment not set, using configuration element 'env', or maven property 'anypoint.env' to set");
                 }
             }

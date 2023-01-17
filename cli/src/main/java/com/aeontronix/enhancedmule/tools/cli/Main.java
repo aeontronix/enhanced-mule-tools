@@ -37,6 +37,9 @@ public class Main {
             commandLine.setUsageHelpAutoWidth(true);
             commandLine.setCaseInsensitiveEnumValuesAllowed(true);
             commandLine.setPosixClusteredShortOptionsAllowed(false);
+            if (args != null && args.length > 0 && "--debug".equalsIgnoreCase(args[0])) {
+                System.out.println("Parameters: " + Arrays.asList(args));
+            }
             try {
                 commandLine.parseArgs(args);
             } catch (Exception e) {

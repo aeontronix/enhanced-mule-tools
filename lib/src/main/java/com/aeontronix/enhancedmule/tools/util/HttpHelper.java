@@ -36,6 +36,7 @@ public class HttpHelper implements Closeable {
     private static final String HEADER_AUTH = "Authorization";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final long TOOMANYCALLSRETRYDELAY = TimeUnit.SECONDS.toMillis(45);
+    private static String anypointPlatformUrl = "https://anypoint.mulesoft.com";
     private EMHttpClient httpClient;
     private AuthenticationProvider authenticationProvider;
     private AnypointAccessToken authToken;
@@ -54,6 +55,14 @@ public class HttpHelper implements Closeable {
         this.authenticationProvider = authenticationProvider;
     }
 
+    public static String getAnypointPlatformUrl() {
+        return anypointPlatformUrl;
+    }
+
+    public static void setAnypointPlatformUrl(String anypointPlatformUrl) {
+        HttpHelper.anypointPlatformUrl = anypointPlatformUrl;
+    }
+
     private static void setHeader(Map<String, String> headers, HttpRequestBase method) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             method.setHeader(entry.getKey(), entry.getValue());
@@ -61,7 +70,7 @@ public class HttpHelper implements Closeable {
     }
 
     protected static String convertPath(String path) {
-        return path.startsWith("/") ? "https://anypoint.mulesoft.com" + path : path;
+        return path.startsWith("/") ? anypointPlatformUrl + path : path;
     }
 
     @NotNull

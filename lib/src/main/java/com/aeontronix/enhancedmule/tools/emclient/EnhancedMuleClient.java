@@ -42,6 +42,7 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     public EnhancedMuleClient(String serverUrl, ConfigProfile configProfile, ProxySettings proxySettings) {
         this.configProfile = configProfile;
         this.serverUrl = serverUrl;
+        this.anypointPlatformUrl = configProfile.getAnypointUrl();
         this.proxySettings = proxySettings;
         initRestClient();
         publicServerUrl = new URLBuilder(this.serverUrl).path("public").toString();

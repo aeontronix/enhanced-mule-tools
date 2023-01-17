@@ -6,23 +6,33 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
+import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.config.EMConfig;
+import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
-import org.apache.maven.MavenExecutionException;
+import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
+import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
+import com.aeontronix.kryptotek.DigestUtils;
+import com.aeontronix.restclient.ProxySettings;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.aeontronix.commons.StringUtils.isNotBlank;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
@@ -55,7 +65,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String bearerToken;
     @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
-    @Parameter(property = "anypoint.url", defaultValue = "https://anypoint.mulesoft.com")
+    @Parameter(property = "anypoint.url")
     protected String anypointPlatformUrl;
     @Parameter(defaultValue = "${settings}", readonly = true)
     protected Settings settings;
@@ -72,13 +82,15 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String profile;
     protected EnhancedMuleClient emClient;
     private LegacyAnypointClient client;
+    private EMConfig emConfig;
+    protected ConfigProfile configProfile;
 
     public AbstractAnypointMojo() {
     }
 
-    public synchronized LegacyAnypointClient getClient() throws IOException {
+    public synchronized LegacyAnypointClient getClient() throws IOException, ProfileNotFoundException {
         if (client == null) {
-            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings, anypointPlatformUrl);
+            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings, emClient.getAnypointPlatformUrl());
         }
         return client;
     }
@@ -90,14 +102,52 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            emClient = EMTExtension.createClient(enhancedMuleServerUrl, session, bearerToken, username, password,
-                    clientId, clientSecret, profile, org, project != null ? project.getGroupId() : null);
-        } catch (MavenExecutionException e) {
-            Throwable cause = e.getCause();
-            if( cause == null ) {
-                cause = e;
+            if (logger.isDebugEnabled()) {
+                logger.debug("Creating client");
+                logger.debug("Server URL: {}", enhancedMuleServerUrl);
+                logger.debug("Anypoint URL: {}", anypointPlatformUrl);
+                logger.debug("Bearer: SHA:{}", bearerToken != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(bearerToken.getBytes(UTF_8))) : "NOT SET");
+                logger.debug("Username: {}", username != null ? username : "NOT SET");
+                logger.debug("Password: SHA:{}", password != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(password.getBytes(UTF_8))) : "NOT SET");
+                logger.debug("Client Id: {}", clientId != null ? clientId : "NOT SET");
+                logger.debug("Client Secret: SHA:{}", clientSecret != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(clientSecret.getBytes(UTF_8))) : "NOT SET");
             }
-            throw new MojoExecutionException(cause.getMessage(), cause);
+            emConfig = EMConfig.findConfigFile();
+            logger.info("Using profile: " + profile != null ? profile : emConfig.getActive());
+            configProfile = emConfig.getProfile(profile, null, null);
+            if (anypointPlatformUrl != null) {
+                anypointPlatformUrl = configProfile.getAnypointUrl() != null ? configProfile.getAnypointUrl() : "https://anypoint.mulesoft.com";
+            }
+            if (org == null) {
+                org = configProfile.getDefaultOrg();
+            }
+            final Proxy proxy = session.getSettings().getActiveProxy();
+            emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile, proxy != null ?
+                    new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
+                            proxy.getUsername(), proxy.getPassword()) : null);
+            logger.info("Initializing Enhanced Mule Tools");
+            CredentialsProvider credentialsProvider = null;
+            if (isNotBlank(bearerToken)) {
+                logger.info("Using Bearer Token");
+                credentialsProvider = new CredentialsProviderAnypointBearerToken(bearerToken);
+            } else if (isNotBlank(username) && isNotBlank(password)) {
+                logger.info("Using Username Password: {}", username);
+                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
+            } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
+                logger.info("Using Client Credentials: {}", clientId);
+                credentialsProvider = new CredentialsProviderClientCredentialsImpl(clientId, clientSecret);
+            } else {
+                if (configProfile != null && configProfile.getCredentials() != null) {
+                    credentialsProvider = CredentialsConverter.convert(configProfile.getCredentials());
+                }
+                if (credentialsProvider == null) {
+                    logger.info("No EMT credentials available");
+                    credentialsProvider = new CredentialsProviderEmptyImpl();
+                }
+            }
+            emClient.setCredentialsLoader(credentialsProvider);
+        } catch (IOException | ProfileNotFoundException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
         }
         try {
             doExecute();

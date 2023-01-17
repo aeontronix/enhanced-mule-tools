@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
@@ -163,7 +164,7 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.rtf.replicas")
     protected Integer replicas;
 
-    public JsonNode getDeploymentParametersOverrides() throws IOException {
+    public JsonNode getDeploymentParametersOverrides() throws IOException, ProfileNotFoundException {
         final ApplicationDescriptor app = new ApplicationDescriptor();
         final DeploymentParameters deploymentParameters = new DeploymentParameters();
         app.setDeploymentParams(deploymentParameters);
