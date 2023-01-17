@@ -163,7 +163,7 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
     @Parameter(property = "anypoint.deploy.rtf.replicas")
     protected Integer replicas;
 
-    public JsonNode getLegacyAppDescriptor() throws IOException {
+    public JsonNode getDeploymentParametersOverrides() throws IOException {
         final ApplicationDescriptor app = new ApplicationDescriptor();
         final DeploymentParameters deploymentParameters = new DeploymentParameters();
         app.setDeploymentParams(deploymentParameters);

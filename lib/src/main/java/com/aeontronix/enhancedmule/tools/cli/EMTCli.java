@@ -8,8 +8,8 @@ import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.auth.AnypointClientCredentialsAuthenticationHandler;
 import com.aeontronix.anypointsdk.auth.AnypointUPWAuthenticationHandler;
 import com.aeontronix.enhancedmule.config.*;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.apim.APIManagerCmd;
@@ -179,6 +179,7 @@ public class EMTCli extends AbstractCommand {
         }
         final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(getActiveProfile(), null);
         enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
+        enhancedMuleClient.setAnypointPlatformUrl(baseUrl.toString());
         return enhancedMuleClient;
     }
 

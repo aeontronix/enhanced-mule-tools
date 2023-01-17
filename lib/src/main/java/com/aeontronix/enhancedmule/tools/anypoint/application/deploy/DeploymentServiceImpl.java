@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
@@ -75,6 +75,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             } else {
                 request.getVars().put("app.id", source.getArtifactId());
             }
+            // Legacy override layer
             final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
             if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);

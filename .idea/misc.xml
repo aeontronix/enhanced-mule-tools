@@ -1,36 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="EntryPointsManager">
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="org.apache.maven.plugins.annotations.Mojo" />
-    </list>
-    <writeAnnotations>
-      <writeAnnotation name="org.apache.maven.plugins.annotations.Parameter" />
-      <writeAnnotation name="picocli.CommandLine.Option" />
-    </writeAnnotations>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/../oss/enhanced-mule-application-demo/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/anypoint-mockserver/pom.xml" />
-        <option value="$PROJECT_DIR$/exchange-wagon/pom.xml" />
-        <option value="$PROJECT_DIR$/lib-desktop/pom.xml" />
-      </set>
-    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" default="true" project-jdk-name="19" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/classes" />
-  </component>
-  <component name="ProjectType">
-    <option name="id" value="jpab" />
-  </component>
-  <component name="TaskProjectConfiguration">
-    <server type="Gitlab" url="https://gitlab.com" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" default="true" project-jdk-name="19" project-jdk-type="JavaSDK" />
 </project>

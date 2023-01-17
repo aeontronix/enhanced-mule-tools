@@ -55,6 +55,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     protected String bearerToken;
     @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
+    @Parameter(property = "anypoint.url", defaultValue = "https://anypoint.mulesoft.com")
+    protected String anypointPlatformUrl;
     @Parameter(defaultValue = "${settings}", readonly = true)
     protected Settings settings;
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -76,7 +78,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
 
     public synchronized LegacyAnypointClient getClient() throws IOException {
         if (client == null) {
-            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings);
+            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings, anypointPlatformUrl);
         }
         return client;
     }

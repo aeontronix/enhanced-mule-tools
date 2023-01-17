@@ -56,15 +56,15 @@ public class LegacyAnypointClient implements Closeable, Serializable {
         init();
     }
 
-    public LegacyAnypointClient(AuthenticationProvider authenticationProvider) {
-        this(authenticationProvider, 3);
+    public LegacyAnypointClient(AuthenticationProvider authenticationProvider, String anypointBaseUrl) {
+        this(authenticationProvider, 3, anypointBaseUrl);
     }
 
-    public LegacyAnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments) {
+    public LegacyAnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments, String anypointBaseUrl) {
         this.maxParallelDeployments = maxParallelDeployments;
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
         init();
-        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com"))
+        anypointRestClient = restClient.host(URI.create(anypointBaseUrl))
                 .authenticationHandler(authenticationProvider).build();
     }
 

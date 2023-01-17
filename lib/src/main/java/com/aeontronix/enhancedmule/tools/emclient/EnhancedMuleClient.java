@@ -86,7 +86,7 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     public LegacyAnypointClient getLegacyAnypointClient() throws IOException {
         if (credentialsProvider instanceof AnypointBearerTokenCredentialsProvider) {
             final String anypointBearerToken = ((AnypointBearerTokenCredentialsProvider) credentialsProvider).getAnypointBearerToken(this);
-            final LegacyAnypointClient anypointClient = new LegacyAnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken));
+            final LegacyAnypointClient anypointClient = new LegacyAnypointClient(new AuthenticationProviderBearerTokenImpl(anypointBearerToken), anypointPlatformUrl);
             if (proxySettings != null) {
                 final URI proxyUri = proxySettings.getProxyUri();
                 anypointClient.setProxy(proxyUri.getScheme(), proxyUri.getHost(), proxyUri.getPort(),

@@ -17,14 +17,14 @@ public class AnypointClientBuilder {
     private static final Logger logger = getLogger(AnypointClientBuilder.class);
 
     public static LegacyAnypointClient buildClient(String bearerToken,
-                                                   Settings settings) {
+                                                   Settings settings, String anypointBaseUrl) {
         AuthenticationProvider authenticationProvider;
         if (bearerToken != null) {
             authenticationProvider = new AuthenticationProviderBearerTokenImpl(bearerToken);
         } else {
             throw new IllegalArgumentException("No authentication credentials specified (username/password, client id/secret or bearer)");
         }
-        LegacyAnypointClient client = new LegacyAnypointClient(authenticationProvider);
+        LegacyAnypointClient client = new LegacyAnypointClient(authenticationProvider, anypointBaseUrl);
         Proxy proxy = settings.getActiveProxy();
         logger.debug("Checking debug settings");
         if (proxy != null) {
