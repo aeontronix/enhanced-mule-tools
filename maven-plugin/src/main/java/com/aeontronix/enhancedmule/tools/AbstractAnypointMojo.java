@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -124,7 +125,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             final Proxy proxy = session.getSettings().getActiveProxy();
             emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile, proxy != null ?
                     new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
-                            proxy.getUsername(), proxy.getPassword()) : null);
+                            proxy.getUsername(), proxy.getPassword()) : null, anypointPlatformUrl != null ? new URL(anypointPlatformUrl) : null);
             logger.info("Initializing Enhanced Mule Tools");
             CredentialsProvider credentialsProvider = null;
             if (isNotBlank(bearerToken)) {
@@ -166,7 +167,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
 
     protected String getProperty(String name) {
         String property = session.getUserProperties().getProperty(name);
-        if( property == null ) {
+        if (property == null) {
             property = project.getProperties().getProperty(name);
         }
         return property;

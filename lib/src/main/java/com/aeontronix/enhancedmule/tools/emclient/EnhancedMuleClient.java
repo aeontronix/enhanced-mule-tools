@@ -20,11 +20,13 @@ import com.aeontronix.restclient.RESTClientHostBuilder;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 
 public class EnhancedMuleClient implements Closeable, AutoCloseable {
     public static final String EMULE_SERVER_URL = "https://api.enhanced-mule.com";
+    public static final String DEFAULT_ANYPOINT_URL = "https://anypoint.mulesoft.com/";
     private CredentialsProvider credentialsProvider;
-    private String anypointPlatformUrl = "https://anypoint.mulesoft.com/";
+    private String anypointPlatformUrl = DEFAULT_ANYPOINT_URL;
     private String exchangeMavenBaseUrl = "https://maven.anypoint.mulesoft.com";
     private String exchangeMavenPath = "/api/v2/maven";
     private RESTClientHost anypointRestClient;
@@ -35,14 +37,14 @@ public class EnhancedMuleClient implements Closeable, AutoCloseable {
     private com.aeontronix.restclient.RESTClient restClient;
     private RESTClientHost serverRestClient;
 
-    public EnhancedMuleClient(ConfigProfile configProfile, ProxySettings proxySettings) {
-        this(EMULE_SERVER_URL, configProfile, proxySettings);
+    public EnhancedMuleClient(ConfigProfile configProfile, ProxySettings proxySettings, URL anypointUrl) {
+        this(EMULE_SERVER_URL, configProfile, proxySettings, anypointUrl);
     }
 
-    public EnhancedMuleClient(String serverUrl, ConfigProfile configProfile, ProxySettings proxySettings) {
+    public EnhancedMuleClient(String serverUrl, ConfigProfile configProfile, ProxySettings proxySettings, URL anypointUrl) {
         this.configProfile = configProfile;
         this.serverUrl = serverUrl;
-        this.anypointPlatformUrl = configProfile.getAnypointUrl();
+        this.anypointPlatformUrl = anypointUrl != null ? anypointUrl.toString() : DEFAULT_ANYPOINT_URL;
         this.proxySettings = proxySettings;
         initRestClient();
         publicServerUrl = new URLBuilder(this.serverUrl).path("public").toString();

@@ -178,9 +178,11 @@ public class EMTCli extends AbstractCommand {
         if (anypointUrl == null && profile.getAnypointUrl() != null) {
             anypointUrl = new URL(profile.getAnypointUrl());
         }
-        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(profile, null);
+        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(profile, null, anypointUrl);
         enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
-        enhancedMuleClient.setAnypointPlatformUrl(anypointUrl.toString());
+        if (anypointUrl != null) {
+            enhancedMuleClient.setAnypointPlatformUrl(anypointUrl.toString());
+        }
         return enhancedMuleClient;
     }
 
