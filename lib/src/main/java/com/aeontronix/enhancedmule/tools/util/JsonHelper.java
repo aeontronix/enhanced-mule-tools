@@ -5,9 +5,9 @@
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.InvalidJsonException;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -290,13 +290,21 @@ public class JsonHelper implements Serializable {
     }
 
     public static String getText(JsonNode node, String name) {
-        if( isNotNull(node) ) {
+        if (isNotNull(node)) {
             final JsonNode val = node.get(name);
-            if( isNotNull(val) ) {
+            if (isNotNull(val)) {
                 return val.textValue();
             }
         }
         return null;
+    }
+
+    public static ObjectNode toObjectNode(JsonNode node) {
+        if (node == null || node.isNull()) {
+            return null;
+        } else {
+            return (ObjectNode) node;
+        }
     }
 
 }

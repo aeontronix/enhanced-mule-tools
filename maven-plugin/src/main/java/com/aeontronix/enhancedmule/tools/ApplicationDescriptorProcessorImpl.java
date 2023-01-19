@@ -156,7 +156,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             applicationDescriptor.set(ID, new TextNode(artifactId));
         }
         // properties
-        ObjectNode properties = (ObjectNode) applicationDescriptor.get(PROPERTIES);
+        ObjectNode properties = JsonHelper.toObjectNode(applicationDescriptor.get(PROPERTIES));
         if (isNull(properties)) {
             properties = objectMapper.createObjectNode();
             applicationDescriptor.set(PROPERTIES, properties);
@@ -164,7 +164,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
         getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_ID, "Anypoint platform client id", false);
         getOrCreateProperty(objectMapper, properties, DeploymentOperation.ANYPOINT_PLATFORM_CLIENT_SECRET, "Anypoint platform client secret", true);
         // api
-        ObjectNode api = (ObjectNode) applicationDescriptor.get(API);
+        ObjectNode api = JsonHelper.toObjectNode(applicationDescriptor.get(API));
         if (isNull(api) && apikit) {
             api = objectMapper.createObjectNode();
             applicationDescriptor.set(API, api);
@@ -177,12 +177,12 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             }
             getOrCreateProperty(objectMapper, properties, apiIdProperty.textValue(), "Anypoint API identifier", false);
             // asset
-            ObjectNode asset = (ObjectNode) api.get(ASSET);
+            ObjectNode asset = JsonHelper.toObjectNode(api.get(ASSET));
             if (isNull(asset)) {
                 asset = objectMapper.createObjectNode();
                 api.set(ASSET, asset);
             }
-            ObjectNode icon = (ObjectNode) asset.get(ICON);
+            ObjectNode icon = JsonHelper.toObjectNode(asset.get(ICON));
             if (isNull(icon)) {
                 File iconFile = ExchangeAssetDescriptor.findIcon(project.getBasedir());
                 if (iconFile != null && iconFile.exists()) {
@@ -226,7 +226,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             JsonNode assetMainFile = asset.get(ASSET_MAIN_FILE);
             if (isNull(assetCreate) || isNull(assetMainFile)) {
                 String apiSpecFile = findAPISpecFile(assetId.textValue());
-                if( apiSpecFile == null ) {
+                if (apiSpecFile == null) {
                     apiSpecFile = findAPISpecFile(artifactId);
                 }
                 if (isNull(assetCreate)) {
@@ -241,14 +241,14 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             boolean restAPI = isNotNull(assetMainFile) || dep != null;
             boolean raml = isNotNull(assetMainFile) && assetMainFile.textValue().toLowerCase().endsWith(".raml");
             APISpecHelper.APISpecVersion apiSpecVersion = null;
-            if( isNotNull(assetMainFile) ) {
+            if (isNotNull(assetMainFile)) {
                 final File apiSpecFile = new File(apiSpecDir, assetMainFile.textValue());
                 apiSpecVersion = APISpecHelper.findVersion(apiSpecFile);
             }
             if (isNull(asset.get(NAME)) && inheritNameAndDesc) {
                 asset.set(NAME, applicationDescriptor.get(NAME));
             }
-            ObjectNode portal = (ObjectNode) asset.get(PORTAL);
+            ObjectNode portal = JsonHelper.toObjectNode(asset.get(PORTAL));
             ArrayNode pages = portal != null ? (ArrayNode) portal.get(PAGES) : null;
             if (isNotNull(pages)) {
                 for (JsonNode page : pages) {
@@ -310,7 +310,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                     if (assetAPIVersion == null) {
                         assetAPIVersion = dep.getVersion();
                     }
-                } else if( apiSpecVersion != null ) {
+                } else if (apiSpecVersion != null) {
                     assetAPIVersion = apiSpecVersion.getNonSnapshotVersion();
                 }
                 if (assetAPIVersion == null) {
@@ -334,8 +334,8 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                 asset.set(TYPE, assetType);
             }
         }
-        final ObjectNode client = (ObjectNode) applicationDescriptor.get(CLIENT);
-        if (isNotNull(client)) {
+        final ObjectNode client = JsonHelper.toObjectNode(applicationDescriptor.get(CLIENT));
+        if (client != null) {
             JsonNode clientIdProperty = client.get(CLIENT_ID_PROPERTY);
             if (isNull(clientIdProperty)) {
                 clientIdProperty = new TextNode("anypoint.api.client.id");
@@ -368,7 +368,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
     }
 
     private static ObjectNode getOrCreateProperty(ObjectMapper objectMapper, ObjectNode properties, String id, String name, boolean secure) {
-        ObjectNode prop = (ObjectNode) properties.get(id);
+        ObjectNode prop = JsonHelper.toObjectNode(properties.get(id));
         if (prop == null) {
             prop = objectMapper.createObjectNode();
             prop.set("id", new TextNode(id));
@@ -426,11 +426,11 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
 
     @Override
     public void legacyConvert() {
-        ObjectNode api = (ObjectNode) applicationDescriptor.get("api");
+        ObjectNode api = JsonHelper.toObjectNode(applicationDescriptor.get("api"));
         if (api != null) {
             final JsonNode assetId = api.remove("assetId");
             final JsonNode assetVersion = api.remove("assetVersion");
-            ObjectNode asset = (ObjectNode) api.get("asset");
+            ObjectNode asset = JsonHelper.toObjectNode(api.get("asset"));
             if (asset == null) {
                 asset = objectMapper.createObjectNode();
                 api.set("asset", asset);
@@ -485,7 +485,7 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
                 logger.warn("'addAutoDescovery' is deprecated, please use 'addAutoDiscovery' instead");
                 api.set("addAutoDiscovery", addAutoDiscovery);
             }
-            ObjectNode client = (ObjectNode) api.remove("clientApp");
+            ObjectNode client = JsonHelper.toObjectNode(api.remove("clientApp"));
             if (client != null) {
                 logger.warn("'clientApp' under 'api' is deprecated, please use 'client' at application descriptor level instead.");
                 applicationDescriptor.set("client", client);
@@ -502,17 +502,17 @@ public class ApplicationDescriptorProcessorImpl implements ApplicationDescriptor
             // 1.2.7
             relocate(asset, "assetId", "asset->assetId", asset, "id", "asset->id");
             // 1.3.0
-            if( client == null ) {
-                client = (ObjectNode) applicationDescriptor.get("client");
+            if (client == null) {
+                client = JsonHelper.toObjectNode(applicationDescriptor.get("client"));
             }
-            if( client != null) {
+            if (client != null) {
                 access = client.get("access");
-                if( access != null ) {
+                if (access != null) {
                     for (JsonNode jsonNode : access) {
                         final JsonNode envId = jsonNode.get("envId");
-                        if( envId != null ) {
+                        if (envId != null) {
                             logger.warn("client->access->envId is deprecated, use client->access->env instead");
-                            ((ObjectNode)jsonNode).set("env",envId);
+                            ((ObjectNode) jsonNode).set("env", envId);
                         }
                     }
                 }

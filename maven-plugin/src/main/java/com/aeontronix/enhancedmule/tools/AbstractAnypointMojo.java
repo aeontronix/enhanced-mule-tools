@@ -114,8 +114,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 logger.debug("Client Secret: SHA:{}", clientSecret != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(clientSecret.getBytes(UTF_8))) : "NOT SET");
             }
             emConfig = EMConfig.findConfigFile();
-            logger.info("Using profile: " + profile != null ? profile : emConfig.getActive());
             configProfile = emConfig.getProfile(profile, null, null);
+            logger.info("Using profile: " + (profile != null ? profile : emConfig.getActive()));
             if (anypointPlatformUrl != null) {
                 anypointPlatformUrl = configProfile.getAnypointUrl() != null ? configProfile.getAnypointUrl() : "https://anypoint.mulesoft.com";
             }
