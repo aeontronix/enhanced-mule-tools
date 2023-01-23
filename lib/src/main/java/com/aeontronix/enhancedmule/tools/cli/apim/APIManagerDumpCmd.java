@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.cli.apim;
 
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.policy.Policy;
@@ -38,7 +38,7 @@ public class APIManagerDumpCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        final LegacyAnypointClient client = parent.getCli().getEMClient().getLegacyAnypointClient();
+        final LegacyAnypointClient client = parent.getCli().createEMClient().getLegacyAnypointClient();
         final Organization org;
         if (orgName != null) {
             org = client.findOrganizationByNameOrId(this.orgName);

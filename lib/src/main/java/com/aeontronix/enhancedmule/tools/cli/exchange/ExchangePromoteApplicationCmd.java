@@ -26,7 +26,7 @@ public class ExchangePromoteApplicationCmd extends AbstractCommand implements Ca
 
     @Override
     public Integer call() throws Exception {
-        final EnhancedMuleClient emClient = getCli().getEMClient();
+        final EnhancedMuleClient emClient = getCli().createEMClient();
         final LegacyAnypointClient anypointClient = emClient.getLegacyAnypointClient();
         final Organization org;
         if (businessGroup != null) {

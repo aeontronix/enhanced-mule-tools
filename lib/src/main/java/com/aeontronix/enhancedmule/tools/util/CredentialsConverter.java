@@ -4,10 +4,10 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
-import com.aeontronix.enhancedmule.config.ConfigCredentials;
-import com.aeontronix.enhancedmule.config.CredentialsBearerTokenImpl;
-import com.aeontronix.enhancedmule.config.CredentialsClientCredentialsImpl;
-import com.aeontronix.enhancedmule.config.CredentialsUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.config.ConfigCredentials;
+import com.aeontronix.enhancedmule.tools.config.CredentialsBearerTokenImpl;
+import com.aeontronix.enhancedmule.tools.config.CredentialsClientCredentialsImpl;
+import com.aeontronix.enhancedmule.tools.config.CredentialsUsernamePasswordImpl;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointBearerToken;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.CredentialsProviderAnypointUsernamePasswordImpl;

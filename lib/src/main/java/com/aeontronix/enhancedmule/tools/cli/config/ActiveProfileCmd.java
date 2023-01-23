@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.cli.config;
 
-import com.aeontronix.enhancedmule.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
+import com.aeontronix.enhancedmule.tools.config.EMConfig;
 import org.fusesource.jansi.Ansi;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;

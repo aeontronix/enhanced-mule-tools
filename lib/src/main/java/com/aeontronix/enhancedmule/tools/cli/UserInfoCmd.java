@@ -24,7 +24,7 @@ public class UserInfoCmd extends AbstractCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         final User user;
         try {
-            final RESTClientHost anypointRestClient = getCli().getEMClient().getLegacyAnypointClient().getAnypointRestClient();
+            final RESTClientHost anypointRestClient = getCli().createEMClient().getLegacyAnypointClient().getAnypointRestClient();
             try (RESTResponse response = anypointRestClient.get("/accounts/api/me").execute()) {
                 logger.info("Anypoint User Info: " + IOUtils.toString(response.getContentStream()));
             }

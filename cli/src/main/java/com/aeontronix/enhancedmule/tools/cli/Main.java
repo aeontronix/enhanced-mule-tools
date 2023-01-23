@@ -5,7 +5,7 @@
 package com.aeontronix.enhancedmule.tools.cli;
 
 import com.aeontronix.commons.logging.SimpleLogFormatter;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
+import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.util.MavenExecutor;
 import picocli.CommandLine;
 

@@ -5,9 +5,9 @@
 package com.aeontronix.enhancedmule.tools.cli;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class AbstractOrgCommand extends AbstractCommand {
     public String getOrgId() throws IOException, ProfileNotFoundException, NotFoundException {
         if (orgId == null) {
             EMTCli cli = getCli();
-            LegacyAnypointClient anypointClient = cli.getEMClient().getLegacyAnypointClient();
+            LegacyAnypointClient anypointClient = cli.createEMClient().getLegacyAnypointClient();
             if (StringUtils.isBlank(orgNameOrId)) {
                 orgNameOrId = cli.getActiveProfile().getDefaultOrg();
             }

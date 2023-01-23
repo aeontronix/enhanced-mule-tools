@@ -5,10 +5,9 @@
 package com.aeontronix.enhancedmule.tools.cli;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
+import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
 import picocli.CommandLine.Option;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class AbstractEnvCommand extends AbstractOrgCommand {
     public String getEnvId() throws IOException, ProfileNotFoundException, NotFoundException {
         if (envId == null) {
             EMTCli cli = getCli();
-            LegacyAnypointClient anypointClient = cli.getEMClient().getLegacyAnypointClient();
+            LegacyAnypointClient anypointClient = cli.createEMClient().getLegacyAnypointClient();
             if (StringUtils.isBlank(envNameOrId)) {
                 envNameOrId = cli.getActiveProfile().getDefaultEnv();
             }

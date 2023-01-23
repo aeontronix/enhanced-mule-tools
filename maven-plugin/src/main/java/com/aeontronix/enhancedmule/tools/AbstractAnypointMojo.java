@@ -6,10 +6,10 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.EMConfig;
-import com.aeontronix.enhancedmule.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
+import com.aeontronix.enhancedmule.tools.config.EMConfig;
+import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -114,7 +113,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 logger.debug("Client Secret: SHA:{}", clientSecret != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(clientSecret.getBytes(UTF_8))) : "NOT SET");
             }
             emConfig = EMConfig.findConfigFile();
-            configProfile = emConfig.getProfile(profile, null, null);
+            configProfile = emConfig.getProfile(profile);
             logger.info("Using profile: " + (profile != null ? profile : emConfig.getActive()));
             if (anypointPlatformUrl != null) {
                 anypointPlatformUrl = configProfile.getAnypointUrl() != null ? configProfile.getAnypointUrl() : "https://anypoint.mulesoft.com";
@@ -123,10 +122,6 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 org = configProfile.getDefaultOrg();
             }
             final Proxy proxy = session.getSettings().getActiveProxy();
-            emClient = new EnhancedMuleClient(enhancedMuleServerUrl, configProfile, proxy != null ?
-                    new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
-                            proxy.getUsername(), proxy.getPassword()) : null, anypointPlatformUrl != null ? new URL(anypointPlatformUrl) : null);
-            logger.info("Initializing Enhanced Mule Tools");
             CredentialsProvider credentialsProvider = null;
             if (isNotBlank(bearerToken)) {
                 logger.info("Using Bearer Token");
@@ -141,12 +136,21 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 if (configProfile != null && configProfile.getCredentials() != null) {
                     credentialsProvider = CredentialsConverter.convert(configProfile.getCredentials());
                 }
-                if (credentialsProvider == null) {
-                    logger.info("No EMT credentials available");
-                    credentialsProvider = new CredentialsProviderEmptyImpl();
-                }
             }
-            emClient.setCredentialsLoader(credentialsProvider);
+            if (credentialsProvider == null) {
+                logger.info("No EMT credentials available");
+                credentialsProvider = new CredentialsProviderEmptyImpl();
+            }
+            EnhancedMuleClient.Builder emClientBuilder = EnhancedMuleClient.builder(credentialsProvider)
+                    .serverUrl(enhancedMuleServerUrl)
+                    .anypointUrl(anypointPlatformUrl);
+            if (proxy != null) {
+                ProxySettings proxySettings = new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
+                        proxy.getUsername(), proxy.getPassword(), null);
+                emClientBuilder.proxySettings(proxySettings);
+            }
+            emClient = emClientBuilder.build();
+            logger.info("Initializing Enhanced Mule Tools");
         } catch (IOException | ProfileNotFoundException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }

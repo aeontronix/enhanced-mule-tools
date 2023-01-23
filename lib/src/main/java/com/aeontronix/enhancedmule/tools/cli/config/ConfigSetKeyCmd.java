@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.cli.config;
 
-import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import org.slf4j.Logger;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;

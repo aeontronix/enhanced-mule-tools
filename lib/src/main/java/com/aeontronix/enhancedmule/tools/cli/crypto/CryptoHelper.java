@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.cli.crypto;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.properties.PropertiesUtils;
-import com.aeontronix.enhancedmule.config.ConfigProfile;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.DecryptionException;
 import com.aeontronix.kryptotek.EncryptionException;

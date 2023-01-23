@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools;
 
-import com.aeontronix.enhancedmule.config.ConfigProfile;
-import com.aeontronix.enhancedmule.config.EMConfig;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
+import com.aeontronix.enhancedmule.tools.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.AnypointBearerTokenCredentialsProvider;
 import org.apache.maven.AbstractMavenLifecycleParticipant;

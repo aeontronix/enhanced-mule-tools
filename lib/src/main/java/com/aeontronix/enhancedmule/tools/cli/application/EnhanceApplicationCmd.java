@@ -20,7 +20,7 @@ public class EnhanceApplicationCmd extends AbstractCommand implements Callable<I
 
     @Override
     public Integer call() throws Exception {
-        new ApplicationSourceEnhancer(getCli().getEMClient().getRestClient(), projectDir).execute();
+        new ApplicationSourceEnhancer(getCli().createEMClient().getRestClient(), projectDir).execute();
         return 0;
     }
 }

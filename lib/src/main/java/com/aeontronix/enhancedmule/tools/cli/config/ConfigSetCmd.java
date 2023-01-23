@@ -4,8 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.cli.config;
 
-import com.aeontronix.enhancedmule.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,6 +22,8 @@ public class ConfigSetCmd implements Callable<Integer> {
     private ConfigCmd parent;
     @CommandLine.Option(names = {"-s", "--server-url"}, description = "Set server url")
     private String serverUrl;
+    @CommandLine.Option(names = {"-i", "--insecure-server"}, description = "Allow insecure server with invalid SSL certificate", negatable = true)
+    private Boolean insecureServer;
     @CommandLine.Option(names = {"-u", "--anypoint-url"}, description = "Set anypoint url")
     private String anypointUrl;
     @CommandLine.Option(names = {"-e", "--default-env"}, description = "Set default environment")
@@ -33,7 +35,7 @@ public class ConfigSetCmd implements Callable<Integer> {
     public Integer call() throws Exception {
         final EMTCli cli = parent.getCli();
         final ConfigProfile profile = cli.getActiveProfile();
-        if (anypointUrl == null && serverUrl == null && defaultEnv == null && defaultOrg == null) {
+        if (anypointUrl == null && serverUrl == null && defaultEnv == null && defaultOrg == null && insecureServer == null) {
             logger.warn("No configuration option selected");
         } else {
             if (anypointUrl != null) {
@@ -51,6 +53,14 @@ public class ConfigSetCmd implements Callable<Integer> {
             if (defaultOrg != null) {
                 profile.setDefaultOrg(defaultOrg);
                 logger.info("Default org set to " + defaultOrg);
+            }
+            if (insecureServer != null) {
+                profile.setInsecureServer(insecureServer);
+                if (insecureServer) {
+                    logger.info("Allowing insecure communication to enhanced mule server");
+                } else {
+                    logger.info("Disallowing insecure communication to enhanced mule server");
+                }
             }
             cli.saveConfig();
         }

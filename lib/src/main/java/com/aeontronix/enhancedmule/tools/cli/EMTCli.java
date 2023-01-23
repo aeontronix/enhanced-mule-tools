@@ -7,7 +7,6 @@ package com.aeontronix.enhancedmule.tools.cli;
 import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.auth.AnypointClientCredentialsAuthenticationHandler;
 import com.aeontronix.anypointsdk.auth.AnypointUPWAuthenticationHandler;
-import com.aeontronix.enhancedmule.config.*;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
@@ -21,6 +20,7 @@ import com.aeontronix.enhancedmule.tools.cli.crypto.DecryptCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.EncryptCmd;
 import com.aeontronix.enhancedmule.tools.cli.crypto.KeyGenCmd;
 import com.aeontronix.enhancedmule.tools.cli.exchange.ExchangeCmd;
+import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.enhancedmule.tools.util.VersionHelper;
@@ -102,7 +102,7 @@ public class EMTCli extends AbstractCommand {
             if (profileName != null) {
                 activeProfile = config.getProfileByProfileName(profileName);
             } else {
-                activeProfile = config.getProfile(null, null, null);
+                activeProfile = config.getProfile(null);
             }
         }
         return activeProfile;
@@ -156,41 +156,34 @@ public class EMTCli extends AbstractCommand {
         if (environmentName == null) {
             throw new IllegalArgumentException("Environment not set and no default is assigned in profile");
         }
-        final EnhancedMuleClient client = getEMClient(organizationName, environmentName);
+        final EnhancedMuleClient client = createEMClient();
         client.getLegacyAnypointClient().findEnvironment(organizationName, environmentName, false, false, null);
         return null;
     }
 
-    public EnhancedMuleClient getEMClient() throws IOException, ProfileNotFoundException {
-        return getEMClient(null, null);
-    }
-
-    public EnhancedMuleClient getEMClient(String organizationName, String environmentName) throws IOException, ProfileNotFoundException {
+    public EnhancedMuleClient createEMClient() throws IOException, ProfileNotFoundException {
         ConfigCredentials credentials;
         credentials = credentialsArgs != null ? credentialsArgs.getCredentials() : null;
         ConfigProfile profile = getActiveProfile();
         if (credentials == null) {
             credentials = profile.getCredentials();
         }
-        if (credentials == null) {
-            throw new IllegalArgumentException("No credentials available");
-        }
         if (anypointUrl == null && profile.getAnypointUrl() != null) {
             anypointUrl = new URL(profile.getAnypointUrl());
         }
-        final EnhancedMuleClient enhancedMuleClient = new EnhancedMuleClient(profile, null, anypointUrl);
-        enhancedMuleClient.setCredentialsLoader(CredentialsConverter.convert(credentials));
-        if (anypointUrl != null) {
-            enhancedMuleClient.setAnypointPlatformUrl(anypointUrl.toString());
-        }
-        return enhancedMuleClient;
+        return EnhancedMuleClient
+                .builder(CredentialsConverter.convert(credentials))
+                .proxySettings(null)
+                .anypointUrl(anypointUrl != null ? anypointUrl.toString() : null)
+                .insecure(profile.isInsecureServer())
+                .build();
     }
 
     public Organization findOrganization(String organization) throws IOException, ProfileNotFoundException, NotFoundException {
         if (organization != null) {
-            return getEMClient(organization, null).getLegacyAnypointClient().findOrganizationByNameOrId(organization);
+            return createEMClient().getLegacyAnypointClient().findOrganizationByNameOrId(organization);
         } else {
-            final LegacyAnypointClient anypointClient = getEMClient().getLegacyAnypointClient();
+            final LegacyAnypointClient anypointClient = createEMClient().getLegacyAnypointClient();
             final Organization org = anypointClient.getUser().getOrganization();
             org.setClient(anypointClient);
             return org;

@@ -4,13 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.cli;
 
-import com.aeontronix.anypointsdk.auth.AnypointAuthenticationHandler;
 import com.aeontronix.anypointsdk.auth.AnypointClientCredentialsAuthenticationHandler;
 import com.aeontronix.anypointsdk.auth.AnypointUPWAuthenticationHandler;
-import com.aeontronix.enhancedmule.config.ConfigCredentials;
-import com.aeontronix.enhancedmule.config.CredentialsBearerTokenImpl;
-import com.aeontronix.enhancedmule.config.CredentialsClientCredentialsImpl;
-import com.aeontronix.enhancedmule.config.CredentialsUsernamePasswordImpl;
+import com.aeontronix.enhancedmule.tools.config.ConfigCredentials;
+import com.aeontronix.enhancedmule.tools.config.CredentialsBearerTokenImpl;
+import com.aeontronix.enhancedmule.tools.config.CredentialsClientCredentialsImpl;
+import com.aeontronix.enhancedmule.tools.config.CredentialsUsernamePasswordImpl;
 import com.aeontronix.restclient.auth.AuthenticationHandler;
 import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
 import picocli.CommandLine;
