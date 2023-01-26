@@ -115,9 +115,10 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             emConfig = EMConfig.findConfigFile();
             configProfile = emConfig.getProfile(profile);
             logger.info("Using profile: " + (profile != null ? profile : emConfig.getActive()));
-            if (anypointPlatformUrl != null) {
+            if (anypointPlatformUrl == null) {
                 anypointPlatformUrl = configProfile.getAnypointUrl() != null ? configProfile.getAnypointUrl() : "https://anypoint.mulesoft.com";
             }
+            logger.info("Anypoint server: {}", anypointPlatformUrl);
             if (org == null) {
                 org = configProfile.getDefaultOrg();
             }

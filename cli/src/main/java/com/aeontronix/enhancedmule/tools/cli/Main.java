@@ -53,7 +53,14 @@ public class Main {
                     return -1;
                 }
             });
-            logFormatter.setDebug(cli.isDebug());
+            if (cli.isDebug()) {
+                logFormatter.setDebug(cli.isDebug());
+                for (final Handler handler : Logger.getLogger("").getHandlers()) {
+                    handler.setLevel(Level.FINEST);
+                }
+                Logger.getLogger("com").setLevel(Level.FINEST);
+                Logger.getLogger("org").setLevel(Level.FINEST);
+            }
             System.exit(commandLine.execute(args));
         }
     }

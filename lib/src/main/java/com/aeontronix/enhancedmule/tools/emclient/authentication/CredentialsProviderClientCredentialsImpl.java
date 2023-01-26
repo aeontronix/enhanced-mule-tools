@@ -43,7 +43,7 @@ public class CredentialsProviderClientCredentialsImpl implements AnypointBearerT
             body.put("grant_type", "client_credentials");
             body.put("client_id", clientId);
             body.put("client_secret", clientSecret);
-            return (String) emClient.getAnypointRestClient().post("/accounts/api/v2/oauth2/token").jsonBody(body).executeAndConvertToObject(Map.class)
+            return (String) emClient.getAnypointRestClient().post("/accounts/api/v2/oauth2/token").jsonBody(body).authenticationHandler(null).executeAndConvertToObject(Map.class)
                     .get("access_token");
         } catch (RESTException | JsonConvertionException e) {
             throw new IOException(e);
