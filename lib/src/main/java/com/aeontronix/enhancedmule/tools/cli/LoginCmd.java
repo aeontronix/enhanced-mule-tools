@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.cli;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.UUIDFactory;
+import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.config.CredentialsBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.util.MavenHelper;
 import com.aeontronix.restclient.RESTClient;
@@ -52,20 +53,25 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             final String redirectUrl = "http://localhost:" + serverSocket.getLocalPort() + "/";
             final EMTCli cli = getCli();
             RESTClient restClient = cli.createEMClient().getRestClient();
-            String authServerBaseUrl = cli.getActiveProfile().getServerUrl();
+            ConfigProfile activeProfile = cli.getActiveProfile();
+            String authServerBaseUrl = activeProfile.getServerUrl();
             if (authServerBaseUrl == null) {
                 authServerBaseUrl = "https://auth.enhanced-mule.com";
             }
             final Map oidcCfg = restClient.get(new URLBuilder(authServerBaseUrl).path("/.well-known/openid-configuration").toUri()).executeAndConvertToObject(Map.class);
             final String authorizationEndpoint = (String) oidcCfg.get("authorization_endpoint");
             final String tokenEndpoint = (String) oidcCfg.get("token_endpoint");
-            final URI authorizeUri = new URLBuilder(authorizationEndpoint)
+            URLBuilder authzUrlBuilder = new URLBuilder(authorizationEndpoint)
                     .queryParam("redirect_uri", redirectUrl)
                     .queryParam("state", state)
                     .queryParam("code_challenge", challenge)
                     .queryParam("code_challenge_method", "S256")
-                    .queryParam("scope", "full")
-                    .toUri();
+                    .queryParam("scope", "full");
+            String orgDomain = activeProfile.getOrgDomain();
+            if (orgDomain != null) {
+                authzUrlBuilder.queryParam("org_domain", orgDomain);
+            }
+            final URI authorizeUri = authzUrlBuilder.toUri();
             logger.info("Authenticating request: " + authorizeUri);
             try {
                 Desktop.getDesktop().browse(authorizeUri);
@@ -95,7 +101,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
                 final Map<String, String> tokens = restClient.post(tokenEndpoint).jsonBody(req)
                         .executeAndConvertToObject(Map.class);
                 final String anAccessToken = tokens.get("an_access_token");
-                cli.getActiveProfile().setCredentials(new CredentialsBearerTokenImpl(anAccessToken));
+                activeProfile.setCredentials(new CredentialsBearerTokenImpl(anAccessToken));
                 cli.saveConfig();
                 if (!updateSettingsXml) {
                     MavenHelper.updateMavenSettings(mavenSettingsFile, cli.getActiveProfileId(), anAccessToken);

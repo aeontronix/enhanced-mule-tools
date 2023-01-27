@@ -11,6 +11,7 @@ public class ConfigProfile {
     private String serverUrl;
     private String anypointUrl;
     private String orgIdLock;
+    private String orgDomain;
     private String cryptoKey;
     private String defaultOrg;
     private String defaultEnv;
@@ -21,6 +22,14 @@ public class ConfigProfile {
 
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public String getOrgDomain() {
+        return orgDomain;
+    }
+
+    public void setOrgDomain(String orgDomain) {
+        this.orgDomain = orgDomain;
     }
 
     public EMCredentials getEmCredentials() {
