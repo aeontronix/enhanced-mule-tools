@@ -22,6 +22,6 @@ public class PromoteMojo extends AbstractOrganizationalMojo {
 
     @Override
     protected void doExecute() throws Exception {
-        getOrganization().promoteExchangeApplication(emClient, groupId, artifactId, version, newVersion);
+        getOrganization().promoteExchangeApplication(anypointClient, emClient, groupId, artifactId, version, newVersion);
     }
 }

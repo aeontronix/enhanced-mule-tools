@@ -45,7 +45,6 @@ public class ShellCmd implements Callable<Integer> {
 
             CommandLine cmd = new CommandLine(commands, factory);
             cmd.setCaseInsensitiveEnumValuesAllowed(true);
-            cmd.setOptionsCaseInsensitive(true);
             cmd.setPosixClusteredShortOptionsAllowed(false);
             PicocliCommands picocliCommands = new PicocliCommands(cmd);
 

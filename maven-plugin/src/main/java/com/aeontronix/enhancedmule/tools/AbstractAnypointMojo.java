@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
@@ -15,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
 import com.aeontronix.kryptotek.DigestUtils;
 import com.aeontronix.restclient.ProxySettings;
+import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -81,18 +83,16 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Parameter(property = "profile")
     protected String profile;
     protected EnhancedMuleClient emClient;
-    private LegacyAnypointClient client;
+    private LegacyAnypointClient legacyClient;
     private EMConfig emConfig;
     protected ConfigProfile configProfile;
+    protected AnypointClient anypointClient;
 
     public AbstractAnypointMojo() {
     }
 
-    public synchronized LegacyAnypointClient getClient() throws IOException, ProfileNotFoundException {
-        if (client == null) {
-            client = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings, emClient.getAnypointPlatformUrl());
-        }
-        return client;
+    public synchronized LegacyAnypointClient getLegacyClient() throws IOException, ProfileNotFoundException {
+        return legacyClient;
     }
 
     public EnhancedMuleClient getEmClient() {
@@ -145,12 +145,18 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             EnhancedMuleClient.Builder emClientBuilder = EnhancedMuleClient.builder(credentialsProvider)
                     .serverUrl(enhancedMuleServerUrl)
                     .anypointUrl(anypointPlatformUrl);
+            ProxySettings proxySettings = null;
             if (proxy != null) {
-                ProxySettings proxySettings = new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
+                proxySettings = new ProxySettings(URI.create(proxy.getProtocol() + "://" + proxy.getHost() + ":" + proxy.getPort()),
                         proxy.getUsername(), proxy.getPassword(), null);
                 emClientBuilder.proxySettings(proxySettings);
             }
             emClient = emClientBuilder.build();
+            legacyClient = AnypointClientBuilder.buildClient(emClient.getAnypointBearerToken(), settings, anypointPlatformUrl);
+            anypointClient = AnypointClient.builder()
+                    .authenticationHandler(new BearerTokenAuthenticationHandler(emClient.getAnypointBearerToken()))
+                    .proxy(proxySettings)
+                    .anypointUrl(anypointPlatformUrl).build();
             logger.info("Initializing Enhanced Mule Tools");
         } catch (IOException | ProfileNotFoundException e) {
             throw new MojoExecutionException(e.getMessage(), e);
@@ -162,8 +168,8 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
-            if (this.client != null) {
-                IOUtils.close(this.client);
+            if (this.legacyClient != null) {
+                IOUtils.close(this.legacyClient);
             }
         }
     }

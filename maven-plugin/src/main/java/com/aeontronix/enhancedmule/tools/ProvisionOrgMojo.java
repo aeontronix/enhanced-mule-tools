@@ -16,7 +16,7 @@ public class ProvisionOrgMojo extends AbstractAnypointMojo {
 
     @Override
     protected void doExecute() throws Exception {
-        LegacyAnypointClient client = getClient();
+        LegacyAnypointClient client = getLegacyClient();
         OrganizationDescriptor org = client.getJsonHelper().getJsonMapper().readValue(orgDescriptorFile, OrganizationDescriptor.class);
         org.provision(client);
     }

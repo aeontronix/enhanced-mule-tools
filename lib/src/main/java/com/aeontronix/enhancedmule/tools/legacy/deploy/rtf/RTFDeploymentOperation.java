@@ -4,11 +4,12 @@
 
 package com.aeontronix.enhancedmule.tools.legacy.deploy.rtf;
 
+import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentOperation;
@@ -24,6 +25,7 @@ import com.aeontronix.enhancedmule.tools.util.EMTLogger;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.MavenHelper;
 import com.aeontronix.enhancedmule.tools.util.UnauthorizedHttpException;
+import com.aeontronix.restclient.RESTException;
 import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.NotNull;
@@ -40,10 +42,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class RTFDeploymentOperation extends DeploymentOperation {
     private static final Logger logger = getLogger(RTFDeploymentOperation.class);
     private static final EMTLogger emtLogger = new EMTLogger(logger);
+    private AnypointClient anypointClient;
     private final Fabric fabric;
 
-    public RTFDeploymentOperation(Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
+    public RTFDeploymentOperation(AnypointClient anypointClient, Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
         super(req, environment, applicationSource);
+        this.anypointClient = anypointClient;
         this.fabric = fabric;
     }
 
@@ -86,9 +90,11 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         if (source instanceof FileApplicationSource) {
             final ExchangeDeploymentRequest req = new ExchangeDeploymentRequest(request.getBuildNumber(), appId, getEnvironment().getOrganization(), source, null);
             try {
-                appId = MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+                appId = MavenHelper.uploadToMaven(anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
             } catch (UnpackException e) {
                 throw new UnauthorizedHttpException(e);
+            } catch (RESTException e) {
+                throw new IOException(e);
             }
             emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
         }

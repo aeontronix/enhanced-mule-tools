@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
+import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
@@ -21,6 +22,7 @@ import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedExce
 import com.aeontronix.enhancedmule.tools.runtime.DeploymentResult;
 import com.aeontronix.enhancedmule.tools.runtime.Server;
 import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.restclient.RESTException;
 import com.aeontronix.unpack.UnpackException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,14 +41,16 @@ public class DeploymentServiceImpl implements DeploymentService {
     private static final Logger logger = getLogger(DeploymentServiceImpl.class);
     private static final EMTLogger elogger = new EMTLogger(logger);
     private LegacyAnypointClient client;
+    private AnypointClient anypointClient;
 
-    public DeploymentServiceImpl(LegacyAnypointClient client) {
+    public DeploymentServiceImpl(LegacyAnypointClient client, AnypointClient anypointClient) {
         this.client = client;
+        this.anypointClient = anypointClient;
     }
 
     @Override
-    public ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException {
-        return MavenHelper.uploadToMaven(req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+    public ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException, RESTException {
+        return MavenHelper.uploadToMaven(anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
     }
 
     @Override
@@ -167,7 +171,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                 op = new HDeploymentOperation(request, server, source);
             } catch (NotFoundException e) {
                 final Fabric fabric = organization.findFabricByName(target);
-                op = new RTFDeploymentOperation(fabric, request, environment, source);
+                op = new RTFDeploymentOperation(anypointClient, fabric, request, environment, source);
             }
         }
         return op;

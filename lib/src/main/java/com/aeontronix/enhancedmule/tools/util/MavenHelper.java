@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.anypointsdk.exchange.ExchangeClient;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.TempFile;
@@ -12,6 +13,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.restclient.RESTException;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
@@ -22,7 +24,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -37,8 +42,8 @@ public class MavenHelper {
     public static final String SETTINGS_NS = "http://maven.apache.org/SETTINGS/1.1.0";
 
     @SuppressWarnings("unchecked")
-    public static ApplicationIdentifier uploadToMaven(ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
-                                                      String newVersion, String buildNumber) throws IOException, UnpackException {
+    public static ApplicationIdentifier uploadToMaven(ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
+                                                      String newVersion, String buildNumber) throws IOException, UnpackException, RESTException {
         if (buildNumber == null) {
             buildNumber = generateTimestampString();
         }
@@ -61,26 +66,29 @@ public class MavenHelper {
                 Unpacker unpacker = new Unpacker(appArchFile, FileType.ZIP, emteh, FileType.ZIP);
                 unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, org.getId(), newVersion, buildNumber));
                 unpacker.unpack();
-                publishArchive(newAppId, org, emteh);
+                publishArchive(exchangeClient, newAppId, org, emteh);
             }
         } else {
-            publishArchive(newAppId, org, appArchFile);
+            publishArchive(exchangeClient, newAppId, org, appArchFile);
         }
         return new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion != null ? newVersion : appId.getVersion());
     }
 
-    public static void publishArchive(ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException {
-        try (final ZipFile zipFile = new ZipFile(appArchFile)) {
-            publishFile(org, appId, zipFile, pomPath(appId, org.getId()), ".pom");
-            logger.debug("Uploaded POM");
-            publishFile(org, appId, zipFile, "anypoint.json", "-anypoint-descriptor.json");
-            logger.debug("Uploaded anypoint.json");
-        }
-        try (final FileInputStream is = new FileInputStream(appArchFile)) {
-            org.getClient().getHttpHelper().httpPutBasicAuth(createMavenUrl(org, appId)
-                    .path(appId.getArtifactId() + "-" + appId.getVersion() + "-mule-application.jar").toString(), is, null);
-            logger.debug("Uploaded Application");
-        }
+    public static void publishArchive(ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException, RESTException {
+        exchangeClient.createAsset(org.getId(), appId.getArtifactId(), appId.getVersion(), appId.getArtifactId())
+                .file("jar", "mule-application", null, appArchFile.getName(), appArchFile)
+                .execute();
+//        try (final ZipFile zipFile = new ZipFile(appArchFile)) {
+//            publishFile(org, appId, zipFile, pomPath(appId, org.getId()), ".pom");
+//            logger.debug("Uploaded POM");
+//            publishFile(org, appId, zipFile, "anypoint.json", "-anypoint-descriptor.json");
+//            logger.debug("Uploaded anypoint.json");
+//        }
+//        try (final FileInputStream is = new FileInputStream(appArchFile)) {
+//            org.getClient().getHttpHelper().httpPutBasicAuth(createMavenUrl(org, appId)
+//                    .path(appId.getArtifactId() + "-" + appId.getVersion() + "-mule-application.jar").toString(), is, null);
+//        }
+        logger.debug("Uploaded Application");
     }
 
     @NotNull

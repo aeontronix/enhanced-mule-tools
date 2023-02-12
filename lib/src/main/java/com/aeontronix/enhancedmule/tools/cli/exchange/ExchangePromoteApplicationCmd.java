@@ -8,13 +8,17 @@ import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
+import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 
 import java.util.concurrent.Callable;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @CommandLine.Command(name = "promote", description = "Promote an snapshot application in exchange to a release version")
 public class ExchangePromoteApplicationCmd extends AbstractCommand implements Callable<Integer> {
+    private static final Logger logger = getLogger(ExchangePromoteApplicationCmd.class);
     @CommandLine.Option(names = {"-g", "--group-id"}, description = "Business group name or id")
     private String businessGroup;
     @Parameters(index = "0", arity = "1", description = "Asset Id")
@@ -27,15 +31,15 @@ public class ExchangePromoteApplicationCmd extends AbstractCommand implements Ca
     @Override
     public Integer call() throws Exception {
         final EnhancedMuleClient emClient = getCli().createEMClient();
-        final LegacyAnypointClient anypointClient = emClient.getLegacyAnypointClient();
+        final LegacyAnypointClient legacyAnypointClient = emClient.getLegacyAnypointClient();
         final Organization org;
         if (businessGroup != null) {
-            org = anypointClient.findOrganizationByNameOrId(businessGroup);
+            org = legacyAnypointClient.findOrganizationByNameOrId(businessGroup);
         } else {
-            org = anypointClient.getUser().getOrganization();
-            org.setClient(anypointClient);
+            org = legacyAnypointClient.getUser().getOrganization();
+            org.setClient(legacyAnypointClient);
         }
-        org.promoteExchangeApplication(emClient, org.getId(), assetId, version, newVersion);
+        org.promoteExchangeApplication(getCli().getAnypointClient(), emClient, org.getId(), assetId, version, newVersion);
         return 0;
     }
 }

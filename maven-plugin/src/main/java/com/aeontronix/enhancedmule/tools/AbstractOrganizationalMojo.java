@@ -19,7 +19,7 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
 
     public synchronized Organization getOrganization() throws NotFoundException, IOException, ProfileNotFoundException {
         if (organization == null) {
-            final LegacyAnypointClient client = getClient();
+            final LegacyAnypointClient client = getLegacyClient();
             if (org != null) {
                 organization = client.findOrganizationByNameOrId(org);
             } else {

@@ -49,7 +49,7 @@ class DeploymentServiceImplTest {
     public static final String MYFABRIC = "myfabric";
     public static final String ENV_ID = "42798472398234-243432243-243432234";
     private static final String ENV_NAME = "ProdEnv";
-    private LegacyAnypointClient anypointClient;
+    private LegacyAnypointClient legacyAnypointClient;
     private Environment environment;
     private ApplicationSource appSrc;
     private Organization organization;
@@ -67,12 +67,12 @@ class DeploymentServiceImplTest {
         String testName = testInfo.getTestMethod().orElseThrow(RuntimeException::new).getName();
         descJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + ".json"));
         expectedJson = objectMapper.readTree(getClass().getResource("/app/deploy/" + testName + "-expected.json"));
-        anypointClient = mock(LegacyAnypointClient.class);
+        legacyAnypointClient = mock(LegacyAnypointClient.class);
         httpHelper = mock(HttpHelper.class);
         when(httpHelper.anypointHttpPost(any(), any(), any())).thenReturn("{}");
-        final JsonHelper jsonHelper = new JsonHelper(anypointClient);
-        when(anypointClient.getJsonHelper()).thenReturn(jsonHelper);
-        when(anypointClient.getHttpHelper()).thenReturn(httpHelper);
+        final JsonHelper jsonHelper = new JsonHelper(legacyAnypointClient);
+        when(legacyAnypointClient.getJsonHelper()).thenReturn(jsonHelper);
+        when(legacyAnypointClient.getHttpHelper()).thenReturn(httpHelper);
         environment = mock(Environment.class);
         when(environment.getName()).thenReturn(ENV_NAME);
         when(environment.getId()).thenReturn(ENV_ID);
@@ -80,8 +80,8 @@ class DeploymentServiceImplTest {
         when(environment.refresh()).thenReturn(environment);
         when(environment.findCHMuleVersion("1.2.3")).thenReturn(new CHMuleVersion("1.2.3", new MuleVersionUpdate("5323")));
         when(environment.findDefaultCHMuleVersion()).thenReturn(new CHMuleVersion("4.3.55", new MuleVersionUpdate("3434")));
-        when(environment.findDefaultCHRegion()).thenReturn(new CHRegion(US_WEST_4,"zoomgalan"));
-        when(environment.getClient()).thenReturn(anypointClient);
+        when(environment.findDefaultCHRegion()).thenReturn(new CHRegion(US_WEST_4, "zoomgalan"));
+        when(environment.getClient()).thenReturn(legacyAnypointClient);
         when(environment.findWorkerTypeByName("huge")).thenReturn(new CHWorkerType("huge"));
         when(environment.findWorkerTypeByName("gigantic")).thenReturn(new CHWorkerType("gigantic"));
         when(environment.findSmallestWorkerType()).thenReturn(new CHWorkerType(MICRO));
@@ -100,7 +100,7 @@ class DeploymentServiceImplTest {
         when(appSrc.getApplicationIdentifier()).thenReturn(new ApplicationIdentifier("com.mycompany","testapp","1.0.0"));
         vars = new HashMap<>();
         properties = new HashMap<>();
-        deploymentService = new DeploymentServiceImpl(anypointClient);
+        deploymentService = new DeploymentServiceImpl(legacyAnypointClient, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -113,7 +113,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(FILE_JAR, APP_NAME, ARTIFACT_ID,
                 BUILD_NUMBER, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        new DeploymentServiceImpl(anypointClient).deploy(request, objectMapper.createObjectNode(), appSrc);
+        new DeploymentServiceImpl(legacyAnypointClient, null).deploy(request, objectMapper.createObjectNode(), appSrc);
         verifyCHNewDeploymentJson();
     }
 

@@ -41,11 +41,6 @@ public class Main {
             if (debug) {
                 System.out.println("Parameters: " + Arrays.asList(args));
             }
-            try {
-                new CommandLine(cli).parseArgs(args);
-            } catch (Exception e) {
-                logger.log(Level.FINE, e.getMessage(), e);
-            }
             commandLine.setExecutionExceptionHandler((ex, cl, parseResult) -> {
                 if (debug) {
                     throw ex;
@@ -67,9 +62,16 @@ public class Main {
     }
 
     private static boolean checkIsDebug(String[] args) throws IOException, ProfileNotFoundException {
-        EMTCli emtCli = new EMTCli(false);
-        new CommandLine(emtCli).parseArgs(args);
-        return emtCli.isDebug();
+        try {
+            EMTCli emtCli = new EMTCli(false);
+            CommandLine commandLine = new CommandLine(emtCli);
+            commandLine.addSubcommand(new ShellCmd());
+            commandLine.addSubcommand(new MavenCmd());
+            commandLine.parseArgs(args);
+            return emtCli.isDebug();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static void setupSimpleLogging(Level lvl, boolean showLevel, boolean showTimestamp) {

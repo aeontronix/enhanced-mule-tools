@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
+import com.aeontronix.anypointsdk.AnypointClient;
+import com.aeontronix.anypointsdk.exchange.ExchangeClient;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.file.TempFile;
@@ -22,6 +24,7 @@ import com.aeontronix.enhancedmule.tools.role.*;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.*;
+import com.aeontronix.restclient.RESTException;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
 import com.aeontronix.unpack.Unpacker;
@@ -718,8 +721,12 @@ public class Organization extends AnypointObject {
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
     }
 
-    private void publishExchangeAsset(ApplicationIdentifier applicationIdentifier, TempFile newFile) throws IOException {
-        MavenHelper.publishArchive(applicationIdentifier, this, newFile);
+    private void publishExchangeAsset(ExchangeClient exchangeClient, ApplicationIdentifier applicationIdentifier, TempFile newFile) throws IOException {
+        try {
+            MavenHelper.publishArchive(exchangeClient, applicationIdentifier, this, newFile);
+        } catch (RESTException e) {
+            throw new IOException(e);
+        }
     }
 
     public Fabric findFabricByName(String name) throws NotFoundException, HttpException {
@@ -736,7 +743,7 @@ public class Organization extends AnypointObject {
         return jsonHelper.readJsonList(Fabric.class, json, parent);
     }
 
-    public void promoteExchangeApplication(EnhancedMuleClient emClient, String groupId, String artifactId, String version, String newVersion) throws IOException, NotFoundException {
+    public void promoteExchangeApplication(AnypointClient anypointClient, EnhancedMuleClient emClient, String groupId, String artifactId, String version, String newVersion) throws IOException, NotFoundException {
         if (groupId == null) {
             groupId = id;
         }
@@ -770,7 +777,7 @@ public class Organization extends AnypointObject {
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
             unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, groupId, newVersion, null));
             unpacker.unpack();
-            publishExchangeAsset(new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
+            publishExchangeAsset(anypointClient.getExchangeClient(), new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
             if (snapshotPromotion) {
                 String snapshotPrefix = newVersion.toLowerCase() + "-snapshot";
                 deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);
@@ -786,17 +793,21 @@ public class Organization extends AnypointObject {
     }
 
     private void deleteSnapshotAssets(String groupId, String artifactId, String snapshotPrefix) throws HttpException, NotFoundException {
-        final ExchangeAsset exchangeAsset = findExchangeAsset(groupId, artifactId);
-        for (AssetVersion exchangeAssetVersion : exchangeAsset.getVersions()) {
-            final String v = exchangeAssetVersion.getVersion();
-            if (v.toLowerCase().startsWith(snapshotPrefix)) {
-                try {
-                    exchangeAsset.deleteVersion(v);
-                    eLogger.info(EMTLogger.Product.EXCHANGE, "Deleted exchange asset {} version {}", artifactId, v);
-                } catch (Exception e) {
-                    logger.warn("Unable to deleted exchange asset {} version {}: {}", artifactId, v, e.getMessage());
+        try {
+            final ExchangeAsset exchangeAsset = findExchangeAsset(groupId, artifactId);
+            for (AssetVersion exchangeAssetVersion : exchangeAsset.getVersions()) {
+                final String v = exchangeAssetVersion.getVersion();
+                if (v.toLowerCase().startsWith(snapshotPrefix)) {
+                    try {
+                        exchangeAsset.deleteVersion(v);
+                        eLogger.info(EMTLogger.Product.EXCHANGE, "Deleted exchange asset {} version {}", artifactId, v);
+                    } catch (Exception e) {
+                        logger.warn("Unable to deleted exchange asset {} version {}: {}", artifactId, v, e.getMessage());
+                    }
                 }
             }
+        } catch (NotFoundException e) {
+            logger.debug("Asset already deleted: " + groupId + ":" + artifactId);
         }
     }
 

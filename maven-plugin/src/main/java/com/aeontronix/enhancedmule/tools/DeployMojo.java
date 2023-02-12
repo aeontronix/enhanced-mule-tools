@@ -134,8 +134,8 @@ public class DeployMojo extends LegacyDeployMojo {
                 file = MavenUtils.getProjectJar(project).getPath();
             }
             ApplicationIdentifier applicationIdentifier = project != null ? new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()) : null;
-            final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient());
-            try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getClient(), file)) {
+            final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient(), anypointClient);
+            try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getLegacyClient(), file)) {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
                     req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);

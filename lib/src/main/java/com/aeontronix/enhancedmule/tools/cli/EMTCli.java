@@ -145,7 +145,7 @@ public class EMTCli extends AbstractCommand {
             }
             String profileAnypointUrl = prof.getAnypointUrl();
             anypointClient = AnypointClient.builder()
-                    .baseUrl(anypointUrl != null ? anypointUrl.toString() :
+                    .anypointUrl(anypointUrl != null ? anypointUrl.toString() :
                             profileAnypointUrl != null ? profileAnypointUrl : AnypointClient.ANYPOINT_DEFAULT_URL)
                     .authenticationHandler(authenticationHandler).build();
         }
