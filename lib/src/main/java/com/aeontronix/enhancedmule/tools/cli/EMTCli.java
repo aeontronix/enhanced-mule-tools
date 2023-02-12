@@ -60,7 +60,13 @@ public class EMTCli extends AbstractCommand {
     private AnypointClient anypointClient;
 
     public EMTCli() throws IOException, ProfileNotFoundException {
-        config = EMConfig.findConfigFile();
+        this(true);
+    }
+
+    public EMTCli(boolean loadConfig) throws IOException, ProfileNotFoundException {
+        if (loadConfig) {
+            config = EMConfig.findConfigFile();
+        }
     }
 
     @Override
@@ -98,7 +104,7 @@ public class EMTCli extends AbstractCommand {
 
     @NotNull
     public ConfigProfile getActiveProfile() throws IOException, ProfileNotFoundException {
-        if( activeProfile == null ) {
+        if (activeProfile == null) {
             if (profileName != null) {
                 activeProfile = config.getProfileByProfileName(profileName);
             } else {
@@ -118,26 +124,29 @@ public class EMTCli extends AbstractCommand {
     }
 
     public synchronized AnypointClient getAnypointClient() throws IOException, ProfileNotFoundException {
-        if( anypointClient == null ) {
+        if (anypointClient == null) {
+            ConfigProfile prof = getActiveProfile();
             AuthenticationHandler authenticationHandler;
             if (credentialsArgs != null) {
                 authenticationHandler = credentialsArgs.getAuthenticationHandler();
             } else {
-                ConfigCredentials creds = getActiveProfile().getCredentials();
+                ConfigCredentials creds = prof.getCredentials();
                 if (creds instanceof CredentialsClientCredentialsImpl) {
                     authenticationHandler = new AnypointClientCredentialsAuthenticationHandler(((CredentialsClientCredentialsImpl) creds).getClientId(),
                             ((CredentialsClientCredentialsImpl) creds).getClientSecret());
-                } else if ( creds instanceof CredentialsUsernamePasswordImpl ) {
+                } else if (creds instanceof CredentialsUsernamePasswordImpl) {
                     authenticationHandler = new AnypointUPWAuthenticationHandler(((CredentialsUsernamePasswordImpl) creds).getUsername(),
                             ((CredentialsUsernamePasswordImpl) creds).getPassword());
-                } else if( creds instanceof CredentialsBearerTokenImpl ) {
+                } else if (creds instanceof CredentialsBearerTokenImpl) {
                     authenticationHandler = new BearerTokenAuthenticationHandler(((CredentialsBearerTokenImpl) creds).getBearerToken());
                 } else {
                     throw new IllegalStateException("No valid credentials specified in command or present in active configuration");
                 }
             }
+            String profileAnypointUrl = prof.getAnypointUrl();
             anypointClient = AnypointClient.builder()
-                    .baseUrl(anypointUrl.toString())
+                    .baseUrl(anypointUrl != null ? anypointUrl.toString() :
+                            profileAnypointUrl != null ? profileAnypointUrl : AnypointClient.ANYPOINT_DEFAULT_URL)
                     .authenticationHandler(authenticationHandler).build();
         }
         return anypointClient;

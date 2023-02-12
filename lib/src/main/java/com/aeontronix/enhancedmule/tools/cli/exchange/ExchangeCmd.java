@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.cli.exchange;
 
 import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-@CommandLine.Command(name = "exchange", aliases = "ex", subcommands = ExchangePromoteApplicationCmd.class)
+@Command(name = "exchange", aliases = "ex", subcommands = {ExchangePromoteApplicationCmd.class, ExchangePublishAssetCmd.class})
 public class ExchangeCmd extends AbstractCommand {
 }

@@ -37,23 +37,24 @@ public class Main {
             commandLine.setUsageHelpAutoWidth(true);
             commandLine.setCaseInsensitiveEnumValuesAllowed(true);
             commandLine.setPosixClusteredShortOptionsAllowed(false);
-            if (args != null && args.length > 0 && "--debug".equalsIgnoreCase(args[0])) {
+            boolean debug = checkIsDebug(args);
+            if (debug) {
                 System.out.println("Parameters: " + Arrays.asList(args));
             }
             try {
-                commandLine.parseArgs(args);
+                new CommandLine(cli).parseArgs(args);
             } catch (Exception e) {
                 logger.log(Level.FINE, e.getMessage(), e);
             }
             commandLine.setExecutionExceptionHandler((ex, cl, parseResult) -> {
-                if (cli.isDebug()) {
+                if (debug) {
                     throw ex;
                 } else {
                     logger.log(Level.SEVERE, ex.getMessage());
                     return -1;
                 }
             });
-            if (cli.isDebug()) {
+            if (debug) {
                 logFormatter.setDebug(cli.isDebug());
                 for (final Handler handler : Logger.getLogger("").getHandlers()) {
                     handler.setLevel(Level.FINEST);
@@ -63,6 +64,12 @@ public class Main {
             }
             System.exit(commandLine.execute(args));
         }
+    }
+
+    private static boolean checkIsDebug(String[] args) throws IOException, ProfileNotFoundException {
+        EMTCli emtCli = new EMTCli(false);
+        new CommandLine(emtCli).parseArgs(args);
+        return emtCli.isDebug();
     }
 
     public static void setupSimpleLogging(Level lvl, boolean showLevel, boolean showTimestamp) {
