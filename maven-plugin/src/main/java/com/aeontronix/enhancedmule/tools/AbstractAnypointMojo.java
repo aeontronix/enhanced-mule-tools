@@ -122,6 +122,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             if (org == null) {
                 org = configProfile.getDefaultOrg();
             }
+            logger.info("Organization: {}", org);
             final Proxy proxy = session.getSettings().getActiveProxy();
             CredentialsProvider credentialsProvider = null;
             if (isNotBlank(bearerToken)) {

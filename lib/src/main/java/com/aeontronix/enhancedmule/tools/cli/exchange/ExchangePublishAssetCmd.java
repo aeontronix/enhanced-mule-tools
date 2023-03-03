@@ -7,7 +7,7 @@ package com.aeontronix.enhancedmule.tools.cli.exchange;
 import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.auth.user.User;
 import com.aeontronix.anypointsdk.exchange.CreateExchangeAssetRequest;
-import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
+import com.aeontronix.enhancedmule.tools.cli.AbstractOrgCommand;
 import org.slf4j.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -25,10 +25,8 @@ import java.util.stream.Collectors;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @CommandLine.Command(name = "publish", aliases = "p", description = "Publish an exchange asset")
-public class ExchangePublishAssetCmd extends AbstractCommand implements Callable<Integer> {
+public class ExchangePublishAssetCmd extends AbstractOrgCommand implements Callable<Integer> {
     private static final Logger logger = getLogger(ExchangePublishAssetCmd.class);
-    @Option(names = {"-o", "--org-id"}, description = "Org Id")
-    private String orgId;
     @Option(names = {"-u", "--group-id"}, description = "Group Id")
     private String groupId;
     @Option(names = {"-a", "--asset-id"}, description = "Asset Id")
@@ -67,9 +65,6 @@ public class ExchangePublishAssetCmd extends AbstractCommand implements Callable
         logger.info("Uploading asset to exchange");
         AnypointClient anypointClient = getCli().getAnypointClient();
         User user = null;
-        if (orgId == null) {
-            user = anypointClient.getUser().getUser();
-        }
         if (assetId == null) {
             throw new IllegalArgumentException("assetId not set and couldn't be automatically identified");
         }
@@ -77,7 +72,7 @@ public class ExchangePublishAssetCmd extends AbstractCommand implements Callable
             throw new IllegalArgumentException("version not set and couldn't be automatically identified");
         }
         CreateExchangeAssetRequest builder = anypointClient.getExchangeClient().createAsset()
-                .orgId(orgId != null ? orgId : user.getOrganizationId()).groupId(groupId).assetId(assetId)
+                .orgId(getOrgId()).groupId(groupId).assetId(assetId)
                 .version(version).name(name != null ? name : assetId).description(description)
                 .type(type).dependencies(dependencies).keywords(keywords).tags(tags).contactName(contactName)
                 .contactEmail(contactEmail).properties(properties).status(status);
