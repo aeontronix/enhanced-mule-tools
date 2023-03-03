@@ -11,6 +11,18 @@
         <option value="$PROJECT_DIR$/../anypoint-sdk/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/cli/pom.xml" />
+        <option value="$PROJECT_DIR$/lib/pom.xml" />
+        <option value="$PROJECT_DIR$/maven-plugin/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="temurin-11" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="temurin-11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/classes" />
+  </component>
+  <component name="TaskProjectConfiguration">
+    <server type="Gitlab" url="https://gitlab.com" />
+  </component>
 </project>
