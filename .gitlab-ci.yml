@@ -9,10 +9,8 @@ include:
     file: 'gitlab/maven-oss-lib.yml'
 
 publish-version:
-  stage: build
-#  stage: Release
-#  needs: [ "build-release-branch", "publish-to-rel-repo" ]
-  needs: [ "build-release-branch" ]
+  stage: Release
+  needs: [ "build-release-branch", "publish-to-rel-repo" ]
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == /^rel-.*$/
@@ -21,4 +19,4 @@ publish-version:
     - !reference [ .scripts, setup ]
     - echo "VERSION=${POM_REL_VERSION}"
     - echo "${POM_REL_VERSION}" > emt_test.version.txt
-    - aws s3 cp emt_test.version.txt s3://static.enhanced-mule.com/versions/emt_test.version.txt
+    - aws s3 cp emt.version.txt s3://static.enhanced-mule.com/versions/emt.version.txt
