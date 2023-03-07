@@ -70,7 +70,7 @@ public class FileApplicationSource extends ApplicationSource {
                             final String[] name = nameJson.textValue().split(":");
                             if (name.length == 3) {
                                 applicationIdentifier = new ApplicationIdentifier(name[0], name[1], name[2]);
-                                logger.debug("Loaded ApplicationIdentifier from archive: "+applicationIdentifier);
+                                logger.debug("Loaded ApplicationIdentifier from archive: " + applicationIdentifier);
                             }
                         }
                     }
@@ -85,6 +85,11 @@ public class FileApplicationSource extends ApplicationSource {
     @Override
     public Map<String, Object> getSourceJson(JsonHelper jsonHelper) {
         throw new UnsupportedOperationException("getSourceJson() not supported for file source");
+    }
+
+    @Override
+    public com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource() {
+        return new com.aeontronix.anypointsdk.application.FileApplicationSource(file);
     }
 
     @Override

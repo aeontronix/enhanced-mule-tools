@@ -142,7 +142,6 @@ public class RTFDeploymentConfig {
         this.replicas = replicas;
     }
 
-
     public enum DeploymentModel {
         ROLLING, RECREATE
     }

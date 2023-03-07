@@ -119,10 +119,6 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 anypointPlatformUrl = configProfile.getAnypointUrl() != null ? configProfile.getAnypointUrl() : "https://anypoint.mulesoft.com";
             }
             logger.info("Anypoint server: {}", anypointPlatformUrl);
-            if (org == null) {
-                org = configProfile.getDefaultOrg();
-            }
-            logger.info("Organization: {}", org);
             final Proxy proxy = session.getSettings().getActiveProxy();
             CredentialsProvider credentialsProvider = null;
             if (isNotBlank(bearerToken)) {

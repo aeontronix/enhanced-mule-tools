@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,7 +66,9 @@ public class EMConfig {
         try {
             is = findConfig(filename);
             if (is != null) {
-                return new ObjectMapper().readValue(is, EMConfig.class);
+                return new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .readValue(is, EMConfig.class);
             } else {
                 final EMConfig cfg = new EMConfig();
                 cfg.getOrCreateProfile(cfg.getActive());

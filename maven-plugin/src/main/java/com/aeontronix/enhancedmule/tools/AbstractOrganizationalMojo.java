@@ -32,6 +32,8 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
                     throw new IllegalArgumentException("Organization not set, use configuration element 'org' or maven property 'anypoint.org' to set");
                 }
             }
+            logger.info("Organization Name: {}", organization.getName());
+            logger.info("Organization Id: {}", organization.getId());
         }
         return organization;
     }

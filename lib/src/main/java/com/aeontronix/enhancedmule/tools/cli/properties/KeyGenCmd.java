@@ -1,8 +1,8 @@
 /*
- * Copyright (c) Aeontronix 2022
+ * Copyright (c) 2023. Aeontronix Inc
  */
 
-package com.aeontronix.enhancedmule.tools.cli.crypto;
+package com.aeontronix.enhancedmule.tools.cli.properties;
 
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;

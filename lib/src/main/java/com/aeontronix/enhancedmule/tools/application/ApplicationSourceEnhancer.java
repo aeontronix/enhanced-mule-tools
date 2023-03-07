@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools.application;
 import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.commons.xml.XPathUtils;
 import com.aeontronix.commons.xml.XmlUtils;
+import com.aeontronix.enhancedmule.tools.util.VersionHelper;
 import com.aeontronix.restclient.RESTClient;
 import com.aeontronix.restclient.RESTException;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -176,7 +177,12 @@ public class ApplicationSourceEnhancer {
 
     @SuppressWarnings("unchecked")
     private String getLatestVersion(String projectId) throws RESTException {
-        final Map<String, String> rel = (Map<String, String>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/releases", List.class).get(0);
-        return rel.get("tag_name").substring(1);
+        try {
+            final Map<String, String> rel = (Map<String, String>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/releases", List.class).get(0);
+            return rel.get("tag_name").substring(1);
+        } catch (Exception e) {
+            logger.warn("Unable to retrieve latest version, using last known version instead: "+ VersionHelper.EMT_VERSION);
+            return VersionHelper.EMT_VERSION;
+        }
     }
 }

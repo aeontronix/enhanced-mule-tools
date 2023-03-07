@@ -138,6 +138,11 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
+    public com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource() {
+        return new com.aeontronix.anypointsdk.application.ExchangeApplicationSource(groupId, artifactId, version);
+    }
+
+    @Override
     public void close() throws IOException {
         IOUtils.close(tempFile);
     }

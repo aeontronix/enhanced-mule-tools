@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.application.deployment;
 
+import com.aeontronix.anypointsdk.cloudhub2.CH2AppDeploymentParameters;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RTFDeploymentConfig;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +14,7 @@ import java.time.Duration;
 public class DeploymentParameters {
     private String target;
     private CloudhubDeploymentParameters cloudhub;
+    private CH2AppDeploymentParameters cloudhub2;
     private RTFDeploymentParameters rtf;
     private Duration deployTimeout;
     private Duration deployRetryDelay;
@@ -33,7 +35,7 @@ public class DeploymentParameters {
     }
 
     @NotNull
-    public CloudhubDeploymentParameters getCloudhub() {
+    public synchronized CloudhubDeploymentParameters getCloudhub() {
         if (cloudhub == null) {
             cloudhub = new CloudhubDeploymentParameters();
         }
@@ -42,6 +44,18 @@ public class DeploymentParameters {
 
     public void setCloudhub(CloudhubDeploymentParameters cloudhub) {
         this.cloudhub = cloudhub;
+    }
+
+    @NotNull
+    public synchronized CH2AppDeploymentParameters getCloudhub2() {
+        if( cloudhub2 == null ) {
+            cloudhub2 = new CH2AppDeploymentParameters();
+        }
+        return cloudhub2;
+    }
+
+    public void setCloudhub2(@NotNull CH2AppDeploymentParameters cloudhub2) {
+        this.cloudhub2 = cloudhub2;
     }
 
     @NotNull

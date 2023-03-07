@@ -16,9 +16,9 @@ import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.cloudhub.CloudhubCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ActiveProfileCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
-import com.aeontronix.enhancedmule.tools.cli.crypto.DecryptCmd;
-import com.aeontronix.enhancedmule.tools.cli.crypto.EncryptCmd;
-import com.aeontronix.enhancedmule.tools.cli.crypto.KeyGenCmd;
+import com.aeontronix.enhancedmule.tools.cli.properties.DecryptCmd;
+import com.aeontronix.enhancedmule.tools.cli.properties.EncryptCmd;
+import com.aeontronix.enhancedmule.tools.cli.properties.KeyGenCmd;
 import com.aeontronix.enhancedmule.tools.cli.exchange.ExchangeCmd;
 import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
@@ -38,8 +38,7 @@ import static picocli.CommandLine.ArgGroup;
 import static picocli.CommandLine.Option;
 
 @Command(name = "emt", subcommands = {
-        ConfigCmd.class, KeyGenCmd.class, EncryptCmd.class,
-        DecryptCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class,
+        ConfigCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class,
         ExchangeCmd.class, ApplicationCmd.class, CloudhubCmd.class
 }, versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli extends AbstractCommand {

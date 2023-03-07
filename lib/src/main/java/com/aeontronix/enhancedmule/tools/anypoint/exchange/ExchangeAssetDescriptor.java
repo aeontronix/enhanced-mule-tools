@@ -208,6 +208,9 @@ public class ExchangeAssetDescriptor {
                 this.version = oldVersion + "-" + request.getBuildNumber();
                 plogger.info(EMTLogger.Product.EXCHANGE, "Snapshot version: {} => {}", oldVersion, this.version);
             }
+            if( groupId == null ) {
+                groupId = organization.getId();
+            }
             try {
                 organization.findExchangeAssetVersion(groupId, id, version);
             } catch (NotFoundException e) {

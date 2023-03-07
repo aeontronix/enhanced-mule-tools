@@ -165,6 +165,8 @@ public class DeploymentServiceImpl implements DeploymentService {
         final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {
             op = new CHDeploymentOperation(request, environment, source);
+        } else if (target.toLowerCase().startsWith("cloudhub2:") ) {
+            op = new CH2DeploymentOperation(anypointClient, request, environment, source);
         } else {
             try {
                 Server server = environment.findServerByName(target);

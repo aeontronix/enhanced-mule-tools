@@ -99,4 +99,6 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
             IOUtils.copy(zipFile.getInputStream(entry), os);
         }
     }
+
+    public abstract com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource();
 }
