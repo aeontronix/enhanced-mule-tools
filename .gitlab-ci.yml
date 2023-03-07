@@ -9,7 +9,7 @@ include:
     file: 'gitlab/maven-oss-lib.yml'
 
 publish-version:
-  stage: Build
+  stage: build
 #  stage: Release
 #  needs: [ "build-release-branch", "publish-to-rel-repo" ]
   rules:
