@@ -19,4 +19,4 @@ publish-version:
   script:
     - !reference [ .scripts, setup ]
     - echo "${POM_REL_VERSION}" > emt_test.version.txt
-    - aws s3 cp emt.version.txt s3://static.enhanced-mule.com/versions/emt_test.version.txt
+    - aws s3 cp emt_test.version.txt s3://static.enhanced-mule.com/versions/emt_test.version.txt
