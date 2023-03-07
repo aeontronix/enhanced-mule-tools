@@ -79,7 +79,7 @@ public class ApplicationSourceEnhancer {
     private void setupEnhancedMuleProperties(File projectDir, Document pomDoc) throws XPathExpressionException, IOException, RESTException {
         String artifactId = "enhanced-mule-properties-provider";
         String groupId = "com.aeontronix.enhanced-mule";
-        String newVersion = getLatestVersion("39986379");
+        String newVersion = getLatestVersionViaReleases("39986379");
         final Element depVersion = XPathUtils.evalXPathElement("//dependencies/dependency[ artifactId/text() = '"
                 + artifactId + "' and groupId/text() = '" + groupId + "']/version", pomDoc);
         if (depVersion != null) {
@@ -134,7 +134,7 @@ public class ApplicationSourceEnhancer {
     }
 
     private void setupEmtMavenPlugin(Document pomDoc) throws XPathExpressionException, RESTException {
-        String emtVersion = getLatestVersion("14801271");
+        String emtVersion = getLatestVersionFromS3("emt");
         final Element emPluginVersion = XPathUtils.evalXPathElement("//build/plugins/plugin[ artifactId/text() = 'enhanced-mule-tools-maven-plugin' and groupId/text() = 'com.aeontronix.enhanced-mule']/version", pomDoc);
         final Element mvnProject = pomDoc.getDocumentElement();
         if (emPluginVersion == null) {
@@ -176,10 +176,19 @@ public class ApplicationSourceEnhancer {
     }
 
     @SuppressWarnings("unchecked")
-    private String getLatestVersion(String projectId) throws RESTException {
+    private String getLatestVersionViaReleases(String projectId) throws RESTException {
         try {
             final Map<String, String> rel = (Map<String, String>) restClient.get("https://gitlab.com/api/v4/projects/" + projectId + "/releases", List.class).get(0);
             return rel.get("tag_name").substring(1);
+        } catch (Exception e) {
+            logger.warn("Unable to retrieve latest version, using last known version instead: "+ VersionHelper.EMT_VERSION);
+            return VersionHelper.EMT_VERSION;
+        }
+    }
+
+    private String getLatestVersionFromS3(String projectId) throws RESTException {
+        try {
+            return restClient.get("https://s3.us-west-2.amazonaws.com/static.enhanced-mule.com/versions/"+projectId+".version.txt").executeAndConvertToObject(String.class).trim();
         } catch (Exception e) {
             logger.warn("Unable to retrieve latest version, using last known version instead: "+ VersionHelper.EMT_VERSION);
             return VersionHelper.EMT_VERSION;
