@@ -6,12 +6,12 @@ package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.cloudhub2.CH2AppDeploymentParameters;
+import com.aeontronix.anypointsdk.cloudhub2.CH2DeploymentResponse;
+import com.aeontronix.anypointsdk.cloudhub2.DeploymentFailedException;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
-import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
-import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
@@ -24,9 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import static com.aeontronix.enhancedmule.tools.anypoint.Environment.Type.PRODUCTION;
@@ -55,10 +53,10 @@ public class CH2DeploymentOperation extends DeploymentOperation {
                 target = target.substring(CH2_TARGET_PREFIX.length());
             }
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying application to Cloudhub 2");
-            anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
+            CH2DeploymentResponse response = anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
                     orgId, environment.getId(), target,
                     source.toSDKSource(),
-                    request.getProperties(), new HashSet<>(), request.getBuildNumber());
+                    request.getProperties(), request.getSecureProperties(), request.getBuildNumber());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: " + request.getAppName());
             if (logger.isDebugEnabled()) {
                 logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");
@@ -66,7 +64,11 @@ public class CH2DeploymentOperation extends DeploymentOperation {
             return new DeploymentResult() {
                 @Override
                 public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
-
+                    try {
+                        response.waitDeploymentComplete(Duration.ofMillis(timeout), retryDelay);
+                    } catch (DeploymentFailedException e) {
+                        throw new ApplicationDeploymentFailedException(e);
+                    }
                 }
             };
         } catch (RESTException e) {

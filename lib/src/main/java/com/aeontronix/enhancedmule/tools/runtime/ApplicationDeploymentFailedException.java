@@ -19,6 +19,10 @@ public class ApplicationDeploymentFailedException extends DeploymentException {
         super("Failed to deploy application");
     }
 
+    public ApplicationDeploymentFailedException(Throwable cause) {
+        super(cause);
+    }
+
     public ApplicationDeploymentFailedException(int failed, int successful, int other, List<String> messages) {
         super("Failed to deploy application (failed: " + failed + ", successful: " + successful + ", other: " + other + ") : " + messages);
         this.failed = failed;

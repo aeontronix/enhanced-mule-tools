@@ -38,6 +38,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     private final HashMap<String, String> vars = new HashMap<>();
     private final HashMap<String, String> properties = new HashMap<>();
     private HashSet<String> overrideProperties = new HashSet<>();
+    private HashSet<String> secureProperties = new HashSet<>();
     private Map<String, String> fileProperties;
     private String filePropertiesPath = "config.properties";
     private boolean filePropertiesSecure;
@@ -110,12 +111,12 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
             }
         }
         if (injectEnvInfo) {
-            properties.put("anypoint.env.name", environment.getName());
-            properties.put("anypoint.env.suffix", environment.getSuffix());
-            properties.put("anypoint.env.id", environment.getId());
-            properties.put("anypoint.env.type", environment.getType().name());
-            properties.put("anypoint.org.name", environment.getOrganization().getName());
-            properties.put("anypoint.org.id", environment.getOrganization().getId());
+            setSecureProperty("anypoint.env.name", environment.getName());
+            setSecureProperty("anypoint.env.suffix", environment.getSuffix());
+            setSecureProperty("anypoint.env.id", environment.getId());
+            setSecureProperty("anypoint.env.type", environment.getType().name());
+            setSecureProperty("anypoint.org.name", environment.getOrganization().getName());
+            setSecureProperty("anypoint.org.id", environment.getOrganization().getId());
         }
         return properties;
     }
@@ -177,6 +178,10 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return properties;
     }
 
+    public HashSet<String> getSecureProperties() {
+        return secureProperties;
+    }
+
     public void addProperties(Map<String, String> properties) {
         properties.putAll(properties);
     }
@@ -222,6 +227,11 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
 
     public void setProperty(String key, String value) {
         properties.put(key, value);
+    }
+
+    public void setSecureProperty(String key, String value) {
+        properties.put(key, value);
+        secureProperties.add(key);
     }
 
     public boolean isSkipWait() {
