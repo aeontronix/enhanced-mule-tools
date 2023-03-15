@@ -181,28 +181,27 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         return property;
     }
 
-    protected Map<String, String> findPrefixProperties(Map<String, String> target, String prefix) {
+    protected Map<String, String> findPrefixedProperties(String prefix) {
+        HashMap<String, String> results = new HashMap<>();
         if (project != null) {
-            target = findPrefixProperties(project.getProperties(), target, prefix);
+            results.putAll(findPrefixedProperties(project.getProperties(), prefix));
         }
-        target = findPrefixProperties(session.getUserProperties(), target, prefix);
-        return target;
+        results.putAll(findPrefixedProperties(session.getUserProperties(), prefix));
+        return results;
     }
 
-    protected static Map<String, String> findPrefixProperties(Properties source, Map<String, String> target, String prefix) {
+    protected static Map<String, String> findPrefixedProperties(Properties source, String prefix) {
+        HashMap<String, String> results = new HashMap<>();
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             String key = entry.getKey().toString();
             if (key.startsWith(prefix)) {
                 key = key.substring(prefix.length());
                 if (StringUtils.isNotBlank(key)) {
                     String value = entry.getValue().toString();
-                    if (target == null) {
-                        target = new HashMap<>();
-                    }
-                    target.put(key, value);
+                    results.put(key, value);
                 }
             }
         }
-        return target;
+        return results;
     }
 }
