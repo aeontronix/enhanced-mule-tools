@@ -6,13 +6,13 @@ package com.aeontronix.enhancedmule.tools.cli.properties;
 
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;
+import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
 import com.aeontronix.enhancedmule.tools.cli.EMTCli;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.EncodedKey;
 import com.aeontronix.kryptotek.InvalidKeyEncodingException;
 import com.aeontronix.kryptotek.key.AESKeyLen;
 import com.aeontronix.kryptotek.key.RSAKeyPair;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -24,9 +24,7 @@ import java.util.concurrent.Callable;
 import static com.aeontronix.kryptotek.EncodedKey.Format.B64;
 
 @Command(name = "keygen", description = "Generate a property encryption key")
-public class KeyGenCmd implements Callable<Integer> {
-    @CommandLine.ParentCommand
-    private EMTCli cli;
+public class KeyGenCmd extends AbstractCommand implements Callable<Integer> {
     @Parameters(description = "File to write key to", arity = "0..1")
     private File file;
     @Option(names = {"-s", "--save"}, description = "Save key to active profile", defaultValue = "false")
@@ -61,6 +59,7 @@ public class KeyGenCmd implements Callable<Integer> {
             throw new UnexpectedException(e);
         }
         if (save) {
+            EMTCli cli = getCli();
             cli.getActiveProfile().setCryptoKey(key);
             cli.saveConfig();
         }

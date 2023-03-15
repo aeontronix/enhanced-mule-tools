@@ -5,21 +5,18 @@
 package com.aeontronix.enhancedmule.tools.cli.properties;
 
 import com.aeontronix.commons.StringUtils;
-import com.aeontronix.enhancedmule.tools.cli.EMTCli;
+import com.aeontronix.enhancedmule.tools.cli.AbstractCommand;
 import com.aeontronix.kryptotek.CryptoUtils;
 import com.aeontronix.kryptotek.Key;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParentCommand;
 
 import java.io.File;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.Help.Visibility.ALWAYS;
 
-public abstract class AbstractCryptoCmd implements Callable<Integer> {
-    @ParentCommand
-    protected EMTCli cli;
+public abstract class AbstractCryptoCmd extends AbstractCommand implements Callable<Integer> {
     @ArgGroup(exclusive = true, multiplicity = "0..1")
     protected EncryptCmd.KeyOptions keyOptions;
     @Option(names = {"-v", "--value"}, description = "Text to encrypt", arity = "1")
@@ -34,7 +31,7 @@ public abstract class AbstractCryptoCmd implements Callable<Integer> {
         if (keyOptions == null) {
             keyOptions = new EncryptCmd.KeyOptions();
         }
-        final String cryptoKey = CryptoHelper.findCryptoKey(keyOptions.key, keyOptions.keyFile, cli.getActiveProfile());
+        final String cryptoKey = CryptoHelper.findCryptoKey(keyOptions.key, keyOptions.keyFile, getCli().getActiveProfile());
         if (StringUtils.isBlank(cryptoKey)) {
             throw new IllegalArgumentException("No cryptography key found in profile or parameters");
         }

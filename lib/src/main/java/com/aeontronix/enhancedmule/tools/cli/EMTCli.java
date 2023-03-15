@@ -16,10 +16,8 @@ import com.aeontronix.enhancedmule.tools.cli.application.ApplicationCmd;
 import com.aeontronix.enhancedmule.tools.cli.cloudhub.CloudhubCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ActiveProfileCmd;
 import com.aeontronix.enhancedmule.tools.cli.config.ConfigCmd;
-import com.aeontronix.enhancedmule.tools.cli.properties.DecryptCmd;
-import com.aeontronix.enhancedmule.tools.cli.properties.EncryptCmd;
-import com.aeontronix.enhancedmule.tools.cli.properties.KeyGenCmd;
 import com.aeontronix.enhancedmule.tools.cli.exchange.ExchangeCmd;
+import com.aeontronix.enhancedmule.tools.cli.properties.PropertiesCmd;
 import com.aeontronix.enhancedmule.tools.config.*;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
@@ -39,7 +37,7 @@ import static picocli.CommandLine.Option;
 
 @Command(name = "emt", subcommands = {
         ConfigCmd.class, ActiveProfileCmd.class, LoginCmd.class, UserInfoCmd.class, APIManagerCmd.class,
-        ExchangeCmd.class, ApplicationCmd.class, CloudhubCmd.class
+        ExchangeCmd.class, ApplicationCmd.class, CloudhubCmd.class, PropertiesCmd.class
 }, versionProvider = VersionHelper.class, mixinStandardHelpOptions = true)
 public class EMTCli extends AbstractCommand {
     @Option(names = {"--version"}, versionHelp = true, description = "display version info")
