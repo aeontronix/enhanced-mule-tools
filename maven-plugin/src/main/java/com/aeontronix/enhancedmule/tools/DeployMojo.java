@@ -159,12 +159,19 @@ public class DeployMojo extends LegacyDeployMojo {
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
                     request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
-                    final ObjectNode appDescJson = source.getAnypointDescriptor();
+                    ObjectNode appDescJson = source.getAnypointDescriptor();
                     Map<String, String> deployProperties = findPrefixedProperties("emt.deploy.override.");
                     JavaPropsMapper mapper = new JavaPropsMapper();
-                    HashMap<String, Object> overrides = new HashMap<>();
-                    overrides.put("deploymentParams", mapper.readMapAs(deployProperties, Map.class));
-                    DescriptorHelper.override(appDescJson, objectMapper.valueToTree(overrides));
+                    if (!deployProperties.isEmpty()) {
+                        HashMap<String, Object> overrides = new HashMap<>();
+                        overrides.put("deploymentParams", mapper.readMapAs(deployProperties, Map.class));
+                        ObjectNode overrideJsonTree = objectMapper.valueToTree(overrides);
+                        if (appDescJson == null) {
+                            appDescJson = overrideJsonTree;
+                        } else {
+                            DescriptorHelper.override(appDescJson, overrideJsonTree);
+                        }
+                    }
                     deploymentService.deploy(request, appDescJson, source);
                 }
             }

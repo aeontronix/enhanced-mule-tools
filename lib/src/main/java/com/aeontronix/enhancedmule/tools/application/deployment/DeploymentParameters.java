@@ -46,15 +46,11 @@ public class DeploymentParameters {
         this.cloudhub = cloudhub;
     }
 
-    @NotNull
     public synchronized CH2AppDeploymentParameters getCloudhub2() {
-        if( cloudhub2 == null ) {
-            cloudhub2 = new CH2AppDeploymentParameters();
-        }
         return cloudhub2;
     }
 
-    public void setCloudhub2(@NotNull CH2AppDeploymentParameters cloudhub2) {
+    public void setCloudhub2(CH2AppDeploymentParameters cloudhub2) {
         this.cloudhub2 = cloudhub2;
     }
 

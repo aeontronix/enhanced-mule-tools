@@ -80,7 +80,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                 request.getVars().put("app.id", source.getArtifactId());
             }
             // Legacy override layer
-            final JsonNode legacyAppDescriptor = request.getLegacyAppDescriptor();
+            final JsonNode legacyAppDescriptor = request.getLegacyOverrides();
             if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
             }

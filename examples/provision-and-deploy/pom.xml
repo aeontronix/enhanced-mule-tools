@@ -22,7 +22,7 @@
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <emt.version>1.4.32-SNAPSHOT</emt.version>
+        <emt.version>1.4.33-SNAPSHOT</emt.version>
         <maven.compiler.release>8</maven.compiler.release>
         <var.myurl>https://www.goo.com/myapi</var.myurl>
     </properties>

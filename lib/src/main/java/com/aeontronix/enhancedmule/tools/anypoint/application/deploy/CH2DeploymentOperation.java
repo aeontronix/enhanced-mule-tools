@@ -46,7 +46,9 @@ public class CH2DeploymentOperation extends DeploymentOperation {
         try {
             long start = System.currentTimeMillis();
             CH2AppDeploymentParameters ch2 = request.getApplicationDescriptor().getDeploymentParams().getCloudhub2();
-            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying cloudhub 2 application");
+            if (ch2 == null) {
+                ch2 = new CH2AppDeploymentParameters();
+            }
             String orgId = environment.getOrganization().getId();
             String target = request.getTarget();
             if (target.toLowerCase().startsWith(CH2_TARGET_PREFIX)) {

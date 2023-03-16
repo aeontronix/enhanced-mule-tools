@@ -6,8 +6,8 @@ package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.commons.file.TempFile;
 import com.aeontronix.commons.io.IOUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
@@ -98,7 +98,7 @@ public abstract class DeploymentOperation {
                     try {
                         final String clientSecret = environment.getClientSecret();
                         if (clientSecret != null) {
-                            deploymentRequest.setOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
+                            deploymentRequest.setSecureOverrideProperty(ANYPOINT_PLATFORM_CLIENT_SECRET, clientSecret);
                         }
                     } catch (HttpException e) {
                         if (e.getStatusCode() != 401) {
@@ -121,7 +121,7 @@ public abstract class DeploymentOperation {
                     if (clientSecretProperty == null) {
                         throw new IllegalStateException("client descriptor id property musn't be null");
                     }
-                    deploymentRequest.setOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
+                    deploymentRequest.setSecureOverrideProperty(clientSecretProperty, clientApp.getClientSecret());
                 }
             }
 //            if (deploymentRequest.isFilePropertiesSecure() && applicationDescriptor != null &&

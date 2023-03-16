@@ -206,6 +206,7 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
         rtf.setForwardSslSession(forwardSslSession);
         rtf.setUpdateStrategy(updateStrategy);
         rtf.setReplicas(replicas);
+        app.getDeploymentParams().setCloudhub2(null);
         return getLegacyClient().getJsonHelper().getJsonMapper().valueToTree(app);
     }
 }

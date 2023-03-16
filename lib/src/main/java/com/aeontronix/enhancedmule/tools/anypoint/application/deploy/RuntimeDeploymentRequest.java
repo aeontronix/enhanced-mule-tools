@@ -111,12 +111,12 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
             }
         }
         if (injectEnvInfo) {
-            setSecureProperty("anypoint.env.name", environment.getName());
-            setSecureProperty("anypoint.env.suffix", environment.getSuffix());
-            setSecureProperty("anypoint.env.id", environment.getId());
-            setSecureProperty("anypoint.env.type", environment.getType().name());
-            setSecureProperty("anypoint.org.name", environment.getOrganization().getName());
-            setSecureProperty("anypoint.org.id", environment.getOrganization().getId());
+            setProperty("anypoint.env.name", environment.getName());
+            setProperty("anypoint.env.suffix", environment.getSuffix());
+            setProperty("anypoint.env.id", environment.getId());
+            setProperty("anypoint.env.type", environment.getType().name());
+            setProperty("anypoint.org.name", environment.getOrganization().getName());
+            setProperty("anypoint.org.id", environment.getOrganization().getId());
         }
         return properties;
     }
@@ -207,6 +207,11 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         overrideProperties.add(key);
     }
 
+    public void setSecureOverrideProperty(String key, String value) {
+        setOverrideProperty(key, value);
+        secureProperties.add(key);
+    }
+
     public void addFileProperty(String key, String value) {
         if (key == null) {
             throw new IllegalArgumentException("Property key musn't be null. value=" + value);
@@ -273,7 +278,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return autoApproveAccess == null || autoApproveAccess;
     }
 
-    public JsonNode getLegacyAppDescriptor() {
+    public JsonNode getLegacyOverrides() {
         return legacyAppDescriptor;
     }
 }
