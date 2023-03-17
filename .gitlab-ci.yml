@@ -7,3 +7,16 @@ variables:
 include:
   - project: 'aeontronix/commercial-software/ci-pipeline-lib'
     file: 'gitlab/maven-oss-lib.yml'
+
+publish-version:
+  stage: Release
+  needs: [ "build-release-branch", "publish-to-rel-repo" ]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == /^rel-.*$/
+    - if: $CI_COMMIT_BRANCH == /^hotfix-.*$/
+  script:
+    - !reference [ .scripts, setup ]
+    - echo "VERSION=${POM_REL_VERSION}"
+    - echo "${POM_REL_VERSION}" > emt.version.txt
+    - aws s3 cp emt.version.txt s3://static.enhanced-mule.com/versions/emt.version.txt
