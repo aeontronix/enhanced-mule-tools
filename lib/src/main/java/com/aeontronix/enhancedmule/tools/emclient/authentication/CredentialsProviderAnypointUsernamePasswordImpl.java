@@ -44,7 +44,7 @@ public class CredentialsProviderAnypointUsernamePasswordImpl implements Anypoint
             Map<String, String> loginReq = new HashMap<>();
             loginReq.put("username", username);
             loginReq.put("password", password);
-            final Map response = emClient.getRestClient().post(loginUrl).jsonBody(loginUrl).executeAndConvertToObject(Map.class);
+            final Map response = emClient.getRestClient().post(loginUrl).jsonBody(loginReq).executeAndConvertToObject(Map.class);
             final String accessToken = (String) response.get("access_token");
             if (accessToken == null) {
                 throw new IOException("No access token returned by anypoint login");

@@ -179,6 +179,8 @@ public class ClientApplicationDescriptor {
                             List<SLATier> slaTiers = instance.findSLATiers();
                             if (slaTiers.size() == 1) {
                                 slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
+                            } else if (slaTiers.size() > 1) {
+                                throw new ProvisioningException("Accessed API " + instance.getAssetId() + " has multiple SLA tiers, you must specify which is to be used");
                             }
                         }
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
