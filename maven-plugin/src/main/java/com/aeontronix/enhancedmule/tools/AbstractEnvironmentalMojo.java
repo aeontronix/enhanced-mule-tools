@@ -7,6 +7,7 @@ package com.aeontronix.enhancedmule.tools;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
+import com.aeontronix.enhancedmule.tools.util.EMTProperties;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 
@@ -34,5 +35,11 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
             environment = getOrganization().findEnvironmentByNameOrId(env);
         }
         return environment;
+    }
+
+    @Override
+    public EMTProperties getEMTProperties() throws NotFoundException, IOException, ProfileNotFoundException {
+        getEnvironment();
+        return new EMTProperties(getMavenProperties(), environment.getId(), environment.getName(), environment.getType());
     }
 }

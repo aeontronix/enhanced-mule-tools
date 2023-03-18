@@ -16,6 +16,7 @@ import com.aeontronix.enhancedmule.tools.cloudhub.MuleVersionUpdate;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
+import com.aeontronix.enhancedmule.tools.util.EMTProperties;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
@@ -113,7 +114,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(FILE_JAR, APP_NAME, ARTIFACT_ID,
                 BUILD_NUMBER, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        new DeploymentServiceImpl(legacyAnypointClient, null).deploy(request, objectMapper.createObjectNode(), appSrc);
+        new DeploymentServiceImpl(legacyAnypointClient, null).deploy(request, objectMapper.createObjectNode(), new DescriptorLayers(new EMTProperties(new HashMap<>())), appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -122,7 +123,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, (ObjectNode) descJson, new DescriptorLayers(new EMTProperties(new HashMap<>())), appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -131,7 +132,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, (ObjectNode) descJson, new DescriptorLayers(new EMTProperties(new HashMap<>())), appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -140,7 +141,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, "cloudhub", environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, (ObjectNode) descJson, new DescriptorLayers(new EMTProperties(new HashMap<>())), appSrc);
         verifyCHNewDeploymentJson();
     }
 
@@ -149,7 +150,7 @@ class DeploymentServiceImplTest {
         final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(null, null, ARTIFACT_ID,
                 null, vars, properties, null, false, null, environment, true,
                 true, true, null);
-        deploymentService.deploy(request, (ObjectNode) descJson, appSrc);
+        deploymentService.deploy(request, (ObjectNode) descJson, new DescriptorLayers(new EMTProperties(new HashMap<>())), appSrc);
         verifyRTFNewDeploymentJson();
     }
 

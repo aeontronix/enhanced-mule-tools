@@ -8,12 +8,14 @@ import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
+import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.config.EMConfig;
 import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.emclient.authentication.*;
 import com.aeontronix.enhancedmule.tools.util.CredentialsConverter;
+import com.aeontronix.enhancedmule.tools.util.EMTProperties;
 import com.aeontronix.kryptotek.DigestUtils;
 import com.aeontronix.restclient.ProxySettings;
 import com.aeontronix.restclient.auth.BearerTokenAuthenticationHandler;
@@ -181,12 +183,25 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         return property;
     }
 
-    protected Map<String, String> findPrefixedProperties(String prefix) {
+    public Map<String, String> getMavenProperties() {
+        Map<String, String> results = new HashMap<>();
+        project.getProperties().forEach((key, val) -> results.put(String.valueOf(key), String.valueOf(val)));
+        session.getUserProperties().forEach((key, val) -> results.put(String.valueOf(key), String.valueOf(val)));
+        return results;
+    }
+
+    public EMTProperties getEMTProperties() throws NotFoundException, IOException, ProfileNotFoundException {
+        return new EMTProperties(getMavenProperties(), null, null, null);
+    }
+
+    protected Map<String, String> findPrefixedProperties(String... prefixes) {
         HashMap<String, String> results = new HashMap<>();
-        if (project != null) {
-            results.putAll(findPrefixedProperties(project.getProperties(), prefix));
+        for (String prefix : prefixes) {
+            if (project != null) {
+                results.putAll(findPrefixedProperties(project.getProperties(), prefix));
+            }
+            results.putAll(findPrefixedProperties(session.getUserProperties(), prefix));
         }
-        results.putAll(findPrefixedProperties(session.getUserProperties(), prefix));
         return results;
     }
 
@@ -204,4 +219,5 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         }
         return results;
     }
+
 }

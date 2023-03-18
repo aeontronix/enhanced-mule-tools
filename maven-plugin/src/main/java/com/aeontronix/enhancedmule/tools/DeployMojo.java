@@ -6,16 +6,15 @@ package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentServiceImpl;
+import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DescriptorLayers;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.ExchangeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.RuntimeDeploymentRequest;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
-import com.aeontronix.enhancedmule.tools.util.DescriptorHelper;
 import com.aeontronix.enhancedmule.tools.util.EMTLogger;
+import com.aeontronix.enhancedmule.tools.util.EMTProperties;
 import com.aeontronix.enhancedmule.tools.util.MavenUtils;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -24,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -36,7 +35,7 @@ public class DeployMojo extends LegacyDeployMojo {
     public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
     private static final EMTLogger emtLogger = new EMTLogger(logger);
-    public static final String VAR = "var";
+    public static final String VAR = "emt.var";
     public static final String CLOUDHUB = "cloudhub";
     public static final String EMT_TARGET = "emt.target";
     /**
@@ -60,6 +59,11 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "anypoint.deploy.filename")
     protected String filename;
+    /**
+     * Application properties
+     */
+    @Parameter(property = "anypoint.deploy.securePropertiesSuffix", required = false)
+    protected String securePropertiesSuffix = "__secure__";
     /**
      * Application properties
      */
@@ -121,6 +125,7 @@ public class DeployMojo extends LegacyDeployMojo {
     @Override
     protected void doExecute() throws Exception {
         if (!skipDeploy) {
+            EMTProperties emtProperties = getEMTProperties();
             handleDeprecated();
             if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
                 project = null;
@@ -147,32 +152,27 @@ public class DeployMojo extends LegacyDeployMojo {
                     final ApplicationIdentifier appId = deploymentService.deployToExchange(req);
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
-                    ObjectMapper objectMapper = new ObjectMapper();
                     vars = findPrefixedProperties(VAR);
                     properties = findPrefixedProperties(ANYPOINT_DEPLOY_PROPERTIES);
+                    HashSet<String> secureProperties = new HashSet<>();
+                    for (String key : new HashSet<>(properties.keySet())) {
+                        if (key.endsWith(securePropertiesSuffix) && "true".equalsIgnoreCase(properties.get(key))) {
+                            properties.remove(key);
+                            secureProperties.add(key.substring(0, key.length() - securePropertiesSuffix.length()));
+                        }
+                    }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
                             source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties, propertyfile,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
+                    request.addSecureProperties(secureProperties);
                     request.setFileProperties(fileProperties);
                     request.setFilePropertiesPath(filePropertiesPath);
                     request.setFilePropertiesSecure(filePropertiesSecure);
                     request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
                     ObjectNode appDescJson = source.getAnypointDescriptor();
-                    Map<String, String> deployProperties = findPrefixedProperties("emt.deploy.override.");
-                    JavaPropsMapper mapper = new JavaPropsMapper();
-                    if (!deployProperties.isEmpty()) {
-                        HashMap<String, Object> overrides = new HashMap<>();
-                        overrides.put("deploymentParams", mapper.readMapAs(deployProperties, Map.class));
-                        ObjectNode overrideJsonTree = objectMapper.valueToTree(overrides);
-                        if (appDescJson == null) {
-                            appDescJson = overrideJsonTree;
-                        } else {
-                            DescriptorHelper.override(appDescJson, overrideJsonTree);
-                        }
-                    }
-                    deploymentService.deploy(request, appDescJson, source);
+                    deploymentService.deploy(request, appDescJson, new DescriptorLayers(emtProperties.getProperties()), source);
                 }
             }
         }

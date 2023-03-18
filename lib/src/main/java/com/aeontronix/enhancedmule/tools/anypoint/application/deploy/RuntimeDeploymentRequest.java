@@ -17,10 +17,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.aeontronix.enhancedmule.propertiesprovider.utils.JacksonFlattener.flattenToStringMap;
 import static java.lang.Boolean.TRUE;
@@ -234,9 +231,17 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         properties.put(key, value);
     }
 
+    public void setSecureProperty(String key) {
+        secureProperties.add(key);
+    }
+
     public void setSecureProperty(String key, String value) {
         properties.put(key, value);
-        secureProperties.add(key);
+        setSecureProperty(key);
+    }
+
+    public void addSecureProperties(Collection<String> secureProperties) {
+        this.secureProperties.addAll(secureProperties);
     }
 
     public boolean isSkipWait() {
@@ -281,4 +286,5 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     public JsonNode getLegacyOverrides() {
         return legacyAppDescriptor;
     }
+
 }

@@ -17,5 +17,5 @@ import java.io.IOException;
 public interface DeploymentService {
     ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException, RESTException;
 
-    void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException;
+    void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, DescriptorLayers layers, ApplicationSource source) throws DeploymentException, ProvisioningException;
 }

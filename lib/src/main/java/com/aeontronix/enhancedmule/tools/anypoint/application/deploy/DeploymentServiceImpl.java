@@ -54,7 +54,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, ApplicationSource source) throws DeploymentException, ProvisioningException {
+    public void deploy(RuntimeDeploymentRequest request, ObjectNode appDescJson, DescriptorLayers layers, ApplicationSource source) throws DeploymentException, ProvisioningException {
         String target = request.getTarget();
         if (request.getFilename() == null) {
             request.setFilename(source.getFileName());
@@ -65,8 +65,10 @@ public class DeploymentServiceImpl implements DeploymentService {
             final ObjectMapper jsonMapper = client.getJsonHelper().getJsonMapper();
             // default layer
             final JsonNode jsonDesc = ApplicationDescriptor.createDefault(jsonMapper);
+            // user-provide default layer
+            DescriptorHelper.override((ObjectNode) jsonDesc, layers.getDefaults());
             // Descriptor layer
-            if( appDescJson != null && !appDescJson.isNull() ) {
+            if (appDescJson != null && !appDescJson.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, appDescJson);
                 // Descriptor override layers
                 processOverrides(environment, (ObjectNode) jsonDesc, appDescJson.get("overrides"));
@@ -79,9 +81,11 @@ public class DeploymentServiceImpl implements DeploymentService {
             } else {
                 request.getVars().put("app.id", source.getArtifactId());
             }
+            // Override Layer
+            DescriptorHelper.override((ObjectNode) jsonDesc, layers.getOverrides());
             // Legacy override layer
             final JsonNode legacyAppDescriptor = request.getLegacyOverrides();
-            if( legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
+            if (legacyAppDescriptor != null && !legacyAppDescriptor.isNull()) {
                 DescriptorHelper.override((ObjectNode) jsonDesc, (ObjectNode) legacyAppDescriptor);
             }
             JsonHelper.processVariables((ObjectNode) jsonDesc, request.getVars());
@@ -125,7 +129,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                     }
                 } else if (type.equalsIgnoreCase("envtype")) {
                     final String value = getOverrideValue(override, type);
-                    if (environment.getType().name().equalsIgnoreCase(value) ) {
+                    if (environment.getType().name().equalsIgnoreCase(value)) {
                         DescriptorHelper.override(jsonDesc, getOverrideJson(override));
                     }
                 }
@@ -135,7 +139,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     private ObjectNode getOverrideJson(JsonNode override) throws ProvisioningException {
         final JsonNode overrideJson = override.get("override");
-        if(isNull(overrideJson)) {
+        if (isNull(overrideJson)) {
             throw new ProvisioningException("Invalid override descriptor : " + override);
         }
         return (ObjectNode) overrideJson;
@@ -165,7 +169,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         final String target = request.getTarget();
         if (target.equalsIgnoreCase("cloudhub")) {
             op = new CHDeploymentOperation(request, environment, source);
-        } else if (target.toLowerCase().startsWith("cloudhub2:") ) {
+        } else if (target.toLowerCase().startsWith("cloudhub2:")) {
             op = new CH2DeploymentOperation(anypointClient, request, environment, source);
         } else {
             try {
