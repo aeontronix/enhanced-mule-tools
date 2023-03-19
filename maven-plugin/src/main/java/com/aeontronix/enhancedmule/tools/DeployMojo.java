@@ -172,7 +172,7 @@ public class DeployMojo extends LegacyDeployMojo {
                     request.setFilePropertiesSecure(filePropertiesSecure);
                     request.setDeleteSnapshots(deleteSnapshots != null && deleteSnapshots);
                     ObjectNode appDescJson = source.getAnypointDescriptor();
-                    deploymentService.deploy(request, appDescJson, new DescriptorLayers(emtProperties.getProperties()), source);
+                    deploymentService.deploy(request, appDescJson, new DescriptorLayers(emtProperties), source);
                 }
             }
         }

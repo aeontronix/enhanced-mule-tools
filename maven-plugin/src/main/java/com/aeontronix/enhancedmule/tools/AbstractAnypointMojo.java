@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 
 import static com.aeontronix.commons.StringUtils.isNotBlank;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -183,10 +184,17 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         return property;
     }
 
+    @SuppressWarnings("Convert2Lambda")
     public Map<String, String> getMavenProperties() {
         Map<String, String> results = new HashMap<>();
-        project.getProperties().forEach((key, val) -> results.put(String.valueOf(key), String.valueOf(val)));
-        session.getUserProperties().forEach((key, val) -> results.put(String.valueOf(key), String.valueOf(val)));
+        BiConsumer<Object, Object> converter = new BiConsumer<Object, Object>() {
+            @Override
+            public void accept(Object key, Object val) {
+                results.put(String.valueOf(key), String.valueOf(val));
+            }
+        };
+        project.getProperties().forEach(converter);
+        session.getUserProperties().forEach(converter);
         return results;
     }
 

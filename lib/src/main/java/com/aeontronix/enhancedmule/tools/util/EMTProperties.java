@@ -24,12 +24,12 @@ public class EMTProperties {
         Map<String, String> envTypeOv = new HashMap<>();
         for (Map.Entry<String, String> e : props.entrySet()) {
             String key = e.getKey();
-            String lkey = key.toLowerCase();
+            String lkey = e.getKey().toLowerCase();
             String val = e.getValue();
-            if (key.startsWith(EMT_ENV) || key.startsWith(EMT_ENVTYPE)) {
-                addIfMatch(lkey, val, EMT_ENVTYPE, envType != null ? envType.name() : null, envTypeOv);
-                addIfMatch(lkey, val, EMT_ENV, envName, envNameOv);
-                addIfMatch(lkey, val, EMT_ENV, envId, envIdOv);
+            if (lkey.startsWith(EMT_ENV) || lkey.startsWith(EMT_ENVTYPE)) {
+                addIfMatch(key, val, EMT_ENVTYPE, envType != null ? envType.name() : null, envTypeOv);
+                addIfMatch(key, val, EMT_ENV, envName, envNameOv);
+                addIfMatch(key, val, EMT_ENV, envId, envIdOv);
             } else {
                 properties.put(key, val);
             }
@@ -39,11 +39,11 @@ public class EMTProperties {
         properties.putAll(envIdOv);
     }
 
-    private static void addIfMatch(String lkey, String val, String prefix, String txt, Map<String, String> props) {
+    private static void addIfMatch(String key, String val, String prefix, String txt, Map<String, String> props) {
         if (txt != null) {
             String fullPrefix = prefix + "." + txt.toLowerCase().replace(" ", "_") + ".";
-            if (lkey.startsWith(fullPrefix)) {
-                props.put(lkey.substring(fullPrefix.length()), val);
+            if (key.toLowerCase().startsWith(fullPrefix)) {
+                props.put("emt." + key.substring(fullPrefix.length()), val);
             }
         }
     }
