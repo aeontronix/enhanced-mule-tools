@@ -171,6 +171,12 @@ public class DeploymentServiceImpl implements DeploymentService {
             op = new CHDeploymentOperation(request, environment, source);
         } else if (target.toLowerCase().startsWith("cloudhub2:")) {
             op = new CH2DeploymentOperation(anypointClient, request, environment, source);
+        } else if (target.toLowerCase().startsWith("hybrid:")) {
+            Server server = environment.findServerByName(target);
+            op = new HDeploymentOperation(request, server, source);
+        } else if (target.toLowerCase().startsWith("rtf:")) {
+            final Fabric fabric = organization.findFabricByName(target);
+            op = new RTFDeploymentOperation(anypointClient, fabric, request, environment, source);
         } else {
             try {
                 Server server = environment.findServerByName(target);

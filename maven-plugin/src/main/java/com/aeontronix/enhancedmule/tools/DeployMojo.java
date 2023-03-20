@@ -68,7 +68,7 @@ public class DeployMojo extends LegacyDeployMojo {
      * Application properties
      */
     @Parameter(property = "anypoint.deploy.properties", required = false)
-    protected Map<String, String> properties;
+    protected Map<String, String> appProperties;
     /**
      * Application property file
      */
@@ -153,17 +153,17 @@ public class DeployMojo extends LegacyDeployMojo {
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
                     vars = findPrefixedProperties(VAR);
-                    properties = findPrefixedProperties(ANYPOINT_DEPLOY_PROPERTIES);
+                    appProperties = findPrefixedProperties(ANYPOINT_DEPLOY_PROPERTIES);
                     HashSet<String> secureProperties = new HashSet<>();
-                    for (String key : new HashSet<>(properties.keySet())) {
-                        if (key.endsWith(securePropertiesSuffix) && "true".equalsIgnoreCase(properties.get(key))) {
-                            properties.remove(key);
+                    for (String key : new HashSet<>(appProperties.keySet())) {
+                        if (key.endsWith(securePropertiesSuffix) && "true".equalsIgnoreCase(appProperties.get(key))) {
+                            appProperties.remove(key);
                             secureProperties.add(key.substring(0, key.length() - securePropertiesSuffix.length()));
                         }
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
-                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties, propertyfile,
+                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, appProperties, propertyfile,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
                     request.addSecureProperties(secureProperties);
