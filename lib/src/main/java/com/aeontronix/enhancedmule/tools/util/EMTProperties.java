@@ -5,11 +5,17 @@
 package com.aeontronix.enhancedmule.tools.util;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class EMTProperties {
+    private static final Logger logger = getLogger(EMTProperties.class);
     public static final String EMT_ENV = "emt.env";
     public static final String EMT_ENVTYPE = "emt.envtype";
     private final Map<String, String> properties = new HashMap<>();
@@ -52,8 +58,30 @@ public class EMTProperties {
         return properties;
     }
 
-    public String getProperty(String key, String defValue) {
-        return properties.getOrDefault(key, defValue);
+    public Boolean getProperty(String key, @Nullable Boolean defValue, @NotNull String... legacyKeys) {
+        String result = getProperty(key, defValue != null ? defValue.toString() : null, legacyKeys);
+        if (result != null) {
+            return Boolean.valueOf(result);
+        } else {
+            return null;
+        }
+    }
+
+    public String getProperty(String key, @Nullable String defValue, @NotNull String... legacyKeys) {
+        String value = properties.get(key);
+        if (value != null) {
+            return value;
+        }
+        if (legacyKeys != null) {
+            for (String legacyKey : legacyKeys) {
+                value = properties.get(legacyKey);
+                if (value != null) {
+                    logger.warn("Property '" + legacyKey + "' is deprecated, please use: " + key);
+                    return value;
+                }
+            }
+        }
+        return defValue;
     }
 
     public Map<String, String> getPrefixedProperties(String prefix, boolean stripPrefix) {

@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -32,35 +33,33 @@ import java.util.Map;
 @SuppressWarnings("DeprecatedIsStillUsed")
 @Mojo(name = "deploy", requiresProject = false, defaultPhase = LifecyclePhase.DEPLOY)
 public class DeployMojo extends LegacyDeployMojo {
-    public static final String ANYPOINT_DEPLOY_PROPERTIES = "anypoint.deploy.properties.";
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
     private static final EMTLogger emtLogger = new EMTLogger(logger);
     public static final String VAR = "emt.var";
     public static final String CLOUDHUB = "cloudhub";
-    public static final String EMT_TARGET = "emt.target";
     public static final String EMT_SECUREPROPERTIES = "emt.secureproperties";
-    public static final String SECURE_PREFIX = "emt.secureproperties.";
+    public static final String SECURE_PREFIX = "emt.secureproperty.";
     /**
      * If true API provisioning will be skipped
      */
-    @Parameter(property = "emt.skipProvisioning")
+    @Parameter
     protected boolean skipProvisioning;
     /**
      * If true deployment will be skipped
      */
-    @Parameter(property = "anypoint.deploy.skip")
+    @Parameter
     protected boolean skipDeploy;
     /**
      * File to deploy (only needed when invoking standalone without a valid pom). To deploy from exchange use uri in the format
      * of <pre>exchange://[orgId]:[groupId]:[artifactId]:[version]</pre> or <pre>exchange://[groupId]:[artifactId]:[version]</pre>
      */
-    @Parameter(property = "anypoint.deploy.file")
-    protected String file;
+    @Parameter
+    protected String appFile;
     /**
      * Filename (if not specified the file's name will be used)
      */
-    @Parameter(property = "anypoint.deploy.filename")
-    protected String filename;
+    @Parameter
+    protected String appFilename;
     /**
      * Application properties
      */
@@ -110,19 +109,19 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "emt.provisioning.deletesnapshots")
     private Boolean deleteSnapshots;
-    @Parameter(property = EMT_TARGET)
+    @Parameter
     private String target;
-    /**
-     * If true API provisioning will be skipped
-     */
-    @Parameter(property = "anypoint.api.provisioning.skip")
-    @Deprecated
-    protected boolean skipApiProvisioning;
 
     @Override
     protected void doExecute() throws Exception {
+        EMTProperties emtProperties = getEMTProperties();
+        skipDeploy = emtProperties.getProperty("emt.deploy.skip", skipDeploy, "anypoint.deploy.skip");
         if (!skipDeploy) {
-            EMTProperties emtProperties = getEMTProperties();
+            skipProvisioning = emtProperties.getProperty("emt.provisioning.skip", skipProvisioning, "emt.skipProvisioning", "anypoint.api.provisioning.skip");
+            appFile = emtProperties.getProperty("emt.app.file", appFile, "anypoint.deploy.file");
+            appFilename = emtProperties.getProperty("emt.app.filename", appFilename, "anypoint.deploy.filename");
+            target = emtProperties.getProperty("emt.target", target, "anypoint.deploy.target", "anypoint.target");
+            appName = emtProperties.getProperty("emt.app.name", appName, "anypoint.deploy.name");
             handleDeprecated();
             if (project.getArtifactId().equals("standalone-pom") && project.getGroupId().equals("org.apache.maven")) {
                 project = null;
@@ -131,18 +130,18 @@ public class DeployMojo extends LegacyDeployMojo {
                 logger.warn("Project contains mule-application-template or mule-application-example, skipping deployment (use anypoint.deploy.force to force the deployment)");
                 return;
             }
-            if (file == null) {
+            if (appFile == null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No deploy file defined");
                 }
                 if (project == null) {
                     throw new MojoExecutionException("File not specified while running out of project");
                 }
-                file = MavenUtils.getProjectJar(project).getPath();
+                appFile = MavenUtils.getProjectJar(project).getPath();
             }
             ApplicationIdentifier applicationIdentifier = project != null ? new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()) : null;
             final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient(), anypointClient);
-            try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getLegacyClient(), file)) {
+            try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getLegacyClient(), appFile)) {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
                     req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);
@@ -150,7 +149,11 @@ public class DeployMojo extends LegacyDeployMojo {
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
                     vars = findPrefixedProperties(VAR);
-                    appProperties = findPrefixedProperties(ANYPOINT_DEPLOY_PROPERTIES);
+                    if (appProperties == null) {
+                        appProperties = new HashMap<>();
+                    }
+                    appProperties.putAll(findPrefixedProperties("anypoint.deploy.properties."));
+                    appProperties.putAll(findPrefixedProperties("emt.property."));
                     HashSet<String> secureProperties = new HashSet<>();
                     for (Map.Entry<String, String> e : emtProperties.getProperties().entrySet()) {
                         if (e.getKey().startsWith(SECURE_PREFIX) && "true".equalsIgnoreCase(e.getValue())) {
@@ -158,7 +161,7 @@ public class DeployMojo extends LegacyDeployMojo {
                         }
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
-                    final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(filename != null ? filename :
+                    final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(appFilename != null ? appFilename :
                             source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, appProperties, propertyfile,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
@@ -175,25 +178,9 @@ public class DeployMojo extends LegacyDeployMojo {
     }
 
     private void handleDeprecated() {
-        if (legacyTarget1 != null) {
-            logger.warn("Property 'anypoint.deploy.target' is deprecated, please use " + EMT_TARGET);
-            if (target != null) {
-                target = legacyTarget1;
-            }
-        }
-        if (legacyTarget2 != null) {
-            logger.warn("Property 'anypoint.target' is deprecated, please use " + EMT_TARGET);
-            target = legacyTarget2;
-            if (target != null) {
-                target = legacyTarget2;
-            }
-        }
         if (chMuleVersionName == null && muleVersionName != null) {
             logger.warn("muleVersionName (anypoint.deploy.ch.muleversion) is deprecated, please use chMuleVersionName (anypoint.deploy.ch.runtime.version) instead");
             chMuleVersionName = muleVersionName;
-        }
-        if (skipApiProvisioning && !skipProvisioning) {
-            skipProvisioning = true;
         }
     }
 }

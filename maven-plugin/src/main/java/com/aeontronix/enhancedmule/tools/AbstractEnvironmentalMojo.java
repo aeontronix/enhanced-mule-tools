@@ -21,11 +21,14 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
     /**
      * Anypoint Environment name
      */
-    @Parameter(property = "anypoint.env")
+    @Parameter(property = "emt.env")
     protected String env;
 
     public synchronized Environment getEnvironment() throws NotFoundException, IOException, ProfileNotFoundException {
         if (environment == null) {
+            if (env == null) {
+                env = getMavenProperties().get("anypoint.env");
+            }
             if (env == null) {
                 env = configProfile.getDefaultEnv();
                 if (env == null) {

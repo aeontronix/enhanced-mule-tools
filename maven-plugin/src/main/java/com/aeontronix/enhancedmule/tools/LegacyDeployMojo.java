@@ -55,15 +55,8 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
     /**
      * Application name
      */
-    @Parameter(property = "anypoint.deploy.name")
+    @Parameter
     protected String appName;
-    /**
-     * Anypoint target name (Server / Server Group / Cluster). If not set will deploy to Cloudhub
-     */
-    @Parameter(name = "legacyTarget1", property = "anypoint.deploy.target")
-    protected String legacyTarget1;
-    @Parameter(name = "legacyTarget2", property = "anypoint.target")
-    protected String legacyTarget2;
     /**
      * Deprecated, use chMuleVersionName
      */
@@ -168,11 +161,6 @@ public abstract class LegacyDeployMojo extends AbstractEnvironmentalMojo {
         final ApplicationDescriptor app = new ApplicationDescriptor();
         final DeploymentParameters deploymentParameters = new DeploymentParameters();
         app.setDeploymentParams(deploymentParameters);
-        if (legacyTarget1 != null) {
-            deploymentParameters.setTarget(legacyTarget1);
-        } else if (legacyTarget2 != null) {
-            deploymentParameters.setTarget(legacyTarget2);
-        }
         deploymentParameters.setDeployTimeout(deployTimeout != null ? Duration.ofMillis(deployTimeout) : null);
         deploymentParameters.setDeployRetryDelay(deployRetryDelay != null ? Duration.ofMillis(deployRetryDelay) : null);
         deploymentParameters.setMergeExistingProperties(mergeExistingProperties);
