@@ -21,7 +21,7 @@
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>false</maven.deploy.skip>
-        <emt.version>1.4.37-SNAPSHOT</emt.version>
+        <emt.version>1.4.38-SNAPSHOT</emt.version>
     </properties>
 
     <build>

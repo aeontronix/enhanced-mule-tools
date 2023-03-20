@@ -38,6 +38,8 @@ public class DeployMojo extends LegacyDeployMojo {
     public static final String VAR = "emt.var";
     public static final String CLOUDHUB = "cloudhub";
     public static final String EMT_TARGET = "emt.target";
+    public static final String EMT_SECUREPROPERTIES = "emt.secureproperties";
+    public static final String SECURE_PREFIX = "emt.secureproperties.";
     /**
      * If true API provisioning will be skipped
      */
@@ -59,11 +61,6 @@ public class DeployMojo extends LegacyDeployMojo {
      */
     @Parameter(property = "anypoint.deploy.filename")
     protected String filename;
-    /**
-     * Application properties
-     */
-    @Parameter(property = "anypoint.deploy.securePropertiesSuffix", required = false)
-    protected String securePropertiesSuffix = "__secure__";
     /**
      * Application properties
      */
@@ -155,10 +152,9 @@ public class DeployMojo extends LegacyDeployMojo {
                     vars = findPrefixedProperties(VAR);
                     appProperties = findPrefixedProperties(ANYPOINT_DEPLOY_PROPERTIES);
                     HashSet<String> secureProperties = new HashSet<>();
-                    for (String key : new HashSet<>(appProperties.keySet())) {
-                        if (key.endsWith(securePropertiesSuffix) && "true".equalsIgnoreCase(appProperties.get(key))) {
-                            appProperties.remove(key);
-                            secureProperties.add(key.substring(0, key.length() - securePropertiesSuffix.length()));
+                    for (Map.Entry<String, String> e : emtProperties.getProperties().entrySet()) {
+                        if (e.getKey().startsWith(SECURE_PREFIX) && "true".equalsIgnoreCase(e.getValue())) {
+                            secureProperties.add(e.getKey().substring(SECURE_PREFIX.length()));
                         }
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
