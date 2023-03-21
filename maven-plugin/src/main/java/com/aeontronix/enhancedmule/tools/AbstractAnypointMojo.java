@@ -27,6 +27,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -196,6 +198,20 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         project.getProperties().forEach(converter);
         session.getUserProperties().forEach(converter);
         return results;
+    }
+
+
+    public Boolean getMavenProperty(String key, @Nullable Boolean defValue, @NotNull String... legacyKeys) {
+        String result = getMavenProperty(key, defValue != null ? defValue.toString() : null, legacyKeys);
+        if (result != null) {
+            return Boolean.valueOf(result);
+        } else {
+            return null;
+        }
+    }
+
+    public String getMavenProperty(String key, @Nullable String defValue, @NotNull String... legacyKeys) {
+        return EMTProperties.getProperty(getMavenProperties(), key, defValue, legacyKeys);
     }
 
     public EMTProperties getEMTProperties() throws NotFoundException, IOException, ProfileNotFoundException {

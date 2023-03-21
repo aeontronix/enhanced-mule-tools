@@ -114,9 +114,9 @@ public class DeployMojo extends LegacyDeployMojo {
 
     @Override
     protected void doExecute() throws Exception {
-        EMTProperties emtProperties = getEMTProperties();
-        skipDeploy = emtProperties.getProperty("emt.deploy.skip", skipDeploy, "anypoint.deploy.skip");
+        skipDeploy = getMavenProperty("emt.deploy.skip", skipDeploy, "anypoint.deploy.skip");
         if (!skipDeploy) {
+            EMTProperties emtProperties = getEMTProperties();
             skipProvisioning = emtProperties.getProperty("emt.provisioning.skip", skipProvisioning, "emt.skipProvisioning", "anypoint.api.provisioning.skip");
             appFile = emtProperties.getProperty("emt.app.file", appFile, "anypoint.deploy.file");
             appFilename = emtProperties.getProperty("emt.app.filename", appFilename, "anypoint.deploy.filename");

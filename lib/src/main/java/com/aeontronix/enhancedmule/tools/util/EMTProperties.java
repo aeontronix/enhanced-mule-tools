@@ -68,6 +68,10 @@ public class EMTProperties {
     }
 
     public String getProperty(String key, @Nullable String defValue, @NotNull String... legacyKeys) {
+        return getProperty(properties, key, defValue, legacyKeys);
+    }
+
+    public static String getProperty(Map<String, String> properties, String key, @Nullable String defValue, @NotNull String... legacyKeys) {
         String value = properties.get(key);
         if (value != null) {
             return value;
