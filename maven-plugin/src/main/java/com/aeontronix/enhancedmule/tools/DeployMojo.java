@@ -174,6 +174,8 @@ public class DeployMojo extends LegacyDeployMojo {
                     deploymentService.deploy(request, appDescJson, new DescriptorLayers(emtProperties), source);
                 }
             }
+        } else {
+            logger.info("Deployment skipped");
         }
     }
 

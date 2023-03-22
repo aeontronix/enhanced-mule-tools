@@ -33,12 +33,13 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
-import static com.aeontronix.commons.StringUtils.isNotBlank;
+import static com.aeontronix.commons.StringUtils.isBlank;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -47,23 +48,21 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     public static final String EM_CLIENT = "emClient";
-    public static final String EM_CLIENT_ID = "anypoint.client.id";
-    public static final String EM_CLIENT_SECRET = "anypoint.client.secret";
-    public static final String ANYPOINT_USERNAME = "anypoint.username";
-    public static final String ANYPOINT_PASSWORD = "anypoint.password";
+    @Parameter
+    protected String authType;
     /**
      * Anypoint username
      */
-    @Parameter(property = ANYPOINT_USERNAME)
+    @Parameter
     protected String username;
     /**
      * Anypoint password
      */
-    @Parameter(property = ANYPOINT_PASSWORD)
+    @Parameter
     protected String password;
-    @Parameter(property = EM_CLIENT_ID)
+    @Parameter
     protected String clientId;
-    @Parameter(property = EM_CLIENT_SECRET)
+    @Parameter
     protected String clientSecret;
     /**
      * Anypoint bearer token
@@ -92,6 +91,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     private EMConfig emConfig;
     protected ConfigProfile configProfile;
     protected AnypointClient anypointClient;
+    private AuthType authTypeEnum;
 
     public AbstractAnypointMojo() {
     }
@@ -107,6 +107,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            initFields();
             if (logger.isDebugEnabled()) {
                 logger.debug("Creating client");
                 logger.debug("Server URL: {}", enhancedMuleServerUrl);
@@ -116,6 +117,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                 logger.debug("Password: SHA:{}", password != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(password.getBytes(UTF_8))) : "NOT SET");
                 logger.debug("Client Id: {}", clientId != null ? clientId : "NOT SET");
                 logger.debug("Client Secret: SHA:{}", clientSecret != null ? StringUtils.base64EncodeToString(DigestUtils.sha512(clientSecret.getBytes(UTF_8))) : "NOT SET");
+                logger.debug("Auth Type: {}", authTypeEnum != null ? authTypeEnum : "NOT SET");
             }
             emConfig = EMConfig.findConfigFile();
             configProfile = emConfig.getProfile(profile);
@@ -126,15 +128,23 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
             logger.info("Anypoint server: {}", anypointPlatformUrl);
             final Proxy proxy = session.getSettings().getActiveProxy();
             CredentialsProvider credentialsProvider = null;
-            if (isNotBlank(bearerToken)) {
-                logger.info("Using Bearer Token");
-                credentialsProvider = new CredentialsProviderAnypointBearerToken(bearerToken);
-            } else if (isNotBlank(username) && isNotBlank(password)) {
-                logger.info("Using Username Password: {}", username);
-                credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
-            } else if (isNotBlank(clientId) && isNotBlank(clientSecret)) {
-                logger.info("Using Client Credentials: {}", clientId);
-                credentialsProvider = new CredentialsProviderClientCredentialsImpl(clientId, clientSecret);
+            if (authTypeEnum != null) {
+                switch (authTypeEnum) {
+                    case BEARER:
+                        logger.info("Using Bearer Token");
+                        credentialsProvider = new CredentialsProviderAnypointBearerToken(bearerToken);
+                        break;
+                    case CLIENTCREDS:
+                        logger.info("Using Client Credentials: {}", clientId);
+                        credentialsProvider = new CredentialsProviderClientCredentialsImpl(clientId, clientSecret);
+                        break;
+                    case UPW:
+                        logger.info("Using Username Password: {}", username);
+                        credentialsProvider = new CredentialsProviderAnypointUsernamePasswordImpl(username, password);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid auth type enum: " + authTypeEnum);
+                }
             } else {
                 if (configProfile != null && configProfile.getCredentials() != null) {
                     credentialsProvider = CredentialsConverter.convert(configProfile.getCredentials());
@@ -172,6 +182,48 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         } finally {
             if (this.legacyClient != null) {
                 IOUtils.close(this.legacyClient);
+            }
+        }
+    }
+
+    private void initFields() {
+        clientId = getMavenProperty("emt.auth.client.id", clientId, "anypoint.client.id");
+        clientSecret = getMavenProperty("emt.auth.client.secret", clientSecret, "anypoint.client.secret");
+        username = getMavenProperty("emt.auth.username", username, "anypoint.username");
+        password = getMavenProperty("emt.auth.password", password, "anypoint.password");
+        authType = getMavenProperty("emt.auth.type", authType);
+        if (StringUtils.isNotBlank(authType)) {
+            try {
+                authTypeEnum = AuthType.valueOf(authType.toUpperCase());
+                switch (authTypeEnum) {
+                    case UPW:
+                        if (isBlank(username) || isBlank(password)) {
+                            throw new IllegalArgumentException("Auth type upw specified but username and password aren't both set");
+                        }
+                        break;
+                    case CLIENTCREDS:
+                        if (isBlank(clientId) || isBlank(clientSecret)) {
+                            throw new IllegalArgumentException("Auth type upw specified but clientId and clientSecret aren't both set");
+                        }
+                        break;
+                    case BEARER:
+                        if (isBlank(bearerToken)) {
+                            throw new IllegalArgumentException("Auth type upw specified but bearerToken is not set");
+                        }
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Auth type value is invalid, must be one of " + Arrays.toString(AuthType.values()));
+            }
+        } else {
+            if (StringUtils.isNotBlank(bearerToken)) {
+                authTypeEnum = AuthType.BEARER;
+            } else if (StringUtils.isNotBlank(clientId) && StringUtils.isNotBlank(clientSecret)) {
+                authTypeEnum = AuthType.CLIENTCREDS;
+            } else if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+                authTypeEnum = AuthType.UPW;
+            } else {
+                authTypeEnum = null;
             }
         }
     }
@@ -243,5 +295,4 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         }
         return results;
     }
-
 }
