@@ -270,6 +270,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         return new EMTProperties(getMavenProperties(), null, null, null);
     }
 
+    @NotNull
     protected Map<String, String> findPrefixedProperties(String... prefixes) {
         HashMap<String, String> results = new HashMap<>();
         for (String prefix : prefixes) {

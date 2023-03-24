@@ -148,7 +148,10 @@ public class DeployMojo extends LegacyDeployMojo {
                     final ApplicationIdentifier appId = deploymentService.deployToExchange(req);
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {
-                    vars = findPrefixedProperties(VAR);
+                    if (vars == null) {
+                        vars = new HashMap<>();
+                    }
+                    vars.putAll(findPrefixedProperties(VAR));
                     if (appProperties == null) {
                         appProperties = new HashMap<>();
                     }
