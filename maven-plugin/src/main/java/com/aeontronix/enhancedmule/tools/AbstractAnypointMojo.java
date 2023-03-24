@@ -45,7 +45,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class AbstractAnypointMojo extends AbstractMojo {
     private static final Logger logger = getLogger(AbstractAnypointMojo.class);
-    public static final String BEARER_TOKEN_PROPERTY = "anypoint.bearer";
     public static final String DEFAULT_EMSERVER_URL = "https://api.enhanced-mule.com";
     public static final String EM_CLIENT = "emClient";
     @Parameter
@@ -67,7 +66,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     /**
      * Anypoint bearer token
      */
-    @Parameter(property = BEARER_TOKEN_PROPERTY)
+    @Parameter
     protected String bearerToken;
     @Parameter(property = "enhancedmule.server.url", defaultValue = DEFAULT_EMSERVER_URL)
     protected String enhancedMuleServerUrl;
@@ -82,7 +81,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
     /**
      * Anypoint organization name
      */
-    @Parameter(property = "anypoint.org")
+    @Parameter
     protected String org;
     @Parameter(property = "profile")
     protected String profile;
@@ -191,7 +190,9 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
         clientSecret = getMavenProperty("emt.auth.client.secret", clientSecret, "anypoint.client.secret");
         username = getMavenProperty("emt.auth.username", username, "anypoint.username");
         password = getMavenProperty("emt.auth.password", password, "anypoint.password");
+        bearerToken = getMavenProperty("emt.auth.bearer", bearerToken, "anypoint.bearer");
         authType = getMavenProperty("emt.auth.type", authType);
+        org = getMavenProperty("emt.org", org, "anypoint.org");
         if (StringUtils.isNotBlank(authType)) {
             try {
                 authTypeEnum = AuthType.valueOf(authType.toUpperCase());
