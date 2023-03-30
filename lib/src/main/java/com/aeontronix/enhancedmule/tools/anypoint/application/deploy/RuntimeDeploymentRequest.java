@@ -99,7 +99,7 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
                     } else {
                         objectMapper = new ObjectMapper(new YAMLFactory());
                     }
-                    properties.putAll(flattenToStringMap(objectMapper.readValue(propFilePath, Map.class)));
+                    properties.putAll(flattenToStringMap(objectMapper.readValue(new File(propFilePath), Map.class)));
                 }
             } else {
                 if (!ignoreMissingPropertyFile) {

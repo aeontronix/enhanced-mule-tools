@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import static com.aeontronix.commons.StringUtils.isNotBlank;
+
 /**
  * Deploy an application to Cloudhub or On-Prem/Hybrid
  */
@@ -68,8 +70,8 @@ public class DeployMojo extends LegacyDeployMojo {
     /**
      * Application property file
      */
-    @Parameter(property = "anypoint.deploy.propertyfile", required = false)
-    protected File propertyfile;
+    @Parameter
+    protected String propertyfile;
     /**
      * Ignore missing application properties file
      */
@@ -117,6 +119,7 @@ public class DeployMojo extends LegacyDeployMojo {
         skipDeploy = getMavenProperty("emt.deploy.skip", skipDeploy, "anypoint.deploy.skip");
         if (!skipDeploy) {
             EMTProperties emtProperties = getEMTProperties();
+            propertyfile = emtProperties.getProperty("emt.deploy.properties.file", propertyfile, "anypoint.deploy.propertyfile");
             skipProvisioning = emtProperties.getProperty("emt.provisioning.skip", skipProvisioning, "emt.skipProvisioning", "anypoint.api.provisioning.skip");
             appFile = emtProperties.getProperty("emt.app.file", appFile, "anypoint.deploy.file");
             appFilename = emtProperties.getProperty("emt.app.filename", appFilename, "anypoint.deploy.filename");
@@ -165,7 +168,8 @@ public class DeployMojo extends LegacyDeployMojo {
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(appFilename != null ? appFilename :
-                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, appProperties, propertyfile,
+                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, appProperties,
+                            isNotBlank(propertyfile) ? new File(propertyfile) : null,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
                     request.addSecureProperties(secureProperties);
