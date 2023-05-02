@@ -65,8 +65,8 @@ public class DeployMojo extends LegacyDeployMojo {
     /**
      * Application properties
      */
-    @Parameter(property = "anypoint.deploy.properties", required = false, name = "properties")
-    protected Map<String, String> appProperties;
+    @Parameter(property = "anypoint.deploy.properties", required = false)
+    protected Map<String, String> properties;
     /**
      * Application property file
      */
@@ -155,11 +155,11 @@ public class DeployMojo extends LegacyDeployMojo {
                         vars = new HashMap<>();
                     }
                     vars.putAll(findPrefixedProperties(VAR));
-                    if (appProperties == null) {
-                        appProperties = new HashMap<>();
+                    if (properties == null) {
+                        properties = new HashMap<>();
                     }
-                    appProperties.putAll(findPrefixedProperties("anypoint.deploy.properties."));
-                    appProperties.putAll(findPrefixedProperties("emt.property."));
+                    properties.putAll(findPrefixedProperties("anypoint.deploy.properties."));
+                    properties.putAll(findPrefixedProperties("emt.property."));
                     HashSet<String> secureProperties = new HashSet<>();
                     for (Map.Entry<String, String> e : emtProperties.getProperties().entrySet()) {
                         if (e.getKey().startsWith(SECURE_PREFIX) && "true".equalsIgnoreCase(e.getValue())) {
@@ -168,7 +168,7 @@ public class DeployMojo extends LegacyDeployMojo {
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(appFilename != null ? appFilename :
-                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, appProperties,
+                            source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties,
                             isNotBlank(propertyfile) ? new File(propertyfile) : null,
                             ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
