@@ -55,6 +55,18 @@ public class CH2DeploymentOperation extends DeploymentOperation {
                 target = target.substring(CH2_TARGET_PREFIX.length());
             }
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying application to Cloudhub 2");
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Desired state: " + ch2.getDesiredState());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Replicas: " + ch2.getReplicas());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Public URL: " + ch2.getPublicUrl());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "VCores: " + ch2.getvCores());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Runtime Version: " + ch2.getRuntimeVersion());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Update strategy: " + ch2.getUpdateStrategy());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Clustered: " + ch2.isClustered());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Forward SSL session: " + ch2.isForwardSslSession());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "AM Log forwarding disabled: " + ch2.isDisableAmLogForwarding());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Last mile security: " + ch2.isLastMileSecurity());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Object store v2 enabled: " + ch2.isObjectStoreV2Enabled());
+            elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Generate default public url: " + ch2.isGenerateDefaultPublicUrl());
             CH2DeploymentResponse response = anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
                     orgId, environment.getId(), target,
                     source.toSDKSource(),
