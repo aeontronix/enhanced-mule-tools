@@ -65,7 +65,7 @@ public class DeployMojo extends LegacyDeployMojo {
     /**
      * Application properties
      */
-    @Parameter(property = "anypoint.deploy.properties", required = false)
+    @Parameter(property = "anypoint.deploy.properties", required = false, name = "properties")
     protected Map<String, String> appProperties;
     /**
      * Application property file
