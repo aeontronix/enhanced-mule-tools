@@ -4,20 +4,23 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.api;
 
-import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
+import com.aeontronix.anypointsdk.AnypointClient;
+import com.aeontronix.anypointsdk.exchange.ExchangeClientApplication;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.restclient.RESTException;
+import com.aeontronix.restclient.json.JsonConvertionException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -102,44 +105,37 @@ public class ClientApplication extends AnypointObject<Organization> {
         return parent.getUriPath() + "/applications/" + id;
     }
 
-    public static ClientApplication create(@NotNull Organization organization, @NotNull String name, String url,
+    public static ClientApplication create(AnypointClient anypointClient, @NotNull Organization organization, @NotNull String name, String url,
                                            String description, List<String> redirectUri, String apiEndpoints,
                                            String accessedAPIInstanceId) throws HttpException {
-        LegacyAnypointClient client = organization.getClient();
-        Map<String, Object> req = client.getJsonHelper().buildJsonMap().set("name", name.trim()).set("url", url)
-                .set("description", description != null ? description : "")
-                .set("redirectUri", redirectUri).set("apiEndpoints", apiEndpoints)
-                .toMap();
-        URLBuilder path = new URLBuilder(organization.getUriPath()).path("/applications");
-        if (accessedAPIInstanceId != null) {
-            path.queryParam("apiInstanceId", accessedAPIInstanceId);
-        }
-        String json = null;
         try {
-            json = client.getHttpHelper().httpPost(path.toString(), req);
-        } catch (HttpException e) {
-            String msg = e.getMessage();
-            if (accessedAPIInstanceId == null && msg != null && msg.contains("apiVersionId")) {
-                logger.warn("Client Application skipped because no access are defined and client providers have been set");
-            } else {
-                throw e;
-            }
+            ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(organization.getId(), name, url, description, redirectUri, null, apiEndpoints, accessedAPIInstanceId);
+            ClientApplication cApp = new ClientApplication();
+            cApp.setName(clientApplication.getName());
+            cApp.setClientId(clientApplication.getClientId());
+            cApp.setClientSecret(clientApplication.getClientSecret());
+            cApp.setId(clientApplication.getId());
+            cApp.setDescription(clientApplication.getDescription());
+            cApp.setUrl(url);
+            return cApp;
+        } catch (JsonConvertionException | RESTException e) {
+            throw new HttpException(e);
         }
-        return client.getJsonHelper().readJson(new ClientApplication(organization), json);
     }
 
-    public static List<ClientApplication> find(Organization organization, String filter) throws HttpException {
-        // workaround for the fact that filters sometimes don't work in anypoint... *joy*
-        ClientApplicationList list = new ClientApplicationList(organization, null);
-        Iterator<ClientApplication> i = list.iterator();
-        ArrayList<ClientApplication> matchingClientApplications = new ArrayList<>();
-        while (i.hasNext()) {
-            ClientApplication clientApplication = i.next();
-            if (clientApplication.getName().contains(filter)) {
-                matchingClientApplications.add(clientApplication);
+    public static List<ClientApplication> find(AnypointClient client, ModelMapper modelMapper, Organization organization, String filter) throws HttpException {
+        List<ClientApplication> list = new ArrayList<>();
+        try {
+            List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
+            for (ExchangeClientApplication clientApplication : clientApplications) {
+                if (clientApplication.getName().contains(filter)) {
+                    list.add(modelMapper.map(clientApplication, ClientApplication.class));
+                }
             }
+        } catch (RESTException e) {
+            throw new HttpException(e);
         }
-        return matchingClientApplications;
+        return list;
     }
 
     public void delete() throws HttpException {

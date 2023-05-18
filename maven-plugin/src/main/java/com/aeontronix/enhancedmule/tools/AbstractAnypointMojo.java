@@ -168,6 +168,7 @@ public abstract class AbstractAnypointMojo extends AbstractMojo {
                     .authenticationHandler(new BearerTokenAuthenticationHandler(emClient.getAnypointBearerToken()))
                     .proxy(proxySettings)
                     .anypointUrl(anypointPlatformUrl).build();
+            legacyClient.setNewClient(anypointClient);
             logger.info("Initializing Enhanced Mule Tools");
         } catch (IOException | ProfileNotFoundException e) {
             throw new MojoExecutionException(e.getMessage(), e);

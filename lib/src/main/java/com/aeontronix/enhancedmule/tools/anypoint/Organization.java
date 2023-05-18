@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.exchange.ExchangeClient;
+import com.aeontronix.anypointsdk.exchange.ExchangeClientApplication;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.file.TempFile;
@@ -169,12 +170,8 @@ public class Organization extends AnypointObject {
 
     public ClientApplication createClientApplication(String name, String url, String description, String accessedAPIInstanceId) throws HttpException {
         // must always create the application in the root org because anypoint sucks
-        return ClientApplication.create(getRootOrganization(), name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);
-    }
-
-    public ClientApplication createClientApplication(String name, String url, String description, List<String> redirectUri, String apiEndpoints,
-                                                     String accessedAPIInstanceId) throws HttpException {
-        return ClientApplication.create(getRootOrganization(), name, url, description, redirectUri, apiEndpoints, accessedAPIInstanceId);
+        return ClientApplication.create(getClient().getNewClient(),
+                getRootOrganization(), name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {
@@ -187,7 +184,7 @@ public class Organization extends AnypointObject {
     }
 
     public List<ClientApplication> findAllClientApplications(@Nullable String filter) throws HttpException {
-        return ClientApplication.find(getRootOrganization(), filter);
+        return ClientApplication.find(getClient().getNewClient(), getClient().getModelMapper(), getRootOrganization(), filter);
     }
 
     public ClientApplication findClientApplicationById(@NotNull String id) throws HttpException, NotFoundException {
@@ -201,30 +198,20 @@ public class Organization extends AnypointObject {
 
     public ClientApplication findClientApplicationByName(@NotNull String name, boolean fullData) throws HttpException, NotFoundException {
         ClientApplication app = null;
-//        try {
-//            app = findClientApplicationByName(new ClientApplicationList(this, name), name, fullData);
-//            if (app == null) {
-//                // #@$@##@$ anypoint filtering sometimes doesn't work
-//                app = findClientApplicationByName(findAllClientApplications(name), name, fullData);
-//            }
-//        } catch (HttpException e) {
-//            if( fullData && e.getStatusCode() == 401 ) {
-        app = findClientApplicationByName(new ClientApplicationList(this, name), name, false);
-        if (app == null) {
-            // #@$@##@$ anypoint filtering sometimes doesn't work
-            app = findClientApplicationByName(findAllClientApplications(name), name, false);
-        }
-        if (app != null) {
-            app = findClientApplicationById(app.getId().toString());
-        }
-//            } else {
-//                throw e;
-//            }
-//        }
-        if (app == null) {
+        try {
+            ExchangeClient exchangeClient = getClient().getNewClient().getExchangeClient();
+            List<ExchangeClientApplication> appList = exchangeClient.listClientApplications(id);
+            for (ExchangeClientApplication clientApplication : appList) {
+                if (clientApplication.getName().equals(name)) {
+                    if (fullData) {
+                        clientApplication = exchangeClient.findClientApplicationById(id, Integer.toString(clientApplication.getId()));
+                    }
+                    return getClient().getModelMapper().map(clientApplication, ClientApplication.class);
+                }
+            }
             throw new NotFoundException("Client application not found: " + name);
-        } else {
-            return app;
+        } catch (RESTException e) {
+            throw new HttpException(e);
         }
     }
 

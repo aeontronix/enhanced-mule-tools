@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint;
 
+import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;
@@ -45,6 +46,7 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     private ModelMapper modelMapper;
     private RESTClient restClient;
     private RESTClientHost anypointRestClient;
+    private AnypointClient newClient;
 
     /**
      * Contructor used for serialization only
@@ -376,5 +378,13 @@ public class LegacyAnypointClient implements Closeable, Serializable {
 
     public RESTClientHost getAnypointRestClient() {
         return anypointRestClient;
+    }
+
+    public AnypointClient getNewClient() {
+        return newClient;
+    }
+
+    public void setNewClient(AnypointClient newClient) {
+        this.newClient = newClient;
     }
 }

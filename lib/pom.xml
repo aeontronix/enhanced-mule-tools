@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.enhanced-mule</groupId>
         <artifactId>enhanced-mule-tools</artifactId>
-            <version>1.4.46-SNAPSHOT</version>
+            <version>1.4.47-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,7 +17,7 @@
     <name>Enhanced Mule Tools: Library</name>
 
     <properties>
-        <jline.version>3.21.0</jline.version>
+        <jline.version>3.23.0</jline.version>
     </properties>
 
     <build>
@@ -44,34 +44,29 @@
     <dependencies>
         <!-- START of transitive dependency overrides due to vulnerabilities -->
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.33</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version>
+            <version>2.14.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>2.14.0</version>
+            <version>2.14.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>2.14.0</version>
+            <version>2.14.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.14.0</version>
+            <version>2.14.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-properties</artifactId>
-            <version>2.14.0</version>
+            <version>2.14.2</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -102,7 +97,7 @@
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>anypoint-sdk</artifactId>
-            <version>1.0.0-beta15</version>
+            <version>1.0.0-beta16</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
@@ -134,17 +129,17 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>3.21.0</version>
+            <version>3.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-console</artifactId>
-            <version>${jline.version}</version>
+            <version>3.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline-terminal-jna</artifactId>
-            <version>${jline.version}</version>
+            <version>3.23.0</version>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>
@@ -154,7 +149,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli-shell-jline3</artifactId>
-            <version>4.6.3</version>
+            <version>4.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -174,12 +169,12 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
+            <version>24.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.miglayout</groupId>
@@ -195,7 +190,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.8.0</version>
+            <version>5.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
