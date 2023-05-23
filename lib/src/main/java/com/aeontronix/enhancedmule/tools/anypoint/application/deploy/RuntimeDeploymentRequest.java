@@ -4,7 +4,6 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
-import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
@@ -74,17 +73,17 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> buildProperties(Map<String, String> properties, File propertyfile, boolean ignoreMissingPropertyFile,
+    private Map<String, String> buildProperties(Map<String, String> properties, File propertyFile, boolean ignoreMissingPropertyFile,
                                                 boolean injectEnvInfo) throws IOException {
         if (properties == null) {
             properties = new HashMap<>();
         }
-        if (propertyfile != null) {
-            if (propertyfile.exists()) {
-                String propFilePath = propertyfile.getPath().toLowerCase();
+        if (propertyFile != null) {
+            if (propertyFile.exists()) {
+                String propFilePath = propertyFile.getPath().toLowerCase();
                 if (propFilePath.endsWith(".properties")) {
                     Properties fileProps = new Properties();
-                    try (FileInputStream fis = new FileInputStream(propertyfile)) {
+                    try (FileInputStream fis = new FileInputStream(propertyFile)) {
                         fileProps.load(fis);
                     }
                     for (Map.Entry<Object, Object> entry : fileProps.entrySet()) {
@@ -100,21 +99,17 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
                     } else {
                         objectMapper = new ObjectMapper(new YAMLFactory());
                     }
-                    Map fileProperties = null;
-                    File propertiesFile = new File(propFilePath);
+                    Map fileProperties;
                     try {
-                        fileProperties = objectMapper.readValue(propertiesFile, Map.class);
+                        fileProperties = objectMapper.readValue(propertyFile, Map.class);
                     } catch (Exception e) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Invalid payload: " + FileUtils.toString(propertiesFile));
-                        }
                         throw new IOException("An error occurred while reading " + propFilePath + " : " + e.getMessage(), e);
                     }
                     properties.putAll(flattenToStringMap(fileProperties));
                 }
             } else {
                 if (!ignoreMissingPropertyFile) {
-                    throw new IllegalArgumentException("Property file not found: " + propertyfile);
+                    throw new IllegalArgumentException("Property file not found: " + propertyFile);
                 }
             }
         }
@@ -298,20 +293,4 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return legacyAppDescriptor;
     }
 
-    public static void main(String[] args) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        File propertiesFile = new File("/Users/ymenager/Projects/oes/salesforce-grant-manager-fema-sys-api/src/main/resources/config/dev.yaml");
-        Map map;
-        try {
-            map = objectMapper.readValue(propertiesFile, Map.class);
-        } catch (Exception e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Invalid payload: " + FileUtils.toString(propertiesFile));
-            }
-            throw new IOException("An error occurred while reading " + propertiesFile + " : " + e.getMessage(), e);
-        }
-        Properties properties = new Properties();
-        properties.putAll(flattenToStringMap(map));
-
-    }
 }
