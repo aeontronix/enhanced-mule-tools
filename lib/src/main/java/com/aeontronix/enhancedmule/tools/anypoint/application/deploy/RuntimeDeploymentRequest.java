@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
+import com.aeontronix.commons.file.FileUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
@@ -99,7 +100,17 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
                     } else {
                         objectMapper = new ObjectMapper(new YAMLFactory());
                     }
-                    properties.putAll(flattenToStringMap(objectMapper.readValue(new File(propFilePath), Map.class)));
+                    Map fileProperties = null;
+                    File propertiesFile = new File(propFilePath);
+                    try {
+                        fileProperties = objectMapper.readValue(propertiesFile, Map.class);
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Invalid payload: " + FileUtils.toString(propertiesFile));
+                        }
+                        throw new IOException("An error occurred while reading " + propFilePath + " : " + e.getMessage(), e);
+                    }
+                    properties.putAll(flattenToStringMap(fileProperties));
                 }
             } else {
                 if (!ignoreMissingPropertyFile) {
