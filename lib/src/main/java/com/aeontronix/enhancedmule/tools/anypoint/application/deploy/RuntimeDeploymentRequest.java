@@ -298,4 +298,20 @@ public class RuntimeDeploymentRequest extends AbstractDeploymentRequest implemen
         return legacyAppDescriptor;
     }
 
+    public static void main(String[] args) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        File propertiesFile = new File("/Users/ymenager/Projects/oes/salesforce-grant-manager-fema-sys-api/src/main/resources/config/dev.yaml");
+        Map map;
+        try {
+            map = objectMapper.readValue(propertiesFile, Map.class);
+        } catch (Exception e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Invalid payload: " + FileUtils.toString(propertiesFile));
+            }
+            throw new IOException("An error occurred while reading " + propertiesFile + " : " + e.getMessage(), e);
+        }
+        Properties properties = new Properties();
+        properties.putAll(flattenToStringMap(map));
+
+    }
 }
