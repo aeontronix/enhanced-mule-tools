@@ -153,8 +153,9 @@ public class ClientApplication extends AnypointObject<Organization> {
     public APIContract requestAPIAccess(API apiVersion, SLATier tier, boolean acceptedTerms) throws HttpException {
         if (jsonHelper == null) {
             // attempting to fix weird situation where those are null (shouldn't happen)
-            jsonHelper = getClient().getJsonHelper();
-            httpHelper = getClient().getHttpHelper();
+            client = apiVersion.getClient();
+            jsonHelper = client.getJsonHelper();
+            httpHelper = client.getHttpHelper();
         }
         JsonHelper.MapBuilder mapBuilder = jsonHelper.buildJsonMap()
                 .set("apiId", apiVersion.getId())
