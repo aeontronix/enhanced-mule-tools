@@ -254,7 +254,7 @@ public class ExchangeAssetDescriptor {
 
     public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
-        if (create) {
+        if (create == null || create == Boolean.TRUE) {
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
                 plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());
