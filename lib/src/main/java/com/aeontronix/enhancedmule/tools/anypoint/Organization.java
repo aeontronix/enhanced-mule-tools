@@ -756,7 +756,7 @@ public class Organization extends AnypointObject {
             final ApplicationDescriptor anypointDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(descriptorJson);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
-            if (apiDescriptor != null && apiDescriptor.getAsset() != null && apiDescriptor.getAsset().getCreate() &&
+            if (apiDescriptor != null && apiDescriptor.getAsset() != null && Boolean.TRUE == apiDescriptor.getAsset().getCreate() &&
                     apiDescriptor.getAsset().getVersion() != null &&
                     apiDescriptor.getAsset().getVersion().toLowerCase().contains("-snapshot")) {
                 snapshotApiVersion = apiDescriptor.getAsset().getVersion();

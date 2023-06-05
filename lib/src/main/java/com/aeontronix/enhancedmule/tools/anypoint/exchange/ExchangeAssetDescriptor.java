@@ -254,6 +254,7 @@ public class ExchangeAssetDescriptor {
 
     public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
+        logger.debug("Provisioning API asset. create = " + create);
         if (create == null || create == Boolean.TRUE) {
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);

@@ -21,7 +21,7 @@ tes<?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <app.runtime>4.1.4</app.runtime>
         <mule.maven.plugin.version>3.1.6</mule.maven.plugin.version>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <emt.version>1.4.54-SNAPSHOT</emt.version>
+        <emt.version>1.4.55-SNAPSHOT</emt.version>
     </properties>
 
     <build>

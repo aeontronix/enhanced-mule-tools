@@ -142,11 +142,11 @@ public class ApplicationDescriptorLegacyProcessor implements ApplicationDescript
                 }
             }
             if( asset.getCreate() == null || asset.getAssetMainFile() == null ) {
-                String apiSpecFile = findAPISpecFile(project,asset.getId());
-                if( asset.getCreate() == null ) {
-                    asset.setCreate(apiSpecFile != null);
+                String apiSpecFile = findAPISpecFile(project, asset.getId());
+                if (apiSpecFile != null && asset.getCreate() == null) {
+                    asset.setCreate(Boolean.TRUE);
                 }
-                if( asset.getAssetMainFile() == null ) {
+                if (asset.getAssetMainFile() == null) {
                     asset.setAssetMainFile(apiSpecFile);
                 }
             }
