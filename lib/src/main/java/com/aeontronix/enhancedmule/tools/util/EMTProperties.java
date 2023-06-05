@@ -32,7 +32,7 @@ public class EMTProperties {
             String key = e.getKey();
             String lkey = e.getKey().toLowerCase();
             String val = e.getValue();
-            if (lkey.startsWith(EMT_ENV) || lkey.startsWith(EMT_ENVTYPE)) {
+            if (envId != null && lkey.startsWith(EMT_ENV) || lkey.startsWith(EMT_ENVTYPE)) {
                 addIfMatch(key, val, EMT_ENVTYPE, envType != null ? envType.name() : null, envTypeOv);
                 addIfMatch(key, val, EMT_ENV, envName, envNameOv);
                 addIfMatch(key, val, EMT_ENV, envId, envIdOv);

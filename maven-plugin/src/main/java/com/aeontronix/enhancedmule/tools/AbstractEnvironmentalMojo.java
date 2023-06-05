@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.config.ProfileNotFoundException;
@@ -26,7 +27,7 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
 
     public synchronized Environment getEnvironment() throws NotFoundException, IOException, ProfileNotFoundException {
         if (environment == null) {
-            env = getMavenProperty("emt.env", env, "anypoint.env");
+            env = getEnvProperty();
             if (env == null) {
                 env = configProfile.getDefaultEnv();
                 if (env == null) {
@@ -38,9 +39,17 @@ public abstract class AbstractEnvironmentalMojo extends AbstractOrganizationalMo
         return environment;
     }
 
+    protected String getEnvProperty() {
+        return getMavenProperty("emt.env", env, "anypoint.env");
+    }
+
     @Override
     public EMTProperties getEMTProperties() throws NotFoundException, IOException, ProfileNotFoundException {
-        getEnvironment();
-        return new EMTProperties(getMavenProperties(), environment.getId(), environment.getName(), environment.getType());
+        if (StringUtils.isNotBlank(getEnvProperty())) {
+            getEnvironment();
+            return new EMTProperties(getMavenProperties(), environment.getId(), environment.getName(), environment.getType());
+        } else {
+            return new EMTProperties(getMavenProperties(), null, null, null);
+        }
     }
 }
