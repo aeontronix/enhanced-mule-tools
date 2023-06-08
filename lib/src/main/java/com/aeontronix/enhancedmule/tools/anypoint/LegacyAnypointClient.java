@@ -14,6 +14,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.authentication.AuthenticationP
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.aeontronix.restclient.ProxySettings;
 import com.aeontronix.restclient.RESTClient;
 import com.aeontronix.restclient.RESTClientHost;
 import com.aeontronix.restclient.RESTException;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +41,7 @@ import java.util.regex.Pattern;
 public class LegacyAnypointClient implements Closeable, Serializable {
     private static Pattern idRegex = Pattern.compile("[a-zA-Z0-9\\-]+");
     private static final Logger logger = LoggerFactory.getLogger(LegacyAnypointClient.class);
-    protected JsonHelper jsonHelper = new JsonHelper();
+    protected JsonHelper jsonHelper;
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
@@ -47,6 +49,9 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     private RESTClient restClient;
     private RESTClientHost anypointRestClient;
     private AnypointClient newClient;
+    private ProxySettings proxySettings;
+    private AuthenticationProvider authenticationProvider;
+    private URI anypointBaseUrl;
 
     /**
      * Contructor used for serialization only
@@ -64,23 +69,38 @@ public class LegacyAnypointClient implements Closeable, Serializable {
 
     public LegacyAnypointClient(AuthenticationProvider authenticationProvider, int maxParallelDeployments, String anypointBaseUrl) {
         this.maxParallelDeployments = maxParallelDeployments;
+        jsonHelper = new JsonHelper(this);
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
-        init();
         if (anypointBaseUrl == null) {
             anypointBaseUrl = "https://anypoint.mulesoft.com";
         }
-        httpHelper.setAnypointPlatformUrl(anypointBaseUrl);
-        anypointRestClient = restClient.host(URI.create(anypointBaseUrl))
-                .authenticationHandler(authenticationProvider).build();
+        this.authenticationProvider = authenticationProvider;
+        this.anypointBaseUrl = URI.create(anypointBaseUrl);
+        init();
     }
 
     private void init() {
-        jsonHelper.setClient(this);
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
         modelMapper = new ModelMapper();
         modelMapper.validate();
-        restClient = RESTClient.builder().build();
-        anypointRestClient = restClient.host(URI.create("https://anypoint.mulesoft.com")).build();
+        HashMap<Object, Object> jsonInjectables = new HashMap<>();
+        jsonInjectables.put(LegacyAnypointClient.class, this);
+        jsonInjectables.put(HttpHelper.class, httpHelper);
+        jsonInjectables.put(JsonHelper.class, jsonHelper);
+        if (newClient != null) {
+            jsonInjectables.put(AnypointClient.class, newClient);
+        }
+        RESTClient.Builder restClientBuilder = RESTClient.builder().objectMapperInjections(jsonInjectables);
+        if (proxySettings != null) {
+            URI proxyUri = proxySettings.getProxyUri();
+            httpHelper.setProxy(proxyUri.getScheme(), proxyUri.getHost(), proxyUri.getPort(),
+                    proxySettings.getProxyUsername(), proxySettings.getProxyPassword());
+            restClientBuilder = restClientBuilder.proxy(proxySettings);
+        }
+        restClient = restClientBuilder.build();
+        httpHelper.setAnypointPlatformUrl(anypointBaseUrl.toString());
+        anypointRestClient = restClient.host(this.anypointBaseUrl)
+                .authenticationHandler(this.authenticationProvider).build();
     }
 
     private boolean loadAnypointCliConfig() {
@@ -365,11 +385,17 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     }
 
     public void setProxy(String scheme, String host, int port, String username, String password) {
-        httpHelper.setProxy(scheme, host, port, username, password);
+        try {
+            proxySettings = new ProxySettings(new URI(scheme, null, host, port, null, null, null), username, password, null);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+        init();
     }
 
     public void unsetProxy() {
-        httpHelper.unsetProxy();
+        proxySettings = null;
+        init();
     }
 
     public RESTClient getRestClient() {
@@ -386,5 +412,6 @@ public class LegacyAnypointClient implements Closeable, Serializable {
 
     public void setNewClient(AnypointClient newClient) {
         this.newClient = newClient;
+        init();
     }
 }

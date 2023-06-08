@@ -53,7 +53,8 @@ public class ExchangeAssetDescriptor {
     private Map<String, List<String>> categories;
     private List<APICustomFieldDescriptor> fields;
     private IconDescriptor icon;
-    private Boolean create;
+    private Boolean create = null;
+    private Boolean provision = null;
     @NotNull
     private API.Type type = API.Type.REST;
     @NotBlank
@@ -190,6 +191,14 @@ public class ExchangeAssetDescriptor {
         this.create = create;
     }
 
+    public Boolean getProvision() {
+        return provision;
+    }
+
+    public void setProvision(Boolean provision) {
+        this.provision = provision;
+    }
+
     public void updateTags(ExchangeAsset exchangeAsset) throws HttpException {
         if (this.tags != null) {
             List<String> current = exchangeAsset.getLabels();
@@ -255,7 +264,7 @@ public class ExchangeAssetDescriptor {
     public void provision(Organization organization) throws IOException, NotFoundException {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
         logger.debug("Provisioning API asset. create = " + create);
-        if (create == null || create == Boolean.TRUE) {
+        if ((create == Boolean.TRUE || provision != Boolean.FALSE) || provision == Boolean.TRUE) {
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
                 plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());

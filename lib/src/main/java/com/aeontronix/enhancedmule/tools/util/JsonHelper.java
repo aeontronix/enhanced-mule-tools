@@ -10,10 +10,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.InvalidJsonException;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -28,11 +25,12 @@ public class JsonHelper implements Serializable {
     private ObjectMapper jsonMapper = createMapper();
     private LegacyAnypointClient client;
 
-    public JsonHelper() {
-    }
-
     public JsonHelper(LegacyAnypointClient client) {
         this.client = client;
+        jsonMapper.setInjectableValues(new InjectableValues.Std()
+                .addValue(JsonHelper.class, this)
+                .addValue(HttpHelper.class, client.getHttpHelper())
+                .addValue(LegacyAnypointClient.class, client));
     }
 
     public static void processVariables(ObjectNode json, HashMap<String, String> vars) {
@@ -188,10 +186,6 @@ public class JsonHelper implements Serializable {
     public <X> X readJson(Class<X> objClass, JsonNode node, LegacyAnypointClient client) {
         try {
             Object obj = jsonMapper.treeToValue(node, objClass);
-            if (obj instanceof AnypointObject) {
-                ((AnypointObject) obj).setJson(node.toString());
-                ((AnypointObject) obj).setClient(client);
-            }
             return (X) obj;
         } catch (JsonProcessingException e) {
             throw new InvalidJsonException(e);
@@ -225,7 +219,6 @@ public class JsonHelper implements Serializable {
             jsonMapper.readerForUpdating(obj).readValue(node);
             if (obj instanceof AnypointObject) {
                 ((AnypointObject) obj).setJson(node.toString());
-                ((AnypointObject) obj).setClient(client);
             }
             return obj;
         } catch (IOException e) {

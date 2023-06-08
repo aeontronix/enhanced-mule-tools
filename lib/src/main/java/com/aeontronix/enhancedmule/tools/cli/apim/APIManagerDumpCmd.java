@@ -44,7 +44,6 @@ public class APIManagerDumpCmd implements Callable<Integer> {
             org = client.findOrganizationByNameOrId(this.orgName);
         } else {
             org = client.getUser().getOrganization();
-            org.setClient(client);
         }
         final Environment env = org.findEnvironmentByNameOrId(envName);
         StreamSupport.stream(env.findAllAPIs().spliterator(), false).filter(v -> v.getName().matches(regex) ||

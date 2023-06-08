@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.enhancedmule.tools.util.HttpHelper;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -15,17 +16,19 @@ import java.io.Serializable;
 public abstract class AnypointObject<X extends AnypointObject> implements Serializable {
     @JsonIgnore
     protected String json;
+    @JacksonInject()
     @JsonIgnore
     protected LegacyAnypointClient client;
+    @JacksonInject()
     @JsonIgnore
     protected HttpHelper httpHelper;
+    @JacksonInject()
     @JsonIgnore
     protected JsonHelper jsonHelper;
     @JsonIgnore
     protected X parent;
 
     public AnypointObject(LegacyAnypointClient client) {
-        setClient(client);
     }
 
     public AnypointObject(X parent) {
