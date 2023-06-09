@@ -22,14 +22,18 @@ import java.io.Serializable;
 import java.util.*;
 
 public class JsonHelper implements Serializable {
-    private ObjectMapper jsonMapper = createMapper();
     private LegacyAnypointClient client;
+    private ObjectMapper jsonMapper;
 
     public JsonHelper(LegacyAnypointClient client) {
         this.client = client;
+    }
+
+    public void init(HttpHelper httpHelper) {
+        jsonMapper = createMapper();
         jsonMapper.setInjectableValues(new InjectableValues.Std()
                 .addValue(JsonHelper.class, this)
-                .addValue(HttpHelper.class, client.getHttpHelper())
+                .addValue(HttpHelper.class, httpHelper)
                 .addValue(LegacyAnypointClient.class, client));
     }
 

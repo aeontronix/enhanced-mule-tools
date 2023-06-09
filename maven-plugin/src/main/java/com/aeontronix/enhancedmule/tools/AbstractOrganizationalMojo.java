@@ -27,11 +27,11 @@ public abstract class AbstractOrganizationalMojo extends AbstractAnypointMojo {
                 organization = client.findOrganizationByNameOrId(org);
             } else {
                 organization = client.getUser().getOrganization();
-                organization.setClient(client);
                 if (organization == null) {
                     throw new IllegalArgumentException("Organization not set, use configuration element 'org' or maven property 'anypoint.org' to set");
                 }
             }
+            organization.setClient(client);
             logger.info("Organization Name: {}", organization.getName());
             logger.info("Organization Id: {}", organization.getId());
         }

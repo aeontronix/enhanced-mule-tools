@@ -71,6 +71,7 @@ public class LegacyAnypointClient implements Closeable, Serializable {
         this.maxParallelDeployments = maxParallelDeployments;
         jsonHelper = new JsonHelper(this);
         httpHelper = new HttpHelper(jsonHelper, authenticationProvider);
+        jsonHelper.init(httpHelper);
         if (anypointBaseUrl == null) {
             anypointBaseUrl = "https://anypoint.mulesoft.com";
         }

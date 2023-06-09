@@ -72,6 +72,7 @@ class DeploymentServiceImplTest {
         httpHelper = mock(HttpHelper.class);
         when(httpHelper.anypointHttpPost(any(), any(), any())).thenReturn("{}");
         final JsonHelper jsonHelper = new JsonHelper(legacyAnypointClient);
+        jsonHelper.init(httpHelper);
         when(legacyAnypointClient.getJsonHelper()).thenReturn(jsonHelper);
         when(legacyAnypointClient.getHttpHelper()).thenReturn(httpHelper);
         environment = mock(Environment.class);
