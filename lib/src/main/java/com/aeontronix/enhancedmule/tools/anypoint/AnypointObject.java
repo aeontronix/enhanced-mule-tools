@@ -29,6 +29,7 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
     protected X parent;
 
     public AnypointObject(LegacyAnypointClient client) {
+        setClient(client);
     }
 
     public AnypointObject(X parent) {

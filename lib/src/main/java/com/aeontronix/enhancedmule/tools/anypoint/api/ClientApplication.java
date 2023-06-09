@@ -17,7 +17,6 @@ import com.aeontronix.restclient.json.JsonConvertionException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -123,13 +122,13 @@ public class ClientApplication extends AnypointObject<Organization> {
         }
     }
 
-    public static List<ClientApplication> find(AnypointClient client, ModelMapper modelMapper, Organization organization, String filter) throws HttpException {
+    public static List<ClientApplication> find(AnypointClient client, LegacyAnypointClient legacyAnypointClient, Organization organization, String filter) throws HttpException {
         List<ClientApplication> list = new ArrayList<>();
         try {
             List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
             for (ExchangeClientApplication clientApplication : clientApplications) {
                 if (clientApplication.getName().contains(filter)) {
-                    list.add(modelMapper.map(clientApplication, ClientApplication.class));
+                    list.add(legacyAnypointClient.map(clientApplication, ClientApplication.class, organization));
                 }
             }
         } catch (RESTException e) {

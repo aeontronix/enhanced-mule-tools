@@ -380,10 +380,6 @@ public class LegacyAnypointClient implements Closeable, Serializable {
         return getUser().getId();
     }
 
-    public ModelMapper getModelMapper() {
-        return modelMapper;
-    }
-
     public void setProxy(String scheme, String host, int port, String username, String password) {
         try {
             proxySettings = new ProxySettings(new URI(scheme, null, host, port, null, null, null), username, password, null);
@@ -413,5 +409,17 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     public void setNewClient(AnypointClient newClient) {
         this.newClient = newClient;
         init();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <X, Y extends AnypointObject> X map(Object object, Class<X> mappedClass, Y parent) {
+        X result = modelMapper.map(object, mappedClass);
+        if (result instanceof AnypointObject) {
+            ((AnypointObject<Y>) result).setClient(this);
+            if (parent != null) {
+                ((AnypointObject<Y>) result).setParent(parent);
+            }
+        }
+        return result;
     }
 }

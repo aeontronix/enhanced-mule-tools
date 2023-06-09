@@ -10,7 +10,6 @@ import com.aeontronix.anypointsdk.exchange.ExchangeClientApplication;
 import com.aeontronix.commons.ThreadUtils;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.file.TempFile;
-import com.aeontronix.enhancedmule.tools.anypoint.alert.Alert;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
@@ -184,7 +183,7 @@ public class Organization extends AnypointObject {
     }
 
     public List<ClientApplication> findAllClientApplications(@Nullable String filter) throws HttpException {
-        return ClientApplication.find(getClient().getNewClient(), getClient().getModelMapper(), getRootOrganization(), filter);
+        return ClientApplication.find(getClient().getNewClient(), getClient(), getRootOrganization(), filter);
     }
 
     public ClientApplication findClientApplicationById(@NotNull String id) throws HttpException, NotFoundException {
@@ -206,7 +205,7 @@ public class Organization extends AnypointObject {
                     if (fullData) {
                         clientApplication = exchangeClient.findClientApplicationById(id, Integer.toString(clientApplication.getId()));
                     }
-                    return getClient().getModelMapper().map(clientApplication, ClientApplication.class);
+                    return getClient().map(clientApplication, ClientApplication.class, this);
                 }
             }
             throw new NotFoundException("Client application not found: " + name);
@@ -593,36 +592,35 @@ public class Organization extends AnypointObject {
 
     public OrganizationDescriptor export(boolean stripIds) throws HttpException {
 //        try {
-        ModelMapper mapper = client.getModelMapper();
-        OrganizationDescriptor org = new OrganizationDescriptor();
-        mapper.map(this, org);
-        if (stripIds) {
-            org.setParentId(null);
-            org.setId(null);
-        }
+//        OrganizationDescriptor org = new OrganizationDescriptor();
+//        getClient().map(this, org);
+//        if (stripIds) {
+//            org.setParentId(null);
+//            org.setId(null);
+//        }
 //            exportEnvironments(mapper, org, stripIds);
 //            exportRoleGroups(mapper, org, stripIds);
-        exportAlerts(mapper, org, stripIds);
-        return org;
+//        exportAlerts(org, stripIds);
+//        return org;
 //        } catch (NotFoundException e) {
 //            throw new UnexpectedException(e);
 //        }
+        return null;
     }
 
-    private void exportAlerts(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
-        ArrayList<AlertDescriptor> alerts = new ArrayList<>();
-        ;
-        org.setRuntimeAlerts(alerts);
-        for (Environment environment : findAllEnvironments()) {
-            for (Alert alert : environment.findAlerts()) {
-                AlertDescriptor alertDesc = new AlertDescriptor();
-                mapper.map(alert, alertDesc);
-                if (stripIds) {
-                    alertDesc.setId(null);
-                }
-                alerts.add(alertDesc);
-            }
-        }
+    private void exportAlerts(OrganizationDescriptor org, boolean stripIds) throws HttpException {
+//        ArrayList<AlertDescriptor> alerts = new ArrayList<>();
+//        org.setRuntimeAlerts(alerts);
+//        for (Environment environment : findAllEnvironments()) {
+//            for (Alert alert : environment.findAlerts()) {
+//                AlertDescriptor alertDesc = new AlertDescriptor();
+//                getClient().map(alert, alertDesc);
+//                if (stripIds) {
+//                    alertDesc.setId(null);
+//                }
+//                alerts.add(alertDesc);
+//            }
+//        }
     }
 
     private void exportEnvironments(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
