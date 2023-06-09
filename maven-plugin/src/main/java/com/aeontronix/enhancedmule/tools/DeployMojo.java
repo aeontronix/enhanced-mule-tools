@@ -4,6 +4,7 @@
 
 package com.aeontronix.enhancedmule.tools;
 
+import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentServiceImpl;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DescriptorLayers;
@@ -167,10 +168,13 @@ public class DeployMojo extends LegacyDeployMojo {
                         }
                     }
                     JsonNode deploymentParametersOverridesLegacy = getDeploymentParametersOverrides();
+                    Environment environment = getEnvironment();
+                    // todo remove this later
+                    environment.getOrganization().validateObject();
                     final RuntimeDeploymentRequest request = new RuntimeDeploymentRequest(appFilename != null ? appFilename :
                             source.getFileName(), appName, source.getArtifactId(), buildNumber, vars, properties,
                             isNotBlank(propertyfile) ? new File(propertyfile) : null,
-                            ignoreMissingPropertyFile, target, getEnvironment(), injectEnvInfo, skipWait, skipProvisioning,
+                            ignoreMissingPropertyFile, target, environment, injectEnvInfo, skipWait, skipProvisioning,
                             deploymentParametersOverridesLegacy);
                     request.addSecureProperties(secureProperties);
                     request.setFileProperties(fileProperties);

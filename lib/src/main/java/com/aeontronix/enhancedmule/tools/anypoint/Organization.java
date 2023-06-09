@@ -63,11 +63,11 @@ public class Organization extends AnypointObject {
     public Organization() {
     }
 
-    public Organization(LegacyAnypointClient client) {
+    public Organization(@NotNull LegacyAnypointClient client) {
         super(client);
     }
 
-    public Organization(LegacyAnypointClient client, String id) {
+    public Organization(@NotNull LegacyAnypointClient client, String id) {
         super(client);
         this.id = id;
     }
@@ -807,6 +807,18 @@ public class Organization extends AnypointObject {
         public ExchangePublishingPart(String name, String value) {
             this.name = name;
             this.value = value;
+        }
+    }
+
+    public void validateObject() {
+        if (httpHelper == null) {
+            throw new IllegalStateException("httpHelper is null");
+        }
+        if (jsonHelper == null) {
+            throw new IllegalStateException("jsonHelper is null");
+        }
+        if (client == null) {
+            throw new IllegalStateException("client is null");
         }
     }
 }
