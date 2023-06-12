@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools;
 
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DeploymentServiceImpl;
 import com.aeontronix.enhancedmule.tools.anypoint.application.deploy.DescriptorLayers;
@@ -144,11 +145,12 @@ public class DeployMojo extends LegacyDeployMojo {
                 appFile = MavenUtils.getProjectJar(project).getPath();
             }
             ApplicationIdentifier applicationIdentifier = project != null ? new ApplicationIdentifier(project.getGroupId(), project.getArtifactId(), project.getVersion()) : null;
-            final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(getOrganization().getClient(), anypointClient);
-            try (ApplicationSource source = ApplicationSource.create(getOrganization().getId(), getLegacyClient(), appFile)) {
+            Organization organization = getOrganization();
+            final DeploymentServiceImpl deploymentService = new DeploymentServiceImpl(organization.getClient(), anypointClient);
+            try (ApplicationSource source = ApplicationSource.create(organization.getId(), getLegacyClient(), appFile)) {
                 if (target != null && target.equalsIgnoreCase("exchange")) {
                     final ExchangeDeploymentRequest req;
-                    req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, getOrganization(), source, null);
+                    req = new ExchangeDeploymentRequest(buildNumber, applicationIdentifier, organization, source, null);
                     final ApplicationIdentifier appId = deploymentService.deployToExchange(req);
                     emtLogger.info(EMTLogger.Product.EXCHANGE, "Published application to exchange: " + appId.getGroupId() + ":" + appId.getArtifactId() + ":" + appId.getVersion());
                 } else {

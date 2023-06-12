@@ -265,6 +265,7 @@ public class ExchangeAssetDescriptor {
         ExchangeAsset exchangeAsset = organization.findExchangeAsset(groupId != null ? groupId : organization.getId(), id);
         logger.debug("Provisioning API asset. create = " + create + " provision = " + provision);
         if (create == Boolean.TRUE || provision == Boolean.TRUE) {
+            logger.debug("Provisioning REST API exchange asset");
             if (name != null && !name.equals(exchangeAsset.getName())) {
                 exchangeAsset.updateName(name);
                 plogger.info(EMTLogger.Product.EXCHANGE, "Updated exchange asset '{}' name", exchangeAsset.getAssetId());

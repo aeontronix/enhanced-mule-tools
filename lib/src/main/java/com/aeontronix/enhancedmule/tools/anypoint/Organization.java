@@ -14,13 +14,18 @@ import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.*;
-import com.aeontronix.enhancedmule.tools.anypoint.provisioning.*;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.OrganizationDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.VPCOrgProvisioningDescriptor;
+import com.aeontronix.enhancedmule.tools.anypoint.provisioning.VPCProvisioningDescriptor;
 import com.aeontronix.enhancedmule.tools.application.ApplicationDescriptor;
 import com.aeontronix.enhancedmule.tools.application.api.APIDescriptor;
 import com.aeontronix.enhancedmule.tools.emclient.EnhancedMuleClient;
 import com.aeontronix.enhancedmule.tools.fabric.Fabric;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
-import com.aeontronix.enhancedmule.tools.role.*;
+import com.aeontronix.enhancedmule.tools.role.ProductPermissions;
+import com.aeontronix.enhancedmule.tools.role.Role;
+import com.aeontronix.enhancedmule.tools.role.RoleGroup;
+import com.aeontronix.enhancedmule.tools.role.RoleGroupList;
 import com.aeontronix.enhancedmule.tools.runtime.Target;
 import com.aeontronix.enhancedmule.tools.runtime.manifest.ReleaseManifest;
 import com.aeontronix.enhancedmule.tools.util.*;
@@ -33,8 +38,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,7 +208,7 @@ public class Organization extends AnypointObject {
                     if (fullData) {
                         clientApplication = exchangeClient.findClientApplicationById(id, Integer.toString(clientApplication.getId()));
                     }
-                    return getClient().map(clientApplication, ClientApplication.class, this);
+                    return new com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication(clientApplication, this);
                 }
             }
             throw new NotFoundException("Client application not found: " + name);
@@ -623,55 +626,55 @@ public class Organization extends AnypointObject {
 //        }
     }
 
-    private void exportEnvironments(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
-        List<EnvironmentDescriptor> environments = mapper.map(findAllEnvironments(), new TypeToken<List<EnvironmentDescriptor>>() {
-        }.getType());
-        org.setEnvironments(environments);
-    }
-
-    private void exportRoleGroups(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException, NotFoundException {
-        ArrayList<RoleDescriptor> roles = new ArrayList<>();
-        for (RoleGroup roleGroup : findAllRoleGroups()) {
-            if (roleGroup.isEditable()) {
-                RoleDescriptor role = new RoleDescriptor();
-                roles.add(role);
-                mapper.map(roleGroup, role);
-                if (stripIds) {
-                    role.setId(null);
-                }
-                ArrayList<RolePermissionDescriptor> rolePermissions = new ArrayList<>();
-                role.setPermissions(rolePermissions);
-                Map<String, RolePermissionDescriptor> rolePermissionsIdx = new HashMap<>();
-                for (RoleAssignment roleAssignment : roleGroup.findRoleAssignments()) {
-                    String roleId = roleAssignment.getRoleId();
-                    RolePermissionDescriptor rp = rolePermissionsIdx.get(roleId);
-                    if (rp == null) {
-                        rp = new RolePermissionDescriptor();
-                        mapper.map(roleAssignment, rp);
-                        if (stripIds) {
-                            rp.setId(null);
-                            rp.setRoleId(null);
-                        }
-                        rolePermissionsIdx.put(roleId, rp);
-                        rolePermissions.add(rp);
-                    }
-                    String raOrgId = roleAssignment.getContextParams().get("org");
-                    String raEnvId = roleAssignment.getContextParams().get("envId");
-                    HashMap<String, Environment> envCache = new HashMap<>();
-                    if (raEnvId != null) {
-                        Environment raEnv = envCache.get(raEnvId);
-                        if (raEnv == null) {
-                            Organization raOrg = id.equals(raOrgId) ? this : client.findOrganizationById(raOrgId);
-                            raEnv = raOrg.findEnvironmentById(raEnvId);
-                            envCache.put(raEnvId, raEnv);
-                        }
-                        rp.addEnvironment(raEnv.getName());
-                    }
-                }
-            }
-        }
-        org.setRoles(roles);
-    }
+//    private void exportEnvironments(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException {
+//        List<EnvironmentDescriptor> environments = mapper.map(findAllEnvironments(), new TypeToken<List<EnvironmentDescriptor>>() {
+//        }.getType());
+//        org.setEnvironments(environments);
+//    }
+//
+//    private void exportRoleGroups(ModelMapper mapper, OrganizationDescriptor org, boolean stripIds) throws HttpException, NotFoundException {
+//        ArrayList<RoleDescriptor> roles = new ArrayList<>();
+//        for (RoleGroup roleGroup : findAllRoleGroups()) {
+//            if (roleGroup.isEditable()) {
+//                RoleDescriptor role = new RoleDescriptor();
+//                roles.add(role);
+//                mapper.map(roleGroup, role);
+//                if (stripIds) {
+//                    role.setId(null);
+//                }
+//                ArrayList<RolePermissionDescriptor> rolePermissions = new ArrayList<>();
+//                role.setPermissions(rolePermissions);
+//                Map<String, RolePermissionDescriptor> rolePermissionsIdx = new HashMap<>();
+//                for (RoleAssignment roleAssignment : roleGroup.findRoleAssignments()) {
+//                    String roleId = roleAssignment.getRoleId();
+//                    RolePermissionDescriptor rp = rolePermissionsIdx.get(roleId);
+//                    if (rp == null) {
+//                        rp = new RolePermissionDescriptor();
+//                        mapper.map(roleAssignment, rp);
+//                        if (stripIds) {
+//                            rp.setId(null);
+//                            rp.setRoleId(null);
+//                        }
+//                        rolePermissionsIdx.put(roleId, rp);
+//                        rolePermissions.add(rp);
+//                    }
+//                    String raOrgId = roleAssignment.getContextParams().get("org");
+//                    String raEnvId = roleAssignment.getContextParams().get("envId");
+//                    HashMap<String, Environment> envCache = new HashMap<>();
+//                    if (raEnvId != null) {
+//                        Environment raEnv = envCache.get(raEnvId);
+//                        if (raEnv == null) {
+//                            Organization raOrg = id.equals(raOrgId) ? this : client.findOrganizationById(raOrgId);
+//                            raEnv = raOrg.findEnvironmentById(raEnvId);
+//                            envCache.put(raEnvId, raEnv);
+//                        }
+//                        rp.addEnvironment(raEnv.getName());
+//                    }
+//                }
+//            }
+//        }
+//        org.setRoles(roles);
+//    }
 
     @NotNull
     private Role findRoleById(String roleId) throws HttpException, NotFoundException {

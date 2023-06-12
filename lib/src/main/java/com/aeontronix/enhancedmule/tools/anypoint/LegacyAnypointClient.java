@@ -5,7 +5,6 @@
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.anypointsdk.AnypointClient;
-import com.aeontronix.commons.ReflectionUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.jetbrains.annotations.NotNull;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,6 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     protected HttpHelper httpHelper;
     private int maxParallelDeployments = 5;
     private transient ExecutorService deploymentThreadPool;
-    private ModelMapper modelMapper;
     private RESTClient restClient;
     private RESTClientHost anypointRestClient;
     private AnypointClient newClient;
@@ -83,8 +80,6 @@ public class LegacyAnypointClient implements Closeable, Serializable {
 
     private void init() {
         deploymentThreadPool = Executors.newFixedThreadPool(maxParallelDeployments);
-        modelMapper = new ModelMapper();
-        modelMapper.validate();
         HashMap<Object, Object> jsonInjectables = new HashMap<>();
         jsonInjectables.put(LegacyAnypointClient.class, this);
         jsonInjectables.put(HttpHelper.class, httpHelper);
@@ -411,29 +406,5 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     public void setNewClient(AnypointClient newClient) {
         this.newClient = newClient;
         init();
-    }
-
-    @SuppressWarnings("unchecked")
-    public <X, Y extends AnypointObject> X map(Object object, Class<X> mappedClass, Y parent) {
-        X result = modelMapper.map(object, mappedClass);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Mapping object " + object.getClass());
-        }
-        if (result instanceof AnypointObject) {
-            logger.debug("Object IS anypoint object, setting client");
-            ((AnypointObject<Y>) result).setClient(this);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Client objects have been assigned");
-                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "client"));
-                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "httpHelper"));
-                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "jsonHelper"));
-            }
-            if (parent != null) {
-                ((AnypointObject<Y>) result).setParent(parent);
-            }
-        } else if (logger.isDebugEnabled()) {
-            logger.debug("Object is NOT anypoint object");
-        }
-        return result;
     }
 }

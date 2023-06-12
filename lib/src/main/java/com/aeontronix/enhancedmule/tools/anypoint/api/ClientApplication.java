@@ -27,12 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientApplication extends AnypointObject<Organization> {
     private static final Logger logger = getLogger(ClientApplication.class);
-    private Integer id;
-    private String name;
-    private String description;
-    private String url;
-    private String clientId;
-    private String clientSecret;
+    private ExchangeClientApplication cApp;
 
     public ClientApplication(LegacyAnypointClient client) {
         super(client);
@@ -42,66 +37,71 @@ public class ClientApplication extends AnypointObject<Organization> {
         super(parent);
     }
 
+    public ClientApplication(ExchangeClientApplication clientApplication, Organization organization) {
+        super(organization);
+        cApp = clientApplication;
+    }
+
     public ClientApplication() {
     }
 
     @JsonProperty
     public Integer getId() {
-        return id;
+        return cApp.getId();
     }
 
     public void setId(Integer id) {
-        this.id = id;
+        cApp.setId(id);
     }
 
     @JsonProperty
     public String getName() {
-        return name;
+        return cApp.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        cApp.setName(name);
     }
 
     @JsonProperty
     public String getDescription() {
-        return description;
+        return cApp.getDescription();
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        cApp.setDescription(description);
     }
 
     @JsonProperty
     public String getUrl() {
-        return url;
+        return cApp.getUrl();
     }
 
     public void setUrl(String url) {
-        this.url = url;
+        cApp.getUrl();
     }
 
     @JsonProperty
     public String getClientId() {
-        return clientId;
+        return cApp.getClientId();
     }
 
     public void setClientId(String clientId) {
-        this.clientId = clientId;
+        cApp.setClientId(clientId);
     }
 
     @JsonProperty
     public String getClientSecret() {
-        return clientSecret;
+        return cApp.getClientSecret();
     }
 
     public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
+        cApp.setClientSecret(clientSecret);
     }
 
     @JsonIgnore
     public String getUriPath() {
-        return parent.getUriPath() + "/applications/" + id;
+        return parent.getUriPath() + "/applications/" + getId();
     }
 
     public static ClientApplication create(AnypointClient anypointClient, @NotNull Organization organization, @NotNull String name, String url,
@@ -128,7 +128,7 @@ public class ClientApplication extends AnypointObject<Organization> {
             List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
             for (ExchangeClientApplication clientApplication : clientApplications) {
                 if (clientApplication.getName().contains(filter)) {
-                    list.add(legacyAnypointClient.map(clientApplication, ClientApplication.class, organization));
+                    list.add(new ClientApplication(clientApplication, organization));
                 }
             }
         } catch (RESTException e) {
@@ -179,7 +179,7 @@ public class ClientApplication extends AnypointObject<Organization> {
             mapBuilder.set("requestedTierId", tierId);
         }
         Map<String, Object> req = mapBuilder.toMap();
-        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
+        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + getId() + "/contracts", req);
         return jsonHelper.readJson(new APIContract(apiVersion), json);
     }
 
@@ -216,7 +216,7 @@ public class ClientApplication extends AnypointObject<Organization> {
             mapBuilder.set("requestedTierId", tierId);
         }
         Map<String, Object> req = mapBuilder.toMap();
-        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + id + "/contracts", req);
+        String json = httpHelper.httpPost("/exchange/api/v1/organizations/" + parent.getId() + "/applications/" + getId() + "/contracts", req);
         return jsonHelper.readJson(new APIContract(api), json);
     }
 }

@@ -214,6 +214,9 @@ public class ClientApplicationDescriptor {
         logger.debug("Processing access descriptor : {}", accessDescriptor);
         Organization accessOrg;
         if (accessDescriptor.getOrgId() == null) {
+            if (accessDescriptor.getGroupId() != null) {
+                accessDescriptor.setOrgId(accessDescriptor.getGroupId());
+            }
             logger.debug("Access descriptor has no org id, getting the default org");
             accessOrg = environment.getOrganization();
             accessDescriptor.setOrgId(accessOrg.getId());
@@ -241,6 +244,10 @@ public class ClientApplicationDescriptor {
         ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
         logger.debug("Found exchangeAsset {}", exchangeAsset);
         logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
-        return exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
+        try {
+            return exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Unable to find instances for accessed API " + accessDescriptor);
+        }
     }
 }
