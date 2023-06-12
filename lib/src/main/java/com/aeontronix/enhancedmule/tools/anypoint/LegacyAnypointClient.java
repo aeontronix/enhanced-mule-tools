@@ -5,6 +5,7 @@
 package com.aeontronix.enhancedmule.tools.anypoint;
 
 import com.aeontronix.anypointsdk.AnypointClient;
+import com.aeontronix.commons.ReflectionUtils;
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.FileUtils;
@@ -415,11 +416,23 @@ public class LegacyAnypointClient implements Closeable, Serializable {
     @SuppressWarnings("unchecked")
     public <X, Y extends AnypointObject> X map(Object object, Class<X> mappedClass, Y parent) {
         X result = modelMapper.map(object, mappedClass);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Mapping object " + object.getClass());
+        }
         if (result instanceof AnypointObject) {
+            logger.debug("Object IS anypoint object, setting client");
             ((AnypointObject<Y>) result).setClient(this);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Client objects have been assigned");
+                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "client"));
+                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "httpHelper"));
+                logger.debug("Anypoint client: " + ReflectionUtils.get(object, "jsonHelper"));
+            }
             if (parent != null) {
                 ((AnypointObject<Y>) result).setParent(parent);
             }
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("Object is NOT anypoint object");
         }
         return result;
     }

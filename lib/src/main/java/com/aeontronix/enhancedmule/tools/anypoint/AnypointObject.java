@@ -9,11 +9,16 @@ import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.io.Serializable;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AnypointObject<X extends AnypointObject> implements Serializable {
+    private static final Logger logger = getLogger(AnypointObject.class);
     @JsonIgnore
     protected String json;
     @JacksonInject()
@@ -53,10 +58,16 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
         setClient(client, false);
     }
 
-    public void setClient(LegacyAnypointClient client, boolean setParent) {
+    public void setClient(@NotNull LegacyAnypointClient client, boolean setParent) {
         this.client = client;
         httpHelper = client.getHttpHelper();
         jsonHelper = client.getJsonHelper();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Client assigned: " + client);
+            logger.debug("httpHelper: " + httpHelper);
+            logger.debug("jsonHelper: " + jsonHelper);
+        }
+        assert httpHelper != null && jsonHelper != null && this.client != null;
         if (setParent && parent != null) {
             parent.setClient(client);
         }
