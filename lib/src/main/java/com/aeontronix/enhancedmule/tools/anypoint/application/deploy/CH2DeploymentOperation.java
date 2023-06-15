@@ -5,9 +5,9 @@
 package com.aeontronix.enhancedmule.tools.anypoint.application.deploy;
 
 import com.aeontronix.anypointsdk.AnypointClient;
-import com.aeontronix.anypointsdk.cloudhub2.CH2AppDeploymentParameters;
-import com.aeontronix.anypointsdk.cloudhub2.CH2DeploymentResponse;
-import com.aeontronix.anypointsdk.cloudhub2.DeploymentFailedException;
+import com.aeontronix.anypointsdk.amc.AMCAppDeploymentParameters;
+import com.aeontronix.anypointsdk.amc.AMCDeploymentFailedException;
+import com.aeontronix.anypointsdk.amc.AMCDeploymentResponse;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
@@ -45,9 +45,9 @@ public class CH2DeploymentOperation extends DeploymentOperation {
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException {
         try {
             long start = System.currentTimeMillis();
-            CH2AppDeploymentParameters ch2 = request.getApplicationDescriptor().getDeploymentParams().getCloudhub2();
+            AMCAppDeploymentParameters ch2 = request.getApplicationDescriptor().getDeploymentParams().getCloudhub2();
             if (ch2 == null) {
-                ch2 = new CH2AppDeploymentParameters();
+                ch2 = new AMCAppDeploymentParameters();
             }
             String orgId = environment.getOrganization().getId();
             String target = request.getTarget();
@@ -67,7 +67,7 @@ public class CH2DeploymentOperation extends DeploymentOperation {
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Last mile security: " + ch2.isLastMileSecurity());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Object store v2 enabled: " + ch2.isObjectStoreV2Enabled());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Generate default public url: " + ch2.isGenerateDefaultPublicUrl());
-            CH2DeploymentResponse response = anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
+            AMCDeploymentResponse response = anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
                     orgId, environment.getId(), target,
                     source.toSDKSource(),
                     request.getProperties(), request.getSecureProperties(), request.getBuildNumber());
@@ -80,7 +80,7 @@ public class CH2DeploymentOperation extends DeploymentOperation {
                 public void waitDeployed(long timeout, long retryDelay) throws HttpException, ApplicationDeploymentFailedException {
                     try {
                         response.waitDeploymentComplete(Duration.ofMillis(timeout), retryDelay);
-                    } catch (DeploymentFailedException e) {
+                    } catch (AMCDeploymentFailedException e) {
                         throw new ApplicationDeploymentFailedException(e);
                     }
                 }

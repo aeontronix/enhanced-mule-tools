@@ -17,6 +17,7 @@ public class APIAccessDescriptor {
     private String assetVersion;
     private String label;
     private String slaTier;
+    private Boolean approve;
 
     public APIAccessDescriptor() {
     }
@@ -93,6 +94,15 @@ public class APIAccessDescriptor {
 
     public void setSlaTier(String slaTier) {
         this.slaTier = slaTier;
+    }
+
+    @JsonProperty(required = false)
+    public Boolean getApprove() {
+        return approve;
+    }
+
+    public void setApprove(Boolean approve) {
+        this.approve = approve;
     }
 
     @JsonProperty(required = false)

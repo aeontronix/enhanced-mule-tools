@@ -97,7 +97,7 @@
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>anypoint-sdk</artifactId>
-            <version>1.0.0-beta20</version>
+            <version>1.0.0-beta21</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>

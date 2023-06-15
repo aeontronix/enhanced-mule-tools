@@ -186,14 +186,16 @@ public class ClientApplicationDescriptor {
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                         plogger.info(API_MANAGER, "Requested API access to API {} from client {} ", accessedAPI.getAssetId(), clientApplication.getName());
                     }
-                    if (!contract.isApproved() && request.isAutoApproveAPIAccessRequest()) {
+                    boolean approve = accessDescriptor.getApprove() != null ? accessDescriptor.getApprove() :
+                            request.isAutoApproveAPIAccessRequest();
+                    if (!contract.isApproved() && approve) {
                         try {
                             if (contract.isRevoked()) {
                                 contract.restoreAccess();
-                                plogger.info(API_MANAGER,"Restored API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
+                                plogger.info(API_MANAGER, "Restored API access from {} to {} ", clientApplication.getName(), accessedAPI.getAssetId());
                             } else {
                                 contract.approveAccess();
-                                plogger.info(API_MANAGER,"Approved API access from {} to {} ",clientApplication.getName(),accessedAPI.getAssetId());
+                                plogger.info(API_MANAGER, "Approved API access from {} to {} ", clientApplication.getName(), accessedAPI.getAssetId());
                             }
                         } catch (HttpException e) {
                             if (e.getStatusCode() == 403) {
