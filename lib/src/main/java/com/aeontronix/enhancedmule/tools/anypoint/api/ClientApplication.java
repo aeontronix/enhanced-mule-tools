@@ -27,76 +27,65 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientApplication extends AnypointObject<Organization> {
     private static final Logger logger = getLogger(ClientApplication.class);
-    private ExchangeClientApplication cApp;
-
-    public ClientApplication(LegacyAnypointClient client) {
-        super(client);
-    }
-
-    public ClientApplication(Organization parent) {
-        super(parent);
-    }
+    private ExchangeClientApplication app;
 
     public ClientApplication(ExchangeClientApplication clientApplication, Organization organization) {
         super(organization);
-        cApp = clientApplication;
-    }
-
-    public ClientApplication() {
+        app = clientApplication;
     }
 
     @JsonProperty
     public Integer getId() {
-        return cApp.getId();
+        return app.getId();
     }
 
     public void setId(Integer id) {
-        cApp.setId(id);
+        app.setId(id);
     }
 
     @JsonProperty
     public String getName() {
-        return cApp.getName();
+        return app.getName();
     }
 
     public void setName(String name) {
-        cApp.setName(name);
+        app.setName(name);
     }
 
     @JsonProperty
     public String getDescription() {
-        return cApp.getDescription();
+        return app.getDescription();
     }
 
     public void setDescription(String description) {
-        cApp.setDescription(description);
+        app.setDescription(description);
     }
 
     @JsonProperty
     public String getUrl() {
-        return cApp.getUrl();
+        return app.getUrl();
     }
 
     public void setUrl(String url) {
-        cApp.getUrl();
+        app.getUrl();
     }
 
     @JsonProperty
     public String getClientId() {
-        return cApp.getClientId();
+        return app.getClientId();
     }
 
     public void setClientId(String clientId) {
-        cApp.setClientId(clientId);
+        app.setClientId(clientId);
     }
 
     @JsonProperty
     public String getClientSecret() {
-        return cApp.getClientSecret();
+        return app.getClientSecret();
     }
 
     public void setClientSecret(String clientSecret) {
-        cApp.setClientSecret(clientSecret);
+        app.setClientSecret(clientSecret);
     }
 
     @JsonIgnore
@@ -109,14 +98,7 @@ public class ClientApplication extends AnypointObject<Organization> {
                                            String accessedAPIInstanceId) throws HttpException {
         try {
             ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(organization.getId(), name, url, description, redirectUri, null, apiEndpoints, accessedAPIInstanceId);
-            ClientApplication cApp = new ClientApplication();
-            cApp.setName(clientApplication.getName());
-            cApp.setClientId(clientApplication.getClientId());
-            cApp.setClientSecret(clientApplication.getClientSecret());
-            cApp.setId(clientApplication.getId());
-            cApp.setDescription(clientApplication.getDescription());
-            cApp.setUrl(url);
-            return cApp;
+            return new ClientApplication(clientApplication, organization);
         } catch (JsonConvertionException | RESTException e) {
             throw new HttpException(e);
         }
