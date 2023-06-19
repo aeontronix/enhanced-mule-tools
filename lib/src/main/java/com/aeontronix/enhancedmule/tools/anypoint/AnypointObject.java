@@ -62,11 +62,6 @@ public abstract class AnypointObject<X extends AnypointObject> implements Serial
         this.client = client;
         httpHelper = client.getHttpHelper();
         jsonHelper = client.getJsonHelper();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Client assigned: " + client);
-            logger.debug("httpHelper: " + httpHelper);
-            logger.debug("jsonHelper: " + jsonHelper);
-        }
         assert httpHelper != null && jsonHelper != null && this.client != null;
         if (setParent && parent != null) {
             parent.setClient(client);

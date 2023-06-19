@@ -189,11 +189,6 @@ public class Organization extends AnypointObject {
         return ClientApplication.find(getClient().getNewClient(), getClient(), getRootOrganization(), filter);
     }
 
-    public ClientApplication findClientApplicationById(@NotNull String id) throws HttpException, NotFoundException {
-        final String json = httpHelper.httpGet("/exchange/api/v1/organizations/" + this.id + "/applications/" + id);
-        return jsonHelper.readJson(new ClientApplication(this), json);
-    }
-
     public ClientApplication findClientApplicationByName(@NotNull String name) throws HttpException, NotFoundException {
         return findClientApplicationByName(name, true);
     }
