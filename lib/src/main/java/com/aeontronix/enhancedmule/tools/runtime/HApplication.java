@@ -99,6 +99,6 @@ public class HApplication extends AnypointObject<Server> {
 
     public HApplication refresh() throws HttpException {
         String json = httpHelper.anypointHttpGet(getUriPath(), parent.getParent());
-        return jsonHelper.readJson(new HApplication(parent), json, "/data");
+        return jsonHelper.readJson(HApplication.class, new HApplication(parent), json, "/data");
     }
 }

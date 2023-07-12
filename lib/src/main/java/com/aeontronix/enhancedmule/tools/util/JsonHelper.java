@@ -156,6 +156,16 @@ public class JsonHelper implements Serializable {
         return readJson(obj, json, (AnypointObject) null);
     }
 
+    public <X> X readJson(Class<X> objClass, AnypointObject<?> obj, String json, String path) {
+        try {
+            JsonNode node = jsonMapper.readTree(json);
+            node = node.at(path);
+            return (X) readJson(objClass, node, obj.getParent());
+        } catch (IOException e) {
+            throw new InvalidJsonException(e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <X> X readJson(X obj, String json, AnypointObject<?> parent) {
         try {

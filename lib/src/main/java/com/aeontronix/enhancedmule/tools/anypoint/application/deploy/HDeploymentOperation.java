@@ -82,7 +82,7 @@ public class HDeploymentOperation extends DeploymentOperation {
         elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Uploading application archive to on-prem server");
         String json = executeRequest(start, multiPartRequest);
         elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting");
-        HApplication application = jsonHelper.readJson(new HApplication(target), json, "/data");
+        HApplication application = jsonHelper.readJson(HApplication.class, new HApplication(target), json, "/data");
         return new HDeploymentResult(application);
     }
 }
