@@ -39,7 +39,7 @@ import static com.aeontronix.commons.StringUtils.isNotBlank;
 public class DeployMojo extends LegacyDeployMojo {
     private static final Logger logger = LoggerFactory.getLogger(DeployMojo.class);
     private static final EMTLogger emtLogger = new EMTLogger(logger);
-    public static final String VAR = "emt.var";
+    public static final String VAR = "emt.var.";
     public static final String CLOUDHUB = "cloudhub";
     public static final String EMT_SECUREPROPERTIES = "emt.secureproperties";
     public static final String SECURE_PREFIX = "emt.secureproperty.";
