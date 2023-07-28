@@ -49,7 +49,9 @@ public class EMTProperties {
         if (txt != null) {
             String fullPrefix = prefix + "." + txt.toLowerCase().replace(" ", "_") + ".";
             if (key.toLowerCase().startsWith(fullPrefix)) {
-                props.put("emt." + key.substring(fullPrefix.length()), val);
+                String convertedKey = key.substring(fullPrefix.length());
+                logger.info("Found property override " + key + ", assigning value as " + convertedKey);
+                props.put("emt." + convertedKey, val);
             }
         }
     }

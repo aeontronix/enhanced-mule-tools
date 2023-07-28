@@ -157,12 +157,13 @@ public class DeployMojo extends LegacyDeployMojo {
                     if (vars == null) {
                         vars = new HashMap<>();
                     }
-                    vars.putAll(findPrefixedProperties(VAR));
+                    vars.putAll(emtProperties.getPrefixedProperties(VAR, true));
+                    logger.info("Variables in use: " + String.join(", ", vars.keySet()));
                     if (properties == null) {
                         properties = new HashMap<>();
                     }
-                    properties.putAll(findPrefixedProperties("anypoint.deploy.properties."));
-                    properties.putAll(findPrefixedProperties("emt.property."));
+                    properties.putAll(emtProperties.getPrefixedProperties("anypoint.deploy.properties.", true));
+                    properties.putAll(emtProperties.getPrefixedProperties("emt.property.", true));
                     HashSet<String> secureProperties = new HashSet<>();
                     for (Map.Entry<String, String> e : emtProperties.getProperties().entrySet()) {
                         if (e.getKey().startsWith(SECURE_PREFIX) && "true".equalsIgnoreCase(e.getValue())) {
