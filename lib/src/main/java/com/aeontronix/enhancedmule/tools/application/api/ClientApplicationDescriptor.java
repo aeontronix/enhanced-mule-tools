@@ -156,6 +156,9 @@ public class ClientApplicationDescriptor {
             result.setClientApplication(clientApplication);
             if (access != null) {
                 for (APIAccessDescriptor accessDescriptor : access) {
+                    String labelLogStr = StringUtils.isNotBlank(accessDescriptor.getLabel()) ? (" with label " + accessDescriptor.getLabel()) : "";
+                    String apiAccessLogStr = "API contract to " + accessDescriptor.getAssetId() + labelLogStr + " using client application " + clientApplication.getName();
+                    plogger.info(API_MANAGER, "Creating {}", apiAccessLogStr);
                     AssetInstance instance = findAPIInstance(environment, accessDescriptor);
                     logger.debug("Found instance {}", instance);
                     Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
@@ -184,7 +187,7 @@ public class ClientApplicationDescriptor {
                             }
                         }
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
-                        plogger.info(API_MANAGER, "Requested API access to API {} from client {} ", accessedAPI.getAssetId(), clientApplication.getName());
+                        plogger.info(API_MANAGER, "Created {}", apiAccessLogStr);
                     }
                     boolean approve = accessDescriptor.getApprove() != null ? accessDescriptor.getApprove() :
                             request.isAutoApproveAPIAccessRequest();
@@ -192,20 +195,20 @@ public class ClientApplicationDescriptor {
                         try {
                             if (contract.isRevoked()) {
                                 contract.restoreAccess();
-                                plogger.info(API_MANAGER, "Restored API access from {} to {} ", clientApplication.getName(), accessedAPI.getAssetId());
+                                plogger.info(API_MANAGER, "Restored approval to {}", apiAccessLogStr);
                             } else {
                                 contract.approveAccess();
-                                plogger.info(API_MANAGER, "Approved API access from {} to {} ", clientApplication.getName(), accessedAPI.getAssetId());
+                                plogger.info(API_MANAGER, "Approved to {}", apiAccessLogStr);
                             }
                         } catch (HttpException e) {
                             if (e.getStatusCode() == 403) {
-                                logger.warn("Unable to approve access to " + accessDescriptor.getAssetId() + " due to lack of permissions: " + e.getMessage());
+                                plogger.info(API_MANAGER, "Unable to approve access {} due to lack of permissions: {}", apiAccessLogStr, e.getMessage());
                             } else {
                                 throw e;
                             }
                         }
                     } else {
-                        plogger.info(API_MANAGER, "API access request to API {} from client {} already exists and is pending approval", accessedAPI.getAssetId(), clientApplication.getName());
+                        plogger.info(API_MANAGER, "Contract for {} already exists and is pending approval (id={})", apiAccessLogStr, contract.getId());
                     }
                 }
             }
