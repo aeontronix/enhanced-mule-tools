@@ -204,6 +204,8 @@ public class ClientApplicationDescriptor {
                                 throw e;
                             }
                         }
+                    } else {
+                        plogger.info(API_MANAGER, "API access request to API {} from client {} already exists and is pending approval", accessedAPI.getAssetId(), clientApplication.getName());
                     }
                 }
             }

@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws IOException, ProfileNotFoundException {
-        final CLILogFormatter logFormatter = new CLILogFormatter();
         Logger logger = Logger.getLogger("");
         for (final Handler handler : logger.getHandlers()) {
             if (handler instanceof ConsoleHandler) {

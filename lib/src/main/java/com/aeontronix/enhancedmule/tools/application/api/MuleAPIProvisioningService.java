@@ -5,8 +5,8 @@
 package com.aeontronix.enhancedmule.tools.application.api;
 
 import com.aeontronix.commons.validation.ValidationUtils;
-import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
@@ -48,7 +48,9 @@ public class MuleAPIProvisioningService {
             final Map<String, Object> implementationUrlJson = apiDescriptor.getImplementationUrlJson();
             final String implementationUrl = apiDescriptor.getImplementationUrl();
             final String assetId = asset.getId();
+            ValidationUtils.notNull(IllegalStateException.class, "API asset id cannot be null", apiDescriptor);
             final String assetVersion = asset.getVersion();
+            ValidationUtils.notNull(IllegalStateException.class, "API asset version cannot be null", apiDescriptor);
             logger.info(Ansi.ansi().a("Provisioning ").fgGreen().a(assetId).reset().a(":").fgGreen().a(assetVersion)
                     .reset().a(" within org ").fgGreen().a(organization.getName()).reset().a(", env ").fgGreen()
                     .a(environment.getName()).toString());
