@@ -67,7 +67,7 @@ public class CH2DeploymentOperation extends DeploymentOperation {
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Last mile security: " + ch2.isLastMileSecurity());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Object store v2 enabled: " + ch2.isObjectStoreV2Enabled());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Generate default public url: " + ch2.isGenerateDefaultPublicUrl());
-            AMCDeploymentResponse response = anypointClient.getCloudhub2Client().deployApplication(ch2, request.getAppName(),
+            AMCDeploymentResponse response = anypointClient.getAMCClient().deployApplication(ch2, request.getAppName(),
                     orgId, environment.getId(), target,
                     source.toSDKSource(),
                     request.getProperties(), request.getSecureProperties(), request.getBuildNumber());

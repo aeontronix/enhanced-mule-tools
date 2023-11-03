@@ -100,5 +100,5 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
         }
     }
 
-    public abstract com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource();
+    public abstract com.aeontronix.anypointsdk.amc.application.ApplicationSource toSDKSource();
 }

@@ -36,56 +36,56 @@ public class ClientApplication extends AnypointObject<Organization> {
 
     @JsonProperty
     public Integer getId() {
-        return app.getId();
+        return app.getData().getId();
     }
 
     public void setId(Integer id) {
-        app.setId(id);
+        app.getData().setId(id);
     }
 
     @JsonProperty
     public String getName() {
-        return app.getName();
+        return app.getData().getName();
     }
 
     public void setName(String name) {
-        app.setName(name);
+        app.getData().setName(name);
     }
 
     @JsonProperty
     public String getDescription() {
-        return app.getDescription();
+        return app.getData().getDescription();
     }
 
     public void setDescription(String description) {
-        app.setDescription(description);
+        app.getData().setDescription(description);
     }
 
     @JsonProperty
     public String getUrl() {
-        return app.getUrl();
+        return app.getData().getUrl();
     }
 
     public void setUrl(String url) {
-        app.getUrl();
+        app.getData().getUrl();
     }
 
     @JsonProperty
     public String getClientId() {
-        return app.getClientId();
+        return app.getData().getClientId();
     }
 
     public void setClientId(String clientId) {
-        app.setClientId(clientId);
+        app.getData().setClientId(clientId);
     }
 
     @JsonProperty
     public String getClientSecret() {
-        return app.getClientSecret();
+        return app.getData().getClientSecret();
     }
 
     public void setClientSecret(String clientSecret) {
-        app.setClientSecret(clientSecret);
+        app.getData().setClientSecret(clientSecret);
     }
 
     @JsonIgnore
@@ -109,7 +109,7 @@ public class ClientApplication extends AnypointObject<Organization> {
         try {
             List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
             for (ExchangeClientApplication clientApplication : clientApplications) {
-                if (clientApplication.getName().contains(filter)) {
+                if (clientApplication.getData().getName().contains(filter)) {
                     list.add(new ClientApplication(clientApplication, organization));
                 }
             }

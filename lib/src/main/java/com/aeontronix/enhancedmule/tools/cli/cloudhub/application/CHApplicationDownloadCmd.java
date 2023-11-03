@@ -34,7 +34,7 @@ public class CHApplicationDownloadCmd extends AbstractEnvCommand implements Call
         AnypointClient anypointClient = getCli().getAnypointClient();
         CloudhubClient cloudhubClient = anypointClient.getCloudhubClient();
         Optional<CHApplication> chApplication = cloudhubClient.describeApplication(getOrgId(), getEnvId(), appDomain);
-        String filename = chApplication.orElseThrow(() -> new IllegalStateException("Application not found")).getFileName();
+        String filename = chApplication.orElseThrow(() -> new IllegalStateException("Application not found")).getData().getFileName();
         if (file.isDirectory()) {
             file = new File(file, filename);
         }

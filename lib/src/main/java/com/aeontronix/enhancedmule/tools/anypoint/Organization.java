@@ -199,9 +199,9 @@ public class Organization extends AnypointObject {
             ExchangeClient exchangeClient = getClient().getNewClient().getExchangeClient();
             List<ExchangeClientApplication> appList = exchangeClient.listClientApplications(id);
             for (ExchangeClientApplication clientApplication : appList) {
-                if (clientApplication.getName().equals(name)) {
+                if (clientApplication.getData().getName().equals(name)) {
                     if (fullData) {
-                        clientApplication = exchangeClient.findClientApplicationById(id, Integer.toString(clientApplication.getId()));
+                        clientApplication = exchangeClient.findClientApplicationById(id, Integer.toString(clientApplication.getData().getId()));
                     }
                     return new com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication(clientApplication, this);
                 }

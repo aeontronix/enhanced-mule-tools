@@ -88,8 +88,8 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource() {
-        return new com.aeontronix.anypointsdk.application.FileApplicationSource(file);
+    public com.aeontronix.anypointsdk.amc.application.ApplicationSource toSDKSource() {
+        return new com.aeontronix.anypointsdk.amc.application.FileApplicationSource(file);
     }
 
     @Override

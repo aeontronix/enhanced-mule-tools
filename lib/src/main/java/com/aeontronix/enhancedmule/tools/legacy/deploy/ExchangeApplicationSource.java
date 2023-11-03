@@ -138,8 +138,8 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public com.aeontronix.anypointsdk.application.ApplicationSource toSDKSource() {
-        return new com.aeontronix.anypointsdk.application.ExchangeApplicationSource(groupId, artifactId, version);
+    public com.aeontronix.anypointsdk.amc.application.ApplicationSource toSDKSource() {
+        return new com.aeontronix.anypointsdk.amc.application.ExchangeApplicationSource(groupId, artifactId, version);
     }
 
     @Override
