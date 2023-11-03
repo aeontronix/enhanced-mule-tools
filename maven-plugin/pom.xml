@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.enhanced-mule</groupId>
         <artifactId>enhanced-mule-tools</artifactId>
-        <version>1.4.66-SNAPSHOT</version>
+        <version>1.4.67-beta1-SNAPSHOT</version>
     </parent>
 
     <artifactId>enhanced-mule-tools-maven-plugin</artifactId>
@@ -22,14 +22,14 @@
     </prerequisites>
 
     <properties>
-        <maven.version>3.6.3</maven.version>
+        <maven.version>3.9.0</maven.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>enhanced-mule-tools-lib</artifactId>
-            <version>1.4.66-SNAPSHOT</version>
+            <version>1.4.67-beta1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.4</version>
+            <version>3.8.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
-            <version>3.3.0</version>
+            <version>4.0.0-alpha-1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.aeontronix.enhanced-mule</groupId>
         <artifactId>enhanced-mule-tools</artifactId>
-        <version>1.4.66-SNAPSHOT</version>
+        <version>1.4.67-beta1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -44,9 +44,14 @@
     <dependencies>
         <!-- START of transitive dependency overrides due to vulnerabilities -->
         <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.14.2</version>
+            <version>2.15.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -92,17 +97,17 @@
         <dependency>
             <groupId>com.aeontronix.kryptotek</groupId>
             <artifactId>kryptotek-core</artifactId>
-            <version>1.1.0-beta8</version>
+            <version>1.1.0-beta9</version>
         </dependency>
         <dependency>
             <groupId>com.aeontronix.enhanced-mule</groupId>
             <artifactId>anypoint-sdk</artifactId>
-            <version>1.0.0-beta22</version>
+            <version>1.0.0-beta24</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.4</version>
+            <version>3.8.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -119,7 +124,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.7.1</version>
+            <version>4.7.3</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -149,7 +154,7 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli-shell-jline3</artifactId>
-            <version>4.7.1</version>
+            <version>4.7.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -164,7 +169,7 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1-b12</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
