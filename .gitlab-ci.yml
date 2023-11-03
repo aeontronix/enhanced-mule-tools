@@ -5,8 +5,6 @@ variables:
   PUBLISH_HOMEBREW_FORMULA_NAME: "emt"
   MAVEN_RELEASES_OPTS: "-X"
 
-image: maven:3.6.3-jdk-8
-
 include:
   - project: 'aeontronix/commercial-software/ci-pipeline-lib'
     file: 'gitlab/maven-oss-lib.yml'
