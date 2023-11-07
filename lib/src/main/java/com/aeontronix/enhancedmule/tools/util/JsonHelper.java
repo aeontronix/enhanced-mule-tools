@@ -11,6 +11,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -281,11 +282,10 @@ public class JsonHelper implements Serializable {
     }
 
     public static ObjectMapper createMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
+        return JsonMapper.builder().enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .addModule(new JavaTimeModule())
+                .build();
     }
 
     public static boolean isNull(JsonNode node) {

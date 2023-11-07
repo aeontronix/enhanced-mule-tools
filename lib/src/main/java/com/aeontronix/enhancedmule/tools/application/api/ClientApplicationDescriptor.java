@@ -139,6 +139,7 @@ public class ClientApplicationDescriptor {
             }
             ClientApplication clientApplication = null;
             try {
+                List<ClientApplication> all = environment.getOrganization().findAllClientApplications();
                 clientApplication = environment.getOrganization().findClientApplicationByName(name);
                 logger.debug("Client application found: " + name);
             } catch (NotFoundException e) {

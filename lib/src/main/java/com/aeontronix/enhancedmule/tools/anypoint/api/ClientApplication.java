@@ -6,6 +6,7 @@ package com.aeontronix.enhancedmule.tools.anypoint.api;
 
 import com.aeontronix.anypointsdk.AnypointClient;
 import com.aeontronix.anypointsdk.exchange.ExchangeClientApplication;
+import com.aeontronix.anypointsdk.exchange.ExchangeClientApplicationData;
 import com.aeontronix.enhancedmule.tools.anypoint.AnypointObject;
 import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
@@ -13,7 +14,6 @@ import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.util.HttpException;
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.aeontronix.restclient.RESTException;
-import com.aeontronix.restclient.json.JsonConvertionException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
@@ -94,12 +94,14 @@ public class ClientApplication extends AnypointObject<Organization> {
     }
 
     public static ClientApplication create(AnypointClient anypointClient, @NotNull Organization organization, @NotNull String name, String url,
-                                           String description, List<String> redirectUri, String apiEndpoints,
+                                           String description, List<String> redirectUris, String apiEndpoints,
                                            String accessedAPIInstanceId) throws HttpException {
         try {
-            ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(organization.getId(), name, url, description, redirectUri, null, apiEndpoints, accessedAPIInstanceId);
+            String masterOrgId = anypointClient.getUser().getUser().getOrganizationId();
+            ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(masterOrgId,
+                    new ExchangeClientApplicationData(name, description, url, redirectUris));
             return new ClientApplication(clientApplication, organization);
-        } catch (JsonConvertionException | RESTException e) {
+        } catch (RESTException e) {
             throw new HttpException(e);
         }
     }
@@ -109,7 +111,7 @@ public class ClientApplication extends AnypointObject<Organization> {
         try {
             List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
             for (ExchangeClientApplication clientApplication : clientApplications) {
-                if (clientApplication.getData().getName().contains(filter)) {
+                if (filter == null || clientApplication.getData().getName().contains(filter)) {
                     list.add(new ClientApplication(clientApplication, organization));
                 }
             }
