@@ -139,9 +139,7 @@ public class ClientApplicationDescriptor {
             }
             ClientApplication clientApplication = null;
             try {
-                List<ClientApplication> all = environment.getOrganization().findAllClientApplications();
                 clientApplication = environment.getOrganization().findClientApplicationByName(name);
-                logger.debug("Client application found: " + name);
             } catch (NotFoundException e) {
                 //
             }
@@ -151,7 +149,6 @@ public class ClientApplicationDescriptor {
                 if (access != null && !access.isEmpty()) {
                     instanceId = findAPIInstance(environment, access.get(0)).getId();
                 }
-
                 try {
                     clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
                 } catch (HttpException e) {
@@ -160,6 +157,8 @@ public class ClientApplicationDescriptor {
                         if (clientApplication == null) {
                             throw e;
                         }
+                    } else {
+                        throw e;
                     }
                 }
                 plogger.info(API_MANAGER, "Created client application: {}", name);
@@ -236,7 +235,7 @@ public class ClientApplicationDescriptor {
                     logger.warn("Client application was erroneously created under org " + org.getName() + ", please delete it so that it may be recreated under master org");
                     return clientApp;
                 } catch (NotFoundException ex) {
-                    throw new RuntimeException(ex);
+                    //
                 }
             }
         }
@@ -274,7 +273,7 @@ public class ClientApplicationDescriptor {
             accessEnvId = environment.getId();
         }
         logger.debug("Access environment id = {}", accessEnvId);
-        ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId());
+        ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(), accessDescriptor.getAssetVersion());
         logger.debug("Found exchangeAsset {}", exchangeAsset);
         logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
         try {

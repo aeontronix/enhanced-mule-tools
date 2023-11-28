@@ -26,7 +26,10 @@ public class HttpException extends IOException {
     }
 
     public HttpException(Throwable cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
+        if (cause instanceof RESTException) {
+            statusCode = ((RESTException) cause).getStatusCode();
+        }
     }
 
     public HttpException(int statusCode) {

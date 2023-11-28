@@ -393,9 +393,17 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId) throws HttpException, NotFoundException {
+        return findExchangeAsset(groupId, assetId, null);
+    }
+
+    public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version) throws HttpException, NotFoundException {
         logger.debug("searching exchange asset, groupId=" + groupId + " assetId=" + assetId);
         try {
-            final String json = httpHelper.httpGet("/exchange/api/v2/assets/" + groupId + "/" + assetId);
+            String path = "/exchange/api/v2/assets/" + groupId + "/" + assetId;
+            if (version != null) {
+                path = path + "/" + version;
+            }
+            final String json = httpHelper.httpGet(path);
             return jsonHelper.readJson(new ExchangeAsset(this), json);
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
@@ -407,7 +415,7 @@ public class Organization extends AnypointObject {
     }
 
     public AssetVersion findExchangeAssetVersion(@NotNull String groupId, @NotNull String assetId, @NotNull String version) throws HttpException, NotFoundException {
-        for (AssetVersion assetVersion : findExchangeAsset(groupId, assetId).getVersions()) {
+        for (AssetVersion assetVersion : findExchangeAsset(groupId, assetId, version).getVersions()) {
             if (version.equals(assetVersion.getVersion())) {
                 return assetVersion;
             }
@@ -503,7 +511,7 @@ public class Organization extends AnypointObject {
         String version;
         try {
             logger.debug("Searching exchange assets " + id + " : " + artifactId);
-            ExchangeAsset asset = findExchangeAsset(id, artifactId);
+            ExchangeAsset asset = findExchangeAsset(id, artifactId, null);
             int oldestVersion = 0;
             for (AssetVersion assetVersion : asset.getVersions()) {
                 String v = assetVersion.getVersion();

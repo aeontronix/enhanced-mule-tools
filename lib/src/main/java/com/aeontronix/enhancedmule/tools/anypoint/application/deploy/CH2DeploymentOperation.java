@@ -12,6 +12,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.application.DeploymentException;
 import com.aeontronix.enhancedmule.tools.application.deployment.CloudhubDeploymentParameters;
+import com.aeontronix.enhancedmule.tools.application.deployment.DeploymentParameters;
 import com.aeontronix.enhancedmule.tools.cloudhub.CHMuleVersion;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
 import com.aeontronix.enhancedmule.tools.runtime.ApplicationDeploymentFailedException;
@@ -45,7 +46,8 @@ public class CH2DeploymentOperation extends DeploymentOperation {
     protected DeploymentResult doDeploy(RuntimeDeploymentRequest request) throws IOException, HttpException, DeploymentException {
         try {
             long start = System.currentTimeMillis();
-            AMCAppDeploymentParameters ch2 = request.getApplicationDescriptor().getDeploymentParams().getCloudhub2();
+            DeploymentParameters deploymentParams = request.getApplicationDescriptor().getDeploymentParams();
+            AMCAppDeploymentParameters ch2 = deploymentParams.getCloudhub2();
             if (ch2 == null) {
                 ch2 = new AMCAppDeploymentParameters();
             }
@@ -70,7 +72,7 @@ public class CH2DeploymentOperation extends DeploymentOperation {
             AMCDeploymentResponse response = anypointClient.getAMCClient().deployApplication(ch2, request.getAppName(),
                     orgId, environment.getId(), target,
                     source.toSDKSource(),
-                    request.getProperties(), request.getSecureProperties(), request.getBuildNumber());
+                    request.getProperties(), request.getSecureProperties(), request.getBuildNumber(), Boolean.TRUE.equals(deploymentParams.getForceDeploy()));
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Application starting: " + request.getAppName());
             if (logger.isDebugEnabled()) {
                 logger.debug("File upload took " + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - start) + " seconds");

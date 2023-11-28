@@ -99,7 +99,7 @@ public class ClientApplication extends AnypointObject<Organization> {
         try {
             String masterOrgId = anypointClient.getUser().getUser().getOrganizationId();
             ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(masterOrgId,
-                    new ExchangeClientApplicationData(name, description, url, redirectUris));
+                    new ExchangeClientApplicationData(name, description, url, redirectUris), apiEndpoints);
             return new ClientApplication(clientApplication, organization);
         } catch (RESTException e) {
             throw new HttpException(e);

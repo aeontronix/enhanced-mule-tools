@@ -22,6 +22,7 @@ public class DeploymentParameters {
     private Boolean mergeExistingPropertiesOverride;
     private Boolean extMonitoring;
     private Boolean autoApproveAccess;
+    private Boolean forceDeploy;
 
     public DeploymentParameters() {
     }
@@ -116,10 +117,12 @@ public class DeploymentParameters {
         this.autoApproveAccess = autoApproveAccess;
     }
 
-    public void merge(DeploymentParameters ov) {
-//        DescriptorHelper.overrideAll(this, ov, "cloudhub", "rtf");
-//        DescriptorHelper.overrideAll(getCloudhub(), ov.getCloudhub());
-//        DescriptorHelper.overrideAll(getRtf(), ov.getRtf());
+    public Boolean getForceDeploy() {
+        return forceDeploy;
+    }
+
+    public void setForceDeploy(Boolean forceDeploy) {
+        this.forceDeploy = forceDeploy;
     }
 
     public static DeploymentParameters createDefault() {
