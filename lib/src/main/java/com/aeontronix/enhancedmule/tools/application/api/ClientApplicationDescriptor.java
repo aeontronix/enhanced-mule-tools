@@ -148,11 +148,21 @@ public class ClientApplicationDescriptor {
             if (clientApplication == null) {
                 logger.debug("Client application not found, creating: " + name);
                 String instanceId = null;
-                if( access != null && ! access.isEmpty() ) {
+                if (access != null && !access.isEmpty()) {
                     instanceId = findAPIInstance(environment, access.get(0)).getId();
                 }
-                clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
-                plogger.info(API_MANAGER,"Created client application: {}",name);
+
+                try {
+                    clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
+                } catch (HttpException e) {
+                    if (e.getStatusCode() == 502) {
+                        clientApplication = handleClientAppCreatedInWrongOrg(environment);
+                        if (clientApplication == null) {
+                            throw e;
+                        }
+                    }
+                }
+                plogger.info(API_MANAGER, "Created client application: {}", name);
             }
             result.setClientApplication(clientApplication);
             if (access != null) {
@@ -216,6 +226,21 @@ public class ClientApplicationDescriptor {
         } catch (HttpException | NotFoundException e) {
             throw new ProvisioningException(e);
         }
+    }
+
+    private ClientApplication handleClientAppCreatedInWrongOrg(Environment environment) throws HttpException, ProvisioningException {
+        for (Organization org : environment.getClient().findOrganizations()) {
+            if (!org.getId().equals(environment.getOrganization().getId())) {
+                try {
+                    ClientApplication clientApp = org.findClientApplicationByName(name);
+                    logger.warn("Client application was erroneously created under org " + org.getName() + ", please delete it so that it may be recreated under master org");
+                    return clientApp;
+                } catch (NotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        return null;
     }
 
     private AssetInstance findAPIInstance(Environment environment, APIAccessDescriptor accessDescriptor) throws HttpException, NotFoundException {

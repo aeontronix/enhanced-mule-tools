@@ -4,6 +4,8 @@
 
 package com.aeontronix.enhancedmule.tools.util;
 
+import com.aeontronix.restclient.RESTException;
+
 import java.io.IOException;
 
 public class HttpException extends IOException {
@@ -18,6 +20,9 @@ public class HttpException extends IOException {
 
     public HttpException(String message, Throwable cause) {
         super(message, cause);
+        if (cause instanceof RESTException) {
+            statusCode = ((RESTException) cause).getStatusCode();
+        }
     }
 
     public HttpException(Throwable cause) {
