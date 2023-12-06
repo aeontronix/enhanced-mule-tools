@@ -144,6 +144,7 @@ public class ClientApplicationDescriptor {
                 //
             }
             if (clientApplication == null) {
+                plogger.info(API_MANAGER, "Client application: {}", name);
                 logger.debug("Client application not found, creating: " + name);
                 String instanceId = null;
                 if (access != null && !access.isEmpty()) {
@@ -162,13 +163,15 @@ public class ClientApplicationDescriptor {
                     }
                 }
                 plogger.info(API_MANAGER, "Created client application: {}", name);
+            } else {
+                plogger.info(API_MANAGER, "Client application already exists: {}", name);
             }
             result.setClientApplication(clientApplication);
             if (access != null) {
                 for (APIAccessDescriptor accessDescriptor : access) {
                     String labelLogStr = StringUtils.isNotBlank(accessDescriptor.getLabel()) ? (" with label " + accessDescriptor.getLabel()) : "";
                     String apiAccessLogStr = "API contract to " + accessDescriptor.getAssetId() + labelLogStr + " using client application " + clientApplication.getName();
-                    plogger.info(API_MANAGER, "Creating {}", apiAccessLogStr);
+                    plogger.info(API_MANAGER, "Client application access: {}", apiAccessLogStr);
                     AssetInstance instance = findAPIInstance(environment, accessDescriptor);
                     logger.debug("Found instance {}", instance);
                     Environment apiEnv = new Environment(new Organization(environment.getClient(), instance.getOrganizationId()), instance.getEnvironmentId());
@@ -185,6 +188,7 @@ public class ClientApplicationDescriptor {
                         logger.warn("Unable to List contracts of api " + accessedAPI.getAssetId() + " due to lack of permissions: " + e.getMessage());
                     }
                     if (contract == null) {
+                        plogger.info(API_MANAGER, "Client application access missing, requesting: {}", apiAccessLogStr);
                         SLATier slaTier = null;
                         if (accessDescriptor.getSlaTier() != null) {
                             slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
@@ -198,6 +202,8 @@ public class ClientApplicationDescriptor {
                         }
                         contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
                         plogger.info(API_MANAGER, "Created {}", apiAccessLogStr);
+                    } else {
+                        plogger.info(API_MANAGER, "Client application contract already exists: {}", apiAccessLogStr);
                     }
                     boolean approve = accessDescriptor.getApprove() != null ? accessDescriptor.getApprove() :
                             request.isAutoApproveAPIAccessRequest();
