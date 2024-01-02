@@ -48,9 +48,9 @@ public class MuleAPIProvisioningService {
             final Map<String, Object> implementationUrlJson = apiDescriptor.getImplementationUrlJson();
             final String implementationUrl = apiDescriptor.getImplementationUrl();
             final String assetId = asset.getId();
-            ValidationUtils.notNull(IllegalStateException.class, "API asset id cannot be null", apiDescriptor);
+            ValidationUtils.notNull(IllegalStateException.class, "API asset id cannot be null", assetId);
             final String assetVersion = asset.getVersion();
-            ValidationUtils.notNull(IllegalStateException.class, "API asset version cannot be null", apiDescriptor);
+            ValidationUtils.notNull(IllegalStateException.class, "API asset version cannot be null", assetVersion);
             logger.info(Ansi.ansi().a("Provisioning ").fgGreen().a(assetId).reset().a(":").fgGreen().a(assetVersion)
                     .reset().a(" within org ").fgGreen().a(organization.getName()).reset().a(", env ").fgGreen()
                     .a(environment.getName()).toString());

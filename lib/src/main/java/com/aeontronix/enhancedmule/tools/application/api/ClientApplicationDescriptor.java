@@ -138,8 +138,9 @@ public class ClientApplicationDescriptor {
                 name = appId + "-" + environment.getLName();
             }
             ClientApplication clientApplication = null;
+            Organization masterOrg = environment.getOrganization().getRootOrganization();
             try {
-                clientApplication = environment.getOrganization().findClientApplicationByName(name);
+                clientApplication = masterOrg.findClientApplicationByName(name);
             } catch (NotFoundException e) {
                 //
             }
@@ -151,7 +152,7 @@ public class ClientApplicationDescriptor {
                     instanceId = findAPIInstance(environment, access.get(0)).getId();
                 }
                 try {
-                    clientApplication = environment.getOrganization().createClientApplication(name, url, description, instanceId);
+                    clientApplication = masterOrg.createClientApplication(name, url, description, instanceId);
                 } catch (HttpException e) {
                     if (e.getStatusCode() == 502) {
                         clientApplication = handleClientAppCreatedInWrongOrg(environment);

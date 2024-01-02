@@ -173,7 +173,7 @@ public class Organization extends AnypointObject {
     public ClientApplication createClientApplication(String name, String url, String description, String accessedAPIInstanceId) throws HttpException {
         // must always create the application in the root org because anypoint sucks
         return ClientApplication.create(getClient().getNewClient(),
-                getRootOrganization(), name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);
+                this, name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);
     }
 
     public Organization createSubOrganization(String name, String ownerId, boolean createSubOrgs, boolean createEnvironments) throws HttpException {

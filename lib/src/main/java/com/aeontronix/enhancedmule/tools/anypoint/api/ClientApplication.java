@@ -97,9 +97,9 @@ public class ClientApplication extends AnypointObject<Organization> {
                                            String description, List<String> redirectUris, String apiEndpoints,
                                            String accessedAPIInstanceId) throws HttpException {
         try {
-            String masterOrgId = anypointClient.getUser().getUser().getOrganizationId();
+            String masterOrgId = organization.getId();
             ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(masterOrgId,
-                    new ExchangeClientApplicationData(name, description, url, redirectUris), apiEndpoints);
+                    new ExchangeClientApplicationData(name, description, url, redirectUris), accessedAPIInstanceId);
             return new ClientApplication(clientApplication, organization);
         } catch (RESTException e) {
             throw new HttpException(e);
