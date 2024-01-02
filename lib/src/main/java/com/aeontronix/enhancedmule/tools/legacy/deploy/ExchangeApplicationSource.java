@@ -14,10 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 
 public class ExchangeApplicationSource extends ApplicationSource {
@@ -109,7 +106,7 @@ public class ExchangeApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public ObjectNode getAnypointDescriptor() throws IOException, HttpException {
+    public ObjectNode getAnypointDescriptorObjects() throws IOException, HttpException {
         if (apiProvisioningDescriptor == null) {
             final ByteArrayOutputStream buf = new ByteArrayOutputStream();
             try {
@@ -118,7 +115,10 @@ public class ExchangeApplicationSource extends ApplicationSource {
                 buf.close();
                 apiProvisioningDescriptor = (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(buf.toString());
             } catch (HttpException e) {
-                if (e.getStatusCode() != 404) {
+                if (e.getStatusCode() == 404) {
+                    InputStream inputStream = readDescriptorFileFromZip(getLocalFile());
+                    return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(inputStream);
+                } else {
                     throw e;
                 }
             }

@@ -712,9 +712,9 @@ public class Organization extends AnypointObject {
         return getClient().getJsonHelper().readJson(new ExchangeAsset(this), json);
     }
 
-    private void publishExchangeAsset(ExchangeClient exchangeClient, ApplicationIdentifier applicationIdentifier, TempFile newFile) throws IOException {
+    private void publishExchangeAsset(LegacyAnypointClient legacyAnypointClient, ExchangeClient exchangeClient, ApplicationIdentifier applicationIdentifier, TempFile newFile) throws IOException {
         try {
-            MavenHelper.publishArchive(exchangeClient, applicationIdentifier, this, newFile);
+            MavenHelper.publishArchive(legacyAnypointClient, exchangeClient, applicationIdentifier, this, newFile);
         } catch (RESTException e) {
             throw new IOException(e);
         }
@@ -756,7 +756,7 @@ public class Organization extends AnypointObject {
                         .orElseThrow(() -> new NotFoundException("application asset not found"));
                 os.write(getClient().getHttpHelper().httpGetBinary(appFile.getExternalLink()));
             }
-            final ObjectNode descriptorJson = new FileApplicationSource(client, file, appId).getAnypointDescriptor();
+            final ObjectNode descriptorJson = new FileApplicationSource(client, file, appId).getAnypointDescriptorObjects();
             final ApplicationDescriptor anypointDescriptor = client.getJsonHelper().getJsonMapper().readerFor(ApplicationDescriptor.class).readValue(descriptorJson);
             final APIDescriptor apiDescriptor = anypointDescriptor.getApi();
             String snapshotApiVersion = null;
@@ -768,7 +768,7 @@ public class Organization extends AnypointObject {
             final Unpacker unpacker = new Unpacker(file, FileType.ZIP, newFile, FileType.ZIP);
             unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, groupId, newVersion, null));
             unpacker.unpack();
-            publishExchangeAsset(anypointClient.getExchangeClient(), new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
+            publishExchangeAsset(getClient(), anypointClient.getExchangeClient(), new ApplicationIdentifier(groupId, artifactId, newVersion), newFile);
             if (snapshotPromotion) {
                 String snapshotPrefix = newVersion.toLowerCase() + "-snapshot";
                 deleteSnapshotAssets(groupId, artifactId, snapshotPrefix);

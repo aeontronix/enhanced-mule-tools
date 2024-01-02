@@ -48,19 +48,23 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
 
     public abstract boolean exists();
 
-    public abstract ObjectNode getAnypointDescriptor() throws IOException, HttpException;
+    public abstract ObjectNode getAnypointDescriptorObjects() throws IOException, HttpException;
 
     @Nullable
-    protected ObjectNode readDescriptorFromZip(File file) throws IOException {
-        ZipFile zipFile = new ZipFile(file);
-        ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
-        if (anypointJson != null) {
-            try (InputStream is = zipFile.getInputStream(anypointJson)) {
-                return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(is);
+    protected InputStream readDescriptorFileFromZip(File file) throws IOException {
+        try (ZipFile zipFile = new ZipFile(file)) {
+            ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
+            if (anypointJson != null) {
+                return new ByteArrayInputStream(IOUtils.toByteArray(zipFile.getInputStream(anypointJson)));
+            } else {
+                return null;
             }
-        } else {
-            return null;
         }
+    }
+
+    @Nullable
+    protected ObjectNode readDescriptorObjectsFromZip(File file) throws IOException {
+        return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(readDescriptorFileFromZip(file));
     }
 
     public String getArtifactId() {

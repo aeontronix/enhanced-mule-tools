@@ -8,11 +8,14 @@ import com.aeontronix.anypointsdk.exchange.ExchangeClient;
 import com.aeontronix.commons.URLBuilder;
 import com.aeontronix.commons.exception.UnexpectedException;
 import com.aeontronix.commons.file.TempFile;
+import com.aeontronix.commons.io.IOUtils;
 import com.aeontronix.commons.xml.XmlUtils;
+import com.aeontronix.enhancedmule.tools.anypoint.LegacyAnypointClient;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationArchiveVersionTransformer;
 import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentifier;
 import com.aeontronix.enhancedmule.tools.legacy.deploy.ApplicationSource;
+import com.aeontronix.enhancedmule.tools.legacy.deploy.FileApplicationSource;
 import com.aeontronix.restclient.RESTException;
 import com.aeontronix.unpack.FileType;
 import com.aeontronix.unpack.UnpackException;
@@ -42,7 +45,7 @@ public class MavenHelper {
     public static final String SETTINGS_NS = "http://maven.apache.org/SETTINGS/1.1.0";
 
     @SuppressWarnings("unchecked")
-    public static ApplicationIdentifier uploadToMaven(ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
+    public static ApplicationIdentifier uploadToMaven(LegacyAnypointClient legacyAnypointClient, ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, ApplicationSource applicationSource,
                                                       String newVersion, String buildNumber) throws IOException, UnpackException, RESTException {
         if (buildNumber == null) {
             buildNumber = generateTimestampString();
@@ -66,18 +69,29 @@ public class MavenHelper {
                 Unpacker unpacker = new Unpacker(appArchFile, FileType.ZIP, emteh, FileType.ZIP);
                 unpacker.addTransformers(ApplicationArchiveVersionTransformer.getTransformers(appId, org.getId(), newVersion, buildNumber));
                 unpacker.unpack();
-                publishArchive(exchangeClient, newAppId, org, emteh);
+                publishArchive(legacyAnypointClient, exchangeClient, newAppId, org, emteh);
             }
         } else {
-            publishArchive(exchangeClient, newAppId, org, appArchFile);
+            publishArchive(legacyAnypointClient, exchangeClient, newAppId, org, appArchFile);
         }
         return new ApplicationIdentifier(org.getId(), appId.getArtifactId(), newVersion != null ? newVersion : appId.getVersion());
     }
 
-    public static void publishArchive(ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException, RESTException {
-        exchangeClient.createAsset(org.getId(), appId.getArtifactId(), appId.getVersion(), appId.getArtifactId())
-                .file("jar", "mule-application", null, appArchFile.getName(), appArchFile)
-                .execute();
+    public static void publishArchive(LegacyAnypointClient legacyAnypointClient, ExchangeClient exchangeClient, ApplicationIdentifier appId, Organization org, File appArchFile) throws IOException, RESTException {
+        try (TempFile tmp = new TempFile("anypoint"); FileOutputStream os = new FileOutputStream(tmp);
+             FileApplicationSource appSrc = new FileApplicationSource(legacyAnypointClient, appArchFile)) {
+            InputStream anypointDescriptorFile = appSrc.getAnypointDescriptorFile();
+            if (anypointDescriptorFile == null) {
+                throw new IllegalStateException("No anypoint.json file found in archive");
+            }
+            IOUtils.copy(anypointDescriptorFile, os);
+            os.flush();
+            anypointDescriptorFile.close();
+            exchangeClient.createAsset(org.getId(), appId.getArtifactId(), appId.getVersion(), appId.getArtifactId())
+                    .file("jar", "mule-application", null, appArchFile.getName(), appArchFile)
+                    .file("json", "anypoint-descriptor", "application/json", "anypoint.json", tmp)
+                    .execute().close();
+        }
 //        try (final ZipFile zipFile = new ZipFile(appArchFile)) {
 //            publishFile(org, appId, zipFile, pomPath(appId, org.getId()), ".pom");
 //            logger.debug("Uploaded POM");

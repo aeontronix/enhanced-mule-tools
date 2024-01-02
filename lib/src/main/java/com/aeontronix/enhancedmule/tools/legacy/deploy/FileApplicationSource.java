@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.application.ApplicationIdentif
 import com.aeontronix.enhancedmule.tools.util.JsonHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -51,8 +52,12 @@ public class FileApplicationSource extends ApplicationSource {
     }
 
     @Override
-    public ObjectNode getAnypointDescriptor() throws IOException {
-        return readDescriptorFromZip(file);
+    public ObjectNode getAnypointDescriptorObjects() throws IOException {
+        return readDescriptorObjectsFromZip(file);
+    }
+
+    public @Nullable InputStream getAnypointDescriptorFile() throws IOException {
+        return readDescriptorFileFromZip(file);
     }
 
     @Override

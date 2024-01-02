@@ -50,7 +50,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     @Override
     public ApplicationIdentifier deployToExchange(ExchangeDeploymentRequest req) throws IOException, UnpackException, RESTException {
-        return MavenHelper.uploadToMaven(anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+        return MavenHelper.uploadToMaven(client, anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
     }
 
     @Override
@@ -176,14 +176,14 @@ public class DeploymentServiceImpl implements DeploymentService {
             op = new HDeploymentOperation(request, server, source);
         } else if (target.toLowerCase().startsWith("rtf:")) {
             final Fabric fabric = organization.findFabricByName(target);
-            op = new RTFDeploymentOperation(anypointClient, fabric, request, environment, source);
+            op = new RTFDeploymentOperation(organization.getClient(), anypointClient, fabric, request, environment, source);
         } else {
             try {
                 Server server = environment.findServerByName(target);
                 op = new HDeploymentOperation(request, server, source);
             } catch (NotFoundException e) {
                 final Fabric fabric = organization.findFabricByName(target);
-                op = new RTFDeploymentOperation(anypointClient, fabric, request, environment, source);
+                op = new RTFDeploymentOperation(organization.getClient(), anypointClient, fabric, request, environment, source);
             }
         }
         return op;

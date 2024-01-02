@@ -42,11 +42,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class RTFDeploymentOperation extends DeploymentOperation {
     private static final Logger logger = getLogger(RTFDeploymentOperation.class);
     private static final EMTLogger emtLogger = new EMTLogger(logger);
+    private final LegacyAnypointClient legacyAnypointClient;
     private AnypointClient anypointClient;
     private final Fabric fabric;
 
-    public RTFDeploymentOperation(AnypointClient anypointClient, Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
+    public RTFDeploymentOperation(LegacyAnypointClient legacyAnypointClient, AnypointClient anypointClient, Fabric fabric, RuntimeDeploymentRequest req, Environment environment, ApplicationSource applicationSource) {
         super(req, environment, applicationSource);
+        this.legacyAnypointClient = legacyAnypointClient;
         this.anypointClient = anypointClient;
         this.fabric = fabric;
     }
@@ -90,7 +92,7 @@ public class RTFDeploymentOperation extends DeploymentOperation {
         if (source instanceof FileApplicationSource) {
             final ExchangeDeploymentRequest req = new ExchangeDeploymentRequest(request.getBuildNumber(), appId, getEnvironment().getOrganization(), source, null);
             try {
-                appId = MavenHelper.uploadToMaven(anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
+                appId = MavenHelper.uploadToMaven(legacyAnypointClient, anypointClient.getExchangeClient(), req.getAppId(), req.getOrg(), req.getApplicationSource(), null, req.getBuildNumber());
             } catch (UnpackException e) {
                 throw new UnauthorizedHttpException(e);
             } catch (RESTException e) {
