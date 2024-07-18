@@ -30,6 +30,8 @@ public class AssetVersion extends AnypointObject<ExchangeAsset> {
     private String type;
     @JsonProperty("version")
     private String version;
+    @JsonProperty("minorVersion")
+    private String minorVersion;
     @JsonProperty("tags")
     private List<AssetTag> tags;
     @JsonProperty("labels")
@@ -107,6 +109,14 @@ public class AssetVersion extends AnypointObject<ExchangeAsset> {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getMinorVersion() {
+        return minorVersion;
+    }
+
+    public void setMinorVersion(String minorVersion) {
+        this.minorVersion = minorVersion;
     }
 
     public List<AssetTag> getTags() {

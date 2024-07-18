@@ -57,6 +57,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private String assetId;
     @JsonProperty("versionGroup")
     private String versionGroup;
+    @JsonProperty("minorVersion")
+    private String minorVersion;
     @JsonProperty("permissions")
     private List<String> permissions;
     @JsonProperty("isPublic")
@@ -79,6 +81,8 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     private AssetCreatedBy createdBy;
     @JsonProperty("versions")
     private List<AssetVersion> versions;
+    @JsonProperty("otherVersions")
+    private List<AssetVersion> otherVersions;
     @JsonProperty("name")
     private String name;
     @JsonProperty("description")
@@ -103,23 +107,24 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         super(organization);
     }
 
-    public AssetInstance findInstances(@Nullable String name, String envId) throws NotFoundException {
+    public AssetInstance findInstances(@Nullable String label, String envId) throws NotFoundException {
         if (instances != null) {
             for (AssetInstance instance : instances) {
                 instance.setParent(this);
             }
             Stream<AssetInstance> s = instances.stream().filter(i -> i.getEnvironmentId() != null && i.getEnvironmentId().equalsIgnoreCase(envId));
-            boolean namedInstance = !StringUtils.isEmpty(name);
+            boolean namedInstance = !StringUtils.isEmpty(label);
             if (namedInstance) {
-                s = s.filter(i -> i.getName().equalsIgnoreCase(name));
+                s = s.filter(i -> i.getName().equalsIgnoreCase(label));
             }
             List<AssetInstance> ilist = s.collect(Collectors.toList());
-            if (ilist.size() == 0) {
-                throw new NotFoundException("Can't find asset " + name + " in env " + envId);
+            if (ilist.isEmpty()) {
+                String labelStr = label != null ? " with label '" + label + "'" : "";
+                throw new NotFoundException("Can't find any instances for env " + envId + labelStr + " in asset " + assetId + ", please specify version number if you wish to use a different minor version than " + minorVersion);
             } else if (ilist.size() > 1) {
                 if (namedInstance) {
-                    throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + " while searching for instance " + name +
-                            ". This is very unexpected as there shouldn't be instances with the same name");
+                    throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + " while searching for instance " + label +
+                            ". This is very unexpected as there shouldn't be instances with the same label");
                 } else {
                     List<String> instanceNames = instances.stream().map(AssetInstance::getName).collect(Collectors.toList());
                     throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + ", please specify instance label: " + instanceNames);
@@ -128,7 +133,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 return ilist.iterator().next();
             }
         }
-        throw new NotFoundException("Can't find asset " + name + " in env " + envId);
+        throw new NotFoundException("Can't find asset " + label + " in env " + envId);
     }
 
     public String getPage(String name) throws HttpException, NotFoundException {
@@ -326,6 +331,14 @@ public class ExchangeAsset extends AnypointObject<Organization> {
         this.versionGroup = versionGroup;
     }
 
+    public String getMinorVersion() {
+        return minorVersion;
+    }
+
+    public void setMinorVersion(String minorVersion) {
+        this.minorVersion = minorVersion;
+    }
+
     public List<String> getPermissions() {
         return permissions;
     }
@@ -418,6 +431,14 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 assetVersion.setParent(this);
             }
         }
+    }
+
+    public List<AssetVersion> getOtherVersions() {
+        return otherVersions;
+    }
+
+    public void setOtherVersions(List<AssetVersion> otherVersions) {
+        this.otherVersions = otherVersions;
     }
 
     public String getName() {

@@ -8,10 +8,7 @@ import com.aeontronix.commons.StringUtils;
 import com.aeontronix.enhancedmule.tools.anypoint.Environment;
 import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
-import com.aeontronix.enhancedmule.tools.anypoint.api.API;
-import com.aeontronix.enhancedmule.tools.anypoint.api.APIContract;
-import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
-import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
+import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
@@ -180,57 +177,61 @@ public class ClientApplicationDescriptor {
                     accessedAPI.setId(instance.getId());
                     accessedAPI.setAssetId(instance.getAssetId());
                     logger.debug("Found apiEnv {} with id {}", apiEnv, apiEnv.getId());
-                    APIContract contract = null;
-                    try {
-                        contract = accessedAPI.findContract(clientApplication);
-                    } catch (NotFoundException e) {
-                        //
-                    } catch (UnauthorizedHttpException e) {
-                        logger.warn("Unable to List contracts of api " + accessedAPI.getAssetId() + " due to lack of permissions: " + e.getMessage());
-                    }
-                    if (contract == null) {
-                        plogger.info(API_MANAGER, "Client application access missing, requesting: {}", apiAccessLogStr);
-                        SLATier slaTier = null;
-                        if (accessDescriptor.getSlaTier() != null) {
-                            slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
-                        } else {
-                            List<SLATier> slaTiers = instance.findSLATiers();
-                            if (slaTiers.size() == 1) {
-                                slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
-                            } else if (slaTiers.size() > 1) {
-                                throw new ProvisioningException("Accessed API " + instance.getAssetId() + " has multiple SLA tiers, you must specify which is to be used");
-                            }
-                        }
-                        contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
-                        plogger.info(API_MANAGER, "Created {}", apiAccessLogStr);
-                    } else {
-                        plogger.info(API_MANAGER, "Client application contract already exists: {}", apiAccessLogStr);
-                    }
-                    boolean approve = accessDescriptor.getApprove() != null ? accessDescriptor.getApprove() :
-                            request.isAutoApproveAPIAccessRequest();
-                    if (!contract.isApproved() && approve) {
-                        try {
-                            if (contract.isRevoked()) {
-                                contract.restoreAccess();
-                                plogger.info(API_MANAGER, "Restored approval to {}", apiAccessLogStr);
-                            } else {
-                                contract.approveAccess();
-                                plogger.info(API_MANAGER, "Approved to {}", apiAccessLogStr);
-                            }
-                        } catch (HttpException e) {
-                            if (e.getStatusCode() == 403) {
-                                plogger.info(API_MANAGER, "Unable to approve access {} due to lack of permissions: {}", apiAccessLogStr, e.getMessage());
-                            } else {
-                                throw e;
-                            }
-                        }
-                    } else {
-                        plogger.info(API_MANAGER, "Contract for {} already exists and is pending approval (id={})", apiAccessLogStr, contract.getId());
-                    }
+                    grantAccess(request, accessDescriptor, accessedAPI, clientApplication, apiAccessLogStr, instance);
                 }
             }
         } catch (HttpException | NotFoundException e) {
             throw new ProvisioningException(e);
+        }
+    }
+
+    private static void grantAccess(ProvisioningRequest request, APIAccessDescriptor accessDescriptor, API accessedAPI, ClientApplication clientApplication, String apiAccessLogStr, AssetInstance instance) throws HttpException, SLATierNotFoundException, ProvisioningException {
+        APIContract contract = null;
+        try {
+            contract = accessedAPI.findContract(clientApplication);
+        } catch (NotFoundException e) {
+            //
+        } catch (UnauthorizedHttpException e) {
+            logger.warn("Unable to List contracts of api " + accessedAPI.getAssetId() + " due to lack of permissions: " + e.getMessage());
+        }
+        if (contract == null) {
+            plogger.info(API_MANAGER, "Client application access missing, requesting: {}", apiAccessLogStr);
+            SLATier slaTier = null;
+            if (accessDescriptor.getSlaTier() != null) {
+                slaTier = instance.findSLATier(accessDescriptor.getSlaTier());
+            } else {
+                List<SLATier> slaTiers = instance.findSLATiers();
+                if (slaTiers.size() == 1) {
+                    slaTier = instance.findSLATier(slaTiers.iterator().next().getName());
+                } else if (slaTiers.size() > 1) {
+                    throw new ProvisioningException("Accessed API " + instance.getAssetId() + " has multiple SLA tiers, you must specify which is to be used");
+                }
+            }
+            contract = clientApplication.requestAPIAccess(accessedAPI, instance, slaTier);
+            plogger.info(API_MANAGER, "Created {}", apiAccessLogStr);
+        } else {
+            plogger.info(API_MANAGER, "Client application contract already exists: {}", apiAccessLogStr);
+        }
+        boolean approve = accessDescriptor.getApprove() != null ? accessDescriptor.getApprove() :
+                request.isAutoApproveAPIAccessRequest();
+        if (!contract.isApproved() && approve) {
+            try {
+                if (contract.isRevoked()) {
+                    contract.restoreAccess();
+                    plogger.info(API_MANAGER, "Restored approval to {}", apiAccessLogStr);
+                } else {
+                    contract.approveAccess();
+                    plogger.info(API_MANAGER, "Approved to {}", apiAccessLogStr);
+                }
+            } catch (HttpException e) {
+                if (e.getStatusCode() == 403) {
+                    plogger.info(API_MANAGER, "Unable to approve access {} due to lack of permissions: {}", apiAccessLogStr, e.getMessage());
+                } else {
+                    throw e;
+                }
+            }
+        } else {
+            plogger.info(API_MANAGER, "Contract for {} already exists and is pending approval (id={})", apiAccessLogStr, contract.getId());
         }
     }
 
@@ -283,10 +284,7 @@ public class ClientApplicationDescriptor {
         ExchangeAsset exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(), accessDescriptor.getAssetVersion());
         logger.debug("Found exchangeAsset {}", exchangeAsset);
         logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
-        try {
-            return exchangeAsset.findInstances(accessDescriptor.getLabel(), accessEnvId);
-        } catch (NotFoundException e) {
-            throw new NotFoundException("Unable to find instances for accessed API " + accessDescriptor);
-        }
+        String label = accessDescriptor.getLabel();
+        return exchangeAsset.findInstances(label, accessEnvId);
     }
 }

@@ -56,6 +56,10 @@ public class CH2DeploymentOperation extends DeploymentOperation {
             if (target.toLowerCase().startsWith(CH2_TARGET_PREFIX)) {
                 target = target.substring(CH2_TARGET_PREFIX.length());
             }
+
+            if (ch2.getRuntimeVersion() == null) {
+                ch2.setRuntimeVersion(this.anypointClient.getCloudhubClient().findDefaultCHMuleVersion().getVersion());
+            }
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Deploying application to Cloudhub 2");
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Desired state: " + ch2.getDesiredState());
             elogger.info(EMTLogger.Product.RUNTIME_MANAGER, "Replicas: " + ch2.getReplicas());

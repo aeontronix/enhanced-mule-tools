@@ -1,0 +1,59 @@
+{
+  "name": "test17edge",
+  "labels": [
+    "beta"
+  ],
+  "target": {
+    "provider": "MC",
+    "targetId": "ad7a4962-cd48-4ce9-86a3-9c6973f6af94",
+    "deploymentSettings": {
+      "clustered": false,
+      "enforceDeployingReplicasAcrossNodes": true,
+      "http": {
+        "inbound": {
+          "publicUrl": "https://test17edge-i318g6.hoocnn.usa-e2.cloudhub.io/",
+          "pathRewrite": null,
+          "lastMileSecurity": false,
+          "forwardSslSession": false
+        }
+      },
+      "jvm": {},
+      "outbound": {},
+      "runtimeVersion": "4.6.2:5e-java17",
+      "updateStrategy": "rolling",
+      "disableAmLogForwarding": false,
+      "persistentObjectStore": false,
+      "generateDefaultPublicUrl": true
+    },
+    "replicas": 1
+  },
+  "application": {
+    "ref": {
+      "groupId": "org.mule.examples",
+      "artifactId": "oauth2-authorization-code-using-the-HTTP-connector",
+      "version": "2.1.4",
+      "packaging": "jar"
+    },
+    "assets": [],
+    "desiredState": "STARTED",
+    "configuration": {
+      "mule.agent.application.properties.service": {
+        "applicationName": "test17edge",
+        "properties": {},
+        "secureProperties": {}
+      },
+      "mule.agent.logging.service": {
+        "artifactName": "test17edge",
+        "scopeLoggingConfigurations": []
+      }
+    },
+    "integrations": {
+      "services": {
+        "objectStoreV2": {
+          "enabled": true
+        }
+      }
+    },
+    "vCores": "0.1"
+  }
+}

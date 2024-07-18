@@ -11,6 +11,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.API;
 import com.aeontronix.enhancedmule.tools.anypoint.api.APISpec;
+import com.aeontronix.enhancedmule.tools.anypoint.api.ClientApplication;
 import com.aeontronix.enhancedmule.tools.anypoint.api.SLATier;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAssetDescriptor;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
@@ -121,6 +122,14 @@ public class MuleAPIProvisioningService {
             } else if (implementationUrl != null) {
                 api.updateImplementationUrl(implementationUrl, !m3, asset.getType());
                 plogger.info(EMTLogger.Product.API_MANAGER, "Updated implementation url to {}", implementationUrl);
+            }
+            if (apiDescriptor.getAccessedBy() != null) {
+                for (String accessedBy : apiDescriptor.getAccessedBy()) {
+                    ClientApplication clientApp = environment.getOrganization().getRootOrganization().findClientApplicationByName(accessedBy);
+                    if (clientApp == null) {
+                        throw new ProvisioningException("Client application not found: " + accessedBy);
+                    }
+                }
             }
             api = api.refresh();
             result.setApi(api);

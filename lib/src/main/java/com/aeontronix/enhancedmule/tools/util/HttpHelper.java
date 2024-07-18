@@ -282,7 +282,7 @@ public class HttpHelper implements Closeable {
         } catch (HttpException e) {
             logger.debug("Failed to execute http request",e);
             if (e.getStatusCode() == 403 || e.getStatusCode() == 401) {
-                if (loginAttempts > 1) {
+                if (loginAttempts > 1 || !isRepeatable(method)) {
                     throw e;
                 } else {
                     updateBearerToken();
@@ -304,6 +304,15 @@ public class HttpHelper implements Closeable {
             } else {
                 throw e;
             }
+        }
+    }
+
+    private boolean isRepeatable(HttpRequestBase method) {
+        if (method instanceof HttpEntityEnclosingRequestBase) {
+            HttpEntity entity = ((HttpEntityEnclosingRequestBase) method).getEntity();
+            return entity != null && entity.isRepeatable();
+        } else {
+            return true;
         }
     }
 

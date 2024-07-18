@@ -397,14 +397,29 @@ public class Organization extends AnypointObject {
     }
 
     public ExchangeAsset findExchangeAsset(@NotNull String groupId, @NotNull String assetId, @Nullable String version) throws HttpException, NotFoundException {
-        logger.debug("searching exchange asset, groupId=" + groupId + " assetId=" + assetId);
+        logger.debug("searching exchange asset, groupId={} assetId={} version={}", groupId, assetId, version);
         try {
             String path = "/exchange/api/v2/assets/" + groupId + "/" + assetId;
+            ExchangeAsset exchangeAsset = jsonHelper.readJson(new ExchangeAsset(this), httpHelper.httpGet(path));
             if (version != null) {
-                path = path + "/" + version;
+                exchangeAsset.getVersions();
+                ArrayList<AssetVersion> allVersions = new ArrayList<>(exchangeAsset.getVersions());
+                if (exchangeAsset.getOtherVersions() != null) {
+                    allVersions.addAll(exchangeAsset.getOtherVersions());
+                }
+                @Nullable String finalVersion = version;
+                Optional<AssetVersion> matchingVersion = allVersions.stream().filter(v -> v.getVersion().equals(finalVersion)).findFirst();
+                if (!matchingVersion.isPresent()) {
+                    matchingVersion = allVersions.stream().filter(v -> v.getMinorVersion().equals(finalVersion)).findFirst();
+                }
+                if (matchingVersion.isPresent()) {
+                    path = path + "/" + matchingVersion.get().getVersion();
+                    return jsonHelper.readJson(new ExchangeAsset(this), httpHelper.httpGet(path));
+                } else {
+                    throw new NotFoundException("Asset version " + version + " not found in asset " + groupId + ":" + assetId);
+                }
             }
-            final String json = httpHelper.httpGet(path);
-            return jsonHelper.readJson(new ExchangeAsset(this), json);
+            return exchangeAsset;
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Asset not found: " + groupId + ":" + assetId);
