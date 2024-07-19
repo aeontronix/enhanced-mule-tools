@@ -197,7 +197,7 @@ public class Organization extends AnypointObject {
         ClientApplication app = null;
         try {
             ExchangeClient exchangeClient = getClient().getNewClient().getExchangeClient();
-            List<ExchangeClientApplication> appList = exchangeClient.listClientApplications(id);
+            List<ExchangeClientApplication> appList = exchangeClient.listAllClientApplications(id);
             for (ExchangeClientApplication clientApplication : appList) {
                 if (clientApplication.getData().getName().equals(name)) {
                     if (fullData) {
@@ -407,7 +407,7 @@ public class Organization extends AnypointObject {
                 if (exchangeAsset.getOtherVersions() != null) {
                     allVersions.addAll(exchangeAsset.getOtherVersions());
                 }
-                @Nullable String finalVersion = version;
+                String finalVersion = version;
                 Optional<AssetVersion> matchingVersion = allVersions.stream().filter(v -> v.getVersion().equals(finalVersion)).findFirst();
                 if (!matchingVersion.isPresent()) {
                     matchingVersion = allVersions.stream().filter(v -> v.getMinorVersion().equals(finalVersion)).findFirst();

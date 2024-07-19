@@ -6,7 +6,7 @@ package com.aeontronix.enhancedmule.tools.cli;
 
 import com.aeontronix.commons.StringUtils;
 import com.aeontronix.commons.URLBuilder;
-import com.aeontronix.commons.UUIDFactory;
+import com.aeontronix.commons.UUIDUtils;
 import com.aeontronix.enhancedmule.tools.config.ConfigProfile;
 import com.aeontronix.enhancedmule.tools.config.CredentialsBearerTokenImpl;
 import com.aeontronix.enhancedmule.tools.util.MavenHelper;
@@ -47,8 +47,8 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         try (final ServerSocket serverSocket = new ServerSocket(0)) {
-            final String state = UUIDFactory.generate().toString();
-            String verifier = UUIDFactory.generate().toString() + UUIDFactory.generate();
+            final String state = UUIDUtils.generate().toString();
+            String verifier = UUIDUtils.generate().toString() + UUIDUtils.generate();
             final String challenge = StringUtils.base64EncodeToString(sha256(verifier.getBytes(US_ASCII)), true);
             final String redirectUrl = "http://localhost:" + serverSocket.getLocalPort() + "/";
             final EMTCli cli = getCli();
@@ -58,7 +58,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             if (authServerBaseUrl == null) {
                 authServerBaseUrl = "https://auth.enhanced-mule.com";
             }
-            final Map oidcCfg = restClient.get(new URLBuilder(authServerBaseUrl).path("/.well-known/openid-configuration").toUri()).executeAndConvertToObject(Map.class);
+            final Map oidcCfg = restClient.get(new URLBuilder(authServerBaseUrl).path("/.well-known/openid-configuration").toURI()).executeAndConvertToObject(Map.class);
             final String authorizationEndpoint = (String) oidcCfg.get("authorization_endpoint");
             final String tokenEndpoint = (String) oidcCfg.get("token_endpoint");
             URLBuilder authzUrlBuilder = new URLBuilder(authorizationEndpoint)
@@ -71,7 +71,7 @@ public class LoginCmd extends AbstractCommand implements Callable<Integer> {
             if (orgDomain != null) {
                 authzUrlBuilder.queryParam("org_domain", orgDomain);
             }
-            final URI authorizeUri = authzUrlBuilder.toUri();
+            final URI authorizeUri = authzUrlBuilder.toURI();
             logger.info("Authenticating request: " + authorizeUri);
             try {
                 Desktop.getDesktop().browse(authorizeUri);

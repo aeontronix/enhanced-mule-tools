@@ -12,9 +12,19 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="maven_central" />
+      <option name="name" value="Maven Central" />
+      <option name="url" value="https://repo.maven.apache.org/maven2/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="anypoint-exchange-v2" />
       <option name="name" value="Anypoint Exchange" />
       <option name="url" value="https://maven.anypoint.mulesoft.com/api/v2/maven" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="aeontronix-private" />
+      <option name="name" value="aeontronix-private" />
+      <option name="url" value="https://gitlab.com/api/v4/groups/5527027/-/packages/maven" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />

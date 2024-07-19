@@ -138,7 +138,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
 
     public String getPage(String name) throws HttpException, NotFoundException {
         try {
-            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").path(name, true).toString(), Collections.singletonMap("Accept", "text/markdown"));
+            return httpHelper.httpGet(new URLBuilder(getUrl()).path("/pages/").pathEl(name).toString(), Collections.singletonMap("Accept", "text/markdown"));
         } catch (HttpException e) {
             if (e.getStatusCode() == 404) {
                 throw new NotFoundException("Page not found: " + name);
@@ -163,13 +163,13 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updatePage(String name, String content) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").path(name, true).toString(),
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("draft/pages").pathEl(name).toString(),
                 Collections.singletonMap("Content-Type", "text/markdown"), content);
         httpHelper.httpPatch(getUrl(), null);
     }
 
     public void deleteCategory(String key) throws HttpException {
-        httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").path(key, true).toString());
+        httpHelper.httpDelete(new URLBuilder(getUrl()).path("tags/categories").pathEl(key).toString());
     }
 
     public void updateName(String name) throws HttpException {
@@ -185,7 +185,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void updateCategory(String key, List<String> catValues) throws HttpException {
-        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").path(key, true).toString(),
+        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/categories").pathEl(key).toString(),
                 Collections.singletonMap("tagValue", catValues));
     }
 
@@ -206,7 +206,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
                 final Object v = presentFields.remove(key);
                 if (v == null || !v.equals(f.getValue())) {
                     try {
-                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").path(key, true).toString(),
+                        httpHelper.httpPut(new URLBuilder(getUrl()).path("tags/fields").pathEl(key).toString(),
                                 new TagValueWrapper(f.getValue()));
                         results.modified.add(key);
                         logger.debug("Updated field {} to {}", key, f.getValue().toString());
@@ -521,11 +521,11 @@ public class ExchangeAsset extends AnypointObject<Organization> {
     }
 
     public void deleteVersion(String version) throws HttpException {
-        httpHelper.httpHardDelete(getExchangeAssetUrl().path(version, true).toString());
+        httpHelper.httpHardDelete(getExchangeAssetUrl().pathEl(version).toString());
     }
 
     private URLBuilder getExchangeAssetUrl() {
-        return new URLBuilder("/exchange/api/v2/assets/").path(getParent().getId(), true).path(assetId, true);
+        return new URLBuilder("/exchange/api/v2/assets/").pathEl(getParent().getId(), assetId);
     }
 
     public static class TagValueWrapper {

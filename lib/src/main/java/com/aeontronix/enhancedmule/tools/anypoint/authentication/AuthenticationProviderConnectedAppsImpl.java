@@ -77,6 +77,6 @@ public class AuthenticationProviderConnectedAppsImpl extends AuthenticationProvi
 
     @Override
     public void refreshCredential(RESTClient restClient) throws RESTException {
-        anypointBearerToken = (String) restClient.get(new URLBuilder(anypointPlatformUrl).path(TOKEN_PATH).toUri()).executeAndConvertToObject(Map.class).get("access_token");
+        anypointBearerToken = (String) restClient.get(new URLBuilder(anypointPlatformUrl).pathEl(TOKEN_PATH).toURI()).executeAndConvertToObject(Map.class).get("access_token");
     }
 }

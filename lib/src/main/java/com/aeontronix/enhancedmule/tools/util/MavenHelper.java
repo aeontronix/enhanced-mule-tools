@@ -139,8 +139,7 @@ public class MavenHelper {
 
     private static URLBuilder createMavenUrl(Organization org, ApplicationIdentifier appId) {
         return new URLBuilder("https://maven.anypoint.mulesoft.com/api/v2/organizations/" + org.getId() + "/maven")
-                .path(org.getId(), true).path(appId.getArtifactId(), true)
-                .path(appId.getVersion(), true);
+                .pathEl(org.getId(), appId.getArtifactId(), appId.getVersion());
     }
 
     @NotNull

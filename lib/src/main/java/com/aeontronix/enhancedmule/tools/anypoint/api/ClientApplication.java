@@ -109,7 +109,7 @@ public class ClientApplication extends AnypointObject<Organization> {
     public static List<ClientApplication> find(AnypointClient client, LegacyAnypointClient legacyAnypointClient, Organization organization, String filter) throws HttpException {
         List<ClientApplication> list = new ArrayList<>();
         try {
-            List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listClientApplications(organization.getId());
+            List<ExchangeClientApplication> clientApplications = client.getExchangeClient().listAllClientApplications(organization.getId());
             for (ExchangeClientApplication clientApplication : clientApplications) {
                 if (filter == null || clientApplication.getData().getName().contains(filter)) {
                     list.add(new ClientApplication(clientApplication, organization));
