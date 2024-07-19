@@ -102,7 +102,12 @@ public class ClientApplication extends AnypointObject<Organization> {
                     new ExchangeClientApplicationData(name, description, url, redirectUris), accessedAPIInstanceId);
             return new ClientApplication(clientApplication, organization);
         } catch (RESTException e) {
-            throw new HttpException(e);
+            if (e.isStatusCode(409)) {
+                logger.warn("Client application already exists, although not found in earlier search: {}", e.getMessage(), e);
+            } else {
+                logger.debug("Failed to retrieve client application: {}. status code: {}", e.getMessage(), e.getStatusCode());
+                throw new HttpException(e);
+            }
         }
     }
 
