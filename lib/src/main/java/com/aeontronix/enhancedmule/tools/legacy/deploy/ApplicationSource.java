@@ -55,7 +55,12 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
         try (ZipFile zipFile = new ZipFile(file)) {
             ZipEntry anypointJson = zipFile.getEntry("anypoint.json");
             if (anypointJson != null) {
-                return new ByteArrayInputStream(IOUtils.toByteArray(zipFile.getInputStream(anypointJson)));
+                logger.debug("found anypoint descriptor");
+                byte[] is = IOUtils.toByteArray(zipFile.getInputStream(anypointJson));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(new String(is));
+                }
+                return new ByteArrayInputStream(is);
             } else {
                 return null;
             }
@@ -64,7 +69,8 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
 
     @Nullable
     protected ObjectNode readDescriptorObjectsFromZip(File file) throws IOException {
-        return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(readDescriptorFileFromZip(file));
+        InputStream in = readDescriptorFileFromZip(file);
+        return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(in);
     }
 
     public String getArtifactId() {
