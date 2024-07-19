@@ -117,7 +117,11 @@ public class ExchangeApplicationSource extends ApplicationSource {
             } catch (HttpException e) {
                 if (e.getStatusCode() == 404) {
                     InputStream inputStream = readDescriptorFileFromZip(getLocalFile());
-                    return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(inputStream);
+                    if (inputStream == null) {
+                        return null;
+                    } else {
+                        return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(inputStream);
+                    }
                 } else {
                     throw e;
                 }

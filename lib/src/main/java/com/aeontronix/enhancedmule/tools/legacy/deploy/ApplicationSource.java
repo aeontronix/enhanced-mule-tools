@@ -70,7 +70,11 @@ public abstract class ApplicationSource implements APISpecSource, Closeable {
     @Nullable
     protected ObjectNode readDescriptorObjectsFromZip(File file) throws IOException {
         InputStream in = readDescriptorFileFromZip(file);
-        return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(in);
+        if (in == null) {
+            return null;
+        } else {
+            return (ObjectNode) client.getJsonHelper().getJsonMapper().readTree(in);
+        }
     }
 
     public String getArtifactId() {
