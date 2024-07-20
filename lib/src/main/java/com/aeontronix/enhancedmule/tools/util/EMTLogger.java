@@ -7,10 +7,6 @@ package com.aeontronix.enhancedmule.tools.util;
 import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 
-import java.awt.*;
-
-import static org.fusesource.jansi.Ansi.Color.WHITE;
-
 public class EMTLogger {
     private Logger logger;
 
@@ -19,7 +15,15 @@ public class EMTLogger {
     }
 
     public void info(Product product, String message, Object... args ) {
-        logger.info(Ansi.ansi().fgBrightBlue().a(product.toString()+" :: ").reset().a(message).toString(),args);
+        logger.info(getMessage(product, message), args);
+    }
+
+    public void warn(Product product, String message, Object... args) {
+        logger.warn(getMessage(product, message), args);
+    }
+
+    private static String getMessage(Product product, String message) {
+        return Ansi.ansi().fgBrightBlue().a(product.toString() + " :: ").reset().a(message).toString();
     }
 
     public static enum Product {

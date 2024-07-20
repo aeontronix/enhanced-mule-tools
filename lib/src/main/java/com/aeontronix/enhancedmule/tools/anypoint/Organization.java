@@ -166,11 +166,11 @@ public class Organization extends AnypointObject {
         return jsonHelper.readJson(createEnvironmentObject(), json);
     }
 
-    public ClientApplication createClientApplication(String name, String url, String description) throws HttpException {
+    public ClientApplication createClientApplication(String name, String url, String description) throws HttpException, ClientApplicationAlreadyExistsException {
         return createClientApplication(name, url, description, null);
     }
 
-    public ClientApplication createClientApplication(String name, String url, String description, String accessedAPIInstanceId) throws HttpException {
+    public ClientApplication createClientApplication(String name, String url, String description, String accessedAPIInstanceId) throws HttpException, ClientApplicationAlreadyExistsException {
         // must always create the application in the root org because anypoint sucks
         return ClientApplication.create(getClient().getNewClient(),
                 this, name, url, description, Collections.emptyList(), null, accessedAPIInstanceId);

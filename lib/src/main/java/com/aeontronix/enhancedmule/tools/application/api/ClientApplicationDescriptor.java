@@ -159,6 +159,8 @@ public class ClientApplicationDescriptor {
                     } else {
                         throw e;
                     }
+                } catch (ClientApplicationAlreadyExistsException e) {
+                    throw new ProvisioningException("Client application already exists but wasn't found in search. Please verify that the account used is owner of the client application");
                 }
                 plogger.info(API_MANAGER, "Created client application: {}", name);
             } else {

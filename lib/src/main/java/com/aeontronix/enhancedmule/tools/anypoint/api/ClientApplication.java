@@ -95,7 +95,7 @@ public class ClientApplication extends AnypointObject<Organization> {
 
     public static ClientApplication create(AnypointClient anypointClient, @NotNull Organization organization, @NotNull String name, String url,
                                            String description, List<String> redirectUris, String apiEndpoints,
-                                           String accessedAPIInstanceId) throws HttpException {
+                                           String accessedAPIInstanceId) throws HttpException, ClientApplicationAlreadyExistsException {
         try {
             String masterOrgId = organization.getId();
             ExchangeClientApplication clientApplication = anypointClient.getExchangeClient().createClientApplication(masterOrgId,
@@ -104,6 +104,7 @@ public class ClientApplication extends AnypointObject<Organization> {
         } catch (RESTException e) {
             if (e.isStatusCode(409)) {
                 logger.warn("Client application already exists, although not found in earlier search: {}", e.getMessage(), e);
+                throw new ClientApplicationAlreadyExistsException(e);
             } else {
                 logger.debug("Failed to retrieve client application: {}. status code: {}", e.getMessage(), e.getStatusCode());
                 throw new HttpException(e);
