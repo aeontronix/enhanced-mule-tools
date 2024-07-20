@@ -63,7 +63,7 @@ public class ClientAppITCase {
 
 //    @Order(1)
 //    @Test
-    public void testCreateClientApplication() throws HttpException, NotFoundException {
+public void testCreateClientApplication() throws HttpException, NotFoundException, ClientApplicationAlreadyExistsException {
         clientApp = organization.createClientApplication(clientAppName, null, "test client app", "name");
     }
 
