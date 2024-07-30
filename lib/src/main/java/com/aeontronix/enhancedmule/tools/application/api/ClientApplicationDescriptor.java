@@ -10,6 +10,7 @@ import com.aeontronix.enhancedmule.tools.anypoint.NotFoundException;
 import com.aeontronix.enhancedmule.tools.anypoint.Organization;
 import com.aeontronix.enhancedmule.tools.anypoint.api.*;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetInstance;
+import com.aeontronix.enhancedmule.tools.anypoint.exchange.AssetVersion;
 import com.aeontronix.enhancedmule.tools.anypoint.exchange.ExchangeAsset;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningException;
 import com.aeontronix.enhancedmule.tools.anypoint.provisioning.ProvisioningRequest;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.aeontronix.enhancedmule.tools.util.EMTLogger.Product.API_MANAGER;
@@ -287,6 +289,25 @@ public class ClientApplicationDescriptor {
         logger.debug("Found exchangeAsset {}", exchangeAsset);
         logger.debug("exchangeAsset instances: {}", exchangeAsset.getInstances());
         String label = accessDescriptor.getLabel();
-        return exchangeAsset.findInstances(label, accessEnvId);
+        try {
+            return exchangeAsset.findInstances(label, accessEnvId);
+        } catch (NotFoundException e) {
+            if (accessDescriptor.getAssetVersion() == null) {
+                logger.debug("Unable to find api instance, searching all other versions");
+                HashSet<String> minorVersions = new HashSet<>();
+                for (AssetVersion version : exchangeAsset.getOtherVersions()) {
+                    if (!minorVersions.contains(version.getMinorVersion())) {
+                        exchangeAsset = accessOrg.findExchangeAsset(accessDescriptor.getGroupId(), accessDescriptor.getAssetId(), version.getVersion());
+                        try {
+                            return exchangeAsset.findInstances(label, accessEnvId);
+                        } catch (NotFoundException ex) {
+                            logger.debug("No match found for version {}", version);
+                            minorVersions.add(version.getMinorVersion());
+                        }
+                    }
+                }
+            }
+            throw e;
+        }
     }
 }

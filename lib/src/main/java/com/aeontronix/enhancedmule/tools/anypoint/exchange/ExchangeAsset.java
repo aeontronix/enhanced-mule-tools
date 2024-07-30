@@ -120,7 +120,7 @@ public class ExchangeAsset extends AnypointObject<Organization> {
             List<AssetInstance> ilist = s.collect(Collectors.toList());
             if (ilist.isEmpty()) {
                 String labelStr = label != null ? " with label '" + label + "'" : "";
-                throw new NotFoundException("Can't find any instances for env " + envId + labelStr + " in asset " + assetId + ", please specify version number if you wish to use a different minor version than " + minorVersion);
+                throw new NotFoundException("Can't find any instances for env " + envId + labelStr + " in asset " + assetId + ", please specify version number if you wish to use a different minor version than " + minorVersion + " or remove version to automatically find one that has a matching instance.");
             } else if (ilist.size() > 1) {
                 if (namedInstance) {
                     throw new NotFoundException("Found more than one instance for api " + groupId + ":" + assetId + " while searching for instance " + label +
